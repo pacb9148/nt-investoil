@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── TOKENS DE COLOR Y DISEÑO (Basados en OPC & Invest Oil) ──────── */
+:root {
+  --bg: #050d1f;
+  --surf: #0a1830;
+  --card: #0e1e3d;
+  --border: #1a3264;
+  --accent: #00c9a7;
+  --warm: #f5a623;
+  --neon: #eaff3f;
+  --text: #ddeeff;
+  --muted: #8ca4c8;
+  --subtle: #5a7499;
+
+  --fh: 'Syne', sans-serif;
+  --fb: 'Plus Jakarta Sans', sans-serif;
+  --fm: 'JetBrains Mono', monospace;
+}
+
+/* ── RESET & BASE ────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--fb), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--fh), sans-serif;
+  text-wrap: balance;
+}
+
+/* ── ESTILOS DEL EDITOR TIPTAP ───────────────────────────────────── */
+.prose {
+  color: var(--text);
+}
+
+.prose h1, .prose h2, .prose h3 {
+  font-family: var(--fh);
+  color: var(--text);
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose p {
+  margin-bottom: 1.25em;
+  line-height: 1.75;
+  color: #c4d8ed;
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  font-style: italic;
+  color: #a0badb;
+  margin: 1.5em 0;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 0.875rem;
+}
+
+.prose th, .prose td {
+  border: 1px solid var(--border);
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+}
+
+.prose th {
+  background: var(--surf);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.prose code {
+  font-family: var(--fm);
+  background: var(--surf);
+  border: 1px solid var(--border);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: var(--neon);
+}
+
+.prose pre {
+  background: #030814;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1.5em 0;
+}
+
+.prose ul, .prose ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25em;
+}
+
+.prose li {
+  margin-bottom: 0.5em;
+}
+
+.prose img {
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  max-width: 100%;
+  height: auto;
+  margin: 1.5em auto;
+}
+
+/* ── SCROLLBAR PERSONALIZADA ─────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}

@@ -1,0 +1,101 @@
+import type { Metadata } from 'next';
+import './globals.css';
+import { COMPANY_INFO } from '@/lib/constants/investoil';
+
+export const metadata: Metadata = {
+  title: {
+    default: `${COMPANY_INFO.name} — ${COMPANY_INFO.tagline}`,
+    template: `%s | ${COMPANY_INFO.name}`,
+  },
+  description: `${COMPANY_INFO.tagline}. ${COMPANY_INFO.heroSubtitle}`,
+  keywords: [
+    'Invest Oil',
+    'Trading petrolero',
+    'Pet Coke',
+    'Merey 16',
+    'Brent Blend',
+    'Diesel EN590',
+    'Logística marítima',
+    'Crudo y derivados',
+  ],
+  authors: [{ name: COMPANY_INFO.name, url: 'https://investoil.es' }],
+  creator: COMPANY_INFO.name,
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://investoil.es'),
+  openGraph: {
+    type: 'website',
+    locale: 'es_ES',
+    url: 'https://investoil.es',
+    title: `${COMPANY_INFO.name} — ${COMPANY_INFO.tagline}`,
+    description: COMPANY_INFO.heroSubtitle,
+    siteName: COMPANY_INFO.name,
+    images: [
+      {
+        url: '/images/branding/seal-transparent.png',
+        width: 800,
+        height: 800,
+        alt: COMPANY_INFO.name,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${COMPANY_INFO.name} — ${COMPANY_INFO.tagline}`,
+    description: COMPANY_INFO.heroSubtitle,
+    images: ['/images/branding/seal-transparent.png'],
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/images/branding/favicon.png', type: 'image/png' },
+    ],
+    apple: [{ url: '/images/branding/icon-192.png' }],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: COMPANY_INFO.name,
+    url: 'https://investoil.es',
+    logo: 'https://investoil.es/images/branding/logo.png',
+    email: COMPANY_INFO.email,
+    sameAs: [COMPANY_INFO.linkedin],
+    description: COMPANY_INFO.tagline,
+  };
+
+  return (
+    <html lang="es" className="dark scroll-smooth">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap"
+          rel="stylesheet"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body className="min-h-screen bg-bg text-text antialiased selection:bg-accent/30 selection:text-neon">
+        {children}
+      </body>
+    </html>
+  );
+}

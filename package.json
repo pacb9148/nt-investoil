@@ -1,0 +1,13 @@
+{
+  "name": "nt-investoil",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter nextjs-opc-webapp dev",
+    "build": "pnpm --filter nextjs-opc-webapp build",
+    "start": "pnpm --filter nextjs-opc-webapp start",
+    "lint": "pnpm --filter nextjs-opc-webapp lint",
+    "type-check": "pnpm --filter nextjs-opc-webapp type-check",
+    "test:security": "pwsh ./nextjs-opc-webapp/scripts/bateria-seguridad.ps1"
+  }
+}

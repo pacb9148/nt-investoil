@@ -1,0 +1,4 @@
+packages:
+  - 'nextjs-opc-webapp'
+allowBuilds:
+  unrs-resolver: true
