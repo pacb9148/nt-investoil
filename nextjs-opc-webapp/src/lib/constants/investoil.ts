@@ -293,9 +293,46 @@ export const NAV_LINKS = [
 ];
 
 export const LEGAL_LINKS = [
-  { href: '/accesibilidad', label: 'Accesibilidad' },
-  { href: '/terminos-y-condiciones', label: 'Términos y condiciones' },
   { href: '/aviso-de-privacidad', label: 'Aviso de privacidad' },
+  { href: '/terminos-y-condiciones', label: 'Términos y condiciones' },
   { href: '/politica-de-cookies', label: 'Política de cookies' },
-  { href: '/alerta-de-fraude-y-estafas', label: 'Alerta de fraude' },
+  { href: '/alerta-de-fraude-y-estafas', label: 'Alerta de fraude y estafas' },
+  { href: '/accesibilidad', label: 'Accesibilidad' },
 ];
+
+export interface OfficeLocation {
+  id: string;
+  cityCountry: string;
+  cityCountryEn: string;
+  detail: string;
+  detailEn: string;
+  address: string;
+}
+
+export const INVESTOIL_OFFICES: OfficeLocation[] = [
+  {
+    id: 'houston',
+    cityCountry: 'Houston, Estados Unidos',
+    cityCountryEn: 'Houston, United States',
+    detail: 'Headquarters · Sede Central',
+    detailEn: 'Global Headquarters',
+    address: '1000 Louisiana St, Suite 4000, Houston, TX 77002',
+  },
+  {
+    id: 'madrid',
+    cityCountry: 'Madrid, España',
+    cityCountryEn: 'Madrid, Spain',
+    detail: 'European Operations Desk',
+    detailEn: 'European Operations Desk',
+    address: 'Paseo de la Castellana 95, Planta 15, 28046 Madrid',
+  },
+  {
+    id: 'bogota',
+    cityCountry: 'Bogotá, Colombia',
+    cityCountryEn: 'Bogotá, Colombia',
+    detail: 'Latin America Operations Desk',
+    detailEn: 'Latin America Operations Desk',
+    address: 'Carrera 7 # 71-21, Torre B, Bogotá D.C.',
+  },
+];
+

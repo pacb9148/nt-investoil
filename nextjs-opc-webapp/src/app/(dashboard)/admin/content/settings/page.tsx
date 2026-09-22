@@ -50,18 +50,81 @@ export default function SettingsContentPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className={LABEL}>Sede Houston (EE. UU.)</label>
-              <input defaultValue="1000 Louisiana St, Suite 4000, Houston, TX 77002" className={INPUT} />
-            </div>
-            <div>
-              <label className={LABEL}>Sede Madrid (España)</label>
-              <input defaultValue="Paseo de la Castellana 95, Planta 15, 28046 Madrid" className={INPUT} />
-            </div>
-            <div>
-              <label className={LABEL}>Sede Bogotá (Colombia)</label>
-              <input defaultValue="Carrera 7 # 71-21, Torre B, Bogotá D.C." className={INPUT} />
+          {/* Sedes Internacionales estructuradas en 2 filas */}
+          <div className="space-y-4 pt-2">
+            <h2 className="text-sm font-semibold text-text uppercase tracking-wider font-mono text-accent">
+              Sedes Internacionales y Direcciones (Estructura en 2 filas)
+            </h2>
+            <p className="text-xs text-text-muted">
+              Configure cada sede con su Fila 1 (Ciudad y País) y Fila 2 (Detalle corporativo y dirección física completa).
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Sede Houston */}
+              <div className="rounded-lg border border-border bg-card/40 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-text">Sede Houston</span>
+                  <span className="text-[10px] font-mono bg-accent/10 text-accent border border-accent/20 px-2 py-0.5 rounded">
+                    HQ
+                  </span>
+                </div>
+                <div>
+                  <label className={LABEL}>Fila 1: Ciudad y País</label>
+                  <input defaultValue="Houston, Estados Unidos" className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Fila 2: Detalle de Sede</label>
+                  <input defaultValue="Headquarters · Sede Central" className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Fila 2: Dirección Física</label>
+                  <input defaultValue="1000 Louisiana St, Suite 4000, Houston, TX 77002" className={INPUT} />
+                </div>
+              </div>
+
+              {/* Sede Madrid */}
+              <div className="rounded-lg border border-border bg-card/40 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-text">Sede Madrid</span>
+                  <span className="text-[10px] font-mono bg-accent/10 text-accent border border-accent/20 px-2 py-0.5 rounded">
+                    DESK
+                  </span>
+                </div>
+                <div>
+                  <label className={LABEL}>Fila 1: Ciudad y País</label>
+                  <input defaultValue="Madrid, España" className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Fila 2: Detalle de Sede</label>
+                  <input defaultValue="European Operations Desk" className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Fila 2: Dirección Física</label>
+                  <input defaultValue="Paseo de la Castellana 95, Planta 15, 28046 Madrid" className={INPUT} />
+                </div>
+              </div>
+
+              {/* Sede Bogotá */}
+              <div className="rounded-lg border border-border bg-card/40 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-text">Sede Bogotá</span>
+                  <span className="text-[10px] font-mono bg-accent/10 text-accent border border-accent/20 px-2 py-0.5 rounded">
+                    DESK
+                  </span>
+                </div>
+                <div>
+                  <label className={LABEL}>Fila 1: Ciudad y País</label>
+                  <input defaultValue="Bogotá, Colombia" className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Fila 2: Detalle de Sede</label>
+                  <input defaultValue="Latin America Operations Desk" className={INPUT} />
+                </div>
+                <div>
+                  <label className={LABEL}>Fila 2: Dirección Física</label>
+                  <input defaultValue="Carrera 7 # 71-21, Torre B, Bogotá D.C." className={INPUT} />
+                </div>
+              </div>
             </div>
           </div>
 

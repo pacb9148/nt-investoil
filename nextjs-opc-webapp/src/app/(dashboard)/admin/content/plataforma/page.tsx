@@ -4,15 +4,21 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { FEATURED_OPERATIONS } from '@/lib/constants/investoil';
 import type { FeaturedOperation } from '@/types';
-import { ArrowLeft, Save, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Save, CheckCircle2, Calendar } from 'lucide-react';
 
 const INPUT =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2 text-xs text-text focus:outline-none focus:border-accent transition-colors';
 const LABEL = 'block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1';
 
 export default function PlataformaPage() {
-  const [ops] = useState<FeaturedOperation[]>(FEATURED_OPERATIONS);
+  const [ops, setOps] = useState<FeaturedOperation[]>(FEATURED_OPERATIONS);
   const [saved, setSaved] = useState(false);
+
+  const updateOp = (index: number, field: keyof FeaturedOperation, val: string) => {
+    setOps((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: val } : item))
+    );
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,30 +41,87 @@ export default function PlataformaPage() {
             Operaciones, Logística e Infraestructura
           </h1>
           <p className="mt-1 text-xs text-text-muted">
-            Edita las operaciones destacadas, terminales marítimas y capacidades de entrega global.
+            Edita las operaciones destacadas, terminales marítimas, cliente, fecha/año y resultados contractuales.
           </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {ops.map((item: FeaturedOperation, idx: number) => (
-          <div key={item.title} className="rounded-xl border border-border bg-surf/50 p-5 space-y-3">
-            <span className="text-xs font-mono text-accent font-semibold">
-              OPERACIÓN #{idx + 1}: {item.title}
-            </span>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
+          <div key={idx} className="rounded-xl border border-border bg-surf/50 p-5 space-y-3">
+            <div className="flex items-center justify-between border-b border-border/60 pb-2">
+              <span className="text-xs font-mono text-accent font-semibold">
+                OPERACIÓN #{idx + 1}: {item.title}
+              </span>
+              <span className="text-[11px] font-mono text-accent flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                <span>{item.year || '2024'}</span>
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="md:col-span-2">
                 <label className={LABEL}>Título de la Operación</label>
-                <input defaultValue={item.title} className={INPUT} />
+                <input
+                  type="text"
+                  value={item.title}
+                  onChange={(e) => updateOp(idx, 'title', e.target.value)}
+                  className={INPUT}
+                  required
+                />
               </div>
+
               <div>
-                <label className={LABEL}>Resultado Contractual</label>
-                <input defaultValue={item.result} className={INPUT} />
+                <label className={LABEL}>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3 text-accent" />
+                    <span>Año / Fecha de Publicación</span>
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={item.year}
+                  onChange={(e) => updateOp(idx, 'year', e.target.value)}
+                  className={INPUT}
+                  placeholder="ej. 2024, Q3 2025"
+                  required
+                />
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className={LABEL}>Cliente / Contraparte</label>
+                <input
+                  type="text"
+                  value={item.client}
+                  onChange={(e) => updateOp(idx, 'client', e.target.value)}
+                  className={INPUT}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className={LABEL}>Resultado Contractual</label>
+                <input
+                  type="text"
+                  value={item.result}
+                  onChange={(e) => updateOp(idx, 'result', e.target.value)}
+                  className={INPUT}
+                  required
+                />
+              </div>
+            </div>
+
             <div>
               <label className={LABEL}>Descripción Operativa</label>
-              <textarea rows={2} defaultValue={item.description} className={INPUT} />
+              <textarea
+                rows={2}
+                value={item.description}
+                onChange={(e) => updateOp(idx, 'description', e.target.value)}
+                className={INPUT}
+                required
+              />
             </div>
           </div>
         ))}
@@ -66,7 +129,7 @@ export default function PlataformaPage() {
         {saved && (
           <div className="flex items-center gap-2 p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>✓ Operaciones actualizadas correctamente</span>
+            <span>✓ Operaciones y fechas actualizadas correctamente</span>
           </div>
         )}
 
