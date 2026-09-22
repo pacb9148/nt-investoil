@@ -3,17 +3,17 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Clock, Send, CheckCircle2, ShieldCheck, AlertCircle, Loader2, MapPin } from 'lucide-react';
+import { Mail, Clock, Send, CheckCircle2, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 import { contactFormSchema, type ContactFormData } from '@/lib/validators';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { COMPANY_INFO, INVESTOIL_OFFICES } from '@/lib/constants/investoil';
+import { COMPANY_INFO } from '@/lib/constants/investoil';
 import { useLanguage } from '@/lib/i18n/language-context';
 
 export function ContactSection() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -86,35 +86,6 @@ export function ContactSection() {
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl border border-border bg-card space-y-3">
-                <div className="flex items-center gap-2 text-accent text-xs font-mono font-semibold uppercase tracking-wider">
-                  <MapPin className="w-4 h-4 text-accent" />
-                  <span>{language === 'en' ? 'International Offices & Addresses' : 'Sedes Internacionales & Direcciones'}</span>
-                </div>
-                <div className="space-y-2.5 pt-1">
-                  {INVESTOIL_OFFICES.map((office, idx) => (
-                    <div
-                      key={office.id}
-                      className={`text-xs space-y-0.5 ${idx > 0 ? 'border-t border-border/40 pt-2' : ''}`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="font-bold text-text">
-                          {language === 'en' ? office.cityCountryEn : office.cityCountry}
-                        </p>
-                        <span className="text-[10px] font-mono text-accent bg-accent/10 px-1.5 py-0.2 rounded border border-accent/20">
-                          {office.id === 'houston' ? 'HQ' : 'DESK'}
-                        </span>
-                      </div>
-                      <p className="text-[11px] font-mono text-text-muted">
-                        {office.address}{' '}
-                        <span className="text-accent/90 font-sans font-medium">
-                          ({language === 'en' ? office.detailEn : office.detail})
-                        </span>
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               <div className="flex items-start gap-3.5 p-4 rounded-xl border border-border bg-card">
                 <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">

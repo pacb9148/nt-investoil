@@ -56,6 +56,22 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - Tarjetas individuales de configuración para las 3 sedes con inputs separados para Fila 1 (Ciudad/País) y Fila 2 (Detalle y Dirección Física).
   - Sincronización dinámica de sedes y direcciones con `INVESTOIL_OFFICES` en la tarjeta de contacto principal (`contact-section.tsx`) con soporte multi-idioma (ES/EN).
 
+### Fase 5: Selector y Carga de Medios del Hero, Scroll y Persistencia de Direcciones sin Tarjetas
+- **Selector y Subida de Archivos Multimedia (`HeroForm`)**:
+  - Implementación del botón "Seleccionar archivo (Video / Imagen)..." conectado a `<input type="file">` nativo.
+  - Creación de `/api/upload` para subir archivos locales (MP4, WebM, JPG, PNG, WebP) directamente a `public/uploads/` y generar URLs web funcionales `/uploads/...`.
+  - Endpoint `/api/upload/from-path` para importar rutas locales del sistema de archivos cuando el usuario pega paths locales de Windows (`C:\...`).
+  - Detección automática del tipo de medio (cambio instantáneo entre pestaña de Video e Imagen).
+  - Previsualización interactiva en tiempo real con reproductor de video con controles o visor de imagen.
+  - Corrección de la falla de desplazamiento (`pb-36` en la página y formulario del Hero) para scroll suave y sin cortes.
+- **Persistencia Real de Direcciones y Sedes (`/api/settings`)**:
+  - Creación de endpoint `/api/settings` con almacenamiento permanente en `src/data/site-settings.json` y sincronización dual con `localStorage`.
+  - Creación del hook reactivo `useSiteSettings()` que reacciona inmediatamente al evento `investoil_settings_updated` sin recarga de página.
+  - `/admin/content/settings` convertido en formulario completamente controlado y reactivo.
+- **Eliminación de Redundancia y Sedes sin Tarjetas**:
+  - Eliminación del bloque repetido de sedes junto al formulario de contacto (`contact-section.tsx`).
+  - Rediseño de las sedes en el pie de página (`footer.tsx`): eliminación total de contenedores tipo tarjeta, presentando las direcciones de forma limpia, continua y tipográfica en 2 filas (Fila 1: Ciudad, País y Fila 2: Dirección y detalle).
+
 ---
 
 ## 3. Lecciones Aprendidas y Decisiones de Arquitectura

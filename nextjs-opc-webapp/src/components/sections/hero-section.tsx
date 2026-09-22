@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, ChevronRight, ShieldCheck, Globe2, BarChart3, TrendingUp, Sparkles } from 'lucide-react';
@@ -13,8 +13,31 @@ interface HeroSectionProps {
   config?: LandingHeroConfig;
 }
 
-export function HeroSection({ config }: HeroSectionProps) {
+export function HeroSection({ config: initialConfig }: HeroSectionProps) {
   const { t, language } = useLanguage();
+  const [activeConfig, setActiveConfig] = useState<LandingHeroConfig | undefined>(initialConfig);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('investoil_hero_config');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setActiveConfig((prev) => ({ ...(prev || {}), ...parsed }));
+      }
+    } catch {}
+
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<LandingHeroConfig>;
+      if (customEvent.detail) {
+        setActiveConfig((prev) => ({ ...(prev || {}), ...customEvent.detail }));
+      }
+    };
+
+    window.addEventListener('investoil_hero_updated', handleUpdate);
+    return () => window.removeEventListener('investoil_hero_updated', handleUpdate);
+  }, []);
+
+  const config = activeConfig || initialConfig;
 
   // Valores dinámicos con fallback inteligente al diccionario de idioma
   const isEn = language === 'en';

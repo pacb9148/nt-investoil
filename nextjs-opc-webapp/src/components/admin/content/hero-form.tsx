@@ -1,9 +1,22 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useTransition, useRef } from 'react';
 import { updateHeroAction } from '@/lib/services/content-actions';
 import type { LandingHeroConfig, ContentActionResponse } from '@/types/content';
-import { Loader2, Save, Video, Image as ImageIcon, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
+import {
+  Loader2,
+  Save,
+  Video,
+  Image as ImageIcon,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  Upload,
+  FolderOpen,
+  FileVideo,
+  FileImage,
+  RefreshCw,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const INITIAL_STATE: ContentActionResponse = {
@@ -19,20 +32,127 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   const [state, setState] = useState<ContentActionResponse>(INITIAL_STATE);
   const [isPending, startTransition] = useTransition();
   const [bgType, setBgType] = useState<string>(defaultValues.hero_bg_type || 'gradient');
+  const [bgUrl, setBgUrl] = useState<string>(defaultValues.hero_bg_url || '');
   const [opacity, setOpacity] = useState<number>(defaultValues.hero_bg_opacity ?? 20);
   const [langTab, setLangTab] = useState<'es' | 'en'>('es');
 
+  // Estados para subida de archivos
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Manejador de subida de archivo local
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadError(null);
+    setUploadMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Error al subir el archivo');
+      }
+
+      setBgUrl(data.url);
+      if (data.mediaType === 'video') {
+        setBgType('video');
+      } else {
+        setBgType('image');
+      }
+
+      setUploadMessage(`✓ Archivo "${file.name}" cargado exitosamente como ${data.mediaType === 'video' ? 'video' : 'imagen'}.`);
+      setTimeout(() => setUploadMessage(null), 5000);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Error al subir el archivo');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Manejador para importar ruta local de Windows si el usuario pegó C:\...
+  const handleImportLocalPath = async () => {
+    if (!bgUrl || !bgUrl.trim()) return;
+
+    setUploading(true);
+    setUploadError(null);
+    setUploadMessage(null);
+
+    try {
+      const res = await fetch('/api/upload/from-path', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ localPath: bgUrl }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'No se pudo importar la ruta');
+      }
+
+      setBgUrl(data.url);
+      if (data.mediaType === 'video') {
+        setBgType('video');
+      } else {
+        setBgType('image');
+      }
+
+      setUploadMessage(`✓ Archivo local copiado e importado al servidor: ${data.url}`);
+      setTimeout(() => setUploadMessage(null), 5000);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Error al importar archivo local');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Detectar si la URL parece una ruta local de Windows
+  const isLocalDiskPath = /^[a-zA-Z]:[\\/]/.test(bgUrl.trim());
+
+  // Enviar formulario
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    formData.set('hero_bg_url', bgUrl);
+    formData.set('hero_bg_type', bgType);
+
     startTransition(async () => {
       const res = await updateHeroAction(INITIAL_STATE, formData);
       setState(res);
+
+      if (res.success && typeof window !== 'undefined') {
+        try {
+          const heroConfig = {
+            ...defaultValues,
+            hero_bg_type: bgType,
+            hero_bg_url: bgUrl,
+            hero_bg_opacity: opacity,
+          };
+          localStorage.setItem('investoil_hero_config', JSON.stringify(heroConfig));
+          window.dispatchEvent(new CustomEvent('investoil_hero_updated', { detail: heroConfig }));
+        } catch {}
+      }
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-8 pb-12">
       {/* Selector de idioma para la edición de textos */}
       <div className="flex items-center justify-between p-3 rounded-xl border border-border/80 bg-surf/80">
         <div className="flex items-center gap-2">
@@ -302,23 +422,129 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
           {(bgType === 'video' || bgType === 'image') && (
             <div className="p-4 rounded-lg bg-card/60 border border-border space-y-4">
               <div>
-                <label className={LABEL_STYLE}>
-                  {bgType === 'video' ? 'URL del Video (MP4 / WebM / YouTube)' : 'URL de la Imagen de Fondo'}
-                </label>
-                <input
-                  type="text"
-                  name="hero_bg_url"
-                  defaultValue={defaultValues.hero_bg_url || ''}
-                  className={INPUT_STYLE}
-                  placeholder={
-                    bgType === 'video'
-                      ? 'https://ejemplo.com/videos/oil-refinery.mp4'
-                      : 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23'
-                  }
-                />
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1.5">
+                  <label className={LABEL_STYLE}>
+                    {bgType === 'video' ? 'Archivo o URL del Video (MP4 / WebM)' : 'Archivo o URL de la Imagen de Fondo'}
+                  </label>
+
+                  {/* Input de archivo nativo oculto */}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    accept="video/mp4,video/webm,image/*"
+                    className="hidden"
+                  />
+
+                  {/* Botón para examinar y subir archivo local */}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Subiendo archivo...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Seleccionar archivo (Video / Imagen)...</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    name="hero_bg_url"
+                    value={bgUrl}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setBgUrl(val);
+                      // Auto-detectar si termina en extensión de video
+                      if (/\.(mp4|webm|mov)$/i.test(val.trim())) {
+                        setBgType('video');
+                      } else if (/\.(jpg|jpeg|png|webp|svg)$/i.test(val.trim())) {
+                        setBgType('image');
+                      }
+                    }}
+                    className={INPUT_STYLE}
+                    placeholder="https://... o /uploads/... o seleccione un archivo local"
+                  />
+
+                  {/* Si el usuario pegó una ruta de disco local de Windows (C:\...), mostrar botón de importar */}
+                  {isLocalDiskPath && (
+                    <button
+                      type="button"
+                      onClick={handleImportLocalPath}
+                      disabled={uploading}
+                      className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/30 text-xs font-semibold transition-all"
+                      title="Copiar este archivo local al servidor web"
+                    >
+                      <FolderOpen className="w-3.5 h-3.5" />
+                      <span>Importar</span>
+                    </button>
+                  )}
+                </div>
+
                 <p className="mt-1 text-[11px] text-text-subtle">
-                  Se sugiere un video o imagen de buques tanque, refinerías o terminales marítimas.
+                  Seleccione un archivo de su computadora o ingrese una URL web. Formatos recomendados: MP4 para video, WebP/JPG para imagen.
                 </p>
+
+                {uploadMessage && (
+                  <div className="mt-2 flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>{uploadMessage}</span>
+                  </div>
+                )}
+
+                {uploadError && (
+                  <div className="mt-2 flex items-center gap-2 p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{uploadError}</span>
+                  </div>
+                )}
+
+                {/* Previsualización en Vivo de Imagen o Video */}
+                {bgUrl && !isLocalDiskPath && (
+                  <div className="mt-4 p-3 rounded-xl border border-border/80 bg-black/40 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-mono text-text-muted">
+                      <span className="flex items-center gap-1.5 text-accent">
+                        {bgType === 'video' ? <FileVideo className="w-3.5 h-3.5" /> : <FileImage className="w-3.5 h-3.5" />}
+                        <span>Vista previa de {bgType === 'video' ? 'Video' : 'Imagen'} en vivo:</span>
+                      </span>
+                      <span className="text-[10px] text-text-subtle truncate max-w-xs">{bgUrl}</span>
+                    </div>
+
+                    <div className="relative w-full h-44 rounded-lg overflow-hidden border border-border/50 bg-black flex items-center justify-center">
+                      {bgType === 'video' ? (
+                        <video
+                          key={bgUrl}
+                          src={bgUrl}
+                          controls
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <img
+                          src={bgUrl}
+                          alt="Previsualización de fondo"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -390,17 +616,17 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
         </div>
       )}
       {state.success && (
-        <div className="flex items-center gap-2 p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+        <div className="flex items-center gap-2 p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold animate-in fade-in">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{state.message || 'Hero actualizado correctamente'}</span>
         </div>
       )}
 
       {/* Botón de Guardado */}
-      <div className="flex items-center justify-end gap-3 pt-2">
+      <div className="flex items-center justify-end gap-3 pt-4">
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || uploading}
           className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all duration-200 disabled:opacity-50"
         >
           {isPending ? (

@@ -6,10 +6,12 @@ import { Mail, Clock, Linkedin, ArrowUpRight, ShieldCheck, MapPin, Building2 } f
 import { BrandLogo } from './brand-logo';
 import { LanguageSelector } from './language-selector';
 import { useLanguage } from '@/lib/i18n/language-context';
-import { COMPANY_INFO, INVESTOIL_OFFICES, LEGAL_LINKS } from '@/lib/constants/investoil';
+import { useSiteSettings } from '@/lib/services/site-settings';
+import { COMPANY_INFO, LEGAL_LINKS } from '@/lib/constants/investoil';
 
 export function Footer() {
   const { t, language } = useLanguage();
+  const { offices, email, copyright } = useSiteSettings();
   const isEn = language === 'en';
 
   return (
@@ -62,7 +64,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Col 3: Sedes Internacionales y Direcciones en 2 filas (5 cols - Espacioso) */}
+          {/* Col 3: Sedes Internacionales y Direcciones en 2 filas (Sin tarjetas, tipografía limpia) */}
           <div className="lg:col-span-5 space-y-4">
             <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-accent font-mono flex items-center gap-2">
               <Building2 className="w-4 h-4 text-accent" />
@@ -70,32 +72,30 @@ export function Footer() {
             </h3>
 
             <div className="space-y-4">
-              {INVESTOIL_OFFICES.map((office) => {
-                const cityCountry = isEn ? office.cityCountryEn : office.cityCountry;
-                const detail = isEn ? office.detailEn : office.detail;
+              {offices.map((office, idx) => {
+                const cityCountry = isEn ? (office.cityCountryEn || office.cityCountry) : office.cityCountry;
+                const detail = isEn ? (office.detailEn || office.detail) : office.detail;
 
                 return (
                   <div
-                    key={office.id}
-                    className="p-3.5 rounded-xl border border-border/70 bg-card/40 hover:border-accent/30 transition-colors space-y-1"
+                    key={office.id || idx}
+                    className={`space-y-1 ${idx > 0 ? 'pt-3.5 border-t border-border/40' : ''}`}
                   >
                     {/* Fila 1: Ciudad, País */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-3.5 h-3.5 text-accent shrink-0" />
-                        <span className="text-xs font-bold text-text tracking-wide">
-                          {cityCountry}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-mono text-accent/90 bg-accent/10 px-2 py-0.5 rounded border border-accent/20">
-                        {office.id === 'houston' ? 'HQ' : 'DESK'}
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-3.5 h-3.5 text-accent shrink-0" />
+                      <span className="text-xs font-bold text-text tracking-wide">
+                        {cityCountry}
+                      </span>
+                      <span className="text-[10px] font-mono text-accent/80 font-medium">
+                        [{office.id === 'houston' ? 'HQ' : 'DESK'}]
                       </span>
                     </div>
 
-                    {/* Fila 2: Detalle (Headquarters) y Dirección */}
+                    {/* Fila 2: Dirección física y Detalle */}
                     <div className="pl-5 text-[11px] text-text-muted leading-relaxed font-mono">
                       <span>{office.address}</span>
-                      <span className="text-accent/80 font-sans ml-1.5 font-medium">({detail})</span>
+                      <span className="text-accent/90 font-sans ml-2 font-medium">({detail})</span>
                     </div>
                   </div>
                 );
@@ -106,10 +106,10 @@ export function Footer() {
                 <div className="flex items-center gap-1.5">
                   <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
                   <a
-                    href={`mailto:${COMPANY_INFO.email}`}
+                    href={`mailto:${email || COMPANY_INFO.email}`}
                     className="hover:text-accent font-mono text-xs transition-colors"
                   >
-                    {COMPANY_INFO.email}
+                    {email || COMPANY_INFO.email}
                   </a>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -123,7 +123,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-muted">
-          <p>{t.footer.rights}</p>
+          <p>{copyright || t.footer.rights}</p>
           <div className="flex items-center gap-4 text-[11px] font-mono text-text-subtle">
             <span>ASTM D1655 / GOST COMPLIANT</span>
             <span>·</span>

@@ -1,0 +1,31 @@
+{
+  "companyName": "Invest Oil LLC",
+  "email": "contacto@investoil.es",
+  "copyright": "© 2026 Invest Oil LLC. All Rights Reserved.",
+  "offices": [
+    {
+      "address": "1000 Louisiana St, Suite 4000, Houston, TX 77002",
+      "detail": "Headquarters · Sede Central",
+      "cityCountry": "Houston, Estados Unidos",
+      "detailEn": "Global Headquarters",
+      "id": "houston",
+      "cityCountryEn": "Houston, United States"
+    },
+    {
+      "address": "Paseo de la Castellana 95, Planta 15, 28046 Madrid",
+      "detail": "European Operations Desk",
+      "cityCountry": "Madrid, España",
+      "detailEn": "European Operations Desk",
+      "id": "madrid",
+      "cityCountryEn": "Madrid, Spain"
+    },
+    {
+      "address": "Carrera 7 # 71-21, Torre B, Bogotá D.C.",
+      "detail": "Latin America Operations Desk",
+      "cityCountry": "Bogotá, Colombia",
+      "detailEn": "Latin America Operations Desk",
+      "id": "bogota",
+      "cityCountryEn": "Bogotá, Colombia"
+    }
+  ]
+}
