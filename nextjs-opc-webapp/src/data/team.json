@@ -5,7 +5,7 @@
     "name": "Carlos Medina",
     "role": "Director General & Trading Head",
     "location": "Madrid",
-    "image": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=480&h=480&q=80"
+    "image": "/uploads/1790121037141-descarga__2_.jpg"
   },
   {
     "id": "t-02",
@@ -34,10 +34,10 @@
   {
     "id": "t-05",
     "number": "#05",
-    "name": "Paulo Costa",
+    "name": "Paulo DaSilva",
     "role": "Analista Senior de Mercado de Crudos",
     "location": "Singapur",
-    "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=480&h=480&q=80"
+    "image": "/uploads/1790121109706-descarga__36_.jpg"
   },
   {
     "id": "t-06",

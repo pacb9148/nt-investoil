@@ -1,7 +1,7 @@
 {
   "enabled": true,
   "showLivePrices": true,
-  "speedSeconds": 30,
+  "speedSeconds": 120,
   "pauseOnHover": true,
   "customItems": [
     "TERMINALES ACTIVAS: HOUSTON · ROTTERDAM · FUJAIRAH · JURONG SINGAPUR",

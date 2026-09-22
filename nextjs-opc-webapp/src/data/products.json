@@ -7,7 +7,7 @@
     "market": "Asia / Europa",
     "availability": "Bajo pedido / Fletes FOB o CIF",
     "category": "Sólidos y Derivados",
-    "imageUrl": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80"
+    "imageUrl": "https://venezuelanalysis.com/wp-content/uploads/2022/08/petcoke.png.webp"
   },
   {
     "sku": "MEREY-16",
@@ -17,7 +17,7 @@
     "market": "Asia",
     "availability": "Cargamentos programados",
     "category": "Crudos",
-    "imageUrl": "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=800&q=80"
+    "imageUrl": "https://worldenergywire.com/wp-content/uploads/2026/08/Merey-16-el-descuento-venezolano-que-solo-premia-a-las-refinerias-complejas-FINAL-585x327.png"
   },
   {
     "sku": "BRT-BLEND",
@@ -27,7 +27,7 @@
     "market": "Europa / Global",
     "availability": "Spot",
     "category": "Crudos",
-    "imageUrl": "https://images.unsplash.com/photo-1516937941344-00b4e0337589?auto=format&fit=crop&w=800&q=80"
+    "imageUrl": "https://cdn.elperiodicodelaenergia.com/1200w/2026/02/699cc316951477b7efa48bf0.png"
   },
   {
     "sku": "EN590-10PPM",
@@ -37,7 +37,7 @@
     "market": "Europa / América",
     "availability": "Suministro mensual continuo",
     "category": "Destilados",
-    "imageUrl": "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=800&q=80"
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOb8qyT0mqW1OkICfi-g1guDFsD19qgXaCtlIQVMMGaQ&s"
   },
   {
     "sku": "JET-A1",
@@ -47,7 +47,7 @@
     "market": "Hubs Aeroportuarios",
     "availability": "Contratos anuales",
     "category": "Aviación",
-    "imageUrl": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80"
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYb7pry9zVuT1e5uj2ujwdKaM0hJlg8Cgu3iokBJ6Q-A&s=10"
   },
   {
     "sku": "D2-L02",
@@ -57,6 +57,6 @@
     "market": "Mediterráneo / África",
     "availability": "Spot / Term",
     "category": "Destilados",
-    "imageUrl": "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=80"
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQW9c18TVHCwK-P0_nyA9xhoa3OO0VnDPHwkQ7INjsBD-EdsHpbvsTW4Ue6&s=10"
   }
 ]
