@@ -2,24 +2,27 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Layers, Globe, Clock, ArrowRight } from 'lucide-react';
+import { Globe, Clock, ArrowRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PRODUCTS_LIST } from '@/lib/constants/investoil';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 export function ProductsSection() {
+  const { t } = useLanguage();
+
   return (
     <section id="products" className="py-24 border-t border-border bg-surf/40 relative">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <Badge variant="warm">PORTAFOLIO DE SUMINISTRO</Badge>
+          <Badge variant="warm">{t.products.tag}</Badge>
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
-            Nuestro Producto
+            {t.products.title}
           </h2>
           <p className="text-base text-text-muted leading-relaxed">
-            Crudos de referencia, destilados y derivados industriales con especificaciones garantizadas para refinerías y distribuidores en mercados globales.
+            {t.products.subtitle}
           </p>
         </div>
 
@@ -52,36 +55,29 @@ export function ProductsSection() {
                 {/* Specs Box */}
                 <div className="p-2.5 rounded-lg bg-surf border border-border text-xs font-mono text-accent space-y-1">
                   <div className="text-[10px] text-text-subtle uppercase tracking-wider font-sans font-semibold">
-                    Especificación
+                    {t.products.specsTitle}
                   </div>
                   <div>{product.specs}</div>
                 </div>
 
                 {/* Meta details */}
-                <div className="space-y-1.5 pt-1 text-xs">
-                  <div className="flex items-center justify-between text-text-muted">
-                    <span className="flex items-center gap-1.5">
-                      <Globe className="w-3.5 h-3.5 text-text-subtle" />
-                      <span>Mercado:</span>
-                    </span>
-                    <span className="font-medium text-text">{product.market}</span>
+                <div className="space-y-1 text-xs text-text-muted pt-2 border-t border-border/40">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-3.5 h-3.5 text-text-subtle shrink-0" />
+                    <span>{product.market}</span>
                   </div>
-
-                  <div className="flex items-center justify-between text-text-muted">
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-text-subtle" />
-                      <span>Disponibilidad:</span>
-                    </span>
-                    <span className="font-medium text-text">{product.availability}</span>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-text-subtle shrink-0" />
+                    <span>{product.availability}</span>
                   </div>
                 </div>
               </CardContent>
 
-              <CardFooter className="pt-2 border-t border-border/50">
-                <Link href={`/#contact?product=${encodeURIComponent(product.sku)}`} className="w-full">
-                  <Button variant="outline" size="sm" className="w-full text-xs justify-between group-hover:border-warm/60">
-                    <span>Cotizar cargamento</span>
-                    <ArrowRight className="w-3 h-3 text-warm" />
+              <CardFooter className="pt-2 border-t border-border/40">
+                <Link href="#contact" className="w-full">
+                  <Button variant="ghost" size="sm" className="w-full justify-between text-xs text-warm hover:text-warm-light hover:bg-warm/10">
+                    <span>{t.products.quoteTitle}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Button>
                 </Link>
               </CardFooter>

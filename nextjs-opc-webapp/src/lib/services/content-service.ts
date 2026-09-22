@@ -1,0 +1,123 @@
+import { createAdminClient } from '@/lib/supabase/admin';
+import type {
+  LandingSectionConfig,
+  LandingHeroConfig,
+  LandingAppearanceConfig,
+  LandingFaqItem,
+} from '@/types/content';
+
+// Valores por defecto robustos basados en la estructura de Invest Oil LLC
+export const DEFAULT_LANDING_SECTIONS: LandingSectionConfig[] = [
+  { id: 'hero', title: 'Hero Principal', description: 'Titular, subtítulo, CTAs, video/imagen de fondo e indicador de mercado', icon: '🎯', is_active: true, sort_order: 1 },
+  { id: 'marquee', title: 'Marquee & Commodities', description: 'Cintillo animado de cotizaciones Brent/WTI y certificaciones', icon: '🏷️', is_active: true, sort_order: 2 },
+  { id: 'estadisticas', title: 'Estadísticas de Impacto', description: '4 números de impacto (150M+, 38+, 99.8%, 24/7)', icon: '📊', is_active: true, sort_order: 3 },
+  { id: 'problema', title: 'Retos del Sector Petrolero', description: '3 tarjetas de desafíos de intermediación, volatilidad y logística', icon: '🔥', is_active: true, sort_order: 4 },
+  { id: 'services', title: 'Servicios Petroleros', description: '10 servicios integrales de comercialización y trading', icon: '⚡', is_active: true, sort_order: 5 },
+  { id: 'products', title: 'Portafolio de Hidrocarburos', description: '8 productos: Crudos, Jet Fuel A1, EN590, D2, GNL', icon: '💰', is_active: true, sort_order: 6 },
+  { id: 'plataforma', title: 'Operaciones & Infraestructura', description: 'Terminales marítimas, logística y capacidad de almacenamiento', icon: '🏢', is_active: true, sort_order: 7 },
+  { id: 'team', title: 'Consejo Directivo', description: '6 perfiles ejecutivos y gobernanza corporativa', icon: '👥', is_active: true, sort_order: 8 },
+  { id: 'testimonials', title: 'Testimonios & Clientes', description: '5 tarjetas de clientes corporativos y prueba social', icon: '⭐', is_active: true, sort_order: 9 },
+  { id: 'faq', title: 'Preguntas Frecuentes', description: 'Preguntas y respuestas operativas editables', icon: '❓', is_active: true, sort_order: 10 },
+  { id: 'cta_final', title: 'CTA Final de Cierre', description: 'Sección de cierre comercial y botón principal', icon: '🚀', is_active: true, sort_order: 11 },
+  { id: 'contact', title: 'Formulario de Contacto', description: 'Captación de leads y solicitudes comerciales directas', icon: '✉️', is_active: true, sort_order: 12 },
+];
+
+export const DEFAULT_HERO_CONFIG: LandingHeroConfig = {
+  id: 1,
+  eyebrow_text: 'INFRAESTRUCTURA Y TRADING ENERGÉTICO GLOBAL',
+  eyebrow_text_en: 'GLOBAL ENERGY TRADING & INFRASTRUCTURE',
+  heading_line_1: 'Soluciones Estratégicas en',
+  heading_line_1_en: 'Strategic Solutions in',
+  heading_line_2: 'del Petróleo y Derivados',
+  heading_line_2_en: 'Oil & Refined Products',
+  heading_accent: 'el Mercado Global',
+  heading_accent_en: 'the Global Market',
+  subtitle:
+    'Conectamos productores, refinerías y distribuidores en los principales centros energéticos mundiales con máxima solidez operativa, gestión de riesgo y cumplimiento normativo internacional.',
+  subtitle_en:
+    'Connecting producers, refineries, and distributors across world energy hubs with premier operational strength, risk mitigation, and strict international compliance.',
+  cta_primary_text: 'Explorar Servicios Petroleros',
+  cta_primary_text_en: 'Explore Petroleum Services',
+  cta_primary_url: '#services',
+  cta_secondary_text: 'Ver Catálogo de Productos',
+  cta_secondary_text_en: 'View Products Catalog',
+  cta_secondary_url: '#products',
+  hero_bg_type: 'gradient',
+  hero_bg_url: '',
+  hero_bg_fit: 'cover',
+  hero_bg_position: 'center center',
+  hero_bg_opacity: 20,
+  hero_bg_blur: 0,
+  hero_visual_tipo: 'mockup',
+  hero_visual_url: '',
+  market_ticker: 'BRENT: $82.40/bbl (+1.2%) | WTI: $78.15/bbl (+0.9%)',
+  seats_total: 100,
+  seats_taken: 28,
+  countdown_deadline: '',
+};
+
+export const DEFAULT_APPEARANCE_CONFIG: LandingAppearanceConfig = {
+  font_heading: 'Outfit',
+  font_body: 'Inter',
+  primary_color: '#F59E0B',
+  accent_glow: true,
+  background_pattern: 'grid',
+  custom_css: '',
+};
+
+// Almacén en memoria fallback para desarrollo local cuando Supabase no tenga tablas migradas
+let memorySections = [...DEFAULT_LANDING_SECTIONS];
+let memoryHero = { ...DEFAULT_HERO_CONFIG };
+let memoryAppearance = { ...DEFAULT_APPEARANCE_CONFIG };
+
+export async function getLandingSections(): Promise<LandingSectionConfig[]> {
+  try {
+    const db = createAdminClient();
+    const { data, error } = await db.from('landing_sections').select('*').order('sort_order');
+    if (!error && data && data.length > 0) {
+      return data as LandingSectionConfig[];
+    }
+  } catch {
+    // Supabase no disponible o tabla no creada aún
+  }
+  return memorySections;
+}
+
+export async function getLandingHero(): Promise<LandingHeroConfig> {
+  try {
+    const db = createAdminClient();
+    const { data, error } = await db.from('landing_hero').select('*').limit(1).maybeSingle();
+    if (!error && data) {
+      return data as LandingHeroConfig;
+    }
+  } catch {
+    // Fallback
+  }
+  return memoryHero;
+}
+
+export async function getLandingAppearance(): Promise<LandingAppearanceConfig> {
+  try {
+    const db = createAdminClient();
+    const { data, error } = await db.from('landing_site_appearance').select('*').limit(1).maybeSingle();
+    if (!error && data) {
+      return data as LandingAppearanceConfig;
+    }
+  } catch {
+    // Fallback
+  }
+  return memoryAppearance;
+}
+
+// Helpers para actualizar el fallback local
+export function updateMemorySection(id: string, isActive: boolean) {
+  memorySections = memorySections.map((s) => (s.id === id ? { ...s, is_active: isActive } : s));
+}
+
+export function updateMemoryHero(data: Partial<LandingHeroConfig>) {
+  memoryHero = { ...memoryHero, ...data };
+}
+
+export function updateMemoryAppearance(data: Partial<LandingAppearanceConfig>) {
+  memoryAppearance = { ...memoryAppearance, ...data };
+}

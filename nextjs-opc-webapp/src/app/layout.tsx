@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { COMPANY_INFO } from '@/lib/constants/investoil';
+import { LanguageProvider } from '@/lib/i18n/language-context';
+import { AppearanceProvider } from '@/components/layout/appearance-provider';
 
 export const metadata: Metadata = {
   title: {
@@ -53,13 +55,6 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
 };
 
@@ -85,7 +80,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Montserrat:wght@500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap"
           rel="stylesheet"
         />
         <script
@@ -94,7 +89,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-bg text-text antialiased selection:bg-accent/30 selection:text-neon">
-        {children}
+        <LanguageProvider>
+          <AppearanceProvider>
+            {children}
+          </AppearanceProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

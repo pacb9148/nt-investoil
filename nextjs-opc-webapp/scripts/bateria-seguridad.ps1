@@ -70,7 +70,7 @@ $filesToScan = Get-ChildItem -Path $ProjectDir -Recurse -File -ErrorAction Silen
         if ($item.FullName -match "\\$ex\\") { $skip = $true; break }
     }
     if ($item.Name -match '^\.env(\..+)?$') { $skip = $true } # Los .env locales se auditan aparte
-    if ($item.Extension -match '\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|eot|ttf|mp4|webm|zip|tar|gz|pdf)$') { $skip = $true }
+    if ($item.Extension -match '\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|eot|ttf|mp4|webm|zip|tar|gz|pdf|tsbuildinfo)$') { $skip = $true }
     -not $skip
 }
 

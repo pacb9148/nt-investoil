@@ -1,10 +1,24 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { Mail, Clock, Linkedin, ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { BrandLogo } from './brand-logo';
-import { COMPANY_INFO, LEGAL_LINKS } from '@/lib/constants/investoil';
+import { LanguageSelector } from './language-selector';
+import { useLanguage } from '@/lib/i18n/language-context';
+import { COMPANY_INFO } from '@/lib/constants/investoil';
 
 export function Footer() {
+  const { t } = useLanguage();
+
+  const legalLinks = [
+    { href: '/aviso-de-privacidad', label: t.footer.privacy },
+    { href: '/terminos-y-condiciones', label: t.footer.terms },
+    { href: '/politica-de-cookies', label: t.footer.cookies },
+    { href: '/alerta-de-fraude-y-estafas', label: t.footer.fraudAlert },
+    { href: '/accesibilidad', label: t.footer.accessibility },
+  ];
+
   return (
     <footer className="border-t border-border bg-surf/90 pt-16 pb-12 text-text">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -12,10 +26,10 @@ export function Footer() {
           {/* Brand Col */}
           <div className="lg:col-span-2 space-y-4">
             <BrandLogo variant="seal" size={54} />
-            <p className="text-sm text-text-muted leading-relaxed max-w-sm">
-              {COMPANY_INFO.tagline}. Facilitamos transacciones justas y eficientes en el mercado global de crudos y derivados petrolíferos.
+            <p className="text-xs text-text-muted leading-relaxed max-w-sm">
+              {t.footer.tagline}
             </p>
-            <div className="pt-2 flex items-center gap-3">
+            <div className="pt-2 flex flex-wrap items-center gap-3">
               <a
                 href={COMPANY_INFO.linkedin}
                 target="_blank"
@@ -31,38 +45,39 @@ export function Footer() {
                 <ShieldCheck className="w-3.5 h-3.5 text-accent" />
                 <span>KYC / Compliance</span>
               </div>
+              <LanguageSelector />
             </div>
           </div>
 
           {/* Col 2: Servicios */}
           <div className="space-y-3">
             <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-text">
-              Servicios
+              {t.nav.services}
             </h3>
-            <ul className="space-y-2 text-sm text-text-muted">
+            <ul className="space-y-2 text-xs text-text-muted">
               <li>
                 <Link href="/services" className="hover:text-accent transition-colors">
-                  Trading y Matching
+                  Trading & Commodity Matching
                 </Link>
               </li>
               <li>
                 <Link href="/services" className="hover:text-accent transition-colors">
-                  Negociación Contractual
+                  Negociación Contractual Incoterms
                 </Link>
               </li>
               <li>
                 <Link href="/services" className="hover:text-accent transition-colors">
-                  Logística Marítima
+                  Fletamento y Logística Marítima
                 </Link>
               </li>
               <li>
                 <Link href="/services" className="hover:text-accent transition-colors">
-                  Gestión de Riesgo
+                  Mitigación de Riesgo y Coberturas
                 </Link>
               </li>
               <li>
                 <Link href="/services" className="hover:text-accent transition-colors">
-                  Inteligencia de Mercado
+                  Inspección Certificada SGS / Intertek
                 </Link>
               </li>
             </ul>
@@ -71,57 +86,55 @@ export function Footer() {
           {/* Col 3: Productos */}
           <div className="space-y-3">
             <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-text">
-              Productos
+              {t.nav.products}
             </h3>
-            <ul className="space-y-2 text-sm text-text-muted">
+            <ul className="space-y-2 text-xs text-text-muted">
               <li>
                 <Link href="/products" className="hover:text-accent transition-colors">
-                  Pet Coke (PC-4500)
+                  Brent Blend & Merey 16
                 </Link>
               </li>
               <li>
                 <Link href="/products" className="hover:text-accent transition-colors">
-                  Merey 16 (16° API)
+                  Jet Fuel A1 (ASTM D1655)
                 </Link>
               </li>
               <li>
                 <Link href="/products" className="hover:text-accent transition-colors">
-                  Brent Blend
+                  Diesel Ultra Bajo Azufre EN590
                 </Link>
               </li>
               <li>
                 <Link href="/products" className="hover:text-accent transition-colors">
-                  Diesel EN590
+                  Gas Natural Licuado (GNL)
                 </Link>
               </li>
               <li>
                 <Link href="/products" className="hover:text-accent transition-colors">
-                  Bitumen & Asfaltos
+                  Pet Coke y Asfaltos Viales
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Col 4: Contacto */}
+          {/* Col 4: Oficinas y Contacto */}
           <div className="space-y-3">
             <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-text">
-              Contacto
+              {t.footer.contact}
             </h3>
-            <div className="space-y-2.5 text-sm text-text-muted">
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-accent shrink-0" />
-                <a href={`mailto:${COMPANY_INFO.email}`} className="hover:text-accent transition-colors text-xs break-all">
+            <div className="space-y-2 text-xs text-text-muted">
+              <p className="font-mono text-text-subtle text-[11px]">{t.footer.houstonOffice}</p>
+              <p className="font-mono text-text-subtle text-[11px]">{t.footer.madridOffice}</p>
+              <p className="font-mono text-text-subtle text-[11px]">{t.footer.bogotaOffice}</p>
+              <div className="pt-2 flex items-center gap-2">
+                <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
+                <a href={`mailto:${COMPANY_INFO.email}`} className="hover:text-accent transition-colors break-all">
                   {COMPANY_INFO.email}
                 </a>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-warm shrink-0" />
-                <span className="text-xs">{COMPANY_INFO.schedule}</span>
-              </div>
-              <div className="pt-2">
-                <Link href="/contact" className="inline-block text-xs font-semibold text-accent hover:underline">
-                  Enviar consulta comercial &rarr;
-                </Link>
+                <Clock className="w-3.5 h-3.5 text-accent shrink-0" />
+                <span>{COMPANY_INFO.schedule}</span>
               </div>
             </div>
           </div>
@@ -129,10 +142,10 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-text-muted">
-          <p>{COMPANY_INFO.copyright}</p>
+          <p>{t.footer.rights}</p>
 
           <nav className="flex flex-wrap items-center gap-x-5 gap-y-2" aria-label="Enlaces legales">
-            {LEGAL_LINKS.map((link) => (
+            {legalLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

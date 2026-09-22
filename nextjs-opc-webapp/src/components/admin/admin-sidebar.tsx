@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -12,11 +12,25 @@ import {
   Globe,
   ExternalLink,
   PlusCircle,
+  LayoutTemplate,
+  ChevronDown,
+  ChevronRight,
+  Sparkles,
+  Sliders,
+  Type,
+  AlignLeft,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/layout/brand-logo';
 import { cn } from '@/lib/utils';
 
-const ADMIN_NAV = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: any;
+  exact?: boolean;
+}
+
+const PLATFORM_NAV: NavItem[] = [
   { href: '/admin', label: 'Dashboard KPI', icon: LayoutDashboard, exact: true },
   { href: '/admin/posts', label: 'Gestión de Posts', icon: FileText },
   { href: '/admin/media', label: 'Biblioteca de Medios', icon: ImageIcon },
@@ -24,8 +38,17 @@ const ADMIN_NAV = [
   { href: '/admin/settings', label: 'Configuración & SEO', icon: Settings },
 ];
 
+const CONTENT_NAV: NavItem[] = [
+  { href: '/admin/content', label: 'Secciones landing', icon: LayoutTemplate, exact: true },
+  { href: '/admin/content/hero', label: 'Hero Principal', icon: Sparkles },
+  { href: '/admin/content/apariencia', label: 'Apariencia & Fuentes', icon: Type },
+  { href: '/admin/content/textos', label: 'Textos & i18n', icon: AlignLeft },
+  { href: '/admin/content/estadisticas', label: 'Estadísticas', icon: Sliders },
+];
+
 export function AdminSidebar() {
   const pathname = usePathname();
+  const [contentOpen, setContentOpen] = useState(true);
 
   return (
     <aside className="w-64 border-r border-border bg-surf/95 flex flex-col justify-between shrink-0 min-h-screen">
@@ -48,36 +71,91 @@ export function AdminSidebar() {
         </Link>
 
         {/* Navigation list */}
-        <nav className="space-y-1" aria-label="Navegación del panel">
-          {ADMIN_NAV.map((item) => {
-            const isActive = item.exact
-              ? pathname === item.href
-              : pathname.startsWith(item.href);
+        <div className="space-y-4">
+          {/* Bloque: Plataforma */}
+          <div>
+            <p className="px-3 mb-1.5 text-[10px] font-mono uppercase tracking-wider text-text-subtle font-semibold">
+              Plataforma
+            </p>
+            <nav className="space-y-1" aria-label="Navegación de plataforma">
+              {PLATFORM_NAV.map((item) => {
+                const isActive = item.exact
+                  ? pathname === item.href
+                  : pathname.startsWith(item.href);
+                const Icon = item.icon;
 
-            const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 group',
+                      isActive
+                        ? 'bg-card text-accent border border-accent/40 font-semibold shadow-sm'
+                        : 'text-text-muted hover:text-text hover:bg-card/40'
+                    )}
+                  >
+                    <Icon
+                      className={cn(
+                        'w-4 h-4 transition-colors',
+                        isActive ? 'text-accent' : 'text-text-subtle group-hover:text-text'
+                      )}
+                    />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-200 group',
-                  isActive
-                    ? 'bg-card text-accent border border-accent/40 font-semibold shadow-sm'
-                    : 'text-text-muted hover:text-text hover:bg-card/40'
-                )}
-              >
-                <Icon
-                  className={cn(
-                    'w-4 h-4 transition-colors',
-                    isActive ? 'text-accent' : 'text-text-subtle group-hover:text-text'
-                  )}
-                />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
+          {/* Bloque: Contenido (Landing) */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setContentOpen(!contentOpen)}
+              className="w-full flex items-center justify-between px-3 mb-1.5 text-[10px] font-mono uppercase tracking-wider text-text-subtle hover:text-accent font-semibold transition-colors"
+            >
+              <span>Contenido (Landing)</span>
+              {contentOpen ? (
+                <ChevronDown className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronRight className="w-3.5 h-3.5" />
+              )}
+            </button>
+
+            {contentOpen && (
+              <nav className="space-y-1" aria-label="Navegación de contenido">
+                {CONTENT_NAV.map((item) => {
+                  const isActive = item.exact
+                    ? pathname === item.href
+                    : pathname.startsWith(item.href);
+                  const Icon = item.icon;
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 group',
+                        isActive
+                          ? 'bg-card text-accent border border-accent/40 font-semibold shadow-sm'
+                          : 'text-text-muted hover:text-text hover:bg-card/40'
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          'w-4 h-4 transition-colors',
+                          isActive ? 'text-accent' : 'text-text-subtle group-hover:text-text'
+                        )}
+                      />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Bottom link to public website */}
