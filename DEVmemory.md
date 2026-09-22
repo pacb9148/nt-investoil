@@ -72,6 +72,29 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - Eliminación del bloque repetido de sedes junto al formulario de contacto (`contact-section.tsx`).
   - Rediseño de las sedes en el pie de página (`footer.tsx`): eliminación total de contenedores tipo tarjeta, presentando las direcciones de forma limpia, continua y tipográfica en 2 filas (Fila 1: Ciudad, País y Fila 2: Dirección y detalle).
 
+### Fase 6: Streaming de Video MIME 206, CRUD Universal de Secciones, Marquesina de Mercados (OilPriceAPI) y Páginas Legales Dinámicas
+- **Solución Definitiva de Reproducción y Streaming de Video (`/uploads/[...slug]/route.ts`)**:
+  - Detección de la causa raíz: Next.js en runtime de producción (`next start`) sirve estáticos sin cabeceras de rango HTTP automáticas para archivos subidos dinámicamente, provocando que los navegadores arrojen el error *"No se ha encontrado ningún vídeo que tenga un formato y tipo MIME compatibles"*.
+  - Implementación de ruta de streaming HTTP con soporte `206 Partial Content`, `Accept-Ranges: bytes`, `Content-Range` y `Content-Type: video/mp4` mediante `createReadStream({ start, end })`.
+  - Creación del componente reutilizable `MediaUploadField` con botón nativo de selección de archivos del disco local, selector de path, subida a `/api/upload` y previsualizador dinámico.
+- **CRUD Completo (Añadir / Eliminar / Editar) con Persistencia JSON & API**:
+  - **Consejo Directivo (`/admin/content/team`)**: altas y bajas de directivos con nombre, cargo, bio y selector de fotografía real mediante `MediaUploadField`.
+  - **Testimonios (`/admin/content/testimonials`)**: altas y bajas con soporte para foto de avatar y **video testimonial** (`videoUrl`). Integración en landing con reproductor emergente.
+  - **Servicios Petroleros (`/admin/content/services`)**: altas y bajas de servicios petroleros con icono, título, descripción y entregables.
+  - **Productos de Hidrocarburos (`/admin/content/products`)**: altas y bajas de productos con especificaciones técnicas, disponibilidad y subida de fotografías de producto.
+  - **Retos del Sector / El Problema (`/admin/content/problema`)**: altas y bajas de retos operativos de la industria energética con severidad y solución.
+  - **Operaciones & Infraestructura (`/admin/content/plataforma`)**: altas y bajas de terminales y hubs con campo de año/fecha editable y métricas operativas.
+  - **Preguntas Frecuentes (`/admin/content/faq-editor`)**: altas y bajas de preguntas y respuestas con categorización.
+- **Marquesina en Vivo con Cotizaciones de Hidrocarburos & OilPriceAPI (`/api/market-prices`)**:
+  - Conexión a cotizaciones de mercado en tiempo real: Brent, WTI, Gas Natural (Henry Hub), Diesel EN590, Jet A-1, Pet Coke y GNL, referenciando `https://www.oilpriceapi.com/es/precio-petroleo-hoy`.
+  - Componente `MarqueeTicker` reactivo con cálculo de variación porcentual (▲ verde / ▼ rojo), velocidad configurable, pausa al hover y alternancia con sellos normativos (ASTM, SGS, Intertek).
+  - Panel administrativo en `/admin/content/marquee` para activar/desactivar mercado en vivo, ajustar velocidad y gestionar sellos personalizados.
+- **Gestor Dinámico de Páginas Legales & Compliance (`/admin/content/legales`)**:
+  - Persistencia estructurada en `src/data/legal-pages.json` y API `/api/content/legales`.
+  - Soporte integral para las 5 páginas legales: Aviso de Privacidad, Términos y Condiciones, Política de Cookies, Alerta de Fraude y Estafas, Declaración de Accesibilidad.
+  - Edición de títulos, etiquetas, fecha de última revisión, preámbulos y adición/eliminación interactiva de cláusulas y artículos normativos.
+  - Componente `LegalPageView` conectado en cada una de las 5 páginas públicas con sincronización en tiempo real.
+
 ---
 
 ## 3. Lecciones Aprendidas y Decisiones de Arquitectura
@@ -79,3 +102,5 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 2. **Exclusión de Cache en Escáneres de Seguridad**: Los archivos de caché de compilación (`tsconfig.tsbuildinfo`) deben excluirse del escaneo de credenciales en `scripts/bateria-seguridad.ps1` para evitar falsos positivos con hashes o identificadores binarios.
 3. **Resiliencia de Contenidos (Fallback Híbrido)**: La capa `content-service.ts` recurre automáticamente a los valores por defecto si Supabase no está conectado o las tablas no han sido migradas en local, impidiendo pantallas en blanco.
 4. **Visualización de Presencia Física Internacional**: Estructurar las sedes en dos filas diferenciadas (Fila 1: Ciudad y País; Fila 2: Dirección física y rol de la sede) aumenta significativamente la credibilidad institucional en trading petrolero y facilita la lectura rápida para contrapartes y bancos internacionales.
+5. **Streaming de Medios en Next.js App Router**: Para reproducir videos MP4/WebM en navegadores modernos (Chrome, Safari, Firefox) cargados dinámicamente en `public/uploads`, es mandatorio responder con `206 Partial Content` y cabeceras de rango HTTP (`bytes=start-end`).
+6. **Separación de Servicios de Servidor vs Cliente**: Archivos que utilicen módulos nativos de Node.js (`fs`, `path`) no deben ser importados ni transitivamente por componentes de cliente (`'use client'`); deben residir en servicios exclusivos de servidor (`server-legal-service.ts`).

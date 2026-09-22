@@ -1,0 +1,50 @@
+[
+  {
+    "id": "t-01",
+    "number": "#01",
+    "name": "Carlos Medina",
+    "role": "Director General & Trading Head",
+    "location": "Madrid",
+    "image": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=480&h=480&q=80"
+  },
+  {
+    "id": "t-02",
+    "number": "#02",
+    "name": "Elena Torres",
+    "role": "Directora de Riesgos y Cumplimiento",
+    "location": "Madrid",
+    "image": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=480&h=480&q=80"
+  },
+  {
+    "id": "t-03",
+    "number": "#03",
+    "name": "Marco Ferreira",
+    "role": "Jefe de Logística Marítima",
+    "location": "Lisboa",
+    "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=480&h=480&q=80"
+  },
+  {
+    "id": "t-04",
+    "number": "#04",
+    "name": "Aisha Rahman",
+    "role": "Responsable de Cumplimiento EMEA",
+    "location": "Dubái",
+    "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=480&h=480&q=80"
+  },
+  {
+    "id": "t-05",
+    "number": "#05",
+    "name": "Paulo Costa",
+    "role": "Analista Senior de Mercado de Crudos",
+    "location": "Singapur",
+    "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=480&h=480&q=80"
+  },
+  {
+    "id": "t-06",
+    "number": "#06",
+    "name": "Ana Villalobos",
+    "role": "Directora Comercial Internacional",
+    "location": "Madrid",
+    "image": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=480&h=480&q=80"
+  }
+]

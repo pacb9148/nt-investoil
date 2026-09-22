@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Network,
   FileText,
@@ -12,12 +12,18 @@ import {
   TrendingUp,
   Scale,
   LifeBuoy,
-  CheckCircle2,
+  Flame,
+  Fuel,
+  Droplet,
+  Plane,
+  Layers,
+  Sparkles,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SERVICES_LIST } from '@/lib/constants/investoil';
 import { useLanguage } from '@/lib/i18n/language-context';
+import type { ServiceItem } from '@/types';
 
 const iconMap: Record<string, React.ElementType> = {
   Network,
@@ -30,18 +36,57 @@ const iconMap: Record<string, React.ElementType> = {
   TrendingUp,
   Scale,
   LifeBuoy,
+  Flame,
+  Fuel,
+  Droplet,
+  Plane,
+  Layers,
 };
 
 export function ServicesSection() {
   const { t } = useLanguage();
+  const [services, setServices] = useState<ServiceItem[]>(SERVICES_LIST);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
-  // Collect all unique tags
-  const allTags = Array.from(new Set(SERVICES_LIST.flatMap((s) => s.tags)));
+  useEffect(() => {
+    try {
+      const local = localStorage.getItem('investoil_services');
+      if (local) {
+        const parsed = JSON.parse(local);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setServices(parsed);
+        }
+      }
+    } catch {}
+
+    fetch('/api/content/services')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setServices(data);
+          try {
+            localStorage.setItem('investoil_services', JSON.stringify(data));
+          } catch {}
+        }
+      })
+      .catch(() => {});
+
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<ServiceItem[]>;
+      if (Array.isArray(customEvent.detail)) {
+        setServices(customEvent.detail);
+      }
+    };
+
+    window.addEventListener('investoil_services_updated', handleUpdate);
+    return () => window.removeEventListener('investoil_services_updated', handleUpdate);
+  }, []);
+
+  const allTags = Array.from(new Set(services.flatMap((s) => s.tags || [])));
 
   const filteredServices = selectedTag
-    ? SERVICES_LIST.filter((s) => s.tags.includes(selectedTag))
-    : SERVICES_LIST;
+    ? services.filter((s) => s.tags?.includes(selectedTag))
+    : services;
 
   return (
     <section id="services" className="py-24 border-t border-border bg-bg relative">
@@ -59,25 +104,23 @@ export function ServicesSection() {
           {/* Tag Filter Pills */}
           <div className="flex flex-wrap justify-center gap-2 pt-4">
             <button
-              type="button"
               onClick={() => setSelectedTag(null)}
-              className={`px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider transition-all ${
+              className={`px-3 py-1 text-xs font-mono rounded-full border transition-all ${
                 selectedTag === null
-                  ? 'bg-accent text-bg font-bold shadow-glow-accent'
-                  : 'bg-card text-text-muted hover:text-text hover:bg-surf border border-border/60'
+                  ? 'bg-accent text-bg border-accent font-bold'
+                  : 'bg-card text-text-muted border-border hover:border-accent/40'
               }`}
             >
-              {t.services.viewAll}
+              Todos ({services.length})
             </button>
             {allTags.map((tag) => (
               <button
                 key={tag}
-                type="button"
                 onClick={() => setSelectedTag(tag)}
-                className={`px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider transition-all ${
+                className={`px-3 py-1 text-xs font-mono rounded-full border transition-all ${
                   selectedTag === tag
-                    ? 'bg-accent text-bg font-bold shadow-glow-accent'
-                    : 'bg-card text-text-muted hover:text-text hover:bg-surf border border-border/60'
+                    ? 'bg-accent text-bg border-accent font-bold'
+                    : 'bg-card text-text-muted border-border hover:border-accent/40'
                 }`}
               >
                 {tag}
@@ -86,60 +129,43 @@ export function ServicesSection() {
           </div>
         </div>
 
-        {/* Services Grid (10 cards) */}
+        {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredServices.map((service, index) => {
-            const Icon = iconMap[service.iconName] || Network;
-
+          {filteredServices.map((service) => {
+            const Icon = iconMap[service.iconName] || Sparkles;
             return (
               <Card
                 key={service.code}
-                className="group hover:border-accent/40 hover:shadow-glow-accent/20 transition-all duration-300 flex flex-col justify-between"
+                className="group relative overflow-hidden transition-all duration-300 hover:border-accent/50 hover:shadow-glow-accent/20 flex flex-col justify-between"
               >
-                <div>
-                  <CardHeader className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-bg transition-colors duration-200">
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <span className="font-mono text-xs text-text-subtle">
-                        {service.code}
-                      </span>
+                <CardHeader className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-bold text-accent px-2 py-0.5 rounded bg-accent/10 border border-accent/20">
+                      {service.code}
+                    </span>
+                    <div className="p-2.5 rounded-lg bg-surf border border-border group-hover:border-accent/40 group-hover:text-accent transition-colors">
+                      <Icon className="w-5 h-5 text-accent" />
                     </div>
-
-                    <CardTitle className="text-xl group-hover:text-accent transition-colors">
-                      {service.title}
-                    </CardTitle>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-text-muted leading-relaxed">
-                      {service.description}
-                    </p>
-
-                    <div className="space-y-1.5 pt-2 border-t border-border/40">
-                      {service.tags.map((tag) => (
-                        <div key={tag} className="flex items-center gap-2 text-xs text-text">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
-                          <span>{tag}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </div>
-
-                <div className="p-6 pt-0">
-                  <div className="flex flex-wrap gap-1.5 pt-3">
-                    {service.tags.map((t) => (
+                  </div>
+                  <CardTitle className="font-heading font-bold text-lg text-text group-hover:text-accent transition-colors">
+                    {service.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-xs text-text-muted leading-relaxed">
+                    {service.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 pt-2">
+                    {service.tags?.map((tag) => (
                       <span
-                        key={t}
-                        className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-surf text-text-subtle border border-border/50"
+                        key={tag}
+                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-surf/80 border border-border/60 text-text-subtle"
                       >
-                        #{t}
+                        {tag}
                       </span>
                     ))}
                   </div>
-                </div>
+                </CardContent>
               </Card>
             );
           })}

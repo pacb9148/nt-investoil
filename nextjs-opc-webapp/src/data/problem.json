@@ -1,0 +1,23 @@
+[
+  {
+    "id": "prob-01",
+    "num": "01",
+    "title": "Intermediación Ineficiente y Falta de Trazabilidad",
+    "desc": "Cadenas de intermediarios sin capacidad real de fletamento que encarecen el barril y dilatan las ventanas de carga contractuales.",
+    "solution": "En Invest Oil tratamos directamente con refinerías, productores y fletadores certificados bajo protocolos KYC de máxima exigencia."
+  },
+  {
+    "id": "prob-02",
+    "num": "02",
+    "title": "Volatilidad Extrema y Exposición Financiera",
+    "desc": "Fluctuaciones drásticas de precios internacionales sin instrumentos de cobertura ni estructuras de pago garantizadas por bancos de primer nivel.",
+    "solution": "Estructuración de contratos spot y a plazo con cartas de crédito standby (SBLC), indexación contractual y gestión activa de riesgo."
+  },
+  {
+    "id": "prob-03",
+    "num": "03",
+    "title": "Restricciones de Cuello de Botella Logístico",
+    "desc": "Déficit de almacenamiento en terminales estratégicas, demoras en fondeo y discrepancias en inspecciones de cantidad y calidad (Q&Q).",
+    "solution": "Monitoreo satelital de cargamentos, ventanas prioritarias de atraque y verificación independiente avalada por SGS e Intertek."
+  }
+]

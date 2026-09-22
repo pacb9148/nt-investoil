@@ -1,0 +1,62 @@
+[
+  {
+    "sku": "PC-4500",
+    "title": "Pet Coke (Coque de Petróleo Verde)",
+    "description": "Coque de petróleo verde de grado combustible para calderas industriales, metalurgia y hornos de clínker en la industria cementera.",
+    "specs": "Azufre < 4.5% · HGI 40-45 · Humedad < 8%",
+    "market": "Asia / Europa",
+    "availability": "Bajo pedido / Fletes FOB o CIF",
+    "category": "Sólidos y Derivados",
+    "imageUrl": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "sku": "MEREY-16",
+    "title": "Merey 16 (Crudo Pesado)",
+    "description": "Crudo pesado de referencia internacional para refinerías con unidades de coquización y conversión profunda en mercados de alta demanda.",
+    "specs": "API 16° · Azufre ~2.5% · Tanque y Buque",
+    "market": "Asia",
+    "availability": "Cargamentos programados",
+    "category": "Crudos",
+    "imageUrl": "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "sku": "BRT-BLEND",
+    "title": "Crudo Referencial Brent-blend",
+    "description": "Mezcla de crudo ligero dulce de referencia con liquidación indexada a cotizaciones internacionales para operaciones spot y term.",
+    "specs": "API 38-40° · Azufre < 0.5%",
+    "market": "Europa / Global",
+    "availability": "Spot",
+    "category": "Crudos",
+    "imageUrl": "https://images.unsplash.com/photo-1516937941344-00b4e0337589?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "sku": "EN590-10PPM",
+    "title": "Diesel Ultra Bajo Azufre (EN590 10 ppm)",
+    "description": "Destilado medio para automoción y transporte pesado con certificación europea de emisiones y punto de inflamación estrictamente controlado.",
+    "specs": "Azufre < 10 ppm · Cetano > 51",
+    "market": "Europa / América",
+    "availability": "Suministro mensual continuo",
+    "category": "Destilados",
+    "imageUrl": "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "sku": "JET-A1",
+    "title": "Combustible de Aviación Jet Fuel A-1",
+    "description": "Queroseno de aviación comercial para flotas aéreas internacionales conforme a normativas conjuntas ASTM D1655 y Def Stan 91-091.",
+    "specs": "Freezing point < -47°C · Flash point > 38°C",
+    "market": "Hubs Aeroportuarios",
+    "availability": "Contratos anuales",
+    "category": "Aviación",
+    "imageUrl": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    "sku": "D2-L02",
+    "title": "Gasóleo de Gasoil D2 (L-0.2/62)",
+    "description": "Gasóleo industrial y naval para generación termoeléctrica, flotas mercantes y maquinaria pesada con alto poder calorífico.",
+    "specs": "Azufre < 0.05% · Flash Point > 62°C",
+    "market": "Mediterráneo / África",
+    "availability": "Spot / Term",
+    "category": "Destilados",
+    "imageUrl": "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=800&q=80"
+  }
+]

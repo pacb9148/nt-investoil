@@ -1,0 +1,22 @@
+[
+  {
+    "id": "faq-01",
+    "question": "¿Cuáles son los procedimientos habituales para la compra de crudo o derivados?",
+    "answer": "Operamos bajo estándares internacionales (Incoterms 2020: FOB, CIF, CFR). Los compradores deben remitir LOI/ICPO corporativo formal, documentación de cumplimiento KYC y carta de crédito irrevocable emitida o confirmada por banca top 50 internacional."
+  },
+  {
+    "id": "faq-02",
+    "question": "¿Qué garantías de calidad e inspección ofrece Invest Oil LLC?",
+    "answer": "Todos nuestros cargamentos son inspeccionados y certificados por firmas independientes de primer nivel como SGS, Intertek o Saybolt en el puerto de carga antes de la emisión del Bill of Lading (B/L)."
+  },
+  {
+    "id": "faq-03",
+    "question": "¿En qué puertos y hubs disponen de capacidad de entrega?",
+    "answer": "Mantenemos presencia y acuerdos en Houston (US Gulf Coast), Rotterdam, Fujairah, Singapur y terminales marítimas estratégicas en el Caribe y Sudamérica para entrega ágil."
+  },
+  {
+    "id": "faq-04",
+    "question": "¿Cómo se gestiona el riesgo ante la volatilidad de precios en contratos a plazo?",
+    "answer": "Diseñamos contratos indexados a marcadores internacionales (Brent, WTI, Argus, Platts) con fórmulas de diferencial transparentes y coberturas financieras estructuradas según el perfil de cada operación."
+  }
+]

@@ -1,11 +1,50 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { MapPin } from 'lucide-react';
+import { MapPin, User } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TEAM_MEMBERS } from '@/lib/constants/investoil';
+import type { TeamMember } from '@/types';
 
 export function TeamSection() {
+  const [team, setTeam] = useState<TeamMember[]>(TEAM_MEMBERS);
+
+  useEffect(() => {
+    try {
+      const local = localStorage.getItem('investoil_team_members');
+      if (local) {
+        const parsed = JSON.parse(local);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTeam(parsed);
+        }
+      }
+    } catch {}
+
+    fetch('/api/content/team')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setTeam(data);
+          try {
+            localStorage.setItem('investoil_team_members', JSON.stringify(data));
+          } catch {}
+        }
+      })
+      .catch(() => {});
+
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<TeamMember[]>;
+      if (Array.isArray(customEvent.detail)) {
+        setTeam(customEvent.detail);
+      }
+    };
+
+    window.addEventListener('investoil_team_updated', handleUpdate);
+    return () => window.removeEventListener('investoil_team_updated', handleUpdate);
+  }, []);
+
   return (
     <section id="team" className="py-24 border-t border-border bg-surf/30 relative">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -20,7 +59,7 @@ export function TeamSection() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {TEAM_MEMBERS.map((member) => (
+          {team.map((member) => (
             <Card
               key={member.id}
               className="group overflow-hidden transition-all duration-300 hover:border-accent/50 hover:shadow-glow-accent/20"
@@ -37,14 +76,19 @@ export function TeamSection() {
                 </div>
 
                 <div className="flex items-center gap-4 pt-1">
-                  <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-border group-hover:border-accent transition-colors shrink-0">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      fill
-                      className="object-cover"
-                      sizes="64px"
-                    />
+                  <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-border group-hover:border-accent transition-colors shrink-0 bg-card flex items-center justify-center">
+                    {member.image ? (
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                        unoptimized
+                      />
+                    ) : (
+                      <User className="w-8 h-8 text-text-subtle" />
+                    )}
                   </div>
                   <div>
                     <h3 className="font-heading font-bold text-base text-text group-hover:text-accent transition-colors">

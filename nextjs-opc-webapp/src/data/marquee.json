@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "showLivePrices": true,
+  "speedSeconds": 30,
+  "pauseOnHover": true,
+  "customItems": [
+    "TERMINALES ACTIVAS: HOUSTON · ROTTERDAM · FUJAIRAH · JURONG SINGAPUR",
+    "INSPECCIÓN Y CONTROL DE CALIDAD: SGS · INTERTEK · SAYBOLT CERTIFIED",
+    "CUMPLIMIENTO NORMATIVO: ASTM D1655 · EN590 · ISO 8217 MARPOL ANNEX VI"
+  ]
+}

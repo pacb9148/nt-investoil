@@ -1,0 +1,94 @@
+{
+  "aviso-de-privacidad": {
+    "badge": "PROTECCIÓN DE DATOS",
+    "title": "Aviso de Privacidad",
+    "lastUpdated": "2026-03-15",
+    "intro": "En Invest Oil LLC tratamos la información que nos facilitas con la finalidad exclusiva de prestarte el servicio solicitado y atender a tus consultas comerciales bajo los más estrictos estándares de confidencialidad.",
+    "sections": [
+      {
+        "title": "Responsable del Tratamiento",
+        "content": "Invest Oil LLC · Dirección de Cumplimiento · Contacto: contacto@investoil.es"
+      },
+      {
+        "title": "Legitimación y Conservación",
+        "content": "La base legal para el tratamiento de tus datos es el consentimiento explícito manifestado al remitir el formulario de contacto o entablar comunicaciones por correo electrónico. Los datos se conservarán durante el tiempo necesario para responder a la solicitud y cumplir con las obligaciones legales aplicables."
+      },
+      {
+        "title": "Tus Derechos (RGPD & Directivas Internacionales)",
+        "content": "Puedes ejercer en cualquier momento tus derechos de acceso, rectificación, supresión, limitación del tratamiento y portabilidad enviando un correo electrónico a contacto@investoil.es."
+      }
+    ]
+  },
+  "terminos-y-condiciones": {
+    "badge": "MARCO LEGAL",
+    "title": "Términos y Condiciones de Uso",
+    "lastUpdated": "2026-03-15",
+    "intro": "Bienvenido al portal corporativo de Invest Oil LLC. El acceso y utilización de este sitio web implican la aceptación plena de los presentes términos comerciales y normativos.",
+    "sections": [
+      {
+        "title": "1. Objeto y Alcance",
+        "content": "Este sitio web tiene un carácter exclusivamente informativo y de contacto comercial en relación con las operaciones de intermediación, comercialización y logística de crudos y derivados energéticos. Ninguna información expuesta constituye una oferta pública vinculante hasta la formalización de los contratos correspondientes (Sales & Purchase Agreement)."
+      },
+      {
+        "title": "2. Procedimientos de Compliance y KYC",
+        "content": "Toda relación comercial formal queda condicionada a la previa superación de los procedimientos de debida diligencia (Know Your Customer - KYC), antiblanqueo de capitales (AML) y verificación contra listas de sanciones internacionales (OFAC, UE, ONU)."
+      },
+      {
+        "title": "3. Propiedad Intelectual",
+        "content": "La marca comercial 'Invest Oil LLC', los logotipos, sellos, textos, gráficos y estructura visual son propiedad exclusiva de Invest Oil LLC o se encuentran debidamente licenciados."
+      }
+    ]
+  },
+  "politica-de-cookies": {
+    "badge": "PRIVACIDAD & COOKIES",
+    "title": "Política de Cookies",
+    "lastUpdated": "2026-03-15",
+    "intro": "Este sitio web utiliza cookies técnicas estrictamente necesarias para el correcto funcionamiento del portal, la autenticación de administradores y la preservación de la seguridad operacional.",
+    "sections": [
+      {
+        "title": "Tipos de Cookies Utilizadas",
+        "content": "• Cookies de Sesión y Autenticación: Permiten mantener la sesión segura en el panel administrativo.\n• Cookies de Seguridad y Prevención de Abusos: Utilizadas para mitigar ataques CSRF y prevenir envíos automatizados no deseados."
+      },
+      {
+        "title": "Cómo Desactivar las Cookies",
+        "content": "Puedes configurar tu navegador en cualquier momento para bloquear o alertar sobre la presencia de estas cookies; no obstante, algunas funciones del sitio podrían no operar correctamente."
+      }
+    ]
+  },
+  "alerta-de-fraude-y-estafas": {
+    "badge": "SEGURIDAD & COMPLIANCE",
+    "title": "Alerta de Fraude y Suplantación de Identidad",
+    "lastUpdated": "2026-03-15",
+    "intro": "Aviso oficial de seguridad y advertencia contra suplantaciones comerciales en trading de petróleo y productos refinados.",
+    "sections": [
+      {
+        "title": "Advertencia Importante para Compradores y Vendedores",
+        "content": "Invest Oil LLC nunca solicita anticipos de honorarios a cuentas bancarias personales ni opera fuera de los canales oficiales corporativos (@investoil.es)."
+      },
+      {
+        "title": "Protocolos de Verificación Obligatorios",
+        "content": "• Dominios Oficiales: Todas las comunicaciones legítimas provienen exclusivamente de direcciones con el dominio @investoil.es.\n• Canales Bancarios: Las operaciones se liquidan exclusivamente mediante Cartas de Crédito Documentarias Irrevocables (DLC) o transferencias bancarias directas a cuentas institucionales de la compañía.\n• Prueba de Producto (POP) y Asignación: No se aceptan ni emiten documentos sin estricto respaldo de refinería o inspección certificada SGS/Saybolt."
+      },
+      {
+        "title": "Reporte de Actividades Sospechosas",
+        "content": "Si has recibido una oferta no solicitada que sospeches pueda ser fraudulenta a nombre de Invest Oil LLC, remite inmediatamente copia del correo a contacto@investoil.es para su investigación y remisión a las autoridades correspondientes."
+      }
+    ]
+  },
+  "accesibilidad": {
+    "badge": "CUMPLIMIENTO & ESTÁNDARES",
+    "title": "Declaración de Accesibilidad",
+    "lastUpdated": "2026-03-15",
+    "intro": "En Invest Oil LLC nos comprometemos a garantizar la accesibilidad digital de nuestro sitio web para todas las personas, incluidas aquellas con discapacidades físicas, visuales, auditivas o cognitivas.",
+    "sections": [
+      {
+        "title": "Pautas de Accesibilidad (WCAG 2.1 Nivel AA)",
+        "content": "Este sitio web ha sido diseñado e implementado siguiendo las pautas de accesibilidad para el contenido web (WCAG) 2.1 en su nivel AA:\n• Ratios de contraste tipográfico superiores a 4.5:1 sobre fondos oscuros.\n• Navegación completa y accesible a través del teclado mediante el uso de tabuladores e indicadores visuales de foco.\n• Atributos ARIA y etiquetas descriptivas en todos los elementos interactivos, formularios y botones.\n• Textos alternativos en todas las imágenes de contenido y logotipos corporativos.\n• Jerarquía estructural clara con encabezados semánticos (h1, h2, h3)."
+      },
+      {
+        "title": "Contacto sobre Accesibilidad",
+        "content": "Si experimentas alguna dificultad para acceder a cualquier contenido o funcionalidad de este portal, por favor escríbenos a contacto@investoil.es."
+      }
+    ]
+  }
+}

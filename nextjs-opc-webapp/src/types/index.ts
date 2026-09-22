@@ -108,10 +108,13 @@ export interface FeaturedOperation {
 }
 
 export interface ClientTestimonial {
+  id?: string;
   rating: number;
   text: string;
   name: string;
   role: string;
+  avatar?: string;
+  videoUrl?: string;
 }
 
 export interface NewsRepublishMetadata {
