@@ -31,3 +31,7 @@ next-env.d.ts
 *.key
 *.tsbuildinfo
 
+# User uploaded media
+/public/uploads/*
+!/public/uploads/.gitkeep
+
