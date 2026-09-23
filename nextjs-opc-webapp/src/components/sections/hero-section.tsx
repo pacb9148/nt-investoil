@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, ChevronRight, ShieldCheck, Globe2, BarChart3, TrendingUp, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n/language-context';
 import type { LandingHeroConfig } from '@/types/content';
 import { cn } from '@/lib/utils';
@@ -177,18 +177,28 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
 
             {/* Botones de Acción */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
-              <Link href={ctaPrimaryUrl}>
-                <Button variant="accent" size="lg" className="gap-2.5 shadow-glow-accent font-bold">
-                  <span>{ctaPrimaryText}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+              <Link
+                href={ctaPrimaryUrl}
+                className={buttonVariants({
+                  variant: 'accent',
+                  size: 'lg',
+                  className: 'gap-2.5 shadow-glow-accent font-bold',
+                })}
+              >
+                <span>{ctaPrimaryText}</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
 
-              <Link href={ctaSecondaryUrl}>
-                <Button variant="secondary" size="lg" className="gap-2 border border-border/80">
-                  <span>{ctaSecondaryText}</span>
-                  <ChevronRight className="w-4 h-4 text-text-muted" />
-                </Button>
+              <Link
+                href={ctaSecondaryUrl}
+                className={buttonVariants({
+                  variant: 'secondary',
+                  size: 'lg',
+                  className: 'gap-2 border border-border/80',
+                })}
+              >
+                <span>{ctaSecondaryText}</span>
+                <ChevronRight className="w-4 h-4 text-text-muted" />
               </Link>
             </div>
 

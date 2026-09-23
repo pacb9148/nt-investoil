@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ArrowRight, ShieldCheck } from 'lucide-react';
 import { BrandLogo } from './brand-logo';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { LanguageSelector } from './language-selector';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { cn } from '@/lib/utils';
@@ -85,18 +85,28 @@ export function Header() {
             {/* Language Switcher ES / EN */}
             <LanguageSelector />
 
-            <Link href="/admin">
-              <Button variant="ghost" size="sm" className="text-xs gap-1.5 border border-border/60 hover:border-accent/40">
-                <ShieldCheck className="w-3.5 h-3.5 text-accent" />
-                <span>{t.nav.admin}</span>
-              </Button>
+            <Link
+              href="/admin"
+              className={buttonVariants({
+                variant: 'ghost',
+                size: 'sm',
+                className: 'text-xs gap-1.5 border border-border/60 hover:border-accent/40',
+              })}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-accent" />
+              <span>{t.nav.admin}</span>
             </Link>
 
-            <Link href="/contact">
-              <Button variant="accent" size="sm" className="text-xs gap-1.5 shadow-glow-accent">
-                <span>{t.common.contactUs}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
+            <Link
+              href="/contact"
+              className={buttonVariants({
+                variant: 'accent',
+                size: 'sm',
+                className: 'text-xs gap-1.5 shadow-glow-accent',
+              })}
+            >
+              <span>{t.common.contactUs}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -132,17 +142,27 @@ export function Header() {
           </nav>
 
           <div className="flex flex-col gap-3 pt-6 border-t border-border">
-            <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="secondary" className="w-full justify-center gap-2 text-xs">
-                <ShieldCheck className="w-4 h-4 text-accent" />
-                <span>{t.nav.admin}</span>
-              </Button>
+            <Link
+              href="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className={buttonVariants({
+                variant: 'secondary',
+                className: 'w-full justify-center gap-2 text-xs',
+              })}
+            >
+              <ShieldCheck className="w-4 h-4 text-accent" />
+              <span>{t.nav.admin}</span>
             </Link>
-            <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="accent" className="w-full justify-center gap-2 text-xs">
-                <span>{t.common.contactUs}</span>
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+            <Link
+              href="/contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className={buttonVariants({
+                variant: 'accent',
+                className: 'w-full justify-center gap-2 text-xs',
+              })}
+            >
+              <span>{t.common.contactUs}</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>

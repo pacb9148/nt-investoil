@@ -27,12 +27,10 @@ export default function NotFound() {
         </div>
 
         <div className="flex items-center justify-center gap-3 pt-4">
-          <Link href="/">
-            <Button variant="accent" className="gap-2">
-              <Home className="w-4 h-4" />
-              <span>Volver al Inicio</span>
-            </Button>
-          </Link>
+          <Button href="/" variant="accent" className="gap-2">
+            <Home className="w-4 h-4" />
+            <span>Volver al Inicio</span>
+          </Button>
         </div>
       </div>
     </div>

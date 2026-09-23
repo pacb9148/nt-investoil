@@ -31,12 +31,10 @@ export default function AboutPage() {
               Nuestra misión es mitigar los riesgos operativos y financieros en cada transacción mediante una red global de fletamentos, análisis riguroso de mercado y estricto cumplimiento normativo KYC y antiblanqueo.
             </p>
             <div className="pt-2">
-              <Link href="/#contact">
-                <Button variant="accent" size="lg" className="gap-2">
-                  <span>Contactar con la dirección</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
+              <Button href="/#contact" variant="accent" size="lg" className="gap-2">
+                <span>Contactar con la dirección</span>
+                <ArrowRight className="w-4 h-4" />
+              </Button>
             </div>
           </div>
 

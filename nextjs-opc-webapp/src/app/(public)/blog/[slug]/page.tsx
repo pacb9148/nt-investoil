@@ -257,12 +257,10 @@ export default async function BlogPostPage({
             Nuestro equipo de trading estructura contratos a medida según tu volumen, especificaciones e Incoterms.
           </p>
         </div>
-        <Link href="/contact">
-          <Button variant="accent" size="md" className="gap-2 shrink-0">
-            <span>Contactar Trading Desk</span>
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </Link>
+        <Button href="/contact" variant="accent" size="md" className="gap-2 shrink-0">
+          <span>Contactar Trading Desk</span>
+          <ArrowRight className="w-4 h-4" />
+        </Button>
       </div>
 
       {/* Related Posts */}
