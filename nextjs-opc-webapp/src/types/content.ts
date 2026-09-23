@@ -10,6 +10,30 @@ export interface LandingSectionConfig {
 export type HeroBgType = 'none' | 'image' | 'video' | 'gradient';
 export type HeroVisualType = 'mockup' | 'video' | 'graphic' | 'stats';
 
+export interface SectionBackgroundColors {
+  hero?: string;
+  marquee?: string;
+  problema?: string;
+  services?: string;
+  products?: string;
+  plataforma?: string;
+  team?: string;
+  testimonials?: string;
+  faq?: string;
+  contact?: string;
+}
+
+export interface HeroCardCustomization {
+  card_bg_color?: string;
+  card_border_color?: string;
+  card_glow_opacity?: number;
+  logo_hue?: number;
+  logo_brightness?: number;
+  logo_saturation?: number;
+  logo_shadow_color?: string;
+  logo_shadow_blur?: number;
+}
+
 export interface LandingHeroConfig {
   id: number;
   eyebrow_text: string;
@@ -37,6 +61,8 @@ export interface LandingHeroConfig {
   hero_bg_blur: number; // px
   hero_visual_tipo: HeroVisualType;
   hero_visual_url?: string;
+  // Personalización de la tarjeta señalada
+  hero_card?: HeroCardCustomization;
   // Tickers & Métricas
   market_ticker?: string;
   seats_total?: number;
@@ -52,6 +78,8 @@ export interface LandingAppearanceConfig {
   accent_glow: boolean;
   background_pattern: 'grid' | 'dots' | 'radial' | 'none';
   custom_css?: string;
+  section_bg_colors?: SectionBackgroundColors;
+  hero_card?: HeroCardCustomization;
 }
 
 export interface LandingStatsConfig {

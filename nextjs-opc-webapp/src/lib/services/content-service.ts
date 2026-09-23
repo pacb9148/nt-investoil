@@ -1,10 +1,36 @@
-import { createAdminClient } from '@/lib/supabase/admin';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import type {
   LandingSectionConfig,
   LandingHeroConfig,
   LandingAppearanceConfig,
   LandingFaqItem,
+  SectionBackgroundColors,
+  HeroCardCustomization,
 } from '@/types/content';
+
+export const DEFAULT_HERO_CARD_CUSTOMIZATION: HeroCardCustomization = {
+  card_bg_color: '#0e1424',
+  card_border_color: '#f59e0b',
+  card_glow_opacity: 50,
+  logo_hue: 0,
+  logo_brightness: 100,
+  logo_saturation: 100,
+  logo_shadow_color: '#f59e0b',
+  logo_shadow_blur: 20,
+};
+
+export const DEFAULT_SECTION_BG_COLORS: SectionBackgroundColors = {
+  hero: '#07090e',
+  marquee: '#0b0f19',
+  problema: '#07090e',
+  services: '#0a0d14',
+  products: '#07090e',
+  plataforma: '#0a0d14',
+  team: '#07090e',
+  testimonials: '#0a0d14',
+  faq: '#07090e',
+  contact: '#0a0d14',
+};
 
 // Valores por defecto robustos basados en la estructura de Invest Oil LLC
 export const DEFAULT_LANDING_SECTIONS: LandingSectionConfig[] = [
@@ -51,6 +77,7 @@ export const DEFAULT_HERO_CONFIG: LandingHeroConfig = {
   hero_visual_tipo: 'mockup',
   hero_visual_url: '',
   market_ticker: 'BRENT: $82.40/bbl (+1.2%) | WTI: $78.15/bbl (+0.9%)',
+  hero_card: DEFAULT_HERO_CARD_CUSTOMIZATION,
   seats_total: 100,
   seats_taken: 28,
   countdown_deadline: '',
@@ -63,6 +90,8 @@ export const DEFAULT_APPEARANCE_CONFIG: LandingAppearanceConfig = {
   accent_glow: true,
   background_pattern: 'grid',
   custom_css: '',
+  section_bg_colors: DEFAULT_SECTION_BG_COLORS,
+  hero_card: DEFAULT_HERO_CARD_CUSTOMIZATION,
 };
 
 // Almacén en memoria fallback para desarrollo local cuando Supabase no tenga tablas migradas
@@ -71,7 +100,11 @@ let memoryHero = { ...DEFAULT_HERO_CONFIG };
 let memoryAppearance = { ...DEFAULT_APPEARANCE_CONFIG };
 
 export async function getLandingSections(): Promise<LandingSectionConfig[]> {
+  if (!isSupabaseConfigured()) {
+    return memorySections;
+  }
   try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
     const db = createAdminClient();
     const { data, error } = await db.from('landing_sections').select('*').order('sort_order');
     if (!error && data && data.length > 0) {
@@ -84,7 +117,11 @@ export async function getLandingSections(): Promise<LandingSectionConfig[]> {
 }
 
 export async function getLandingHero(): Promise<LandingHeroConfig> {
+  if (!isSupabaseConfigured()) {
+    return memoryHero;
+  }
   try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
     const db = createAdminClient();
     const { data, error } = await db.from('landing_hero').select('*').limit(1).maybeSingle();
     if (!error && data) {
@@ -97,7 +134,11 @@ export async function getLandingHero(): Promise<LandingHeroConfig> {
 }
 
 export async function getLandingAppearance(): Promise<LandingAppearanceConfig> {
+  if (!isSupabaseConfigured()) {
+    return memoryAppearance;
+  }
   try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
     const db = createAdminClient();
     const { data, error } = await db.from('landing_site_appearance').select('*').limit(1).maybeSingle();
     if (!error && data) {

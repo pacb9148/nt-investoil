@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { CLIENT_TESTIMONIALS } from '@/lib/constants/investoil';
 import type { ClientTestimonial } from '@/types';
 
-export function TestimonialsSection() {
+export function TestimonialsSection({ customBg }: { customBg?: string }) {
   const [items, setItems] = useState<ClientTestimonial[]>(CLIENT_TESTIMONIALS);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
@@ -61,7 +61,11 @@ export function TestimonialsSection() {
   };
 
   return (
-    <section className="py-24 border-t border-border bg-bg relative overflow-hidden">
+    <section
+      id="testimonials"
+      className="py-24 border-t border-border/80 relative overflow-hidden transition-colors duration-300"
+      style={{ backgroundColor: customBg || undefined }}
+    >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
           <Badge variant="warm">CONFIANZA DEL SECTOR</Badge>

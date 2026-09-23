@@ -3,12 +3,13 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Clock, Calendar, Eye, Share2, Tag } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Eye, Share2, Tag, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NewsRepublishBadge } from '@/components/blog/news-republish-badge';
-import { createClient } from '@/lib/supabase/server';
 import { formatDate } from '@/lib/utils';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { getCuratedPostBySlug, getCuratedPosts } from '@/lib/constants/blog-data';
 import { type Post } from '@/types';
 
 export async function generateMetadata({
@@ -16,12 +17,24 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const supabase = createClient();
-  const { data: post } = await supabase
-    .from('posts')
-    .select('*')
-    .eq('slug', params.slug)
-    .single();
+  let post: Post | null = null;
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createClient } = await import('@/lib/supabase/server');
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('slug', params.slug)
+        .single();
+      if (data) post = data;
+    } catch {}
+  }
+
+  if (!post) {
+    post = getCuratedPostBySlug(params.slug);
+  }
 
   if (!post) {
     return {
@@ -30,11 +43,11 @@ export async function generateMetadata({
   }
 
   return {
-    title: post.meta_title || post.title,
-    description: post.meta_description || post.excerpt,
+    title: `${post.title} | Invest Oil LLC`,
+    description: post.meta_description || post.excerpt || undefined,
     openGraph: {
       title: post.title,
-      description: post.excerpt,
+      description: post.excerpt || undefined,
       images: post.featured_image_url ? [post.featured_image_url] : [],
     },
   };
@@ -48,14 +61,14 @@ function renderTiptapNode(node: any, index: number): React.ReactNode {
     case 'heading': {
       const Level = (`h${node.attrs?.level || 2}`) as keyof JSX.IntrinsicElements;
       return (
-        <Level key={index} className="font-heading font-bold text-text mt-8 mb-4">
+        <Level key={index} className="font-heading font-bold text-text mt-8 mb-4 text-xl sm:text-2xl">
           {node.content?.map(renderTiptapNode)}
         </Level>
       );
     }
     case 'paragraph': {
       return (
-        <p key={index} className="text-text-muted leading-relaxed mb-5">
+        <p key={index} className="text-text-muted leading-relaxed mb-5 text-sm sm:text-base">
           {node.content?.map(renderTiptapNode)}
         </p>
       );
@@ -94,103 +107,81 @@ export default async function BlogPostPage({
 }: {
   params: { slug: string };
 }) {
-  let post: Post | null = null;
+  let post: (Post & { category?: any; categories?: any[] }) | null = null;
 
-  try {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from('posts')
-      .select('*, categories(*)')
-      .eq('slug', params.slug)
-      .single();
+  if (isSupabaseConfigured()) {
+    try {
+      const { createClient } = await import('@/lib/supabase/server');
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('posts')
+        .select('*, categories(*)')
+        .eq('slug', params.slug)
+        .single();
 
-    if (data) post = data;
-  } catch (e) {
-    // Handled below
+      if (data) post = data;
+    } catch (e) {}
   }
 
-  // Fallback demo for static preview if database not initialized
   if (!post) {
-    if (params.slug.includes('pet-coke')) {
-      post = {
-        id: 'p-demo',
-        slug: params.slug,
-        title: 'Dinámica del Suministro de Pet Coke hacia los Principales Centros Industriales de Asia',
-        excerpt: 'Un análisis exhaustivo sobre la evolución de la demanda de coque de petróleo verde (green pet coke) para cementeras y metalurgia pesada en Asia oriental.',
-        content: {
-          type: 'doc',
-          content: [
-            {
-              type: 'heading',
-              attrs: { level: 2 },
-              content: [{ type: 'text', text: 'El papel estratégico del Pet Coke en la matriz industrial' }],
-            },
-            {
-              type: 'paragraph',
-              content: [
-                {
-                  type: 'text',
-                  text: 'El coque de petróleo verde con especificaciones PC-4500 (azufre < 4.5%, HGI 40-45) continúa consolidándose como una de las materias primas fundamentales para la competitividad de las plantas de cemento y fundición en Asia.',
-                },
-              ],
-            },
-            {
-              type: 'heading',
-              attrs: { level: 3 },
-              content: [{ type: 'text', text: 'Logística marítima y fletamento seguro' }],
-            },
-            {
-              type: 'paragraph',
-              content: [
-                {
-                  type: 'text',
-                  text: 'Invest Oil coordina fletamentos con buques Supramax y Handymax, asegurando un estricto cumplimiento de ventanas de carga y minimizando mermas operativas.',
-                },
-              ],
-            },
-          ],
-        },
-        status: 'published',
-        featured_image_url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
-        published_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        tags: ['Pet Coke', 'Asia', 'Trading', 'Logística'],
-        reading_time: 5,
-        views: 342,
-        is_republished: false,
-      };
-    } else {
-      notFound();
-    }
+    post = getCuratedPostBySlug(params.slug);
   }
+
+  if (!post) {
+    notFound();
+  }
+
+  const category =
+    post.category ||
+    (post.categories && post.categories.length > 0 ? post.categories[0] : null);
+
+  // Artículos relacionados de la misma categoría o recientes
+  const allPosts = getCuratedPosts();
+  const relatedPosts = allPosts
+    .filter((p) => p.id !== post?.id)
+    .slice(0, 2);
 
   return (
-    <article className="pt-32 pb-24 max-w-4xl mx-auto px-4 md:px-8 space-y-8">
+    <article className="pt-32 pb-24 max-w-4xl mx-auto px-4 md:px-8 space-y-10">
       {/* Back button */}
       <div>
-        <Link href="/blog">
-          <Button variant="ghost" size="sm" className="gap-2 text-xs">
-            <ArrowLeft className="w-4 h-4" />
-            <span>Volver a todos los artículos</span>
-          </Button>
+        <Link
+          href="/blog"
+          className="inline-flex items-center gap-2 text-xs font-mono text-text-subtle hover:text-accent transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Volver al Blog de Inteligencia Energética</span>
         </Link>
       </div>
 
       {/* Meta header */}
       <div className="space-y-4">
-        {post.is_republished && (
-          <NewsRepublishBadge
-            sourceName={post.original_source_name}
-            sourceUrl={post.original_source_url}
-          />
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {category && (
+            <span
+              className="px-3 py-1 rounded-md text-xs font-mono font-bold uppercase tracking-wider border shadow-sm"
+              style={{
+                backgroundColor: `${category.color || '#f59e0b'}20`,
+                borderColor: `${category.color || '#f59e0b'}50`,
+                color: category.color || '#f59e0b',
+              }}
+            >
+              {category.name}
+            </span>
+          )}
+          {post.is_republished && (
+            <NewsRepublishBadge
+              sourceName={post.original_source_name}
+              sourceUrl={post.original_source_url}
+            />
+          )}
+        </div>
 
         <h1 className="font-heading font-extrabold text-3xl sm:text-5xl text-text leading-tight">
           {post.title}
         </h1>
 
-        <div className="flex flex-wrap items-center gap-4 text-xs text-text-muted pt-2 border-b border-border/60 pb-6">
+        <div className="flex flex-wrap items-center gap-4 text-xs text-text-muted font-mono pt-2 border-b border-border/60 pb-6">
           <span className="flex items-center gap-1.5">
             <Calendar className="w-4 h-4 text-accent" />
             <span>{formatDate(post.published_at || post.created_at)}</span>
@@ -236,7 +227,7 @@ export default async function BlogPostPage({
           <div dangerouslySetInnerHTML={{ __html: post.content }} />
         ) : (
           <p className="text-text-muted leading-relaxed">
-            Contenido técnico en revisión por el equipo editorial de Invest Oil LLC.
+            Contenido técnico y análisis de trading estructurado por el equipo de Invest Oil LLC.
           </p>
         )}
       </div>
@@ -244,9 +235,9 @@ export default async function BlogPostPage({
       {/* Tags Footer */}
       {post.tags && post.tags.length > 0 && (
         <div className="pt-8 border-t border-border flex flex-wrap items-center gap-2">
-          <span className="text-xs text-text-subtle flex items-center gap-1">
+          <span className="text-xs text-text-subtle flex items-center gap-1 font-mono">
             <Tag className="w-3.5 h-3.5" />
-            <span>Temas:</span>
+            <span>Categorías & Tags:</span>
           </span>
           {post.tags.map((t) => (
             <Badge key={t} variant="default">
@@ -260,18 +251,45 @@ export default async function BlogPostPage({
       <div className="p-8 rounded-2xl border border-accent/40 bg-card/90 shadow-glow-accent/20 flex flex-col sm:flex-row items-center justify-between gap-6 mt-12">
         <div className="space-y-1 text-center sm:text-left">
           <h3 className="font-heading font-bold text-lg text-text">
-            ¿Interesado en cotizar este producto?
+            ¿Interesado en cotizar este producto o ruta?
           </h3>
           <p className="text-xs text-text-muted">
-            Nuestro equipo de trading estructura contratos a medida según tu volumen y destino.
+            Nuestro equipo de trading estructura contratos a medida según tu volumen, especificaciones e Incoterms.
           </p>
         </div>
         <Link href="/contact">
-          <Button variant="accent" size="md">
-            Contactar Trading Desk
+          <Button variant="accent" size="md" className="gap-2 shrink-0">
+            <span>Contactar Trading Desk</span>
+            <ArrowRight className="w-4 h-4" />
           </Button>
         </Link>
       </div>
+
+      {/* Related Posts */}
+      {relatedPosts.length > 0 && (
+        <div className="pt-12 border-t border-border/80 space-y-6">
+          <h3 className="font-heading font-bold text-xl text-text">
+            Artículos Recomendados de Mercado
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {relatedPosts.map((rel) => (
+              <Link
+                key={rel.id}
+                href={`/blog/${rel.slug}`}
+                className="p-5 rounded-xl border border-border bg-card/60 hover:border-accent/50 transition-all group block space-y-2"
+              >
+                <div className="text-[11px] font-mono text-accent">
+                  {formatDate(rel.published_at || rel.created_at)}
+                </div>
+                <h4 className="font-heading font-semibold text-sm text-text group-hover:text-accent transition-colors line-clamp-2">
+                  {rel.title}
+                </h4>
+                <p className="text-xs text-text-muted line-clamp-2">{rel.excerpt}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </article>
   );
 }

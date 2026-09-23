@@ -34,7 +34,7 @@ const DEFAULT_FAQS: FaqItem[] = [
   },
 ];
 
-export function FaqSection() {
+export function FaqSection({ customBg }: { customBg?: string }) {
   const [faqs, setFaqs] = useState<FaqItem[]>(DEFAULT_FAQS);
   const [openId, setOpenId] = useState<string | null>('faq-01');
 
@@ -73,7 +73,11 @@ export function FaqSection() {
   };
 
   return (
-    <section id="faq" className="py-24 border-t border-border bg-surf/20 relative">
+    <section
+      id="faq"
+      className="py-24 border-t border-border/80 relative transition-colors duration-300"
+      style={{ backgroundColor: customBg || undefined }}
+    >
       <div className="max-w-4xl mx-auto px-4 md:px-8 space-y-12">
         <div className="text-center space-y-3">
           <Badge variant="accent">RESOLUCIÓN DE DUDAS</Badge>

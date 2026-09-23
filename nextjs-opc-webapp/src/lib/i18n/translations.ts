@@ -23,6 +23,57 @@ export interface TranslationDictionary {
     activeContracts: string;
     complianceRate: string;
     globalPresence: string;
+    sgsVerification: string;
+    monthlyShipments: string;
+    monthlyShipmentsValue: string;
+    marineTerminals: string;
+    marineTerminalsValue: string;
+    operationalStatus: string;
+    active100: string;
+  };
+  marquee: {
+    livePrices: string;
+    marketNews: string;
+    sourceTitle: string;
+  };
+  blog: {
+    tag: string;
+    title: string;
+    subtitle: string;
+    searchPlaceholder: string;
+    showingArticles: string;
+    filterCategory: string;
+    all: string;
+    noArticles: string;
+    noArticlesSub: string;
+    resetFilters: string;
+    readArticle: string;
+    republished: string;
+    readingTime: string;
+    views: string;
+    backToBlog: string;
+    relatedArticles: string;
+    topics: string;
+    quotePrompt: string;
+    quotePromptSub: string;
+    contactDesk: string;
+  };
+  auth: {
+    loginTitle: string;
+    loginSubtitle: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    passwordLabel: string;
+    passwordPlaceholder: string;
+    rememberMe: string;
+    forgotPassword: string;
+    loginButton: string;
+    authenticating: string;
+    noAccount: string;
+    requestAccess: string;
+    backToSite: string;
+    sslBadge: string;
+    vaultBadge: string;
   };
   stats: {
     metric1Value: string;
@@ -134,7 +185,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       admin: 'Backoffice',
     },
     hero: {
-      eyebrow: 'INFRAESTRUCTURA Y TRADING ENERGETICO GLOBAL',
+      eyebrow: 'INFRAESTRUCTURA Y TRADING ENERGÉTICO GLOBAL',
       title1: 'Soluciones Estratégicas en',
       title2: 'del Petróleo y Derivados',
       accent: 'el Mercado Global',
@@ -146,6 +197,59 @@ export const translations: Record<Language, TranslationDictionary> = {
       activeContracts: '150M+ Barriles',
       complianceRate: '99.8% Cumplimiento',
       globalPresence: '38+ Países',
+      sgsVerification: 'VERIFICACIÓN SGS & ASTM D1655',
+      monthlyShipments: 'Despachos Mensuales:',
+      monthlyShipmentsValue: '12.5M BBLS',
+      marineTerminals: 'Terminales Marítimas:',
+      marineTerminalsValue: 'Houston / Rotterdam',
+      operationalStatus: 'Estatus Operativo:',
+      active100: 'ACTIVO 100%',
+    },
+    marquee: {
+      livePrices: 'Precios de Energía en Vivo',
+      marketNews: 'Actualidad & Operaciones',
+      sourceTitle: 'Fuente: OilPrice & Platts',
+    },
+    blog: {
+      tag: 'ANÁLISIS & ACTUALIDAD PETROLERA',
+      title: 'Blog de Inteligencia Energética',
+      subtitle:
+        'Informes técnicos, cotizaciones de crudo y refinados, dinámicas de fletes marítimos, regulaciones internacionales y análisis de mercado por Invest Oil LLC.',
+      searchPlaceholder: 'Buscar por título, tag o tema petrolero...',
+      showingArticles: 'Mostrando {filtered} de {total} artículos',
+      filterCategory: 'Filtrar por categoría temática:',
+      all: 'Todos',
+      noArticles: 'No se encontraron artículos',
+      noArticlesSub: 'Intenta con otro término de búsqueda o selecciona otra categoría.',
+      resetFilters: 'Restablecer todos los filtros',
+      readArticle: 'Leer artículo',
+      republished: 'REPUBLICACIÓN',
+      readingTime: 'min de lectura',
+      views: 'lecturas',
+      backToBlog: 'Volver al Blog de Inteligencia Energética',
+      relatedArticles: 'Artículos Recomendados de Mercado',
+      topics: 'Categorías & Tags:',
+      quotePrompt: '¿Interesado en cotizar este producto o ruta?',
+      quotePromptSub:
+        'Nuestro equipo de trading estructura contratos a medida según tu volumen, especificaciones e Incoterms.',
+      contactDesk: 'Contactar Trading Desk',
+    },
+    auth: {
+      loginTitle: 'Acceso Backoffice',
+      loginSubtitle: 'Credenciales autorizadas de Operaciones & Trading.',
+      emailLabel: 'Email Corporativo',
+      emailPlaceholder: 'admin@investoil.es',
+      passwordLabel: 'Contraseña de Operador',
+      passwordPlaceholder: '••••••••',
+      rememberMe: 'Recordar sesión',
+      forgotPassword: '¿Olvidó contraseña?',
+      loginButton: 'Acceder al Panel',
+      authenticating: 'Verificando seguridad...',
+      noAccount: '¿No tienes cuenta de operador?',
+      requestAccess: 'Solicitar acceso',
+      backToSite: 'Volver al portal público',
+      sslBadge: 'TLS 256-Bit',
+      vaultBadge: 'Invest Oil Vault',
     },
     stats: {
       metric1Value: '150M+',
@@ -200,56 +304,55 @@ export const translations: Record<Language, TranslationDictionary> = {
         'Claridad y transparencia en procesos de compra, garantías financieras y procedimientos de entrega.',
     },
     cta: {
-      tag: 'OPORTUNIDADES DE COOPERACIÓN',
-      title: 'Impulse sus Operaciones Energéticas con Invest Oil LLC',
+      tag: 'CONEXIÓN INMEDIATA',
+      title: 'Optimice su Cadena de Suministro Energético',
       subtitle:
-        'Establezca una alianza comercial estratégica con acceso preferencial a volúmenes, almacenamiento y financiamiento estructurado.',
+        'Contáctenos hoy mismo para evaluar oportunidades de abastecimiento, contratos a plazo o estructuración de fletes internacionales.',
       button: 'Iniciar Diálogo Comercial',
-      guarantee: 'Garantía contractual de suministro · Cumplimiento Incoterms 2020 · Verificación SGS / Intertek',
-      privacyNotice: 'Tratamiento confidencial según acuerdos NDA y normativas internacionales.',
+      guarantee: 'Cumplimiento normativo, trazabilidad y garantías bancarias internacionales de primer nivel.',
+      privacyNotice: 'Sus datos corporativos son tratados bajo estricta confidencialidad comercial.',
     },
     contact: {
-      tag: 'CENTRO DE ATENCIÓN GLOBAL',
-      title: 'Hablemos de su Próxima Transacción',
+      tag: 'COMUNICACIÓN DIRECTA',
+      title: 'Mesa de Trading & Operaciones Comerciales',
       subtitle:
-        'Nuestros equipos comerciales en Houston, Madrid y Bogotá están listos para evaluar sus requerimientos de volumen y logística.',
+        'Póngase en contacto con nuestro equipo directivo para coordinar requerimientos de crudo, refinados o fletamento.',
       fullName: 'Nombre y Apellidos',
       email: 'Correo Electrónico Corporativo',
-      phone: 'Teléfono / WhatsApp de Contacto',
-      company: 'Empresa u Organización',
-      interest: 'Área de Interés',
-      message: 'Detalle de la Consulta / Volúmenes Requeridos',
+      phone: 'Teléfono Directo',
+      company: 'Razón Social / Empresa',
+      interest: 'Producto o Servicio de Interés',
+      message: 'Detalle de la Operación / Volumen Requerido',
       submit: 'Enviar Solicitud Comercial',
-      submitting: 'Procesando Envío...',
-      success: '✓ Mensaje enviado con éxito. Un director comercial le responderá a la brevedad.',
-      error: 'Hubo un error al procesar su solicitud. Intente nuevamente o llámenos directamente.',
+      submitting: 'Transmitiendo datos cifrados...',
+      success: '✓ Su solicitud comercial ha sido recibida por nuestra mesa de trading.',
+      error: 'Error al procesar la solicitud. Por favor verifique sus datos o contáctenos por email.',
     },
     footer: {
-      tagline:
-        'Invest Oil LLC es una firma global especializada en la comercialización, trading, logística y financiamiento estructurado de hidrocarburos y derivados.',
-      quickLinks: 'Navegación Rápida',
-      legal: 'Marco Legal & Cumplimiento',
-      contact: 'Oficinas Principales',
-      rights: '© 2026 Invest Oil LLC. Todos los derechos reservados.',
-      houstonOffice: 'Houston, Texas · EE. UU. (Sede Central)',
-      madridOffice: 'Madrid · España (Operaciones Europa)',
-      bogotaOffice: 'Bogotá · Colombia (Operaciones LatAm)',
+      tagline: 'Conexiones globales en el mercado petrolero, trading físico y logística de hidrocarburos.',
+      quickLinks: 'Enlaces Rápidos',
+      legal: 'Gobernanza & Legal',
+      contact: 'Contacto Directo',
+      rights: 'Todos los derechos reservados. Invest Oil LLC.',
+      houstonOffice: 'Houston, Texas, EE. UU.',
+      madridOffice: 'Madrid, España',
+      bogotaOffice: 'Bogotá, Colombia',
       fraudAlert: 'Alerta de Fraude y Estafas',
-      accessibility: 'Accesibilidad',
+      accessibility: 'Accesibilidad Web',
       privacy: 'Aviso de Privacidad',
       terms: 'Términos y Condiciones',
       cookies: 'Política de Cookies',
     },
     common: {
-      learnMore: 'Más información',
+      learnMore: 'Conocer Más',
       contactUs: 'Contáctanos',
       downloadSpecs: 'Descargar Ficha Técnica',
       requestQuote: 'Solicitar Cotización',
       close: 'Cerrar',
-      save: 'Guardar Cambios',
+      save: 'Guardar',
       saving: 'Guardando...',
-      successSaved: 'Guardado correctamente',
-      errorSaving: 'Error al guardar los cambios',
+      successSaved: 'Guardado exitosamente',
+      errorSaving: 'Error al guardar los datos',
     },
   },
   en: {
@@ -259,7 +362,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       products: 'Products',
       about: 'About Us',
       contact: 'Contact',
-      blog: 'News & Insights',
+      blog: 'News & Blog',
       portalClient: 'Client Portal',
       admin: 'Backoffice',
     },
@@ -276,97 +379,149 @@ export const translations: Record<Language, TranslationDictionary> = {
       activeContracts: '150M+ Barrels',
       complianceRate: '99.8% Compliance',
       globalPresence: '38+ Countries',
+      sgsVerification: 'SGS & ASTM D1655 VERIFICATION',
+      monthlyShipments: 'Monthly Shipments:',
+      monthlyShipmentsValue: '12.5M BBLS',
+      marineTerminals: 'Marine Terminals:',
+      marineTerminalsValue: 'Houston / Rotterdam',
+      operationalStatus: 'Operational Status:',
+      active100: 'ACTIVE 100%',
+    },
+    marquee: {
+      livePrices: 'Live Energy Prices',
+      marketNews: 'Market News & Ops',
+      sourceTitle: 'Source: OilPrice & Platts',
+    },
+    blog: {
+      tag: 'ENERGY INTELLIGENCE & NEWS',
+      title: 'Energy Market Intelligence Blog',
+      subtitle:
+        'Technical reports, crude and refined product quotes, maritime freight dynamics, international regulations, and market analysis by Invest Oil LLC.',
+      searchPlaceholder: 'Search by title, tag or market topic...',
+      showingArticles: 'Showing {filtered} of {total} articles',
+      filterCategory: 'Filter by category:',
+      all: 'All',
+      noArticles: 'No articles found',
+      noArticlesSub: 'Try changing the search query or clearing the category filter.',
+      resetFilters: 'Reset all filters',
+      readArticle: 'Read article',
+      republished: 'REPUBLICATED',
+      readingTime: 'min read',
+      views: 'views',
+      backToBlog: 'Back to Energy Market Intelligence Blog',
+      relatedArticles: 'Recommended Market Articles',
+      topics: 'Categories & Tags:',
+      quotePrompt: 'Interested in quoting this product or route?',
+      quotePromptSub:
+        'Our trading desk structures custom contracts tailored to your volume, specifications, and Incoterms.',
+      contactDesk: 'Contact Trading Desk',
+    },
+    auth: {
+      loginTitle: 'Login',
+      loginSubtitle: 'Welcome back please login to your account.',
+      emailLabel: 'Corporate Email',
+      emailPlaceholder: 'admin@investoil.es',
+      passwordLabel: 'Operator Password',
+      passwordPlaceholder: '••••••••',
+      rememberMe: 'Remember me',
+      forgotPassword: 'Forgot password?',
+      loginButton: 'Login',
+      authenticating: 'Authenticating...',
+      noAccount: "Don't have an account?",
+      requestAccess: 'Sign up',
+      backToSite: 'Back to corporate site',
+      sslBadge: 'TLS 256-Bit',
+      vaultBadge: 'Invest Oil Vault',
     },
     stats: {
       metric1Value: '150M+',
-      metric1Label: 'Barrels transacted annually in major trading hubs',
+      metric1Label: 'Barrels traded annually across international hubs',
       metric2Value: '38+',
-      metric2Label: 'Countries with active trade relationships',
+      metric2Label: 'Countries with active commercial relationships',
       metric3Value: '99.8%',
-      metric3Label: 'Contractual performance and on-time delivery rate',
+      metric3Label: 'Contractual compliance rate and timely deliveries',
       metric4Value: '24/7',
-      metric4Label: 'Maritime logistics monitoring and risk management',
+      metric4Label: 'Maritime monitoring and active risk mitigation',
     },
     services: {
       tag: 'OPERATIONAL EXCELLENCE',
-      title: 'Comprehensive Energy Industry Services',
+      title: 'Comprehensive Energy Industry Solutions',
       subtitle:
-        'Supporting every stage of the supply chain with cutting-edge infrastructure, market intelligence, and regulatory rigor.',
+        'Supporting every stage of the supply chain with advanced infrastructure, market intelligence, and regulatory rigor.',
       viewAll: 'View all services',
       cta: 'Request Operational Advisory',
     },
     products: {
       tag: 'HYDROCARBON PORTFOLIO',
-      title: 'High-Grade Crude and Refined Products',
+      title: 'High-Purity Crude & Refined Products',
       subtitle:
-        'Reliable supply adhering to ASTM, GOST standards and certified technical specifications.',
+        'Reliable supply adhering to international ASTM, GOST standards, and guaranteed technical specifications.',
       quoteTitle: 'Request Commercial Quote',
       specsTitle: 'Technical Specifications',
-      origin: 'Certified Origins & Technical Grades',
+      origin: 'Certified Origins & Specifications',
       viewAll: 'View complete catalog',
     },
     operations: {
       tag: 'LOGISTICS & INFRASTRUCTURE',
-      title: 'Presence in Key Global Energy Hubs',
+      title: 'Presence in Strategic Energy Hubs',
       subtitle:
-        'Storage terminal capacity, vessel chartering, and offshore facilities across prime commercial shipping routes.',
+        'Storage tank capacity, maritime chartering, and hub terminals across primary global trading lanes.',
     },
     team: {
-      tag: 'EXPERT LEADERSHIP',
-      title: 'Board of Directors & Executive Leadership',
+      tag: 'EXECUTIVE LEADERSHIP',
+      title: 'Board of Directors & Management',
       subtitle:
-        'Over 85 years of combined experience in energy finance, petroleum geology, maritime trading, and international law.',
+        'Over 85 years of collective leadership in energy finance, petroleum geology, vessel operations, and international law.',
     },
     testimonials: {
-      tag: 'PROVEN REPUTATION',
-      title: 'Trusted by Global Industry Leaders',
+      tag: 'VERIFIED TRUST',
+      title: 'What our clients and partners say',
       subtitle:
-        'Refineries, trading houses, and multinational corporations relying on Invest Oil LLC’s precision and integrity.',
+        'Refineries, trading houses, and multinational corporations that rely on Invest Oil LLC precision.',
     },
     faq: {
-      tag: 'FREQUENTLY ASKED QUESTIONS',
-      title: 'Operational & Commercial Insights',
+      tag: 'FREQUENT QUESTIONS',
+      title: 'Answers to operational & trading inquiries',
       subtitle:
-        'Clarity, transparency, financial escrow safeguards, and international delivery protocols.',
+        'Uncompromising transparency across purchasing protocols, financial collaterals, and delivery standards.',
     },
     cta: {
-      tag: 'PARTNERSHIP OPPORTUNITIES',
-      title: 'Advance Your Energy Operations with Invest Oil LLC',
+      tag: 'DIRECT ACCESS',
+      title: 'Optimize Your Energy Supply Chain Today',
       subtitle:
-        'Establish a strategic commercial alliance with preferential volume allocations, storage access, and structured finance.',
-      button: 'Initiate Commercial Discussion',
-      guarantee: 'Contractual supply guarantee · Incoterms 2020 compliance · SGS / Intertek inspection verified',
-      privacyNotice: 'Strict confidentiality guaranteed under international NDA protocols.',
+        'Contact our desk to evaluate supply pipelines, term agreements, or chartered cargo solutions.',
+      button: 'Initiate Commercial Dialogue',
+      guarantee: 'Full compliance, cargo traceability, and tier-1 international bank warranties.',
+      privacyNotice: 'Corporate inquiries handled under strict non-disclosure compliance.',
     },
     contact: {
-      tag: 'GLOBAL INQUIRY CENTER',
-      title: 'Let’s Discuss Your Next Energy Allocation',
+      tag: 'DIRECT COMMUNICATION',
+      title: 'Trading Desk & Commercial Operations',
       subtitle:
-        'Our commercial teams in Houston, Madrid, and Bogotá are prepared to evaluate your volume and logistical requirements.',
+        'Reach our executive team to structure your crude, refined products, or logistics requirements.',
       fullName: 'Full Name',
-      email: 'Corporate Email',
-      phone: 'Phone / WhatsApp',
+      email: 'Corporate Email Address',
+      phone: 'Direct Telephone',
       company: 'Company / Organization',
-      interest: 'Area of Interest',
-      message: 'Inquiry Details / Required Volumes',
-      submit: 'Submit Commercial Request',
-      submitting: 'Processing Request...',
-      success: '✓ Request submitted successfully. A commercial director will follow up shortly.',
-      error: 'An error occurred while submitting. Please try again or contact our desk directly.',
+      interest: 'Product or Service of Interest',
+      message: 'Cargo Volume & Operational Details',
+      submit: 'Submit Commercial Inquiry',
+      submitting: 'Transmitting encrypted inquiry...',
+      success: '✓ Your commercial request has been received by our trading desk.',
+      error: 'Error processing inquiry. Please verify your details or contact us directly via email.',
     },
     footer: {
-      tagline:
-        'Invest Oil LLC is a premier global enterprise specializing in petroleum trading, maritime logistics, storage infrastructure, and structured energy commodities finance.',
+      tagline: 'Global connections in petroleum markets, physical trading, and hydrocarbon logistics.',
       quickLinks: 'Quick Links',
-      legal: 'Legal Framework & Compliance',
-      contact: 'Headquarters & Desks',
-      rights: '© 2026 Invest Oil LLC. All rights reserved.',
-      houstonOffice: 'Houston, Texas · USA (Headquarters)',
-      madridOffice: 'Madrid · Spain (European Desk)',
-      bogotaOffice: 'Bogotá · Colombia (Latin America Desk)',
-      fraudAlert: 'Fraud & Scam Prevention Alert',
-      accessibility: 'Accessibility Statement',
-      privacy: 'Privacy Policy',
+      legal: 'Corporate Governance',
+      contact: 'Direct Contact',
+      rights: 'All rights reserved. Invest Oil LLC.',
+      houstonOffice: 'Houston, Texas, USA',
+      madridOffice: 'Madrid, Spain',
+      bogotaOffice: 'Bogota, Colombia',
+      fraudAlert: 'Fraud & Scam Advisory',
+      accessibility: 'Web Accessibility',
+      privacy: 'Privacy Notice',
       terms: 'Terms & Conditions',
       cookies: 'Cookie Policy',
     },
@@ -376,7 +531,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       downloadSpecs: 'Download Spec Sheet',
       requestQuote: 'Request Quote',
       close: 'Close',
-      save: 'Save Changes',
+      save: 'Save',
       saving: 'Saving...',
       successSaved: 'Saved successfully',
       errorSaving: 'Error saving changes',

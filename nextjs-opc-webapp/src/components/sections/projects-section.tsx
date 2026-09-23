@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { FEATURED_OPERATIONS } from '@/lib/constants/investoil';
 import type { FeaturedOperation } from '@/types';
 
-export function ProjectsSection() {
+export function ProjectsSection({ customBg }: { customBg?: string }) {
   const [ops, setOps] = useState<FeaturedOperation[]>(FEATURED_OPERATIONS);
 
   useEffect(() => {
@@ -45,7 +45,11 @@ export function ProjectsSection() {
   }, []);
 
   return (
-    <section id="projects" className="py-24 border-t border-border bg-bg relative">
+    <section
+      id="plataforma"
+      className="py-24 border-t border-border/80 relative transition-colors duration-300"
+      style={{ backgroundColor: customBg || undefined }}
+    >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
           <Badge variant="accent">HISTORIAL COMPROBADO</Badge>

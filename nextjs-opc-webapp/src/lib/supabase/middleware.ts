@@ -1,82 +1,67 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { ADMIN_COOKIE_NAME, decodeSessionToken } from '@/lib/auth/session';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 
 export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://demo-project.supabase.co';
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'demo-anon-key';
-
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      get(name: string) {
-        return request.cookies.get(name)?.value;
-      },
-      set(name: string, value: string, options: CookieOptions) {
-        request.cookies.set({
-          name,
-          value,
-          ...options,
-        });
-        response = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        });
-        response.cookies.set({
-          name,
-          value,
-          ...options,
-        });
-      },
-      remove(name: string, options: CookieOptions) {
-        request.cookies.set({
-          name,
-          value: '',
-          ...options,
-        });
-        response = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        });
-        response.cookies.set({
-          name,
-          value: '',
-          ...options,
-        });
-      },
-    },
-  });
-
-  // Refresh auth session
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const pathname = request.nextUrl.pathname;
+  const isAdminRoute = pathname.startsWith('/admin');
   const isAuthRoute =
-    request.nextUrl.pathname.startsWith('/login') ||
-    request.nextUrl.pathname.startsWith('/register') ||
-    request.nextUrl.pathname.startsWith('/forgot-password');
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register') ||
+    pathname.startsWith('/forgot-password');
 
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+  // Si no es ruta de auth ni de admin, pasar inmediatamente sin llamadas de red (Rendimiento 0ms)
+  if (!isAdminRoute && !isAuthRoute) {
+    return NextResponse.next();
+  }
 
-  // Si intenta acceder a /admin sin estar logueado, redirigir a login
-  // (En modo showcase o con usuario presente continúa normalmente)
-  if (isAdminRoute && !user && process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY !== 'demo_service_role_key_for_local_development') {
+  // 1. Verificar cookie de sesión segura firmada
+  let isAuthenticated = false;
+  const sessionToken = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
+  if (sessionToken) {
+    const session = decodeSessionToken(sessionToken);
+    if (session) {
+      isAuthenticated = true;
+    }
+  }
+
+  // 2. Si no hay sesión local pero Supabase está configurado con credenciales reales, verificar con Supabase
+  if (!isAuthenticated && isSupabaseConfigured()) {
+    try {
+      const { createServerClient } = await import('@supabase/ssr');
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+      const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+        cookies: {
+          get(name: string) {
+            return request.cookies.get(name)?.value;
+          },
+          set() {},
+          remove() {},
+        },
+      });
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        isAuthenticated = true;
+      }
+    } catch {
+      // Ignorar fallo de red
+    }
+  }
+
+  // 3. Proteger estrictamente las rutas del backoffice
+  if (isAdminRoute && !isAuthenticated) {
     const redirectUrl = new URL('/login', request.url);
-    redirectUrl.searchParams.set('next', request.nextUrl.pathname);
+    redirectUrl.searchParams.set('next', pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Si ya está logueado e ingresa a /login o /register, redirigir a /admin
-  if (isAuthRoute && user) {
+  // 4. Si ya está autenticado e intenta acceder a login/register, enviar al panel
+  if (isAuthRoute && isAuthenticated) {
     return NextResponse.redirect(new URL('/admin', request.url));
   }
 
-  return response;
+  return NextResponse.next();
 }

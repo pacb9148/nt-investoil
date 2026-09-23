@@ -1,20 +1,30 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, Calendar, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { NewsRepublishBadge } from './news-republish-badge';
 import { formatDate } from '@/lib/utils';
+import { useLanguage } from '@/lib/i18n/language-context';
 import { type Post } from '@/types';
 
-export function BlogCard({ post }: { post: Post }) {
+export function BlogCard({ post }: { post: Post & { categories?: any[] } }) {
+  const { language } = useLanguage();
+  const isEn = language === 'en';
+
   const imageUrl =
     post.featured_image_url ||
     'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80';
 
+  const category = post.categories && post.categories.length > 0 ? post.categories[0] : null;
+  const categoryLabel = category
+    ? (isEn && category.name_en ? category.name_en : category.name)
+    : null;
+
   return (
-    <Card className="overflow-hidden flex flex-col justify-between group transition-all duration-300 hover:border-accent/50 hover:shadow-glow-accent/20">
+    <Card className="overflow-hidden flex flex-col justify-between group transition-all duration-300 hover:border-accent/50 hover:shadow-glow-accent/20 bg-card/90">
       <div>
         {/* Thumbnail */}
         <Link href={`/blog/${post.slug}`} className="block relative aspect-video w-full overflow-hidden bg-surf">
@@ -27,14 +37,28 @@ export function BlogCard({ post }: { post: Post }) {
           />
           {post.is_republished && (
             <div className="absolute top-3 left-3">
-              <Badge variant="warm">REPUBLICACIÓN</Badge>
+              <Badge variant="warm">{isEn ? 'REPUBLICATED' : 'REPUBLICACIÓN'}</Badge>
+            </div>
+          )}
+          {categoryLabel && (
+            <div className="absolute top-3 right-3">
+              <span
+                className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-md shadow-md border"
+                style={{
+                  backgroundColor: `${category.color || '#f59e0b'}25`,
+                  borderColor: `${category.color || '#f59e0b'}60`,
+                  color: category.color || '#f59e0b',
+                }}
+              >
+                {categoryLabel}
+              </span>
             </div>
           )}
         </Link>
 
         {/* Content */}
         <CardContent className="p-6 space-y-3">
-          <div className="flex items-center gap-3 text-xs text-text-muted">
+          <div className="flex items-center gap-3 text-xs text-text-muted font-mono">
             <span className="flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5 text-accent" />
               <span>{formatDate(post.published_at || post.created_at)}</span>
@@ -82,7 +106,7 @@ export function BlogCard({ post }: { post: Post }) {
           href={`/blog/${post.slug}`}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:text-neon transition-colors"
         >
-          <span>Leer artículo</span>
+          <span>{isEn ? 'Read article' : 'Leer artículo'}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>

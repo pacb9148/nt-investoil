@@ -19,8 +19,12 @@ export function DashboardTopbar({
 
   const handleLogout = async () => {
     try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
+      await fetch('/api/auth/logout', { method: 'POST' });
+      if (typeof window !== 'undefined') {
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+        await supabase.auth.signOut();
+      }
     } catch (e) {
       // Ignored
     }

@@ -95,6 +95,33 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - Edición de títulos, etiquetas, fecha de última revisión, preámbulos y adición/eliminación interactiva de cláusulas y artículos normativos.
   - Componente `LegalPageView` conectado en cada una de las 5 páginas públicas con sincronización en tiempo real.
 
+### Fase 7: Seguridad y Blindaje del Backoffice, Optimización Crítica de Navegación, Categorías en Blog, Doble Marquesina Bidireccional, Color Pickers por Sección y Personalización de Tarjeta Hero & Logotipo
+- **Formulario de Acceso Seguro al Backoffice (`/login` & `/api/auth/login`)**:
+  - Replicación fiel de la dirección visual de referencia (`media_1790193884298.png`): tarjeta *frosted glassmorphism* ultra-limpia (`backdrop-blur-2xl`), fondo negro obsidiana con orbes luminosos petróleo/magenta/ámbar, campos de texto oscuros de alta gama, opción "Recordar sesión" y botón con gradiente de alta energía.
+  - Protocolo de seguridad y escudo contra fuerza bruta: limitación de tasa por IP/cuenta con bloqueo preventivo tras 5 intentos fallidos.
+  - Firma y verificación criptográfica de tokens de sesión almacenados en cookies HTTP-only (`investoil_admin_session`).
+  - Protección estricta en `middleware.ts` y en el layout de administración (`/admin` y todas sus subrutas redirigen inmediatamente al login si no hay sesión activa).
+  - Cierre de sesión seguro en `DashboardTopbar` con revocación de cookies.
+- **Diagnóstico y Corrección Radical del Rendimiento de Navegación**:
+  - Causa raíz resuelta: la aplicación intentaba resolver llamadas de red hacia el host por defecto `demo-project.supabase.co` en cada ejecución de middleware y SSR cuando no había credenciales reales configuradas, provocando bloqueos de 5 a 10 segundos en cada clic.
+  - Se implementó la detección inmediata `isSupabaseConfigured()`, desactivando llamadas de red remotas inexistentes y habilitando respuestas en 0 ms.
+- **Categorización Integral del Blog (`/blog` y `/blog/[slug]`)**:
+  - Taxonomía de trading y energía: Mercado Petrolero & Precios, Logística & Fletes Marítimos, Refinación & Derivados, Compliance & Regulaciones, Pet Coke & Commodities Sólidos, y Transición & Sostenibilidad.
+  - Barra de filtrado con conteo dinámico de artículos, insignias con código de color en cada tarjeta (`BlogCard`) y recomendaciones de artículos relacionados en la vista detallada.
+- **Marquesina Doble Bidireccional Continua (`MarqueeTicker`)**:
+  - Fila 1: Índices financieros y cotizaciones de hidrocarburos (Brent, WTI, Merey 16, Henry Hub, EN590, Jet A-1, Pet Coke verde y calcinado, Fuel Oil 380 CST, MGO, GNL DES, Dubai) con desplazamiento de izquierda a derecha.
+  - Fila 2: Titulares de información, reportes OPEP+, certificaciones SGS/Intertek y novedades operativas con desplazamiento en dirección opuesta (derecha a izquierda).
+  - Flujo continuo sin cortes ni vacíos mediante duplicación fluida del DOM.
+- **Selector de Color de Fondo por Sección (Color Picker en `/admin/content/apariencia`)**:
+  - Gestor independiente para las 10 secciones del portal (Hero, Marquee, Problema, Servicios, Productos, Plataforma, Consejo, Testimonios, FAQ, Contacto) con control nativo `<input type="color">`, valor hexadecimal y restablecimiento a valores por defecto.
+- **Personalización Completa de la Tarjeta Hero Señalada & Logotipo (`media_1790194402061.png`)**:
+  - Controles en `/admin/content/hero` y `/admin/content/apariencia`:
+    - Color de fondo y borde de la tarjeta con color picker y opacidad de resplandor glow.
+    - Filtros dinámicos CSS del logotipo/sello corporativo: rotación de matiz (*hue-rotate* 0°–360°), luminosidad (*brightness* 50%–200%), saturación (0%–200%), color de sombra y radio de desenfoque (*drop-shadow* 0–50px).
+    - Vista previa interactiva en tiempo real en el panel administrativo.
+- **Internacionalización Total Bilingüe (ES / EN)**:
+  - Expansión global del catálogo `translations.ts` cubriendo navegación, Hero, tarjeta lateral ("SGS & ASTM D1655 VERIFICATION", "Monthly Shipments", etc.), marquesina doble, blog, categorías, artículos, autenticación y pie de página.
+
 ---
 
 ## 3. Lecciones Aprendidas y Decisiones de Arquitectura
@@ -104,3 +131,6 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 4. **Visualización de Presencia Física Internacional**: Estructurar las sedes en dos filas diferenciadas (Fila 1: Ciudad y País; Fila 2: Dirección física y rol de la sede) aumenta significativamente la credibilidad institucional en trading petrolero y facilita la lectura rápida para contrapartes y bancos internacionales.
 5. **Streaming de Medios en Next.js App Router**: Para reproducir videos MP4/WebM en navegadores modernos (Chrome, Safari, Firefox) cargados dinámicamente en `public/uploads`, es mandatorio responder con `206 Partial Content` y cabeceras de rango HTTP (`bytes=start-end`).
 6. **Separación de Servicios de Servidor vs Cliente**: Archivos que utilicen módulos nativos de Node.js (`fs`, `path`) no deben ser importados ni transitivamente por componentes de cliente (`'use client'`); deben residir en servicios exclusivos de servidor (`server-legal-service.ts`).
+7. **Prevención de Cuellos de Botella en Middleware**: Si un servicio de base de datos o autenticación externa (Supabase) no tiene variables configuradas válidas, el middleware jamás debe emitir peticiones HTTP a dominios placeholder o inexistentes (`demo-project.supabase.co`), pues los *timeouts* bloquean la navegación del usuario. La verificación debe ser local y ultrarrápida.
+8. **Suspense en Rutas con `useSearchParams`**: En Next.js 14 App Router, cualquier componente cliente que consuma parámetros de URL (`useSearchParams()`) debe estar encapsulado en un límite `<Suspense>` para posibilitar la generación estática (SSG/ISR) sin errores durante `next build`.
+

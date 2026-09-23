@@ -36,6 +36,16 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   const [opacity, setOpacity] = useState<number>(defaultValues.hero_bg_opacity ?? 20);
   const [langTab, setLangTab] = useState<'es' | 'en'>('es');
 
+  // Estados para personalización de la Tarjeta Hero Señalada y Logotipo
+  const [cardBg, setCardBg] = useState<string>(defaultValues.hero_card?.card_bg_color || '#0e1e3d');
+  const [cardBorder, setCardBorder] = useState<string>(defaultValues.hero_card?.card_border_color || '#1a3264');
+  const [cardGlow, setCardGlow] = useState<number>(defaultValues.hero_card?.card_glow_opacity ?? 50);
+  const [logoHue, setLogoHue] = useState<number>(defaultValues.hero_card?.logo_hue ?? 0);
+  const [logoBrightness, setLogoBrightness] = useState<number>(defaultValues.hero_card?.logo_brightness ?? 100);
+  const [logoSaturation, setLogoSaturation] = useState<number>(defaultValues.hero_card?.logo_saturation ?? 100);
+  const [logoShadowColor, setLogoShadowColor] = useState<string>(defaultValues.hero_card?.logo_shadow_color || '#f59e0b');
+  const [logoShadowBlur, setLogoShadowBlur] = useState<number>(defaultValues.hero_card?.logo_shadow_blur ?? 20);
+
   // Estados para subida de archivos
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
@@ -603,6 +613,236 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                 defaultValue={defaultValues.market_ticker || 'BRENT: $82.40/bbl (+1.2%) | WTI: $78.15/bbl (+0.9%)'}
                 className={INPUT_STYLE}
               />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Personalización de la Tarjeta Hero Señalada & Logotipo */}
+      <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-5">
+        <div className="flex items-center justify-between border-b border-border/60 pb-3">
+          <h3 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            <span>Personalización de Tarjeta Hero & Logotipo (Filtros, Sombra y Luminosidad)</span>
+          </h3>
+          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+            Vista Previa Activa
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Controles de Personalización */}
+          <div className="lg:col-span-7 space-y-4">
+            {/* Color de Fondo y Borde de la Tarjeta */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={LABEL_STYLE}>Color de Fondo de la Tarjeta</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={cardBg.startsWith('#') ? cardBg : '#0e1e3d'}
+                    onChange={(e) => setCardBg(e.target.value)}
+                    className="w-9 h-9 rounded-lg border border-border bg-transparent cursor-pointer p-0.5"
+                  />
+                  <input
+                    type="text"
+                    name="hero_card_bg"
+                    value={cardBg}
+                    onChange={(e) => setCardBg(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={LABEL_STYLE}>Color de Borde / Resplandor</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={cardBorder.startsWith('#') ? cardBorder : '#1a3264'}
+                    onChange={(e) => setCardBorder(e.target.value)}
+                    className="w-9 h-9 rounded-lg border border-border bg-transparent cursor-pointer p-0.5"
+                  />
+                  <input
+                    type="text"
+                    name="hero_card_border"
+                    value={cardBorder}
+                    onChange={(e) => setCardBorder(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Opacidad del resplandor glow */}
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className={LABEL_STYLE}>Opacidad del Resplandor Glow</label>
+                <span className="text-xs font-mono text-accent">{cardGlow}%</span>
+              </div>
+              <input
+                type="range"
+                name="hero_card_glow_opacity"
+                min="0"
+                max="100"
+                value={cardGlow}
+                onChange={(e) => setCardGlow(Number(e.target.value))}
+                className="w-full accent-amber-500"
+              />
+            </div>
+
+            {/* Filtros del Logotipo (Matiz, Luminosidad, Saturación) */}
+            <div className="pt-2 border-t border-border/40 space-y-3">
+              <div className="text-[11px] font-mono text-accent font-semibold">
+                Efectos del Logotipo / Sello Oficial:
+              </div>
+
+              {/* Matiz / Hue Rotate */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[11px] font-mono text-text-muted">Color / Matiz (Hue Rotate)</span>
+                  <span className="text-xs font-mono text-amber-400">{logoHue}°</span>
+                </div>
+                <input
+                  type="range"
+                  name="hero_logo_hue"
+                  min="0"
+                  max="360"
+                  value={logoHue}
+                  onChange={(e) => setLogoHue(Number(e.target.value))}
+                  className="w-full accent-amber-500"
+                />
+              </div>
+
+              {/* Luminosidad / Brightness */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[11px] font-mono text-text-muted">Luminosidad (Brightness)</span>
+                  <span className="text-xs font-mono text-amber-400">{logoBrightness}%</span>
+                </div>
+                <input
+                  type="range"
+                  name="hero_logo_brightness"
+                  min="50"
+                  max="200"
+                  value={logoBrightness}
+                  onChange={(e) => setLogoBrightness(Number(e.target.value))}
+                  className="w-full accent-amber-500"
+                />
+              </div>
+
+              {/* Saturación */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[11px] font-mono text-text-muted">Saturación de Color</span>
+                  <span className="text-xs font-mono text-amber-400">{logoSaturation}%</span>
+                </div>
+                <input
+                  type="range"
+                  name="hero_logo_saturation"
+                  min="0"
+                  max="200"
+                  value={logoSaturation}
+                  onChange={(e) => setLogoSaturation(Number(e.target.value))}
+                  className="w-full accent-amber-500"
+                />
+              </div>
+
+              {/* Sombra del Logotipo (Color y Difuminado) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <div>
+                  <span className="text-[11px] font-mono text-text-muted block mb-1">Color de Sombra</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={logoShadowColor.startsWith('#') ? logoShadowColor : '#f59e0b'}
+                      onChange={(e) => setLogoShadowColor(e.target.value)}
+                      className="w-8 h-8 rounded-lg border border-border bg-transparent cursor-pointer p-0.5"
+                    />
+                    <input
+                      type="text"
+                      name="hero_logo_shadow_color"
+                      value={logoShadowColor}
+                      onChange={(e) => setLogoShadowColor(e.target.value)}
+                      className={INPUT_STYLE}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[11px] font-mono text-text-muted">Intensidad / Blur Sombra</span>
+                    <span className="text-xs font-mono text-accent">{logoShadowBlur}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    name="hero_logo_shadow_blur"
+                    min="0"
+                    max="50"
+                    value={logoShadowBlur}
+                    onChange={(e) => setLogoShadowBlur(Number(e.target.value))}
+                    className="w-full accent-amber-500 mt-2"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Vista previa en vivo del componente */}
+          <div className="lg:col-span-5 flex flex-col items-center justify-center p-4 rounded-xl bg-black/40 border border-border/80">
+            <span className="text-[10px] font-mono text-text-subtle uppercase tracking-wider mb-3">
+              Vista previa interactiva
+            </span>
+            <div className="relative w-full max-w-[280px]">
+              <div
+                className="absolute -inset-1 rounded-2xl blur-lg transition-all duration-300 pointer-events-none"
+                style={{
+                  background: `linear-gradient(to right, ${cardBorder}, #f59e0b)`,
+                  opacity: cardGlow / 100,
+                }}
+              />
+              <div
+                className="relative rounded-xl p-4 shadow-xl space-y-4 transition-all duration-300 backdrop-blur-md"
+                style={{
+                  backgroundColor: cardBg,
+                  border: `1px solid ${cardBorder}`,
+                }}
+              >
+                <div
+                  className="flex items-center justify-between pb-2 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-200"
+                  style={{ borderBottom: `1px solid ${cardBorder}40` }}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
+                    <span>VERIFICACIÓN SGS</span>
+                  </span>
+                </div>
+
+                <div className="flex justify-center py-1">
+                  <img
+                    src="/images/branding/seal-transparent.png"
+                    alt="Preview"
+                    className="w-28 h-28 object-contain transition-all duration-200"
+                    style={{
+                      filter: `hue-rotate(${logoHue}deg) brightness(${logoBrightness}%) saturate(${logoSaturation}%) drop-shadow(0 0 ${logoShadowBlur}px ${logoShadowColor})`,
+                    }}
+                  />
+                </div>
+
+                <div
+                  className="space-y-1.5 pt-2 text-[10px] font-mono"
+                  style={{ borderTop: `1px solid ${cardBorder}40` }}
+                >
+                  <div className="flex justify-between text-slate-300">
+                    <span>Despachos:</span>
+                    <span className="font-bold text-white">12.5M BBLS</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>Estatus:</span>
+                    <span className="font-bold text-emerald-400">ACTIVO 100%</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

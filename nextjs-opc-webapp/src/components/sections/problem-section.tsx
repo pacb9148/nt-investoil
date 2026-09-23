@@ -37,7 +37,7 @@ const DEFAULT_PROBLEMS: ProblemItem[] = [
   },
 ];
 
-export function ProblemSection() {
+export function ProblemSection({ customBg }: { customBg?: string }) {
   const [problems, setProblems] = useState<ProblemItem[]>(DEFAULT_PROBLEMS);
 
   useEffect(() => {
@@ -71,7 +71,11 @@ export function ProblemSection() {
   }, []);
 
   return (
-    <section className="py-24 border-t border-border bg-surf/30 relative">
+    <section
+      id="problema"
+      className="py-24 border-t border-border/80 relative transition-colors duration-300"
+      style={{ backgroundColor: customBg || undefined }}
+    >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
           <Badge variant="danger">DESAFÍOS OPERATIVOS</Badge>

@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import {
   updateMemorySection,
   updateMemoryHero,
@@ -11,6 +11,8 @@ import type {
   ContentActionResponse,
   HeroBgType,
   HeroVisualType,
+  SectionBackgroundColors,
+  HeroCardCustomization,
 } from '@/types/content';
 
 export async function toggleSectionAction(
@@ -19,18 +21,17 @@ export async function toggleSectionAction(
 ): Promise<ContentActionResponse> {
   updateMemorySection(id, isActive);
 
-  try {
-    const db = createAdminClient();
-    const { error } = await db
-      .from('landing_sections')
-      .update({ is_active: isActive })
-      .eq('id', id);
-
-    if (error) {
-      console.warn('Supabase toggleSection warning:', error.message);
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const db = createAdminClient();
+      await db
+        .from('landing_sections')
+        .update({ is_active: isActive })
+        .eq('id', id);
+    } catch (err) {
+      console.warn('Supabase toggleSection connection fallback');
     }
-  } catch (err) {
-    console.warn('Supabase toggleSection connection fallback');
   }
 
   revalidatePath('/', 'layout');
@@ -42,6 +43,17 @@ export async function updateHeroAction(
   _prev: ContentActionResponse,
   formData: FormData
 ): Promise<ContentActionResponse> {
+  const heroCard: HeroCardCustomization = {
+    card_bg_color: (formData.get('hero_card_bg') as string) || undefined,
+    card_border_color: (formData.get('hero_card_border') as string) || undefined,
+    card_glow_opacity: formData.get('hero_card_glow_opacity') !== null ? Number(formData.get('hero_card_glow_opacity')) : undefined,
+    logo_hue: formData.get('hero_logo_hue') !== null ? Number(formData.get('hero_logo_hue')) : undefined,
+    logo_brightness: formData.get('hero_logo_brightness') !== null ? Number(formData.get('hero_logo_brightness')) : undefined,
+    logo_saturation: formData.get('hero_logo_saturation') !== null ? Number(formData.get('hero_logo_saturation')) : undefined,
+    logo_shadow_color: (formData.get('hero_logo_shadow_color') as string) || undefined,
+    logo_shadow_blur: formData.get('hero_logo_shadow_blur') !== null ? Number(formData.get('hero_logo_shadow_blur')) : undefined,
+  };
+
   const data = {
     eyebrow_text: formData.get('eyebrow_text') as string,
     eyebrow_text_en: formData.get('eyebrow_text_en') as string,
@@ -67,20 +79,21 @@ export async function updateHeroAction(
     hero_bg_blur: Number(formData.get('hero_bg_blur') || 0),
     hero_visual_tipo: (formData.get('hero_visual_tipo') || 'mockup') as HeroVisualType,
     hero_visual_url: (formData.get('hero_visual_url') || '') as string,
+    hero_card: heroCard,
     market_ticker: formData.get('market_ticker') as string,
     updated_at: new Date().toISOString(),
   };
 
   updateMemoryHero(data);
 
-  try {
-    const db = createAdminClient();
-    const { error } = await db.from('landing_hero').upsert({ id: 1, ...data });
-    if (error) {
-      console.warn('Supabase updateHero warning:', error.message);
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const db = createAdminClient();
+      await db.from('landing_hero').upsert({ id: 1, ...data });
+    } catch (err) {
+      console.warn('Supabase updateHero connection fallback');
     }
-  } catch (err) {
-    console.warn('Supabase updateHero connection fallback');
   }
 
   revalidatePath('/', 'layout');
@@ -92,6 +105,30 @@ export async function updateAppearanceAction(
   _prev: ContentActionResponse,
   formData: FormData
 ): Promise<ContentActionResponse> {
+  const sectionBgColors: SectionBackgroundColors = {
+    hero: (formData.get('sec_bg_hero') || '') as string,
+    marquee: (formData.get('sec_bg_marquee') || '') as string,
+    problema: (formData.get('sec_bg_problema') || '') as string,
+    services: (formData.get('sec_bg_services') || '') as string,
+    products: (formData.get('sec_bg_products') || '') as string,
+    plataforma: (formData.get('sec_bg_plataforma') || '') as string,
+    team: (formData.get('sec_bg_team') || '') as string,
+    testimonials: (formData.get('sec_bg_testimonials') || '') as string,
+    faq: (formData.get('sec_bg_faq') || '') as string,
+    contact: (formData.get('sec_bg_contact') || '') as string,
+  };
+
+  const heroCard: HeroCardCustomization = {
+    card_bg_color: (formData.get('hero_card_bg') as string) || '#0e1424',
+    card_border_color: (formData.get('hero_card_border') as string) || '#f59e0b',
+    card_glow_opacity: Number(formData.get('hero_card_glow_opacity') ?? 50),
+    logo_hue: Number(formData.get('hero_logo_hue') ?? 0),
+    logo_brightness: Number(formData.get('hero_logo_brightness') ?? 100),
+    logo_saturation: Number(formData.get('hero_logo_saturation') ?? 100),
+    logo_shadow_color: (formData.get('hero_logo_shadow_color') as string) || '#f59e0b',
+    logo_shadow_blur: Number(formData.get('hero_logo_shadow_blur') ?? 20),
+  };
+
   const data = {
     font_heading: (formData.get('font_heading') || 'Outfit') as any,
     font_body: (formData.get('font_body') || 'Inter') as any,
@@ -99,18 +136,20 @@ export async function updateAppearanceAction(
     accent_glow: formData.get('accent_glow') === 'on',
     background_pattern: (formData.get('background_pattern') || 'grid') as any,
     custom_css: (formData.get('custom_css') || '') as string,
+    section_bg_colors: sectionBgColors,
+    hero_card: heroCard,
   };
 
   updateMemoryAppearance(data);
 
-  try {
-    const db = createAdminClient();
-    const { error } = await db.from('landing_site_appearance').upsert({ id: 1, ...data });
-    if (error) {
-      console.warn('Supabase updateAppearance warning:', error.message);
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const db = createAdminClient();
+      await db.from('landing_site_appearance').upsert({ id: 1, ...data });
+    } catch (err) {
+      console.warn('Supabase updateAppearance connection fallback');
     }
-  } catch (err) {
-    console.warn('Supabase updateAppearance connection fallback');
   }
 
   revalidatePath('/', 'layout');

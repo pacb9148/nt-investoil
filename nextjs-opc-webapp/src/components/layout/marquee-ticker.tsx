@@ -1,155 +1,173 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ArrowUpRight, ArrowDownRight, ExternalLink } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, ExternalLink, Newspaper, TrendingUp } from 'lucide-react';
 import { CommodityPrice } from '@/app/api/market-prices/route';
+import { useLanguage } from '@/lib/i18n/language-context';
 
-interface MarqueeConfig {
-  enabled: boolean;
-  showLivePrices: boolean;
-  speedSeconds: number;
-  pauseOnHover: boolean;
-  customItems: string[];
-}
+const DEFAULT_COMMODITIES: CommodityPrice[] = [
+  { name: 'Petróleo Brent', symbol: 'BRENT', price: 82.45, currency: 'USD', unit: '/bbl', changePercent: 1.24, updatedAt: '' },
+  { name: 'Petróleo WTI', symbol: 'WTI', price: 78.20, currency: 'USD', unit: '/bbl', changePercent: 0.88, updatedAt: '' },
+  { name: 'Crudo Merey 16', symbol: 'MEREY-16', price: 69.80, currency: 'USD', unit: '/bbl', changePercent: 1.45, updatedAt: '' },
+  { name: 'Gas Natural Henry Hub', symbol: 'NATGAS', price: 2.48, currency: 'USD', unit: '/MMBtu', changePercent: -0.42, updatedAt: '' },
+  { name: 'Diésel EN590 10ppm', symbol: 'EN590', price: 812.50, currency: 'USD', unit: '/MT', changePercent: 0.65, updatedAt: '' },
+  { name: 'Jet Fuel A-1 Aviación', symbol: 'JET-A1', price: 2.54, currency: 'USD', unit: '/gal', changePercent: 1.15, updatedAt: '' },
+  { name: 'Pet Coke Verde', symbol: 'PETCOKE', price: 118.50, currency: 'USD', unit: '/MT', changePercent: 0.35, updatedAt: '' },
+  { name: 'Pet Coke Calcinado', symbol: 'CPC-ANODE', price: 385.00, currency: 'USD', unit: '/MT', changePercent: 0.50, updatedAt: '' },
+  { name: 'Fuel Oil 380 CST', symbol: 'IFO-380', price: 465.00, currency: 'USD', unit: '/MT', changePercent: -0.80, updatedAt: '' },
+  { name: 'Gasóleo Marino MGO', symbol: 'MGO 0.1%', price: 795.00, currency: 'USD', unit: '/MT', changePercent: 0.40, updatedAt: '' },
+  { name: 'GNL Criogénico DES', symbol: 'LNG-DES', price: 13.85, currency: 'USD', unit: '/MMBtu', changePercent: -0.25, updatedAt: '' },
+  { name: 'Crudo Dubai', symbol: 'DUBAI', price: 80.15, currency: 'USD', unit: '/bbl', changePercent: 0.95, updatedAt: '' },
+];
 
-export function MarqueeTicker() {
-  const [config, setConfig] = useState<MarqueeConfig>({
-    enabled: true,
-    showLivePrices: true,
-    speedSeconds: 30,
-    pauseOnHover: true,
-    customItems: [
-      'TERMINALES ACTIVAS: HOUSTON · ROTTERDAM · FUJAIRAH · JURONG SINGAPUR',
-      'INSPECCIÓN Y CONTROL DE CALIDAD: SGS · INTERTEK · SAYBOLT CERTIFIED',
-      'CUMPLIMIENTO NORMATIVO: ASTM D1655 · EN590 · ISO 8217 MARPOL ANNEX VI',
-    ],
-  });
+const HEADLINES_ES = [
+  'OPEP+ ratifica cuotas de producción y estabilidad en la oferta de crudo 2026',
+  'Invest Oil LLC consolida contratos de suministro spot y term en terminales de Houston y Rotterdam',
+  'Aumento sostenido en la demanda de crudo pesado Merey 16 en refinerías de alta conversión en Asia',
+  'Inspecciones de calidad y cantidad certificadas bajo protocolos independientes SGS, Intertek y Saybolt',
+  'Cumplimiento normativo estricto bajo especificaciones ASTM D1655, EN590 e ISO 8217 Marpol Annex VI',
+  'Nuevas operaciones de arbitraje transatlántico en cargamentos de Pet Coke para cementeras y siderurgia',
+  'Monitoreo 24/7 y cobertura de riesgo financiero en transacciones marítimas bajo Incoterms CIF, FOB y CFR',
+  'Despachos mensuales consolidados superan los 12.5M de barriles equivalentes hacia mercados globales',
+  'Acuerdos de fletamento en buques Aframax y Suezmax con ventanas de atraque prioritarias',
+  'Compromiso de sostenibilidad: incorporación progresiva de GNL criogénico y biocombustibles marinos',
+];
 
-  const [prices, setPrices] = useState<CommodityPrice[]>([]);
-  const [loadingPrices, setLoadingPrices] = useState(true);
+const HEADLINES_EN = [
+  'OPEC+ reaffirms production quota targets and crude supply stability for 2026',
+  'Invest Oil LLC strengthens spot and term supply contracts across Houston and Rotterdam hub terminals',
+  'Robust demand for Merey 16 heavy crude across deep-conversion refineries in Asia',
+  'Quality and quantity inspections certified under independent SGS, Intertek, and Saybolt protocols',
+  'Strict regulatory compliance under ASTM D1655, EN590, and ISO 8217 Marpol Annex VI standards',
+  'New transatlantic arbitrage operations in Pet Coke cargoes for cement and steel manufacturing',
+  '24/7 monitoring and financial hedging in maritime trades under CIF, FOB, and CFR Incoterms',
+  'Consolidated monthly shipments exceed 12.5M barrel equivalents to global energy markets',
+  'Long-term chartering agreements on Aframax and Suezmax tankers with priority berthing windows',
+  'Sustainability pledge: progressive adoption of cryogenic LNG and low-carbon marine fuels',
+];
 
-  // Cargar configuración de marquee
-  const fetchConfig = async () => {
-    try {
-      const res = await fetch('/api/content/marquee');
-      if (res.ok) {
-        const data = await res.json();
-        setConfig(data);
-      }
-    } catch {
-      // Fallback a default
-    }
-  };
+export function MarqueeTicker({ customBg }: { customBg?: string }) {
+  const { language } = useLanguage();
+  const isEn = language === 'en';
 
-  // Cargar precios de mercado
-  const fetchPrices = async () => {
-    try {
-      const res = await fetch('/api/market-prices');
-      if (res.ok) {
-        const json = await res.json();
-        if (json.commodities) {
-          setPrices(json.commodities);
-        }
-      }
-    } catch {
-      // Fallback
-    } finally {
-      setLoadingPrices(false);
-    }
-  };
+  const [prices, setPrices] = useState<CommodityPrice[]>(DEFAULT_COMMODITIES);
 
   useEffect(() => {
-    fetchConfig();
-    fetchPrices();
-
-    // Actualizar precios de mercado cada 60 segundos
-    const priceInterval = setInterval(fetchPrices, 60000);
-
-    const handleUpdate = () => {
-      fetchConfig();
+    let isMounted = true;
+    const fetchPrices = async () => {
+      try {
+        const res = await fetch('/api/market-prices');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.commodities && json.commodities.length > 0 && isMounted) {
+            setPrices(json.commodities);
+          }
+        }
+      } catch {
+        // Fallback garantizado a DEFAULT_COMMODITIES
+      }
     };
 
-    window.addEventListener('investoil_marquee_updated', handleUpdate);
+    fetchPrices();
+    // Actualización cada 120s para optimizar recursos en segundo plano
+    const interval = setInterval(fetchPrices, 120000);
     return () => {
-      clearInterval(priceInterval);
-      window.removeEventListener('investoil_marquee_updated', handleUpdate);
+      isMounted = false;
+      clearInterval(interval);
     };
   }, []);
 
-  if (!config.enabled) return null;
+  const headlines = isEn ? HEADLINES_EN : HEADLINES_ES;
 
-  // Construir la lista de elementos para el ticker
-  const tickerItems = (
-    <>
-      {config.showLivePrices &&
-        prices.map((p) => {
-          const isPositive = p.changePercent >= 0;
-          return (
-            <div key={p.symbol} className="inline-flex items-center gap-2">
-              <span className="text-[11px] font-mono font-bold text-text-subtle uppercase tracking-wider">
-                {p.symbol}
-              </span>
-              <span className="text-xs font-mono font-semibold text-text">
-                ${p.price.toFixed(2)} {p.unit}
-              </span>
-              <span
-                className={`inline-flex items-center text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                  isPositive
-                    ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'
-                    : 'text-rose-400 bg-rose-500/10 border border-rose-500/20'
-                }`}
-              >
-                {isPositive ? (
-                  <ArrowUpRight className="w-3 h-3 mr-0.5 inline" />
-                ) : (
-                  <ArrowDownRight className="w-3 h-3 mr-0.5 inline" />
-                )}
-                {isPositive ? '+' : ''}
-                {p.changePercent.toFixed(2)}%
-              </span>
-              <span className="text-accent text-[10px] opacity-60">◆</span>
-            </div>
-          );
-        })}
-
-      {config.customItems.map((item, idx) => (
-        <div key={`custom-${idx}`} className="inline-flex items-center gap-2">
-          <span className="text-xs font-mono text-text-muted hover:text-accent transition-colors font-medium">
-            {item}
+  // Renderizador de elementos de precios (Fila 1)
+  const renderPriceItems = () =>
+    prices.map((p, idx) => {
+      const isPositive = p.changePercent >= 0;
+      return (
+        <div key={`${p.symbol}-${idx}`} className="inline-flex items-center gap-2 shrink-0">
+          <span className="text-[11px] font-mono font-bold text-amber-400 uppercase tracking-wider">
+            {p.symbol}
           </span>
-          <span className="text-accent text-[10px] opacity-60">◆</span>
+          <span className="text-xs font-mono font-semibold text-white">
+            ${p.price.toFixed(2)} {p.unit}
+          </span>
+          <span
+            className={`inline-flex items-center text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+              isPositive
+                ? 'text-emerald-400 bg-emerald-500/15 border border-emerald-500/30'
+                : 'text-rose-400 bg-rose-500/15 border border-rose-500/30'
+            }`}
+          >
+            {isPositive ? (
+              <ArrowUpRight className="w-3 h-3 mr-0.5 inline" />
+            ) : (
+              <ArrowDownRight className="w-3 h-3 mr-0.5 inline" />
+            )}
+            {isPositive ? '+' : ''}
+            {p.changePercent.toFixed(2)}%
+          </span>
+          <span className="text-amber-500/50 text-[10px] mx-2">◆</span>
         </div>
-      ))}
-    </>
-  );
+      );
+    });
+
+  // Renderizador de titulares informativos (Fila 2)
+  const renderHeadlineItems = () =>
+    headlines.map((item, idx) => (
+      <div key={`headline-${idx}`} className="inline-flex items-center gap-2.5 shrink-0">
+        <span className="text-xs font-mono text-slate-200 hover:text-amber-300 transition-colors font-medium">
+          {item}
+        </span>
+        <span className="text-amber-500 text-[10px] opacity-70 mx-2">●</span>
+      </div>
+    ));
 
   return (
-    <section className="group relative border-y border-border/80 bg-surf/90 py-2.5 overflow-hidden select-none backdrop-blur-sm">
-      <div className="flex items-center">
-        {/* Badge lateral indicador de fuente */}
-        <div className="shrink-0 z-10 hidden sm:flex items-center gap-1.5 px-3 py-1 bg-card/90 border-r border-border text-[10px] font-mono font-bold uppercase tracking-wider text-accent shadow-md">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Mercado en Vivo</span>
+    <section
+      id="marquee"
+      className="group relative border-y border-border/80 overflow-hidden select-none backdrop-blur-md transition-colors duration-300"
+      style={{ backgroundColor: customBg || 'rgba(10, 16, 28, 0.95)' }}
+    >
+      {/* ── FILA 1: Índices Financieros & Precios de Petróleo (Izquierda a Derecha) ── */}
+      <div className="flex items-center border-b border-white/10 py-2.5 bg-black/25">
+        {/* Badge Indicador de Fila 1 */}
+        <div className="shrink-0 z-10 flex items-center gap-1.5 px-3.5 py-1 bg-card/95 border-r border-border text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400 shadow-md">
+          <TrendingUp className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+          <span>{isEn ? 'Live Energy Prices' : 'Precios de Energía en Vivo'}</span>
           <a
             href="https://www.oilpriceapi.com/es/precio-petroleo-hoy"
             target="_blank"
             rel="noopener noreferrer"
-            title="Fuente: OilPriceAPI"
-            className="text-text-subtle hover:text-accent transition-colors"
+            title="Fuente: OilPrice & Platts"
+            className="text-text-subtle hover:text-accent transition-colors ml-1"
           >
             <ExternalLink className="w-3 h-3" />
           </a>
         </div>
 
-        {/* Contenedor de marquesina con doble capa para bucle infinito sin parpadeo */}
-        <div
-          className={`flex gap-6 whitespace-nowrap animate-marquee pl-4 ${
-            config.pauseOnHover ? 'group-hover:[animation-play-state:paused]' : ''
-          }`}
-          style={{ animationDuration: `${config.speedSeconds || 30}s` }}
-        >
-          {tickerItems}
-          {tickerItems}
+        {/* Marquesina animada: Izquierda a Derecha (marquee-reverse) */}
+        <div className="overflow-hidden w-full">
+          <div className="flex gap-8 whitespace-nowrap animate-marquee-reverse hover:[animation-play-state:paused] pl-4">
+            {renderPriceItems()}
+            {renderPriceItems()}
+          </div>
+        </div>
+      </div>
+
+      {/* ── FILA 2: Titulares de Información & Operaciones (Derecha a Izquierda) ── */}
+      <div className="flex items-center py-2.5 bg-black/40">
+        {/* Badge Indicador de Fila 2 */}
+        <div className="shrink-0 z-10 flex items-center gap-1.5 px-3.5 py-1 bg-card/95 border-r border-border text-[10px] font-mono font-bold uppercase tracking-wider text-teal-400 shadow-md">
+          <Newspaper className="w-3.5 h-3.5 text-teal-400" />
+          <span>{isEn ? 'Market News & Ops' : 'Actualidad & Operaciones'}</span>
+        </div>
+
+        {/* Marquesina animada: Derecha a Izquierda (marquee clásico) */}
+        <div className="overflow-hidden w-full">
+          <div className="flex gap-8 whitespace-nowrap animate-marquee hover:[animation-play-state:paused] pl-4">
+            {renderHeadlineItems()}
+            {renderHeadlineItems()}
+          </div>
         </div>
       </div>
     </section>

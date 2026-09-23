@@ -11,9 +11,10 @@ import { cn } from '@/lib/utils';
 
 interface HeroSectionProps {
   config?: LandingHeroConfig;
+  customBg?: string;
 }
 
-export function HeroSection({ config: initialConfig }: HeroSectionProps) {
+export function HeroSection({ config: initialConfig, customBg }: HeroSectionProps) {
   const { t, language } = useLanguage();
   const [activeConfig, setActiveConfig] = useState<LandingHeroConfig | undefined>(initialConfig);
 
@@ -82,8 +83,26 @@ export function HeroSection({ config: initialConfig }: HeroSectionProps) {
   const bgOpacity = (config?.hero_bg_opacity ?? 20) / 100;
   const bgFit = config?.hero_bg_fit || 'cover';
 
+  // Personalización dinámica de la Tarjeta Hero Señalada
+  const heroCard = config?.hero_card;
+  const cardBgColor = heroCard?.card_bg_color || 'rgba(14, 30, 61, 0.9)';
+  const cardBorderColor = heroCard?.card_border_color || '#1a3264';
+  const cardGlowOpacity = (heroCard?.card_glow_opacity ?? 50) / 100;
+
+  const logoHue = heroCard?.logo_hue ?? 0;
+  const logoBrightness = heroCard?.logo_brightness ?? 100;
+  const logoSaturation = heroCard?.logo_saturation ?? 100;
+  const logoShadowColor = heroCard?.logo_shadow_color || '#f59e0b';
+  const logoShadowBlur = heroCard?.logo_shadow_blur ?? 20;
+
+  const logoFilterStyle = `hue-rotate(${logoHue}deg) brightness(${logoBrightness}%) saturate(${logoSaturation}%) drop-shadow(0 0 ${logoShadowBlur}px ${logoShadowColor})`;
+
   return (
-    <section id="hero" className="relative min-h-[92vh] flex items-center justify-center pt-28 pb-16 overflow-hidden">
+    <section
+      id="hero"
+      className="relative min-h-[92vh] flex items-center justify-center pt-28 pb-16 overflow-hidden transition-colors duration-300"
+      style={{ backgroundColor: customBg || 'transparent' }}
+    >
       {/* 1. Fondo Multimedia Dinámico (Video / Imagen / Gradiente) */}
       {bgType === 'video' && bgUrl ? (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" style={{ opacity: bgOpacity }}>
@@ -198,25 +217,40 @@ export function HeroSection({ config: initialConfig }: HeroSectionProps) {
             </div>
           </div>
 
-          {/* Columna Derecha: Elemento Visual Lateral */}
+          {/* Columna Derecha: Tarjeta Señalada Personalizable (media_1790194402061.png) */}
           <div className="lg:col-span-5 flex justify-center">
             <div className="relative w-full max-w-md">
-              {/* Resplandor decorativo */}
-              <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-accent/30 via-amber-500/20 to-yellow-600/30 blur-xl opacity-60 animate-pulse" />
+              {/* Resplandor decorativo con opacidad configurable */}
+              <div
+                className="absolute -inset-1 rounded-3xl blur-xl transition-all duration-300 pointer-events-none"
+                style={{
+                  background: `linear-gradient(to right, ${cardBorderColor}, #f59e0b, #d97706)`,
+                  opacity: cardGlowOpacity,
+                }}
+              />
 
               {/* Tarjeta Principal Glassmorphic con Sello Oficial */}
-              <div className="relative rounded-2xl border border-border/80 bg-card/90 backdrop-blur-xl p-6 shadow-2xl space-y-6">
-                <div className="flex items-center justify-between border-b border-border/60 pb-4">
+              <div
+                className="relative rounded-2xl backdrop-blur-xl p-6 shadow-2xl space-y-6 transition-all duration-300"
+                style={{
+                  backgroundColor: cardBgColor,
+                  border: `1px solid ${cardBorderColor}`,
+                }}
+              >
+                <div
+                  className="flex items-center justify-between pb-4"
+                  style={{ borderBottom: `1px solid ${cardBorderColor}40` }}
+                >
                   <div className="flex items-center gap-2.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
-                    <span className="text-xs font-mono text-text-muted uppercase tracking-wider font-semibold">
-                      VERIFICACIÓN SGS & ASTM D1655
+                    <span className="text-xs font-mono uppercase tracking-wider font-semibold text-slate-200">
+                      {isEn ? 'SGS & ASTM D1655 VERIFICATION' : 'VERIFICACIÓN SGS & ASTM D1655'}
                     </span>
                   </div>
                   <ShieldCheck className="w-4 h-4 text-accent" />
                 </div>
 
-                {/* Sello Oficial con Rotación y Sombra */}
+                {/* Sello Oficial con Filtros Dinámicos (Color/Hue, Sombra, Luminosidad) */}
                 <div className="flex justify-center py-2">
                   <div className="relative w-44 h-44 group">
                     <Image
@@ -224,25 +258,40 @@ export function HeroSection({ config: initialConfig }: HeroSectionProps) {
                       alt="Invest Oil LLC Official Seal"
                       width={176}
                       height={176}
-                      className="w-full h-full object-contain filter drop-shadow-[0_0_20px_rgba(245,158,11,0.35)] transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
+                      style={{
+                        filter: logoFilterStyle,
+                        WebkitFilter: logoFilterStyle,
+                      }}
                       priority
                     />
                   </div>
                 </div>
 
                 {/* Resumen Operativo */}
-                <div className="space-y-2.5 pt-2 border-t border-border/60">
+                <div
+                  className="space-y-2.5 pt-2"
+                  style={{ borderTop: `1px solid ${cardBorderColor}40` }}
+                >
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-text-muted">Despachos Mensuales:</span>
-                    <span className="font-mono font-semibold text-text">12.5M BBLS</span>
+                    <span className="text-text-muted">
+                      {isEn ? 'Monthly Shipments:' : 'Despachos Mensuales:'}
+                    </span>
+                    <span className="font-mono font-semibold text-white">12.5M BBLS</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-text-muted">Terminales Marítimas:</span>
-                    <span className="font-mono font-semibold text-text">Houston / Rotterdam</span>
+                    <span className="text-text-muted">
+                      {isEn ? 'Marine Terminals:' : 'Terminales Marítimas:'}
+                    </span>
+                    <span className="font-mono font-semibold text-white">Houston / Rotterdam</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-text-muted">Estatus Operativo:</span>
-                    <span className="font-mono font-semibold text-emerald-400">ACTIVO 100%</span>
+                    <span className="text-text-muted">
+                      {isEn ? 'Operational Status:' : 'Estatus Operativo:'}
+                    </span>
+                    <span className="font-mono font-semibold text-emerald-400">
+                      {isEn ? 'ACTIVE 100%' : 'ACTIVO 100%'}
+                    </span>
                   </div>
                 </div>
               </div>

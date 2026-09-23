@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { TEAM_MEMBERS } from '@/lib/constants/investoil';
 import type { TeamMember } from '@/types';
 
-export function TeamSection() {
+export function TeamSection({ customBg }: { customBg?: string }) {
   const [team, setTeam] = useState<TeamMember[]>(TEAM_MEMBERS);
 
   useEffect(() => {
@@ -46,7 +46,11 @@ export function TeamSection() {
   }, []);
 
   return (
-    <section id="team" className="py-24 border-t border-border bg-surf/30 relative">
+    <section
+      id="team"
+      className="py-24 border-t border-border/80 relative transition-colors duration-300"
+      style={{ backgroundColor: customBg || undefined }}
+    >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
           <Badge variant="accent">LIDERAZGO & EXPERIENCIA</Badge>

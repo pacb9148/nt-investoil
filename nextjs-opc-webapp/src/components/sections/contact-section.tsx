@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { COMPANY_INFO } from '@/lib/constants/investoil';
 import { useLanguage } from '@/lib/i18n/language-context';
 
-export function ContactSection() {
+export function ContactSection({ customBg }: { customBg?: string }) {
   const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -55,7 +55,11 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-24 border-t border-border bg-surf/40 relative">
+    <section
+      id="contact"
+      className="py-24 border-t border-border/80 relative transition-colors duration-300"
+      style={{ backgroundColor: customBg || undefined }}
+    >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left: Contact Info */}
