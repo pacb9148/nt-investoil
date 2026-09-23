@@ -1,0 +1,30 @@
+{
+  "font_heading": "Outfit",
+  "font_body": "Inter",
+  "primary_color": "#F59E0B",
+  "accent_glow": true,
+  "background_pattern": "grid",
+  "custom_css": "",
+  "section_bg_colors": {
+    "hero": "#07090e",
+    "marquee": "#0b0f19",
+    "problema": "#07090e",
+    "services": "#0a0d14",
+    "products": "#07090e",
+    "plataforma": "#0a0d14",
+    "team": "#07090e",
+    "testimonials": "#0a0d14",
+    "faq": "#07090e",
+    "contact": "#0a0d14"
+  },
+  "hero_card": {
+    "card_bg_color": "#0e1424",
+    "card_border_color": "#f59e0b",
+    "card_glow_opacity": 50,
+    "logo_hue": 0,
+    "logo_brightness": 100,
+    "logo_saturation": 100,
+    "logo_shadow_color": "#f59e0b",
+    "logo_shadow_blur": 20
+  }
+}

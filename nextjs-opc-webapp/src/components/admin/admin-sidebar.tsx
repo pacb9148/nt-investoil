@@ -19,6 +19,7 @@ import {
   Sliders,
   Type,
   AlignLeft,
+  Palette,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/layout/brand-logo';
 import { cn } from '@/lib/utils';
@@ -38,16 +39,22 @@ const PLATFORM_NAV: NavItem[] = [
   { href: '/admin/settings', label: 'Configuración & SEO', icon: Settings },
 ];
 
+const CUSTOMIZATION_NAV: NavItem[] = [
+  { href: '/admin/content/apariencia', label: 'Personalización & Apariencia', icon: Palette },
+  { href: '/admin/content/hero', label: 'Tarjeta Hero & Logotipo', icon: Sparkles },
+  { href: '/admin/content/textos', label: 'Textos & Traducciones', icon: AlignLeft },
+];
+
 const CONTENT_NAV: NavItem[] = [
-  { href: '/admin/content', label: 'Secciones landing', icon: LayoutTemplate, exact: true },
-  { href: '/admin/content/hero', label: 'Hero Principal', icon: Sparkles },
-  { href: '/admin/content/apariencia', label: 'Apariencia & Fuentes', icon: Type },
-  { href: '/admin/content/textos', label: 'Textos & i18n', icon: AlignLeft },
-  { href: '/admin/content/estadisticas', label: 'Estadísticas', icon: Sliders },
+  { href: '/admin/content', label: 'Módulos y Secciones', icon: LayoutTemplate, exact: true },
+  { href: '/admin/content/marquee', label: 'Marquesina Doble', icon: Sliders },
+  { href: '/admin/content/estadisticas', label: 'Estadísticas KPI', icon: Sliders },
+  { href: '/admin/content/legales', label: 'Páginas Legales', icon: FileText },
 ];
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const [customizationOpen, setCustomizationOpen] = useState(true);
   const [contentOpen, setContentOpen] = useState(true);
 
   return (
@@ -106,6 +113,55 @@ export function AdminSidebar() {
                 );
               })}
             </nav>
+          </div>
+
+          {/* Bloque: Despliegue de Personalización Visual */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setCustomizationOpen(!customizationOpen)}
+              className="w-full flex items-center justify-between px-3 mb-1.5 text-[10px] font-mono uppercase tracking-wider text-text-subtle hover:text-accent font-semibold transition-colors"
+            >
+              <span className="flex items-center gap-1.5">
+                <Palette className="w-3.5 h-3.5 text-accent" />
+                <span>Personalización Visual</span>
+              </span>
+              {customizationOpen ? (
+                <ChevronDown className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronRight className="w-3.5 h-3.5" />
+              )}
+            </button>
+
+            {customizationOpen && (
+              <nav className="space-y-1" aria-label="Navegación de personalización">
+                {CUSTOMIZATION_NAV.map((item) => {
+                  const isActive = pathname === item.href;
+                  const Icon = item.icon;
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 group',
+                        isActive
+                          ? 'bg-card text-accent border border-accent/40 font-semibold shadow-sm'
+                          : 'text-text-muted hover:text-text hover:bg-card/40'
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          'w-4 h-4 transition-colors',
+                          isActive ? 'text-accent' : 'text-text-subtle group-hover:text-text'
+                        )}
+                      />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            )}
           </div>
 
           {/* Bloque: Contenido (Landing) */}

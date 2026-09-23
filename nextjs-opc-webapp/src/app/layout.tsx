@@ -58,11 +58,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+import { getLandingAppearance } from '@/lib/services/content-service';
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const appearance = await getLandingAppearance();
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -90,7 +93,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-bg text-text antialiased selection:bg-accent/30 selection:text-neon">
         <LanguageProvider>
-          <AppearanceProvider>
+          <AppearanceProvider initialAppearance={appearance}>
             {children}
           </AppearanceProvider>
         </LanguageProvider>

@@ -122,6 +122,19 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 - **Internacionalización Total Bilingüe (ES / EN)**:
   - Expansión global del catálogo `translations.ts` cubriendo navegación, Hero, tarjeta lateral ("SGS & ASTM D1655 VERIFICATION", "Monthly Shipments", etc.), marquesina doble, blog, categorías, artículos, autenticación y pie de página.
 
+### Fase 8: Despliegue Efectivo de Personalización Visual, Persistencia JSON de Apariencia y Acceso Directo con Usuario y Contraseña
+- **Persistencia y Despliegue de la Personalización Visual**:
+  - Se crearon los archivos de persistencia local estructurada `src/data/appearance.json` y `src/data/hero.json`, evitando la pérdida de configuraciones al reiniciar el servidor o recompilar.
+  - Se conectó `getLandingAppearance()` en el `RootLayout` (`src/app/layout.tsx`) alimentando `initialAppearance` hacia `AppearanceProvider`, aplicando tipografías dinámicas, `--color-accent-custom` y estilos globales en todo el portal.
+  - Se aisló la definición de constantes por defecto en `src/lib/constants/appearance-defaults.ts`, eliminando dependencias de Node.js (`fs`/`path`) en componentes cliente (`'use client'`).
+- **Despliegue del Menú de Personalización en el Backoffice**:
+  - En `AdminSidebar`, se creó un bloque dedicado e interactivo con acordeón/toggle colapsable titulado **"Personalización Visual"**, agrupando `Personalización & Apariencia` (`/admin/content/apariencia`), `Tarjeta Hero & Logotipo` (`/admin/content/hero`) y `Textos & Traducciones` (`/admin/content/textos`).
+  - En `src/app/(dashboard)/admin/content/page.tsx`, se ubicó el módulo de `Personalización Visual` en la primera posición destacada de la grilla rápida de módulos.
+- **Acceso Directo y Formulario de Usuario y Contraseña (`/login`)**:
+  - En el `Header` y `Footer` públicos, los botones de acceso ahora enlazan directamente a `/login` con etiqueta "Acceso Backoffice" / "Login" (desktop y móvil).
+  - En `middleware.ts`, se eliminó la redirección ciega que expulsaba forzosamente fuera de `/login` a los usuarios que ya tenían una sesión previa activa, permitiéndoles siempre ver el formulario.
+  - Se implementó el endpoint `/api/auth/me` y en `/login` se añadió detección de sesión activa con banner superior ("Sesión activa detectada" con botones "Ir al Backoffice →" y "Cerrar sesión"), manteniendo visible abajo el formulario completo con inputs accesibles (`autoComplete`), botón para autocompletar credenciales autorizadas de operador y submit validado con Zod.
+
 ---
 
 ## 3. Lecciones Aprendidas y Decisiones de Arquitectura
@@ -130,7 +143,10 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 3. **Resiliencia de Contenidos (Fallback Híbrido)**: La capa `content-service.ts` recurre automáticamente a los valores por defecto si Supabase no está conectado o las tablas no han sido migradas en local, impidiendo pantallas en blanco.
 4. **Visualización de Presencia Física Internacional**: Estructurar las sedes en dos filas diferenciadas (Fila 1: Ciudad y País; Fila 2: Dirección física y rol de la sede) aumenta significativamente la credibilidad institucional en trading petrolero y facilita la lectura rápida para contrapartes y bancos internacionales.
 5. **Streaming de Medios en Next.js App Router**: Para reproducir videos MP4/WebM en navegadores modernos (Chrome, Safari, Firefox) cargados dinámicamente en `public/uploads`, es mandatorio responder con `206 Partial Content` y cabeceras de rango HTTP (`bytes=start-end`).
-6. **Separación de Servicios de Servidor vs Cliente**: Archivos que utilicen módulos nativos de Node.js (`fs`, `path`) no deben ser importados ni transitivamente por componentes de cliente (`'use client'`); deben residir en servicios exclusivos de servidor (`server-legal-service.ts`).
+6. **Separación de Servicios de Servidor vs Cliente**: Archivos que utilicen módulos nativos de Node.js (`fs`, `path`) no deben ser importados ni transitivamente por componentes de cliente (`'use client'`); deben residir en servicios exclusivos de servidor (`server-legal-service.ts`) o constantes puras (`appearance-defaults.ts`).
 7. **Prevención de Cuellos de Botella en Middleware**: Si un servicio de base de datos o autenticación externa (Supabase) no tiene variables configuradas válidas, el middleware jamás debe emitir peticiones HTTP a dominios placeholder o inexistentes (`demo-project.supabase.co`), pues los *timeouts* bloquean la navegación del usuario. La verificación debe ser local y ultrarrápida.
 8. **Suspense en Rutas con `useSearchParams`**: En Next.js 14 App Router, cualquier componente cliente que consuma parámetros de URL (`useSearchParams()`) debe estar encapsulado en un límite `<Suspense>` para posibilitar la generación estática (SSG/ISR) sin errores durante `next build`.
+9. **No Bloquear el Formulario de Login con Redirecciones Automáticas Ciega**: Si un usuario con cookie de sesión navega deliberadamente a `/login`, redirigirlo instantáneamente al panel `/admin` le oculta el formulario y genera la falsa impresión de que no existe o falló. La pantalla de login debe mostrar que la sesión está activa y ofrecer tanto ir al panel como cerrar sesión, dejando el formulario disponible para conmutar de cuenta.
+10. **Inyección en RootLayout para Personalización Global**: Los proveedores de contexto de apariencia (`AppearanceProvider`) en la raíz deben recibir siempre la configuración real hidratada en el Server Component (`layout.tsx`) para que las variables CSS y fuentes no dependan únicamente del cliente ni queden congeladas en sus valores por defecto.
+
 

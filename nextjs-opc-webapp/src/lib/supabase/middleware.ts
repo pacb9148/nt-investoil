@@ -58,8 +58,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // 4. Si ya está autenticado e intenta acceder a login/register, enviar al panel
-  if (isAuthRoute && isAuthenticated) {
+  // 4. Si ya está autenticado e intenta acceder a registro/recuperación, enviar al panel
+  if (isAuthenticated && (pathname.startsWith('/register') || pathname.startsWith('/forgot-password'))) {
     return NextResponse.redirect(new URL('/admin', request.url));
   }
 

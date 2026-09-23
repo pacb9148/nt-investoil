@@ -41,12 +41,12 @@ export function Footer() {
                 <span>KYC / Compliance</span>
               </div>
               <Link
-                href="/admin"
+                href="/login"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border/60 bg-card/50 text-[11px] font-mono text-text-muted hover:text-accent hover:border-accent/40 transition-colors"
-                title="Acceso Backoffice"
+                title="Acceso Backoffice con usuario y contraseña"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-accent" />
-                <span>{t.nav.admin}</span>
+                <span>{isEn ? 'Login' : 'Acceso / Login'}</span>
               </Link>
               <LanguageSelector />
             </div>

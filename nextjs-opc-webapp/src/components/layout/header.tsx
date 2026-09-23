@@ -14,7 +14,8 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
 
   const navItems = [
     { href: '/', label: t.nav.home },
@@ -86,15 +87,16 @@ export function Header() {
             <LanguageSelector />
 
             <Link
-              href="/admin"
+              href="/login"
               className={buttonVariants({
                 variant: 'ghost',
                 size: 'sm',
                 className: 'text-xs gap-1.5 border border-border/60 hover:border-accent/40',
               })}
+              title="Acceso seguro con usuario y contraseña"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-accent" />
-              <span>{t.nav.admin}</span>
+              <span>{isEn ? 'Login' : 'Acceso Backoffice'}</span>
             </Link>
 
             <Link
@@ -143,7 +145,7 @@ export function Header() {
 
           <div className="flex flex-col gap-3 pt-6 border-t border-border">
             <Link
-              href="/admin"
+              href="/login"
               onClick={() => setMobileMenuOpen(false)}
               className={buttonVariants({
                 variant: 'secondary',
@@ -151,7 +153,7 @@ export function Header() {
               })}
             >
               <ShieldCheck className="w-4 h-4 text-accent" />
-              <span>{t.nav.admin}</span>
+              <span>{isEn ? 'Backoffice Login (User & Password)' : 'Acceso Backoffice (Usuario y Contraseña)'}</span>
             </Link>
             <Link
               href="/contact"

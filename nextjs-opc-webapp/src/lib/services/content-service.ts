@@ -8,96 +8,51 @@ import type {
   HeroCardCustomization,
 } from '@/types/content';
 
-export const DEFAULT_HERO_CARD_CUSTOMIZATION: HeroCardCustomization = {
-  card_bg_color: '#0e1424',
-  card_border_color: '#f59e0b',
-  card_glow_opacity: 50,
-  logo_hue: 0,
-  logo_brightness: 100,
-  logo_saturation: 100,
-  logo_shadow_color: '#f59e0b',
-  logo_shadow_blur: 20,
-};
+export {
+  DEFAULT_HERO_CARD_CUSTOMIZATION,
+  DEFAULT_SECTION_BG_COLORS,
+  DEFAULT_LANDING_SECTIONS,
+  DEFAULT_HERO_CONFIG,
+  DEFAULT_APPEARANCE_CONFIG,
+} from '@/lib/constants/appearance-defaults';
 
-export const DEFAULT_SECTION_BG_COLORS: SectionBackgroundColors = {
-  hero: '#07090e',
-  marquee: '#0b0f19',
-  problema: '#07090e',
-  services: '#0a0d14',
-  products: '#07090e',
-  plataforma: '#0a0d14',
-  team: '#07090e',
-  testimonials: '#0a0d14',
-  faq: '#07090e',
-  contact: '#0a0d14',
-};
+import {
+  DEFAULT_LANDING_SECTIONS,
+  DEFAULT_HERO_CONFIG,
+  DEFAULT_APPEARANCE_CONFIG,
+} from '@/lib/constants/appearance-defaults';
 
-// Valores por defecto robustos basados en la estructura de Invest Oil LLC
-export const DEFAULT_LANDING_SECTIONS: LandingSectionConfig[] = [
-  { id: 'hero', title: 'Hero Principal', description: 'Titular, subtítulo, CTAs, video/imagen de fondo e indicador de mercado', icon: '🎯', is_active: true, sort_order: 1 },
-  { id: 'marquee', title: 'Marquee & Commodities', description: 'Cintillo animado de cotizaciones Brent/WTI y certificaciones', icon: '🏷️', is_active: true, sort_order: 2 },
-  { id: 'estadisticas', title: 'Estadísticas de Impacto', description: '4 números de impacto (150M+, 38+, 99.8%, 24/7)', icon: '📊', is_active: true, sort_order: 3 },
-  { id: 'problema', title: 'Retos del Sector Petrolero', description: '3 tarjetas de desafíos de intermediación, volatilidad y logística', icon: '🔥', is_active: true, sort_order: 4 },
-  { id: 'services', title: 'Servicios Petroleros', description: '10 servicios integrales de comercialización y trading', icon: '⚡', is_active: true, sort_order: 5 },
-  { id: 'products', title: 'Portafolio de Hidrocarburos', description: '8 productos: Crudos, Jet Fuel A1, EN590, D2, GNL', icon: '💰', is_active: true, sort_order: 6 },
-  { id: 'plataforma', title: 'Operaciones & Infraestructura', description: 'Terminales marítimas, logística y capacidad de almacenamiento', icon: '🏢', is_active: true, sort_order: 7 },
-  { id: 'team', title: 'Consejo Directivo', description: '6 perfiles ejecutivos y gobernanza corporativa', icon: '👥', is_active: true, sort_order: 8 },
-  { id: 'testimonials', title: 'Testimonios & Clientes', description: '5 tarjetas de clientes corporativos y prueba social', icon: '⭐', is_active: true, sort_order: 9 },
-  { id: 'faq', title: 'Preguntas Frecuentes', description: 'Preguntas y respuestas operativas editables', icon: '❓', is_active: true, sort_order: 10 },
-  { id: 'cta_final', title: 'CTA Final de Cierre', description: 'Sección de cierre comercial y botón principal', icon: '🚀', is_active: true, sort_order: 11 },
-  { id: 'contact', title: 'Formulario de Contacto', description: 'Captación de leads y solicitudes comerciales directas', icon: '✉️', is_active: true, sort_order: 12 },
-];
+function readLocalJson<T>(filename: string, fallback: T): T {
+  if (typeof window !== 'undefined') return fallback;
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const filePath = path.join(process.cwd(), 'src', 'data', filename);
+    if (fs.existsSync(filePath)) {
+      return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    }
+  } catch {
+    // Fallback
+  }
+  return fallback;
+}
 
-export const DEFAULT_HERO_CONFIG: LandingHeroConfig = {
-  id: 1,
-  eyebrow_text: 'INFRAESTRUCTURA Y TRADING ENERGÉTICO GLOBAL',
-  eyebrow_text_en: 'GLOBAL ENERGY TRADING & INFRASTRUCTURE',
-  heading_line_1: 'Soluciones Estratégicas en',
-  heading_line_1_en: 'Strategic Solutions in',
-  heading_line_2: 'del Petróleo y Derivados',
-  heading_line_2_en: 'Oil & Refined Products',
-  heading_accent: 'el Mercado Global',
-  heading_accent_en: 'the Global Market',
-  subtitle:
-    'Conectamos productores, refinerías y distribuidores en los principales centros energéticos mundiales con máxima solidez operativa, gestión de riesgo y cumplimiento normativo internacional.',
-  subtitle_en:
-    'Connecting producers, refineries, and distributors across world energy hubs with premier operational strength, risk mitigation, and strict international compliance.',
-  cta_primary_text: 'Explorar Servicios Petroleros',
-  cta_primary_text_en: 'Explore Petroleum Services',
-  cta_primary_url: '#services',
-  cta_secondary_text: 'Ver Catálogo de Productos',
-  cta_secondary_text_en: 'View Products Catalog',
-  cta_secondary_url: '#products',
-  hero_bg_type: 'gradient',
-  hero_bg_url: '',
-  hero_bg_fit: 'cover',
-  hero_bg_position: 'center center',
-  hero_bg_opacity: 20,
-  hero_bg_blur: 0,
-  hero_visual_tipo: 'mockup',
-  hero_visual_url: '',
-  market_ticker: 'BRENT: $82.40/bbl (+1.2%) | WTI: $78.15/bbl (+0.9%)',
-  hero_card: DEFAULT_HERO_CARD_CUSTOMIZATION,
-  seats_total: 100,
-  seats_taken: 28,
-  countdown_deadline: '',
-};
+function writeLocalJson(filename: string, data: any): void {
+  if (typeof window !== 'undefined') return;
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const filePath = path.join(process.cwd(), 'src', 'data', filename);
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch {
+    // Fallback
+  }
+}
 
-export const DEFAULT_APPEARANCE_CONFIG: LandingAppearanceConfig = {
-  font_heading: 'Outfit',
-  font_body: 'Inter',
-  primary_color: '#F59E0B',
-  accent_glow: true,
-  background_pattern: 'grid',
-  custom_css: '',
-  section_bg_colors: DEFAULT_SECTION_BG_COLORS,
-  hero_card: DEFAULT_HERO_CARD_CUSTOMIZATION,
-};
-
-// Almacén en memoria fallback para desarrollo local cuando Supabase no tenga tablas migradas
+// Almacén fallback local inicializado desde JSON o valores por defecto
 let memorySections = [...DEFAULT_LANDING_SECTIONS];
-let memoryHero = { ...DEFAULT_HERO_CONFIG };
-let memoryAppearance = { ...DEFAULT_APPEARANCE_CONFIG };
+let memoryHero = readLocalJson<LandingHeroConfig>('hero.json', { ...DEFAULT_HERO_CONFIG });
+let memoryAppearance = readLocalJson<LandingAppearanceConfig>('appearance.json', { ...DEFAULT_APPEARANCE_CONFIG });
 
 export async function getLandingSections(): Promise<LandingSectionConfig[]> {
   if (!isSupabaseConfigured()) {
@@ -118,7 +73,7 @@ export async function getLandingSections(): Promise<LandingSectionConfig[]> {
 
 export async function getLandingHero(): Promise<LandingHeroConfig> {
   if (!isSupabaseConfigured()) {
-    return memoryHero;
+    return readLocalJson<LandingHeroConfig>('hero.json', memoryHero);
   }
   try {
     const { createAdminClient } = await import('@/lib/supabase/admin');
@@ -130,12 +85,12 @@ export async function getLandingHero(): Promise<LandingHeroConfig> {
   } catch {
     // Fallback
   }
-  return memoryHero;
+  return readLocalJson<LandingHeroConfig>('hero.json', memoryHero);
 }
 
 export async function getLandingAppearance(): Promise<LandingAppearanceConfig> {
   if (!isSupabaseConfigured()) {
-    return memoryAppearance;
+    return readLocalJson<LandingAppearanceConfig>('appearance.json', memoryAppearance);
   }
   try {
     const { createAdminClient } = await import('@/lib/supabase/admin');
@@ -147,18 +102,20 @@ export async function getLandingAppearance(): Promise<LandingAppearanceConfig> {
   } catch {
     // Fallback
   }
-  return memoryAppearance;
+  return readLocalJson<LandingAppearanceConfig>('appearance.json', memoryAppearance);
 }
 
-// Helpers para actualizar el fallback local
+// Helpers para actualizar el fallback local con persistencia en archivo
 export function updateMemorySection(id: string, isActive: boolean) {
   memorySections = memorySections.map((s) => (s.id === id ? { ...s, is_active: isActive } : s));
 }
 
 export function updateMemoryHero(data: Partial<LandingHeroConfig>) {
   memoryHero = { ...memoryHero, ...data };
+  writeLocalJson('hero.json', memoryHero);
 }
 
 export function updateMemoryAppearance(data: Partial<LandingAppearanceConfig>) {
   memoryAppearance = { ...memoryAppearance, ...data };
+  writeLocalJson('appearance.json', memoryAppearance);
 }

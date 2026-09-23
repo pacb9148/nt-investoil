@@ -24,21 +24,21 @@ const MODULE_ROUTES: Record<string, string> = {
 };
 
 const QUICK_MODULES = [
-  { href: '/admin/content/hero', label: 'Hero', icon: '🎯', desc: 'Titular, subtítulo, CTAs, video/fondo y métricas' },
-  { href: '/admin/content/estadisticas', label: 'Estadísticas', icon: '📊', desc: '4 números de impacto (150M+, 38+, 99.8%)' },
+  { href: '/admin/content/apariencia', label: 'Personalización Visual', icon: '🎨', desc: 'Tipografías, paleta corporativa, colores por sección y efectos' },
+  { href: '/admin/content/hero', label: 'Hero & Tarjeta Trading', icon: '🎯', desc: 'Titular, subtítulo, CTAs, video/fondo y tarjeta de operaciones' },
+  { href: '/admin/content/estadisticas', label: 'Estadísticas KPI', icon: '📊', desc: '4 números de impacto (150M+, 38+, 99.8%)' },
   { href: '/admin/content/testimonials', label: 'Testimonios', icon: '⭐', desc: 'Tarjetas de refinerías y socios comerciales' },
-  { href: '/admin/content/services', label: 'Servicios', icon: '⚡', desc: '10 servicios integrales de hidrocarburos' },
-  { href: '/admin/content/products', label: 'Productos', icon: '💰', desc: 'Catálogo de crudos, Jet Fuel A1, EN590, D2' },
-  { href: '/admin/content/problema', label: 'El Problema', icon: '🔥', desc: '3 tarjetas de retos energéticos y volatilidad' },
-  { href: '/admin/content/plataforma', label: 'Operaciones', icon: '🏢', desc: 'Infraestructura, terminales marítimas y logística' },
-  { href: '/admin/content/faq-editor', label: 'FAQ', icon: '❓', desc: 'Preguntas frecuentes y respuestas editables' },
-  { href: '/admin/content/cta-final', label: 'CTA Final', icon: '🚀', desc: 'Sección de cierre y botón de contacto principal' },
-  { href: '/admin/content/marquee', label: 'Marquee', icon: '🏷️', desc: 'Banda animada de commodities y certificaciones' },
-  { href: '/admin/content/apariencia', label: 'Apariencia', icon: '🎨', desc: 'Tipografía, video/fondo, colores y resplandor' },
-  { href: '/admin/content/textos', label: 'Textos & i18n', icon: '✏️', desc: 'Titulares, etiquetas bilingües de cada sección' },
-  { href: '/admin/content/legales', label: 'Legales', icon: '⚖️', desc: 'Términos, privacidad, cookies y alerta de fraude' },
+  { href: '/admin/content/services', label: 'Servicios Petroleros', icon: '⚡', desc: '10 servicios integrales de hidrocarburos' },
+  { href: '/admin/content/products', label: 'Portafolio Productos', icon: '💰', desc: 'Catálogo de crudos, Jet Fuel A1, EN590, D2' },
+  { href: '/admin/content/problema', label: 'Retos del Sector', icon: '🔥', desc: '3 tarjetas de retos energéticos y volatilidad' },
+  { href: '/admin/content/plataforma', label: 'Infraestructura', icon: '🏢', desc: 'Terminales marítimas, logística y capacidad' },
+  { href: '/admin/content/faq-editor', label: 'Preguntas Frecuentes', icon: '❓', desc: 'Preguntas frecuentes y respuestas editables' },
+  { href: '/admin/content/cta-final', label: 'CTA Final de Cierre', icon: '🚀', desc: 'Sección de cierre y botón de contacto principal' },
+  { href: '/admin/content/marquee', label: 'Marquesina Doble', icon: '🏷️', desc: 'Banda animada de cotizaciones y reportes OPEP+' },
+  { href: '/admin/content/textos', label: 'Textos & i18n', icon: '✏️', desc: 'Titulares y etiquetas bilingües ES / EN' },
+  { href: '/admin/content/legales', label: 'Páginas Legales', icon: '⚖️', desc: 'Términos, privacidad, cookies y alerta de fraude' },
   { href: '/admin/content/seo', label: 'SEO & Metadata', icon: '🔍', desc: 'Meta tags, Open Graph, redes y Schema.org' },
-  { href: '/admin/content/settings', label: 'Ajustes', icon: '⚙️', desc: 'Oficinas Houston/Madrid/Bogotá, teléfonos y datos' },
+  { href: '/admin/content/settings', label: 'Ajustes Generales', icon: '⚙️', desc: 'Oficinas Houston/Madrid/Bogotá, teléfonos y datos' },
 ];
 
 export default async function ContentOverviewPage() {

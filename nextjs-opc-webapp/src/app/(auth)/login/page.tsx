@@ -31,10 +31,23 @@ function LoginFormContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLocked, setIsLocked] = useState(false);
+  const [activeSession, setActiveSession] = useState<{ email: string; name: string } | null>(null);
+
+  React.useEffect(() => {
+    fetch('/api/auth/me')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.authenticated && data?.user) {
+          setActiveSession(data.user);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -43,6 +56,21 @@ function LoginFormContent() {
       password: '',
     },
   });
+
+  const handleQuickFill = () => {
+    setValue('email', 'admin@investoil.es');
+    setValue('password', 'InvestOil2026!*');
+    setAuthError(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setActiveSession(null);
+    } catch {
+      // Ignorar
+    }
+  };
 
   const onSubmit = async (data: LoginFormData) => {
     setAuthError(null);
@@ -88,7 +116,7 @@ function LoginFormContent() {
       </div>
 
       {/* 2. Tarjeta Glassmorphic Central de Alta Fidelidad */}
-      <div className="w-full max-w-[420px] relative z-10">
+      <div className="w-full max-w-[440px] relative z-10">
         <div className="relative rounded-[32px] border border-white/15 bg-white/[0.04] backdrop-blur-2xl shadow-[0_25px_60px_rgba(0,0,0,0.85)] p-8 sm:p-9 space-y-6">
           {/* Header con Sello Petrolero */}
           <div className="text-center space-y-2">
@@ -105,6 +133,34 @@ function LoginFormContent() {
             </p>
           </div>
 
+          {/* Banner de sesión existente si ya está autenticado */}
+          {activeSession && (
+            <div className="p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 text-xs space-y-2 backdrop-blur-md">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span>{isEn ? 'Active session detected' : 'Sesión activa detectada'}</span>
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400">{activeSession.email}</span>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <Link
+                  href="/admin"
+                  className="flex-1 py-1.5 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold text-center border border-emerald-500/30 transition-colors"
+                >
+                  {isEn ? 'Go to Dashboard →' : 'Ir al Backoffice →'}
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="py-1.5 px-3 rounded-lg bg-white/10 hover:bg-white/15 text-white/80 font-medium transition-colors"
+                >
+                  {isEn ? 'Log out' : 'Cerrar sesión'}
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Mensajes de error o bloqueo de seguridad */}
           {authError && (
             <div className="p-3.5 rounded-xl border border-rose-500/40 bg-rose-500/15 text-rose-300 text-xs flex items-center gap-2.5 backdrop-blur-md">
@@ -115,11 +171,25 @@ function LoginFormContent() {
 
           {/* Formulario */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            {/* Botón de acceso de prueba / credenciales sugeridas */}
+            <div className="flex items-center justify-between text-[11px] px-1">
+              <span className="text-white/50">{isEn ? 'Operator credentials' : 'Credenciales autorizadas'}</span>
+              <button
+                type="button"
+                onClick={handleQuickFill}
+                className="text-amber-400 hover:text-amber-300 font-mono transition-colors underline"
+              >
+                {isEn ? 'Auto-fill demo credentials' : 'Autocompletar credenciales'}
+              </button>
+            </div>
+
             {/* Input Usuario / Email */}
             <div className="space-y-1">
               <div className="relative">
                 <input
+                  id="email"
                   type="email"
+                  autoComplete="username"
                   placeholder={isEn ? 'User Name / Email' : 'Email corporativo'}
                   disabled={isSubmitting || isLocked}
                   {...register('email')}
@@ -136,7 +206,9 @@ function LoginFormContent() {
             <div className="space-y-1">
               <div className="relative">
                 <input
+                  id="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   placeholder={isEn ? 'Password' : 'Contraseña de operador'}
                   disabled={isSubmitting || isLocked}
                   {...register('password')}
@@ -147,6 +219,7 @@ function LoginFormContent() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3.5 top-3.5 text-white/50 hover:text-white transition-colors"
                   tabIndex={-1}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
