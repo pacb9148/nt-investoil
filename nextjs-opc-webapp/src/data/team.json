@@ -5,7 +5,7 @@
     "name": "Rufino Antonio Villalobos",
     "role": "Director General & CEO",
     "location": "Madrid / Houston",
-    "image": ""
+    "image": "/images/team/carlos-medina.jpg"
   },
   {
     "id": "t-02",
@@ -13,7 +13,7 @@
     "name": "Elena Torres",
     "role": "Directora de Riesgos y Cumplimiento",
     "location": "Madrid",
-    "image": "/uploads/1790283958077-descarga__10_.jpg"
+    "image": "/images/team/elena-torres.jpg"
   },
   {
     "id": "t-03",
@@ -21,7 +21,7 @@
     "name": "Marco Ferreira",
     "role": "Jefe de Logística Marítima",
     "location": "Lisboa / Rotterdam",
-    "image": "/uploads/1790284024558-descarga__37_.jpg"
+    "image": "/images/team/marco-ferreira.jpg"
   },
   {
     "id": "t-04",
@@ -29,7 +29,7 @@
     "name": "Aisha Rahman",
     "role": "Responsable de Cumplimiento EMEA",
     "location": "Dubái",
-    "image": "/uploads/1790283986850-descarga__8_.jpg"
+    "image": "/images/team/aisha-rahman.jpg"
   },
   {
     "id": "t-05",
@@ -45,6 +45,6 @@
     "name": "Pablo Alonso Costales",
     "role": "Directora Comercial Latam",
     "location": "Madrid / Bogotá / Caracas",
-    "image": "/uploads/1790284144043-2026-09-24_230839.png"
+    "image": "/images/team/ana-villalobos.jpg"
   }
 ]

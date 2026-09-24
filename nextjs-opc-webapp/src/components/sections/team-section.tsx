@@ -10,6 +10,7 @@ import type { TeamMember } from '@/types';
 
 export function TeamSection({ customBg }: { customBg?: string }) {
   const [team, setTeam] = useState<TeamMember[]>(TEAM_MEMBERS);
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     try {
@@ -81,7 +82,7 @@ export function TeamSection({ customBg }: { customBg?: string }) {
 
                 <div className="flex items-center gap-4 pt-1">
                   <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-border group-hover:border-accent transition-colors shrink-0 bg-card flex items-center justify-center">
-                    {member.image ? (
+                    {member.image && !imgErrors[member.id] ? (
                       <Image
                         src={member.image}
                         alt={member.name}
@@ -89,6 +90,7 @@ export function TeamSection({ customBg }: { customBg?: string }) {
                         className="object-cover"
                         sizes="64px"
                         unoptimized
+                        onError={() => setImgErrors((prev) => ({ ...prev, [member.id]: true }))}
                       />
                     ) : (
                       <User className="w-8 h-8 text-text-subtle" />

@@ -115,6 +115,14 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
             playsInline
             preload="auto"
             src={bgUrl || '/videos/hero-background.mp4'}
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (!target.src.includes('hero-background.mp4')) {
+                target.src = '/videos/hero-background.mp4';
+                target.load();
+                target.play().catch(() => {});
+              }
+            }}
             className={cn(
               'w-full h-full object-center',
               bgFit === 'contain' ? 'object-contain' : 'object-cover'

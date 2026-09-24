@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, writeFile } from 'fs/promises';
-import path from 'path';
 import { revalidatePath } from 'next/cache';
+import { getSectionContent, saveSectionContent } from '@/lib/services/content-service';
 import type { FeaturedOperation } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
-const OPERATIONS_FILE = path.join(process.cwd(), 'src', 'data', 'operations.json');
-
 export async function GET() {
   try {
-    const raw = await readFile(OPERATIONS_FILE, 'utf-8');
-    const data = JSON.parse(raw);
+    const data = await getSectionContent<FeaturedOperation[]>('operations', []);
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json([]);
@@ -26,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Formato inválido' }, { status: 400 });
     }
 
-    await writeFile(OPERATIONS_FILE, JSON.stringify(items, null, 2), 'utf-8');
+    await saveSectionContent('operations', items);
     revalidatePath('/', 'layout');
     revalidatePath('/admin/content/plataforma');
 

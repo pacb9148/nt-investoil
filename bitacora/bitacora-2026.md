@@ -230,3 +230,39 @@
      - `npm run build`: 52 rutas compiladas y empaquetadas sin errores de TypeScript.
      - Script Playwright `test-categories-blog.mjs`: superado al 100% (botón sidebar, modal de categorías, creación de categoría en BD, bloqueo por falta de categoría y vista pública del blog).
      - Batería de seguridad (`bateria-seguridad.ps1`): superada 100% limpia.
+
+## [2026-09-25 00:45] Persistencia Indestructible en PostgreSQL, Restauración Integral de Medios y Leyendas Técnicas (+dap)
+- **Petición del Usuario**:
+  1. "todas la imagenes y videos se guardan en la base de datos, si son videos o imagenes de internet se guarda el link a los archivos."
+  2. "Cual es la razón por la que no se pueden ver las previsualizaciones de algunos archivos de imagen y video, si es por el tipo de extensión debes poner una leyenda con los formatos (extensiones) permitidos y el tamaño maximo permitido del archivo."
+  3. Resolver pérdida de imágenes en blog, miembros del equipo y video de hero tras el despliegue.
+  4. Ejecución obligatoria con orden +dap y comprobación con Playwright.
+- **Causa Raíz Identificada**:
+  - En Coolify la variable inyectada es DATABASE_URL (PostgreSQL directo), pero NEXT_PUBLIC_SUPABASE_URL no estaba configurada.
+  - Al no detectar Supabase, los uploads se guardaban en el disco temporal del contenedor Docker (public/uploads) y las llamadas a los servicios bypassaban la base de datos. Ante cada git push o rebuild, Docker borraba los uploads.
+- **Acciones Realizadas**:
+  1. **Persistencia Directa en PostgreSQL (pg-client.ts & DATABASE_URL)**:
+     - Creado cliente pg.Pool con esquema DDL automático para public.media_files, public.media, public.landing_sections, public.posts, public.categories, public.landing_team.
+  2. **Ruta Autogenerativa de Medios (/uploads/[...slug])**:
+     - Intercepta solicitudes a /uploads/*. Si el archivo no está en el contenedor Docker, lo consulta en public.media_files de PostgreSQL, lo decodifica desde Base64, lo restaura al disco y lo sirve con soporte para streaming HTTP 206 (Range headers).
+  3. **Persistencia Universal de Secciones (landing_sections)**:
+     - Conectado content-service.ts y todas las rutas /api/content/* (hero, appearance, header, about, footer, seo, faq, testimonials, services, products, operations, problem, marquee, legales) a la tabla public.landing_sections en PostgreSQL. Cualquier personalización queda almacenada en la base de datos y no se pierde con ningún despliegue futuro.
+  4. **Leyendas Técnicas y Validación de Formatos**:
+     - Añadido banner en /admin/media y en formularios con especificaciones técnicas claras:
+       - Imágenes: JPG, JPEG, PNG, WebP, SVG, GIF (Máx. 10 MB).
+       - Videos: MP4, WebM, MOV (Máx. 50 MB).
+       - Explicación de guardado binario en base de datos vs. enlaces externos.
+     - Fallbacks visuales para avatares de equipo e imágenes de blog para evitar cajas negras o imágenes rotas.
+  5. **Restauración de Medios**:
+     - Video de hero restaurado a /videos/hero-background.mp4 con auto-recuperación ante error.
+     - Mapeo de fotos de directivos a retratos oficiales en /images/team/.
+     - Corrección de URL 404 de Unsplash en el post suministro-diesel-en590-normativa-bajo-azufre por imagen válida de refinería industrial verificada con HTTP 200.
+  6. **Verificación Automatizada con Playwright**:
+     - Suite scripts/verify-media.mjs:
+       - ✓ Video de fondo de Hero detectado y reproducible.
+       - ✓ 6 fotos del equipo directivo cargadas y visibles al 100%.
+       - ✓ 8 imágenes de artículos del blog cargadas con éxito (0 rotas).
+       - ✓ 0 fallos en la suite de pruebas.
+  7. **Compilación y Seguridad**:
+     - npm run build: 52/52 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript.
+     - pwsh ./scripts/bateria-seguridad.ps1: superada con resultado 100% aprobado.

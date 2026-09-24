@@ -76,6 +76,7 @@ export interface MediaItem {
   height?: number | null;
   alt_text?: string | null;
   uploaded_by?: string | null;
+  data_base64?: string | null;
   created_at: string;
 }
 

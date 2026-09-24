@@ -131,6 +131,29 @@ export default function AdminMediaPage() {
         </label>
       </div>
 
+      {/* Banner de Especificaciones Técnicas y Persistencia */}
+      <div className="p-4 rounded-xl border border-accent/30 bg-accent/5 backdrop-blur-sm space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-accent font-heading">
+            Especificaciones Técnicas & Persistencia en Base de Datos
+          </h2>
+        </div>
+        <p className="text-xs text-text-muted leading-relaxed">
+          <strong>Guardado persistente en base de datos:</strong> Todos los archivos multimedia subidos localmente quedan codificados y persistidos de manera duradera en la base de datos PostgreSQL para no perderse en ningún nuevo despliegue ni actualización de contenedores. Para videos o imágenes de internet, se guarda y vincula la URL externa directa.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-[11px] text-text-muted font-mono">
+          <div className="p-2.5 rounded-lg border border-border/60 bg-card/60">
+            <span className="text-text font-bold block mb-0.5">📸 Formatos de Imagen Permitidos:</span>
+            JPG, JPEG, PNG, WebP, SVG, GIF — <strong className="text-accent">Máx. 10 MB</strong>
+          </div>
+          <div className="p-2.5 rounded-lg border border-border/60 bg-card/60">
+            <span className="text-text font-bold block mb-0.5">🎬 Formatos de Video Permitidos:</span>
+            MP4, WebM, MOV (H.264/AAC recomendado) — <strong className="text-accent">Máx. 50 MB</strong>
+          </div>
+        </div>
+      </div>
+
       {/* Search */}
       <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
         <div className="relative w-full max-w-sm">

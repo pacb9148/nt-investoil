@@ -349,5 +349,39 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
     - ✓ Filtros de categorías y badges visibles en `/blog`.
   - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): superada con resultado 100% aprobado.
 
+### Fase 13: Persistencia Indestructible en PostgreSQL (DATABASE_URL) y Restauración de Medios
+- **Diagnóstico de Causa Raíz en Despliegues de Producción**:
+  - Al consultar `/api/system-status` en `https://investoil.es`, se constató que la instancia de producción en Coolify inyecta `DATABASE_URL` (conexión directa PostgreSQL), mientras `NEXT_PUBLIC_SUPABASE_URL` no estaba configurado.
+  - Como el código verificaba únicamente `isSupabaseConfigured()`, todas las subidas de archivos iban al disco efímero del contenedor Docker (`public/uploads`), destruyéndose ante cada `git push` o rebuild de Coolify.
+- **Cliente Nativo de PostgreSQL (`pg-client.ts`)**:
+  - Conexión mediante `pg.Pool` con inicialización automática de esquema DDL para:
+    `public.media_files`, `public.media`, `public.posts`, `public.categories`, `public.landing_team` y `public.landing_sections`.
+- **Ruta Autogenerativa de Medios (`/uploads/[...slug]`)**:
+  - Intercepta solicitudes a `/uploads/*`. Si el archivo no existe en el contenedor Docker, consulta la base de datos PostgreSQL (`public.media_files`), reconstruye el archivo en caché y lo sirve con soporte completo para streaming HTTP 206 (Range headers) para videos fluidos sin buffer.
+- **Persistencia Binaria en Base de Datos (`/api/upload`)**:
+  - Valida formatos permitidos y límites (10 MB para imágenes, 50 MB para videos).
+  - Almacena el contenido binario codificado en Base64 en `public.media_files` y registra los metadatos en `public.media`.
+  - Diferenciación clara: archivos locales se almacenan en la base de datos; enlaces externos HTTPS guardan su URL directa.
+- **Banner de Especificaciones Técnicas y Leyenda de Formatos**:
+  - Incorporada leyenda técnica visible en `/admin/media` y en los formularios de edición detallando:
+    - Formatos de imagen: JPG, JPEG, PNG, WebP, SVG, GIF (Máx. 10 MB).
+    - Formatos de video: MP4, WebM, MOV (Máx. 50 MB).
+    - Explicación de persistencia duradera en base de datos PostgreSQL.
+- **Persistencia Universal de Secciones (`landing_sections`)**:
+  - `content-service.ts` y todas las APIs (`/api/content/*`) leen y escriben en la tabla `landing_sections` de PostgreSQL (`hero`, `appearance`, `header`, `about`, `footer`, `seo`, `sections`, `faq`, `testimonials`, `services`, `products`, `operations`, `problem`, `marquee`, `legales`).
+  - Cualquier personalización del cliente en el backoffice queda guardada en la base de datos y no se pierde al hacer nuevos despliegues.
+- **Restauración y Corrección de Medios**:
+  - Video del hero restaurado a `/videos/hero-background.mp4` con auto-recuperación en caso de error.
+  - Fotos del equipo mapeadas a las imágenes oficiales en `/images/team/` con fallback visual SVG a icono de usuario.
+  - Corrección de URL rota de Unsplash en el post `suministro-diesel-en590-normativa-bajo-azufre` por una imagen industrial de alta resolución verificada con HTTP 200.
+- **Verificación Rigurosa con Evidencia Real**:
+  - `npm run build`: 52/52 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
+  - Verificación Playwright (`scripts/verify-media.mjs`):
+    - ✓ Video de hero detectado: `/videos/hero-background.mp4`.
+    - ✓ 6 fotos del equipo directivo cargadas y visibles al 100%.
+    - ✓ 8 imágenes de artículos del blog cargadas con éxito y status 200.
+    - ✓ 0 errores en la suite de pruebas.
+  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.
+
 
 

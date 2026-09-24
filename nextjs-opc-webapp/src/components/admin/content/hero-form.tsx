@@ -93,6 +93,25 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+    const isVid = file.type.startsWith('video/') || ['.mp4', '.webm', '.mov'].includes(ext);
+    const isImg = file.type.startsWith('image/') || ['.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif'].includes(ext);
+
+    if (!isVid && !isImg) {
+      setUploadError(`Formato "${ext}" no permitido. Formatos válidos: Videos (MP4, WebM, MOV) e Imágenes (JPG, PNG, WebP, SVG).`);
+      return;
+    }
+
+    const fileSizeMB = file.size / (1024 * 1024);
+    if (isImg && fileSizeMB > 10) {
+      setUploadError(`La imagen pesa ${fileSizeMB.toFixed(1)} MB y supera el tamaño máximo permitido de 10 MB.`);
+      return;
+    }
+    if (isVid && fileSizeMB > 50) {
+      setUploadError(`El video pesa ${fileSizeMB.toFixed(1)} MB y supera el tamaño máximo permitido de 50 MB.`);
+      return;
+    }
+
     setUploading(true);
     setUploadError(null);
     setUploadMessage(null);
@@ -119,7 +138,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
         setBgType('image');
       }
 
-      setUploadMessage(`✓ Archivo "${file.name}" cargado exitosamente como ${data.mediaType === 'video' ? 'video' : 'imagen'}.`);
+      setUploadMessage(`✓ Archivo "${file.name}" guardado exitosamente en base de datos como ${data.mediaType === 'video' ? 'video' : 'imagen'}.`);
       setTimeout(() => setUploadMessage(null), 5000);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Error al subir el archivo');
@@ -728,9 +747,24 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                   </button>
                 </div>
 
-                <p className="mt-1 text-[11px] text-text-subtle">
-                  Seleccione un archivo de su computadora o use uno de los fondos oficiales de alta definición.
-                </p>
+                {/* Leyenda obligatoria de especificaciones y límites */}
+                <div className="mt-3 p-3 rounded-lg border border-border/70 bg-surf/60 space-y-1 text-[11px] text-text-muted">
+                  <div className="flex items-center gap-1.5 font-semibold text-text">
+                    <Sparkles className="w-3.5 h-3.5 text-accent shrink-0" />
+                    <span>Formatos permitidos y límites de almacenamiento del fondo:</span>
+                  </div>
+                  <ul className="list-disc list-inside space-y-0.5 pl-1 text-[10px] text-text-subtle font-mono">
+                    <li>
+                      <strong className="text-text">Videos de fondo:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">50 MB</span>)
+                    </li>
+                    <li>
+                      <strong className="text-text">Imágenes de fondo:</strong> JPG, JPEG, PNG, WebP, SVG (Máx. <span className="text-amber-400">10 MB</span>)
+                    </li>
+                    <li className="text-[10px] text-text-muted font-sans pt-0.5">
+                      Los archivos locales subidos se almacenan en la <span className="text-accent font-semibold">base de datos</span> para persistir entre despliegues. Si usas una URL directa de internet (HTTPS), se guardará el enlace al recurso.
+                    </li>
+                  </ul>
+                </div>
 
                 {uploadMessage && (
                   <div className="mt-2 flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
@@ -768,15 +802,26 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                           muted
                           playsInline
                           preload="auto"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            if (!target.src.includes('hero-background.mp4')) {
+                              target.src = '/videos/hero-background.mp4';
+                              target.load();
+                              target.play().catch(() => {});
+                            }
+                          }}
                           className="w-full h-full object-cover"
                         />
                       ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={bgUrl}
                           alt="Previsualización de fondo"
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            (e.target as HTMLElement).style.display = 'none';
+                            const target = e.currentTarget;
+                            target.onerror = null;
+                            target.src = 'https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1920&q=80';
                           }}
                         />
                       )}

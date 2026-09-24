@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { revalidatePath } from 'next/cache';
+import { getSectionContent, saveSectionContent } from '@/lib/services/content-service';
 
 export const dynamic = 'force-dynamic';
-
-const DATA_PATH = path.join(process.cwd(), 'src', 'data', 'legal-pages.json');
 
 export interface LegalSection {
   title: string;
@@ -24,11 +22,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const slug = searchParams.get('slug');
 
-    if (!fs.existsSync(DATA_PATH)) {
-      return NextResponse.json({ error: 'Archivo de legales no encontrado' }, { status: 404 });
-    }
-
-    const data = JSON.parse(fs.readFileSync(DATA_PATH, 'utf-8'));
+    const data = await getSectionContent<Record<string, LegalPageData>>('legal-pages', {});
 
     if (slug) {
       if (data[slug]) {
@@ -48,10 +42,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { slug, pageData, allData } = body;
 
-    let currentData: Record<string, LegalPageData> = {};
-    if (fs.existsSync(DATA_PATH)) {
-      currentData = JSON.parse(fs.readFileSync(DATA_PATH, 'utf-8'));
-    }
+    let currentData = await getSectionContent<Record<string, LegalPageData>>('legal-pages', {});
 
     if (allData) {
       currentData = allData;
@@ -61,7 +52,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Formato de payload inválido' }, { status: 400 });
     }
 
-    fs.writeFileSync(DATA_PATH, JSON.stringify(currentData, null, 2), 'utf-8');
+    await saveSectionContent('legal-pages', currentData);
+    revalidatePath('/', 'layout');
+    revalidatePath('/admin/content/legales');
+
     return NextResponse.json({ success: true, data: currentData });
   } catch (error) {
     return NextResponse.json({ error: 'Error guardando datos de páginas legales' }, { status: 500 });

@@ -56,9 +56,9 @@ Write-Host "`n[2/5] Buscando secretos y credenciales filtradas..." -ForegroundCo
 $secretPatterns = @(
     @{ Name = "JWT Token"; Pattern = 'eyJ[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}' },
     @{ Name = "Supabase Secret Key"; Pattern = 'sb_secret_[a-zA-Z0-9_-]{16,}' },
-    @{ Name = "OpenAI / OpenRouter Key"; Pattern = 'sk-(live-)?[a-zA-Z0-9_-]{20,}' },
-    @{ Name = "GitHub PAT / Token"; Pattern = 'gh[pousr]_[a-zA-Z0-9]{20,}|github_pat_[a-zA-Z0-9_]{30,}' },
-    @{ Name = "Google AIza Key"; Pattern = 'AIza[0-9A-Za-z-_]{35}' },
+    @{ Name = "OpenAI / OpenRouter Key"; Pattern = '\bsk-(live-|proj-)?[a-zA-Z0-9_-]{20,}\b' },
+    @{ Name = "GitHub PAT / Token"; Pattern = '\b(gh[pousr]_[a-zA-Z0-9]{20,}|github_pat_[a-zA-Z0-9_]{30,})\b' },
+    @{ Name = "Google AIza Key"; Pattern = '\bAIza[0-9A-Za-z-_]{35}\b' },
     @{ Name = "Private Key Header"; Pattern = '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----' }
 )
 
@@ -70,6 +70,7 @@ $filesToScan = Get-ChildItem -Path $ProjectDir -Recurse -File -ErrorAction Silen
         if ($item.FullName -match "\\$ex\\") { $skip = $true; break }
     }
     if ($item.Name -match '^\.env(\..+)?$') { $skip = $true } # Los .env locales se auditan aparte
+    if ($item.Name -match '^(package-lock\.json|pnpm-lock\.yaml|yarn\.lock)$') { $skip = $true } # Lockfiles generados
     if ($item.Extension -match '\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|eot|ttf|mp4|webm|zip|tar|gz|pdf|tsbuildinfo)$') { $skip = $true }
     -not $skip
 }

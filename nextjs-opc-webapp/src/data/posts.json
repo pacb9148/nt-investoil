@@ -3,7 +3,7 @@
     "id": "p-1790286754828",
     "slug": "articulo-test-sin-categoria",
     "title": "Artículo Test Sin Categoría",
-    "excerpt": "",
+    "excerpt": "Artículo de prueba sobre avances en biocombustibles y nuevas energías renovables.",
     "content": null,
     "status": "draft",
     "category_id": "cat-mug2glc4",
@@ -20,9 +20,9 @@
         "created_at": "2026-09-24T21:51:12.388Z"
       }
     ],
-    "featured_image_url": null,
+    "featured_image_url": "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=1200&q=80",
     "video_url": null,
-    "tags": [],
+    "tags": ["Transición", "Energía", "Sostenibilidad"],
     "reading_time": 3,
     "views": 0,
     "is_republished": false,
@@ -39,7 +39,7 @@
     "excerpt": "Análisis detallado de la infraestructura de transporte petrolífero y modernización.",
     "content": "<p>Contenido completo del artículo técnico con proyecciones y detalles operativos.</p>",
     "status": "published",
-    "featured_image_url": "/uploads/1790283046164-oleoducto.jpg",
+    "featured_image_url": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
     "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     "tags": [
       "Infraestructura",
@@ -105,7 +105,7 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "/uploads/1790283001867-petcoke.png.png",
+    "featured_image_url": "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=1200&q=80",
     "published_at": "2026-09-22T08:56:23.138Z",
     "created_at": "2026-09-22T08:56:23.139Z",
     "updated_at": "2026-09-24T20:50:08.915Z",
@@ -151,7 +151,7 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "/uploads/1790285350806-images.jpg",
+    "featured_image_url": "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1200&q=80",
     "published_at": "2026-09-20T08:56:23.139Z",
     "created_at": "2026-09-20T08:56:23.139Z",
     "updated_at": "2026-09-24T21:29:13.72Z",
@@ -197,7 +197,7 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "/uploads/1790285420613-11158993.png",
+    "featured_image_url": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80",
     "published_at": "2026-09-18T08:56:23.139Z",
     "created_at": "2026-09-18T08:56:23.139Z",
     "updated_at": "2026-09-24T21:30:24.272Z",
@@ -243,7 +243,7 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "/uploads/1790285401021-diesel-engine-efficiency.webp",
+    "featured_image_url": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
     "published_at": "2026-09-16T08:56:23.139Z",
     "created_at": "2026-09-16T08:56:23.139Z",
     "updated_at": "2026-09-24T21:30:04.271Z",
@@ -289,7 +289,7 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "/uploads/1790285436332-C5OJNJFIZZD.png",
+    "featured_image_url": "https://images.unsplash.com/photo-1516937941344-00b4e0337589?auto=format&fit=crop&w=1200&q=80",
     "published_at": "2026-09-14T08:56:23.139Z",
     "created_at": "2026-09-14T08:56:23.139Z",
     "updated_at": "2026-09-24T21:30:39.182Z",
@@ -335,7 +335,7 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "/uploads/1790285453093-1790279740.png",
+    "featured_image_url": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=1200&q=80",
     "published_at": "2026-09-12T08:56:23.139Z",
     "created_at": "2026-09-12T08:56:23.139Z",
     "updated_at": "2026-09-24T21:30:54.37Z",
@@ -382,7 +382,7 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "/uploads/1790285470748-images__1_.jpg",
+    "featured_image_url": "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1200&q=80",
     "published_at": "2026-09-10T08:56:23.139Z",
     "created_at": "2026-09-10T08:56:23.139Z",
     "updated_at": "2026-09-24T21:31:16.76Z",

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { hasPostgresDb, queryPg } from '@/lib/db/pg-client';
 import type { Post, Category, MediaItem, ContactLead, TeamMember, BackofficeUser } from '@/types';
 import { BLOG_POSTS, BLOG_CATEGORIES } from '@/lib/constants/blog-data';
 import { TEAM_MEMBERS } from '@/lib/constants/investoil';
@@ -124,7 +125,22 @@ export async function getPosts(options?: {
 }): Promise<Post[]> {
   let posts: Post[] = [];
 
-  if (isSupabaseConfigured()) {
+  if (hasPostgresDb()) {
+    try {
+      const res = await queryPg('SELECT * FROM public.posts ORDER BY created_at DESC');
+      if (res && res.rows.length > 0) {
+        posts = res.rows.map((r: any) => ({
+          ...r,
+          content: typeof r.content === 'string' ? JSON.parse(r.content) : r.content,
+          tags: r.tags || [],
+        })) as Post[];
+      }
+    } catch (err) {
+      console.warn('PostgreSQL getPosts fallback:', err);
+    }
+  }
+
+  if (posts.length === 0 && isSupabaseConfigured()) {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
       const supabase = createAdminClient();
@@ -301,6 +317,55 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
 
   writeJsonFile('posts.json', posts);
 
+  // Sincronizar en PostgreSQL si DATABASE_URL está presente
+  if (hasPostgresDb()) {
+    try {
+      await queryPg(
+        `INSERT INTO public.posts (id, slug, title, excerpt, content, status, category_id, category, featured_image_url, video_url, tags, reading_time, views, is_republished, original_source_url, original_source_name, published_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, NOW())
+         ON CONFLICT (id) DO UPDATE SET
+           slug = EXCLUDED.slug,
+           title = EXCLUDED.title,
+           excerpt = EXCLUDED.excerpt,
+           content = EXCLUDED.content,
+           status = EXCLUDED.status,
+           category_id = EXCLUDED.category_id,
+           category = EXCLUDED.category,
+           featured_image_url = EXCLUDED.featured_image_url,
+           video_url = EXCLUDED.video_url,
+           tags = EXCLUDED.tags,
+           reading_time = EXCLUDED.reading_time,
+           views = EXCLUDED.views,
+           is_republished = EXCLUDED.is_republished,
+           original_source_url = EXCLUDED.original_source_url,
+           original_source_name = EXCLUDED.original_source_name,
+           published_at = EXCLUDED.published_at,
+           updated_at = NOW()`,
+        [
+          targetPost.id,
+          targetPost.slug,
+          targetPost.title,
+          targetPost.excerpt,
+          targetPost.content ? JSON.stringify(targetPost.content) : null,
+          targetPost.status,
+          targetPost.category_id,
+          targetPost.category,
+          targetPost.featured_image_url,
+          targetPost.video_url,
+          targetPost.tags,
+          targetPost.reading_time,
+          targetPost.views,
+          targetPost.is_republished,
+          targetPost.original_source_url,
+          targetPost.original_source_name,
+          targetPost.published_at,
+        ]
+      );
+    } catch (pgErr) {
+      console.warn('Sync post to PostgreSQL failed:', pgErr);
+    }
+  }
+
   // Sincronizar en Supabase si está disponible
   if (isSupabaseConfigured()) {
     try {
@@ -339,6 +404,12 @@ export async function deletePost(id: string): Promise<boolean> {
   const filtered = posts.filter((p) => p.id !== id);
   writeJsonFile('posts.json', filtered);
 
+  if (hasPostgresDb()) {
+    try {
+      await queryPg('DELETE FROM public.posts WHERE id = $1', [id]);
+    } catch {}
+  }
+
   if (isSupabaseConfigured()) {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
@@ -355,6 +426,29 @@ export async function deletePost(id: string): Promise<boolean> {
 // ==========================================
 export async function getCategories(): Promise<Category[]> {
   let categories = readJsonFile<Category[]>('categories.json', BLOG_CATEGORIES);
+
+  if (hasPostgresDb()) {
+    try {
+      const res = await queryPg('SELECT * FROM public.categories ORDER BY name ASC');
+      if (res && res.rows.length > 0) {
+        const map = new Map<string, Category>();
+        for (const c of categories) map.set(c.id, c);
+        for (const item of res.rows) {
+          map.set(item.id, {
+            id: item.id,
+            name: item.name,
+            slug: item.slug,
+            description: item.description,
+            name_en: item.name_en,
+            description_en: item.description_en,
+            color: item.color,
+            created_at: item.created_at,
+          });
+        }
+        categories = Array.from(map.values());
+      }
+    } catch {}
+  }
 
   if (isSupabaseConfigured()) {
     try {
@@ -433,6 +527,26 @@ export async function saveCategory(catData: Partial<Category>): Promise<Category
 
   writeJsonFile('categories.json', categories);
 
+  if (hasPostgresDb()) {
+    try {
+      await queryPg(
+        `INSERT INTO public.categories (id, name, slug, description, name_en, description_en, color, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+         ON CONFLICT (id) DO UPDATE SET
+           name = EXCLUDED.name,
+           slug = EXCLUDED.slug,
+           description = EXCLUDED.description,
+           name_en = EXCLUDED.name_en,
+           description_en = EXCLUDED.description_en,
+           color = EXCLUDED.color,
+           updated_at = NOW()`,
+        [targetCat.id, targetCat.name, targetCat.slug, targetCat.description, targetCat.name_en, targetCat.description_en, targetCat.color]
+      );
+    } catch (e) {
+      console.warn('[db-service] PostgreSQL saveCategory fallback:', e);
+    }
+  }
+
   if (isSupabaseConfigured()) {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
@@ -471,6 +585,12 @@ export async function deleteCategory(id: string): Promise<boolean> {
   const filtered = categories.filter((c) => c.id !== id);
   writeJsonFile('categories.json', filtered);
 
+  if (hasPostgresDb()) {
+    try {
+      await queryPg('DELETE FROM public.categories WHERE id = $1', [id]);
+    } catch {}
+  }
+
   if (isSupabaseConfigured()) {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
@@ -487,6 +607,31 @@ export async function deleteCategory(id: string): Promise<boolean> {
 // ==========================================
 export async function getMediaList(search?: string): Promise<MediaItem[]> {
   let media = readJsonFile<MediaItem[]>('media.json', DEFAULT_MEDIA);
+
+  if (hasPostgresDb()) {
+    try {
+      const res = await queryPg('SELECT * FROM public.media ORDER BY created_at DESC');
+      if (res && res.rows.length > 0) {
+        const map = new Map<string, MediaItem>();
+        for (const m of media) map.set(m.url, m);
+        for (const item of res.rows) {
+          map.set(item.url, {
+            id: item.id || `m-${Date.now()}`,
+            filename: item.filename,
+            url: item.url,
+            type: item.type,
+            mime_type: item.mime_type,
+            size: item.size ? Number(item.size) : null,
+            alt_text: item.alt_text,
+            created_at: item.created_at,
+          });
+        }
+        media = Array.from(map.values());
+      }
+    } catch (pgErr) {
+      console.warn('[db-service] PostgreSQL getMediaList error:', pgErr);
+    }
+  }
 
   if (isSupabaseConfigured()) {
     try {
@@ -549,6 +694,25 @@ export async function saveMediaItem(item: Partial<MediaItem>): Promise<MediaItem
 
   writeJsonFile('media.json', media);
 
+  if (hasPostgresDb()) {
+    try {
+      await queryPg(
+        `INSERT INTO public.media (id, filename, url, type, mime_type, size, alt_text, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+         ON CONFLICT (id) DO UPDATE SET
+           filename = EXCLUDED.filename,
+           url = EXCLUDED.url,
+           type = EXCLUDED.type,
+           mime_type = EXCLUDED.mime_type,
+           size = EXCLUDED.size,
+           alt_text = EXCLUDED.alt_text`,
+        [newItem.id, newItem.filename, newItem.url, newItem.type, newItem.mime_type, newItem.size, newItem.alt_text]
+      );
+    } catch (pgErr) {
+      console.warn('[db-service] PostgreSQL saveMediaItem error:', pgErr);
+    }
+  }
+
   if (isSupabaseConfigured()) {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
@@ -583,6 +747,17 @@ export async function deleteMediaItem(id: string): Promise<boolean> {
   const filtered = media.filter((m) => m.id !== id);
   writeJsonFile('media.json', filtered);
 
+  if (hasPostgresDb()) {
+    try {
+      await queryPg('DELETE FROM public.media WHERE id = $1', [id]);
+      if (itemToDelete) {
+        await queryPg('DELETE FROM public.media_files WHERE id = $1 OR filename = $2', [id, itemToDelete.filename]);
+      }
+    } catch (pgErr) {
+      console.warn('[db-service] PostgreSQL deleteMediaItem error:', pgErr);
+    }
+  }
+
   if (isSupabaseConfigured()) {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
@@ -599,6 +774,32 @@ export async function deleteMediaItem(id: string): Promise<boolean> {
 // ==========================================
 export async function getTeamMembers(): Promise<TeamMember[]> {
   const local = readJsonFile<TeamMember[]>('team.json', TEAM_MEMBERS);
+
+  if (hasPostgresDb()) {
+    try {
+      const res = await queryPg('SELECT * FROM public.landing_team ORDER BY sort_order ASC');
+      if (res && res.rows.length > 0) {
+        return res.rows.map((r: any) => ({
+          id: r.id,
+          number: r.number || undefined,
+          name: r.name,
+          role: r.role,
+          role_en: r.role_en || r.role,
+          location: r.location || undefined,
+          image: r.image || r.photo_url || undefined,
+          photo_url: r.photo_url || r.image || undefined,
+          bio: r.bio || '',
+          bio_en: r.bio_en || r.bio || '',
+          linkedin_url: r.linkedin_url || undefined,
+          sort_order: r.sort_order || 0,
+          is_active: r.is_active !== false,
+        }));
+      }
+    } catch (pgErr) {
+      console.warn('[db-service] PostgreSQL getTeamMembers error:', pgErr);
+    }
+  }
+
   if (isSupabaseConfigured()) {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
@@ -617,6 +818,50 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
 
 export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember[]> {
   writeJsonFile('team.json', members);
+
+  if (hasPostgresDb()) {
+    try {
+      for (let i = 0; i < members.length; i++) {
+        const m = members[i];
+        const memberId = m.id || `tm-${i + 1}`;
+        await queryPg(
+          `INSERT INTO public.landing_team (id, number, name, role, role_en, location, image, photo_url, bio, bio_en, linkedin_url, sort_order, is_active, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
+           ON CONFLICT (id) DO UPDATE SET
+             number = EXCLUDED.number,
+             name = EXCLUDED.name,
+             role = EXCLUDED.role,
+             role_en = EXCLUDED.role_en,
+             location = EXCLUDED.location,
+             image = EXCLUDED.image,
+             photo_url = EXCLUDED.photo_url,
+             bio = EXCLUDED.bio,
+             bio_en = EXCLUDED.bio_en,
+             linkedin_url = EXCLUDED.linkedin_url,
+             sort_order = EXCLUDED.sort_order,
+             is_active = EXCLUDED.is_active,
+             updated_at = NOW()`,
+          [
+            memberId,
+            m.number || null,
+            m.name,
+            m.role,
+            m.role_en || m.role,
+            m.location || null,
+            m.photo_url || m.image || null,
+            m.photo_url || m.image || null,
+            m.bio || '',
+            m.bio_en || m.bio || '',
+            m.linkedin_url || null,
+            i,
+            m.is_active !== false,
+          ]
+        );
+      }
+    } catch (pgErr) {
+      console.warn('[db-service] PostgreSQL saveTeamMembers error:', pgErr);
+    }
+  }
 
   if (isSupabaseConfigured()) {
     try {
