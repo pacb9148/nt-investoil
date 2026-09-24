@@ -31,8 +31,8 @@ const INPUT_STYLE =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2 text-xs text-text placeholder:text-text-subtle focus:outline-none focus:border-accent transition-colors';
 const LABEL_STYLE = 'block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1.5';
 
-const MAX_IMAGE_SIZE_MB = 10;
-const MAX_VIDEO_SIZE_MB = 50;
+const MAX_IMAGE_SIZE_MB = 2;
+const MAX_VIDEO_SIZE_MB = 10;
 
 export function MediaUploadField({
   label,
@@ -238,10 +238,10 @@ export function MediaUploadField({
         </div>
         <ul className="list-disc list-inside space-y-0.5 pl-1 text-[10px] text-text-subtle font-mono">
           <li>
-            <strong className="text-text">Imágenes:</strong> JPG, JPEG, PNG, WebP, SVG, GIF (Máx. <span className="text-amber-400">10 MB</span>)
+            <strong className="text-text">Imágenes:</strong> JPG, JPEG, PNG, WebP, SVG, GIF (Máx. <span className="text-amber-400">2 MB</span>)
           </li>
           <li>
-            <strong className="text-text">Videos:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">50 MB</span>)
+            <strong className="text-text">Videos:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">10 MB</span>)
           </li>
           <li className="text-[10px] text-text-muted font-sans pt-0.5">
             Los archivos subidos se almacenan en la <span className="text-accent font-semibold">base de datos</span> para persistir entre deploys. Si introduces una URL de internet (HTTPS), se guardará el enlace directo.

@@ -145,11 +145,11 @@ export default function AdminMediaPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-[11px] text-text-muted font-mono">
           <div className="p-2.5 rounded-lg border border-border/60 bg-card/60">
             <span className="text-text font-bold block mb-0.5">📸 Formatos de Imagen Permitidos:</span>
-            JPG, JPEG, PNG, WebP, SVG, GIF — <strong className="text-accent">Máx. 10 MB</strong>
+            JPG, JPEG, PNG, WebP, SVG, GIF — <strong className="text-accent">Máx. 2 MB</strong>
           </div>
           <div className="p-2.5 rounded-lg border border-border/60 bg-card/60">
             <span className="text-text font-bold block mb-0.5">🎬 Formatos de Video Permitidos:</span>
-            MP4, WebM, MOV (H.264/AAC recomendado) — <strong className="text-accent">Máx. 50 MB</strong>
+            MP4, WebM, MOV (H.264/AAC recomendado) — <strong className="text-accent">Máx. 10 MB</strong>
           </div>
         </div>
       </div>

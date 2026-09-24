@@ -266,3 +266,24 @@
   7. **Compilación y Seguridad**:
      - npm run build: 52/52 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript.
      - pwsh ./scripts/bateria-seguridad.ps1: superada con resultado 100% aprobado.
+
+## [2026-09-25 00:58] Fijación de Límites Máximos a 2 MB para Imágenes y 10 MB para Videos (+dap)
+- **Petición del Usuario**:
+  "fija los limites maximos en 2MB para imagenes y en 10 MB para video +dap y deploy"
+- **Acciones Realizadas**:
+  1. **Ajuste en Backend (/api/upload/route.ts)**:
+     - Constantes fijadas en `MAX_IMAGE_SIZE = 2 * 1024 * 1024` (2 MB) y `MAX_VIDEO_SIZE = 10 * 1024 * 1024` (10 MB).
+     - Respuestas de error 400 actualizadas con los nuevos límites exactos.
+  2. **Ajuste en Frontend y Formularios**:
+     - `media-upload-field.tsx`: constantes `MAX_IMAGE_SIZE_MB = 2` y `MAX_VIDEO_SIZE_MB = 10`, leyenda actualizada a 2 MB y 10 MB.
+     - `hero-form.tsx`: validación previa de subida ajustada a 2 MB (imágenes) y 10 MB (videos), y leyenda de fondo sincronizada.
+     - `/admin/media`: banner de especificaciones técnicas actualizado con los topes de 2 MB y 10 MB.
+     - `scripts/verify-media.mjs`: script de prueba sincronizado.
+  3. **Verificación Automatizada con Evidencia Real**:
+     - Test de API en Node.js:
+       - Imagen 3 MB -> HTTP 400 (`La imagen excede el límite máximo de 2 MB`).
+       - Video 12 MB -> HTTP 400 (`El video excede el límite máximo de 10 MB`).
+       - Imagen 500 KB -> HTTP 200 (`Success`).
+     - `npm run build`: 52/52 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
+     - Suite Playwright (`verify-media.mjs`): 100% aprobada con 0 fallos.
+     - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.

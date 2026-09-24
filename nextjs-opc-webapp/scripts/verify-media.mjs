@@ -72,10 +72,10 @@ async function run() {
     await page.goto('http://localhost:3005/admin/media', { waitUntil: 'networkidle' });
     const pageHtml = await page.content();
     const hasDbNotice = pageHtml.includes('Guardado persistente en base de datos');
-    const hasLimitNotice = pageHtml.includes('10 MB') && pageHtml.includes('50 MB');
+    const hasLimitNotice = pageHtml.includes('2 MB') && pageHtml.includes('10 MB');
 
     if (hasDbNotice && hasLimitNotice) {
-      console.log('✓ Leyenda técnica de formatos, límites y base de datos verificada en Backoffice.');
+      console.log('✓ Leyenda técnica de formatos (2 MB / 10 MB) y base de datos verificada en Backoffice.');
     } else {
       console.warn('Aviso sobre leyenda en /admin/media (hasDbNotice:', hasDbNotice, 'hasLimitNotice:', hasLimitNotice, ')');
     }

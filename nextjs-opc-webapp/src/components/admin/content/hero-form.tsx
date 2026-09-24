@@ -103,12 +103,12 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
     }
 
     const fileSizeMB = file.size / (1024 * 1024);
-    if (isImg && fileSizeMB > 10) {
-      setUploadError(`La imagen pesa ${fileSizeMB.toFixed(1)} MB y supera el tamaño máximo permitido de 10 MB.`);
+    if (isImg && fileSizeMB > 2) {
+      setUploadError(`La imagen pesa ${fileSizeMB.toFixed(1)} MB y supera el tamaño máximo permitido de 2 MB.`);
       return;
     }
-    if (isVid && fileSizeMB > 50) {
-      setUploadError(`El video pesa ${fileSizeMB.toFixed(1)} MB y supera el tamaño máximo permitido de 50 MB.`);
+    if (isVid && fileSizeMB > 10) {
+      setUploadError(`El video pesa ${fileSizeMB.toFixed(1)} MB y supera el tamaño máximo permitido de 10 MB.`);
       return;
     }
 
@@ -755,10 +755,10 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                   </div>
                   <ul className="list-disc list-inside space-y-0.5 pl-1 text-[10px] text-text-subtle font-mono">
                     <li>
-                      <strong className="text-text">Videos de fondo:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">50 MB</span>)
+                      <strong className="text-text">Videos de fondo:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">10 MB</span>)
                     </li>
                     <li>
-                      <strong className="text-text">Imágenes de fondo:</strong> JPG, JPEG, PNG, WebP, SVG (Máx. <span className="text-amber-400">10 MB</span>)
+                      <strong className="text-text">Imágenes de fondo:</strong> JPG, JPEG, PNG, WebP, SVG (Máx. <span className="text-amber-400">2 MB</span>)
                     </li>
                     <li className="text-[10px] text-text-muted font-sans pt-0.5">
                       Los archivos locales subidos se almacenan en la <span className="text-accent font-semibold">base de datos</span> para persistir entre despliegues. Si usas una URL directa de internet (HTTPS), se guardará el enlace al recurso.

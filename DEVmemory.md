@@ -383,5 +383,24 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
     - ✓ 0 errores en la suite de pruebas.
   - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.
 
+### Fase 14: Ajuste Estricto de Límites de Tamaño (2 MB para Imágenes y 10 MB para Videos)
+- **Ajuste en Backend (`/api/upload`)**:
+  - `MAX_IMAGE_SIZE = 2 * 1024 * 1024` (2 MB).
+  - `MAX_VIDEO_SIZE = 10 * 1024 * 1024` (10 MB).
+  - Mensajes de error amigables y específicos con cálculo exacto en MB del archivo rechazado.
+- **Ajuste en Componentes Frontend y Validaciones Previas**:
+  - `media-upload-field.tsx`: constantes `MAX_IMAGE_SIZE_MB = 2` y `MAX_VIDEO_SIZE_MB = 10`, con validación previa en cliente para evitar transmisiones innecesarias.
+  - `hero-form.tsx`: límite de validación de video ajustado a 10 MB y leyenda de fondo actualizada.
+  - `/admin/media`: banner técnico de especificaciones actualizado a "Imágenes — Máx. 2 MB" y "Videos — Máx. 10 MB".
+- **Verificación Rigurosa con Evidencia Real**:
+  - Prueba de límites API en Node.js:
+    - ✓ Imagen de 3 MB: rechazada con HTTP 400 (`La imagen excede el límite máximo de 2 MB (tamaño actual: 3.00 MB).`).
+    - ✓ Video de 12 MB: rechazado con HTTP 400 (`El video excede el límite máximo de 10 MB (tamaño actual: 12.00 MB).`).
+    - ✓ Imagen de 500 KB: aceptada con HTTP 200 `Success`.
+  - `npm run build`: 52/52 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
+  - Verificación Playwright (`verify-media.mjs`): aprobada al 100% con 0 fallos.
+  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.
+
+
 
 

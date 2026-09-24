@@ -8,8 +8,8 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 MB
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB
+const MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 10 MB
 
 const ALLOWED_IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif'];
 const ALLOWED_VIDEO_EXTS = ['.mp4', '.webm', '.mov', '.ogg'];
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     if (isImage && file.size > MAX_IMAGE_SIZE) {
       return NextResponse.json(
         {
-          error: `La imagen excede el límite máximo de 10 MB (tamaño actual: ${(file.size / (1024 * 1024)).toFixed(2)} MB).`,
+          error: `La imagen excede el límite máximo de 2 MB (tamaño actual: ${(file.size / (1024 * 1024)).toFixed(2)} MB).`,
         },
         { status: 400 }
       );
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     if (isVideo && file.size > MAX_VIDEO_SIZE) {
       return NextResponse.json(
         {
-          error: `El video excede el límite máximo de 50 MB (tamaño actual: ${(file.size / (1024 * 1024)).toFixed(2)} MB).`,
+          error: `El video excede el límite máximo de 10 MB (tamaño actual: ${(file.size / (1024 * 1024)).toFixed(2)} MB).`,
         },
         { status: 400 }
       );
