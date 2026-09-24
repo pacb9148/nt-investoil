@@ -97,12 +97,15 @@ export async function updateHeroAction(
   };
 
   updateMemoryHero(data);
+  // Sincronizar también hero_card en appearance.json
+  updateMemoryAppearance({ hero_card: heroCard });
 
   if (isSupabaseConfigured()) {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
       const db = createAdminClient();
       await db.from('landing_hero').upsert({ id: 1, ...data });
+      await db.from('landing_site_appearance').update({ hero_card: heroCard }).eq('id', 1);
     } catch (err) {
       console.warn('Supabase updateHero connection fallback');
     }
@@ -110,6 +113,7 @@ export async function updateHeroAction(
 
   revalidatePath('/', 'layout');
   revalidatePath('/admin/content/hero');
+  revalidatePath('/admin/content/apariencia');
   return { success: true, message: 'Hero actualizado correctamente' };
 }
 
@@ -134,11 +138,23 @@ export async function updateAppearanceAction(
     card_bg_color: (formData.get('hero_card_bg') as string) || '#0e1424',
     card_border_color: (formData.get('hero_card_border') as string) || '#f59e0b',
     card_glow_opacity: Number(formData.get('hero_card_glow_opacity') ?? 50),
+    logo_url: (formData.get('hero_logo_url') as string) || undefined,
     logo_hue: Number(formData.get('hero_logo_hue') ?? 0),
     logo_brightness: Number(formData.get('hero_logo_brightness') ?? 100),
     logo_saturation: Number(formData.get('hero_logo_saturation') ?? 100),
     logo_shadow_color: (formData.get('hero_logo_shadow_color') as string) || '#f59e0b',
     logo_shadow_blur: Number(formData.get('hero_logo_shadow_blur') ?? 20),
+    badge_text: (formData.get('hero_badge_text') as string) || undefined,
+    badge_text_en: (formData.get('hero_badge_text_en') as string) || undefined,
+    metric1_label: (formData.get('hero_metric1_label') as string) || undefined,
+    metric1_label_en: (formData.get('hero_metric1_label_en') as string) || undefined,
+    metric1_value: (formData.get('hero_metric1_value') as string) || undefined,
+    metric2_label: (formData.get('hero_metric2_label') as string) || undefined,
+    metric2_label_en: (formData.get('hero_metric2_label_en') as string) || undefined,
+    metric2_value: (formData.get('hero_metric2_value') as string) || undefined,
+    metric3_label: (formData.get('hero_metric3_label') as string) || undefined,
+    metric3_label_en: (formData.get('hero_metric3_label_en') as string) || undefined,
+    metric3_value: (formData.get('hero_metric3_value') as string) || undefined,
   };
 
   const data = {
@@ -153,12 +169,15 @@ export async function updateAppearanceAction(
   };
 
   updateMemoryAppearance(data);
+  // Sincronizar hero_card en hero.json para mantener coherencia total
+  updateMemoryHero({ hero_card: heroCard });
 
   if (isSupabaseConfigured()) {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
       const db = createAdminClient();
       await db.from('landing_site_appearance').upsert({ id: 1, ...data });
+      await db.from('landing_hero').update({ hero_card: heroCard }).eq('id', 1);
     } catch (err) {
       console.warn('Supabase updateAppearance connection fallback');
     }
@@ -166,5 +185,6 @@ export async function updateAppearanceAction(
 
   revalidatePath('/', 'layout');
   revalidatePath('/admin/content/apariencia');
+  revalidatePath('/admin/content/hero');
   return { success: true, message: 'Apariencia actualizada correctamente' };
 }

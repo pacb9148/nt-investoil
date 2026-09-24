@@ -643,8 +643,77 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                   )}
                 </div>
 
+                {/* Accesos rápidos a videos e imágenes predeterminadas */}
+                <div className="flex flex-wrap items-center gap-2 pt-2">
+                  <span className="text-[10px] font-mono text-text-subtle">Fondos disponibles:</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBgType('video');
+                      setBgUrl('/videos/hero-background.mp4');
+                    }}
+                    className={cn(
+                      'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
+                      bgUrl === '/videos/hero-background.mp4'
+                        ? 'bg-accent/20 border-accent text-accent font-semibold'
+                        : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
+                    )}
+                  >
+                    <FileVideo className="w-3 h-3" />
+                    <span>Video Refinería (Oficial)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBgType('video');
+                      setBgUrl('/uploads/1790117420791-307348_large.mp4');
+                    }}
+                    className={cn(
+                      'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
+                      bgUrl === '/uploads/1790117420791-307348_large.mp4'
+                        ? 'bg-accent/20 border-accent text-accent font-semibold'
+                        : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
+                    )}
+                  >
+                    <FileVideo className="w-3 h-3" />
+                    <span>Video Operaciones</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBgType('image');
+                      setBgUrl('https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1920&q=80');
+                    }}
+                    className={cn(
+                      'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
+                      bgUrl.includes('photo-1544984243')
+                        ? 'bg-accent/20 border-accent text-accent font-semibold'
+                        : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
+                    )}
+                  >
+                    <FileImage className="w-3 h-3" />
+                    <span>Buque Petrolero</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBgType('image');
+                      setBgUrl('https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1920&q=80');
+                    }}
+                    className={cn(
+                      'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
+                      bgUrl.includes('photo-1508614589')
+                        ? 'bg-accent/20 border-accent text-accent font-semibold'
+                        : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
+                    )}
+                  >
+                    <FileImage className="w-3 h-3" />
+                    <span>Complejo Refinería</span>
+                  </button>
+                </div>
+
                 <p className="mt-1 text-[11px] text-text-subtle">
-                  Seleccione un archivo de su computadora o ingrese una URL web. Formatos recomendados: MP4 para video, WebP/JPG para imagen.
+                  Seleccione un archivo de su computadora o use uno de los fondos oficiales de alta definición.
                 </p>
 
                 {uploadMessage && (
@@ -942,6 +1011,18 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
               {/* Botones de selección rápida de logos corporativos */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <span className="text-[10px] font-mono text-text-subtle">Plantillas:</span>
+                <button
+                  type="button"
+                  onClick={() => setLogoUrl('/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg')}
+                  className={cn(
+                    'px-2 py-1 rounded text-[10px] font-mono border transition-all',
+                    logoUrl.includes('1790262200243')
+                      ? 'bg-accent/20 border-accent text-accent font-semibold'
+                      : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
+                  )}
+                >
+                  Sello Gota Petróleo (Actual)
+                </button>
                 <button
                   type="button"
                   onClick={() => setLogoUrl('/images/branding/seal-transparent.png')}

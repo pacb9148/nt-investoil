@@ -106,19 +106,20 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
       style={{ backgroundColor: customBg || 'transparent' }}
     >
       {/* 1. Fondo Multimedia Dinámico (Video / Imagen / Gradiente) */}
-      {bgType === 'video' && bgUrl ? (
+      {bgType === 'video' ? (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" style={{ opacity: bgOpacity }}>
           <video
             autoPlay
             loop
             muted
             playsInline
+            src={bgUrl || '/videos/hero-background.mp4'}
             className={cn(
               'w-full h-full object-center',
               bgFit === 'contain' ? 'object-contain' : 'object-cover'
             )}
           >
-            <source src={bgUrl} type="video/mp4" />
+            <source src={bgUrl || '/videos/hero-background.mp4'} type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/80 to-transparent" />
         </div>

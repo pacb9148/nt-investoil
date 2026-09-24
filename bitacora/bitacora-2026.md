@@ -67,3 +67,37 @@
   - Compilación exitosa: 49 rutas en verde (`ƒ` dinámicas para `/admin/users` y endpoints de autenticación).
   - Typecheck: 0 errores (`npx tsc --noEmit`).
   - Batería de seguridad Strix superada al 100%.
+
+## [2026-09-24 17:40 CET]
+- **Petición del usuario**:
+  1. Fallas UX/UI en la personalización del Hero: la interfaz sufre corte/overflow (pantalla negra al hacer scroll).
+  2. La imagen de la tarjeta es una sola y debe mostrarse actualizada y sincronizada en ambas interfaces (`/admin/content/hero` y `/admin/content/apariencia`).
+  3. El video del hero no se carga y se perdió; en la biblioteca de medios los videos aparecen como rotos.
+  4. Ningún video sube correctamente a la plataforma y aparecen rotos.
+  5. Finalizar con `+dap`.
+- **Diagnóstico**:
+  1. UX/UI Scroll & Layout clipping: En `AdminSidebar`, el aside tenía `min-h-screen` en lugar de `h-full max-h-screen overflow-y-auto`. Al expandir los submenús, el aside superaba `100vh` forzando al navegador a hacer scroll vertical de la ventana completa (`window.scrollY`). Como el dashboard tenía `h-screen overflow-hidden`, el scroll de ventana enviaba todo el contenedor hacia arriba, dejando a la vista el fondo negro vacío del `body`. Adicionalmente, `HeroEditorPage` contenía un excesivo `pb-36` (144px de vacío).
+  2. Desincronización de la tarjeta: `apariencia-form.tsx` tenía hardcodeado `<img src="/images/branding/seal-transparent.png" />` sin leer `hero_card.logo_url`, `badge_text` ni métricas, y `updateAppearanceAction` descartaba la URL del logo corporativo al guardar.
+  3. Videos rotos en Biblioteca de Medios: `AdminMediaPage` renderizaba todos los elementos incondicionalmente mediante `<img src={item.url} />`. Para archivos de video (`.mp4`), el tag `<img>` falla invariablemente y muestra el icono de imagen rota del navegador.
+  4. Fallo y pérdida de subida de videos: `.gitignore` contenía `/public/uploads/*` excluyendo todos los medios subidos de git, por lo que en cada despliegue a VPS o contenedor nuevo se perdían los videos. Además, en `/uploads/[...slug]` y `/api/upload` no existía resolución multi-directorio (`resolveUploadsDir` / `resolveUploadFilePath`) para entornos monorepo / standalone, ni streaming HTTP Range con headers 206 Partial Content garantizados.
+- **Acciones Realizadas**:
+  1. **Corrección de UX/UI y Scroll de Backoffice**:
+     - `DashboardLayout`: contenedor raíz anclado con `fixed inset-0 flex h-screen w-full max-h-screen overflow-hidden bg-bg`, bloqueando cualquier desplazamiento accidental del `window`.
+     - `AdminSidebar`: configurado con `h-full max-h-screen overflow-y-auto` con scroll interno independiente.
+     - `HeroEditorPage`: eliminado el padding desproporcionado (`pb-8`).
+  2. **Unificación y Sincronización Total de la Tarjeta Hero**:
+     - Ambas interfaces (`/admin/content/hero` y `/admin/content/apariencia`) ahora leen y editan la misma tarjeta corporativa (`hero_card`), con soporte para seleccionar/subir el logotipo, filtros SVG, sombra y métricas.
+     - La imagen de la tarjeta subida por el usuario (`/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg`) se ha descargado del servidor, versionado localmente y respaldado en `public/images/branding/corporate-card-logo.jpeg`.
+     - Sincronización bidireccional en tiempo real entre `hero.json` y `appearance.json` tanto en API REST como en Server Actions.
+  3. **Corrección de Biblioteca de Medios & Videos**:
+     - `AdminMediaPage`: detección automática de `item.type === 'video'` y extensiones de video, renderizando elemento `<video>` con vista previa, badge indicador y botón de play.
+     - `media.json`: registrados los videos oficiales y el logo corporativo.
+  4. **Subida y Streaming Robusto de Videos**:
+     - Eliminada la regla bloqueadora `/public/uploads/*` de `.gitignore` para versionar y desplegar los assets oficiales a producción.
+     - Implementado `resolveUploadsDir()` y `resolveUploadFilePath()` en `/api/upload` y `/uploads/[...slug]` para resolver rutas en monorepo o subdirectorios.
+     - Creado asset inmutable `public/videos/hero-background.mp4` para el fondo del Hero.
+     - `HeroSection`: fallback inteligente garantizado hacia el video oficial y reproducción con muted playsInline.
+- **Verificación**:
+  - Typecheck limpio: 0 errores (`npx tsc --noEmit`).
+  - Next.js Build de producción exitoso: 49/49 rutas compiladas (`npm run build`).
+  - Batería de seguridad Strix ejecutada y aprobada al 100% sin vulnerabilidades ni fugas (`pwsh ./scripts/bateria-seguridad.ps1`).

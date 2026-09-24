@@ -21,10 +21,22 @@
     "card_bg_color": "#0e1424",
     "card_border_color": "#f59e0b",
     "card_glow_opacity": 50,
+    "logo_url": "/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg",
     "logo_hue": 0,
     "logo_brightness": 100,
     "logo_saturation": 100,
     "logo_shadow_color": "#f59e0b",
-    "logo_shadow_blur": 20
+    "logo_shadow_blur": 20,
+    "badge_text": "VERIFICACIÓN SGS & ASTM D1655",
+    "badge_text_en": "SGS & ASTM D1655 VERIFICATION",
+    "metric1_label": "Despachos Mensuales:",
+    "metric1_label_en": "Monthly Shipments:",
+    "metric1_value": "12.5M BBLS",
+    "metric2_label": "Terminales Marítimas:",
+    "metric2_label_en": "Marine Terminals:",
+    "metric2_value": "Houston / Rotterdam",
+    "metric3_label": "Estatus Operativo:",
+    "metric3_label_en": "Operational Status:",
+    "metric3_value": "ACTIVO 100%"
   }
 }

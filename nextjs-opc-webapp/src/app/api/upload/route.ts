@@ -2,7 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
+import { existsSync, mkdirSync } from 'fs';
+
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
+function resolveUploadsDir(): string {
+  const candidates = [
+    path.join(process.cwd(), 'public', 'uploads'),
+    path.join(process.cwd(), 'nextjs-opc-webapp', 'public', 'uploads'),
+  ];
+  for (const c of candidates) {
+    if (existsSync(c)) return c;
+  }
+  const defaultDir = existsSync(path.join(process.cwd(), 'nextjs-opc-webapp'))
+    ? path.join(process.cwd(), 'nextjs-opc-webapp', 'public', 'uploads')
+    : path.join(process.cwd(), 'public', 'uploads');
+  mkdirSync(defaultDir, { recursive: true });
+  return defaultDir;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validar tipo de archivo (videos e imágenes)
-    const mimeType = file.type;
+    const mimeType = file.type || 'application/octet-stream';
     const isVideo = mimeType.startsWith('video/') || /\.(mp4|webm|mov|ogg)$/i.test(file.name);
     const isImage = mimeType.startsWith('image/') || /\.(jpg|jpeg|png|webp|svg|gif)$/i.test(file.name);
 
@@ -29,8 +47,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Asegurar directorio public/uploads
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    await mkdir(uploadDir, { recursive: true });
+    const uploadDir = resolveUploadsDir();
 
     // Sanitizar nombre de archivo
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');

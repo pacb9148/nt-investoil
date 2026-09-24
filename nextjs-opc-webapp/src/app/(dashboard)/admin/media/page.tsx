@@ -11,6 +11,8 @@ import {
   Search,
   ExternalLink,
   Plus,
+  Video as VideoIcon,
+  Play,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -156,17 +158,45 @@ export default function AdminMediaPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          {filteredMedia.map((item) => (
-            <Card
-              key={item.id}
-              className="overflow-hidden group flex flex-col justify-between hover:border-accent/60 transition-all duration-200"
-            >
-              <div className="relative aspect-square w-full overflow-hidden bg-surf/80">
-                <img
-                  src={item.url}
-                  alt={item.alt_text || item.filename}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+          {filteredMedia.map((item) => {
+            const isVideo = item.type === 'video' || /\.(mp4|webm|mov|ogg)$/i.test(item.url) || /\.(mp4|webm|mov|ogg)$/i.test(item.filename);
+
+            return (
+              <Card
+                key={item.id}
+                className="overflow-hidden group flex flex-col justify-between hover:border-accent/60 transition-all duration-200"
+              >
+                <div className="relative aspect-square w-full overflow-hidden bg-surf/80">
+                  {isVideo ? (
+                    <div className="relative w-full h-full bg-black/60 flex items-center justify-center">
+                      <video
+                        src={item.url}
+                        muted
+                        playsInline
+                        preload="metadata"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/80 border border-accent/40 text-[9px] font-mono text-accent flex items-center gap-1 z-10">
+                        <VideoIcon className="w-3 h-3" />
+                        <span>VIDEO</span>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 rounded-full bg-accent/90 text-bg flex items-center justify-center shadow-lg">
+                          <Play className="w-4 h-4 ml-0.5 fill-current" />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <img
+                      src={item.url}
+                      alt={item.alt_text || item.filename}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      onError={(e) => {
+                        // Fallback si la imagen no carga
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  )}
 
                 {/* Hover overlay with actions */}
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
@@ -214,7 +244,8 @@ export default function AdminMediaPage() {
                 </div>
               </div>
             </Card>
-          ))}
+          );
+        })}
         </div>
       )}
     </div>

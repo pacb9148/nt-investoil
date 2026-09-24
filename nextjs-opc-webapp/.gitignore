@@ -31,7 +31,6 @@ next-env.d.ts
 *.key
 *.tsbuildinfo
 
-# User uploaded media
-/public/uploads/*
-!/public/uploads/.gitkeep
+# Ignore only oversized media files if any
+*.tmp
 

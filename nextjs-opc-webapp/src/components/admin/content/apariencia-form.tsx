@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useTransition, useRef } from 'react';
 import { updateAppearanceAction } from '@/lib/services/content-actions';
 import type { LandingAppearanceConfig, ContentActionResponse } from '@/types/content';
 import {
@@ -14,6 +14,7 @@ import {
   Paintbrush,
   Sliders,
   RotateCcw,
+  Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -74,7 +75,7 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
     return initial;
   });
 
-  // Estados de la tarjeta hero
+  // Estados de la tarjeta hero (sincronizados exactamente con el Hero)
   const [cardBg, setCardBg] = useState<string>(
     defaultValues.hero_card?.card_bg_color || '#0e1e3d'
   );
@@ -83,6 +84,9 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
   );
   const [cardGlow, setCardGlow] = useState<number>(
     defaultValues.hero_card?.card_glow_opacity ?? 50
+  );
+  const [logoUrl, setLogoUrl] = useState<string>(
+    defaultValues.hero_card?.logo_url || '/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg'
   );
   const [logoHue, setLogoHue] = useState<number>(
     defaultValues.hero_card?.logo_hue ?? 0
@@ -100,6 +104,67 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
     defaultValues.hero_card?.logo_shadow_blur ?? 20
   );
 
+  // Textos y métricas de la tarjeta
+  const [badgeText, setBadgeText] = useState<string>(
+    defaultValues.hero_card?.badge_text || 'VERIFICACIÓN SGS & ASTM D1655'
+  );
+  const [metric1Label, setMetric1Label] = useState<string>(
+    defaultValues.hero_card?.metric1_label || 'Despachos Mensuales:'
+  );
+  const [metric1Value, setMetric1Value] = useState<string>(
+    defaultValues.hero_card?.metric1_value || '12.5M BBLS'
+  );
+  const [metric2Label, setMetric2Label] = useState<string>(
+    defaultValues.hero_card?.metric2_label || 'Terminales Marítimas:'
+  );
+  const [metric2Value, setMetric2Value] = useState<string>(
+    defaultValues.hero_card?.metric2_value || 'Houston / Rotterdam'
+  );
+  const [metric3Label, setMetric3Label] = useState<string>(
+    defaultValues.hero_card?.metric3_label || 'Estatus Operativo:'
+  );
+  const [metric3Value, setMetric3Value] = useState<string>(
+    defaultValues.hero_card?.metric3_value || 'ACTIVO 100%'
+  );
+
+  // Estados para subida de la imagen corporativa / sello
+  const [uploadingLogo, setUploadingLogo] = useState<boolean>(false);
+  const [logoMessage, setLogoMessage] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const logoFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    setLogoError(null);
+    setLogoMessage(null);
+
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Fallo en la subida del logotipo');
+      }
+
+      setLogoUrl(data.url);
+      setLogoMessage(`Imagen corporativa subida con éxito (${file.name})`);
+      setTimeout(() => setLogoMessage(null), 5000);
+    } catch (err) {
+      setLogoError(err instanceof Error ? err.message : 'Error al subir imagen corporativa');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
   const handleColorChange = (secId: string, value: string) => {
     setSectionColors((prev) => ({ ...prev, [secId]: value }));
   };
@@ -111,7 +176,66 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    formData.set('hero_logo_url', logoUrl);
+    formData.set('hero_card_bg', cardBg);
+    formData.set('hero_card_border', cardBorder);
+    formData.set('hero_card_glow_opacity', String(cardGlow));
+    formData.set('hero_logo_hue', String(logoHue));
+    formData.set('hero_logo_brightness', String(logoBrightness));
+    formData.set('hero_logo_saturation', String(logoSaturation));
+    formData.set('hero_logo_shadow_color', logoShadowColor);
+    formData.set('hero_logo_shadow_blur', String(logoShadowBlur));
+    formData.set('hero_badge_text', badgeText);
+    formData.set('hero_metric1_label', metric1Label);
+    formData.set('hero_metric1_value', metric1Value);
+    formData.set('hero_metric2_label', metric2Label);
+    formData.set('hero_metric2_value', metric2Value);
+    formData.set('hero_metric3_label', metric3Label);
+    formData.set('hero_metric3_value', metric3Value);
+
     startTransition(async () => {
+      // 1. Guardar vía API REST directa para actualización instantánea
+      try {
+        const payload = {
+          ...defaultValues,
+          section_bg_colors: sectionColors,
+          hero_card: {
+            card_bg_color: cardBg,
+            card_border_color: cardBorder,
+            card_glow_opacity: cardGlow,
+            logo_url: logoUrl,
+            logo_hue: logoHue,
+            logo_brightness: logoBrightness,
+            logo_saturation: logoSaturation,
+            logo_shadow_color: logoShadowColor,
+            logo_shadow_blur: logoShadowBlur,
+            badge_text: badgeText,
+            metric1_label: metric1Label,
+            metric1_value: metric1Value,
+            metric2_label: metric2Label,
+            metric2_value: metric2Value,
+            metric3_label: metric3Label,
+            metric3_value: metric3Value,
+          },
+        };
+
+        await fetch('/api/content/appearance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        // Sincronizar simultáneamente con el Hero
+        await fetch('/api/content/hero', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hero_card: payload.hero_card }),
+        });
+      } catch (err) {
+        console.error('Error al sincronizar apariencia:', err);
+      }
+
+      // 2. Ejecutar Server Action
       const res = await updateAppearanceAction(INITIAL_STATE, formData);
       setState(res);
     });
@@ -448,12 +572,180 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
                 </div>
               </div>
             </div>
+
+            {/* Imagen Corporativa Central (Sello o Logotipo de la Tarjeta) */}
+            <div className="p-4 rounded-lg bg-card/60 border border-border space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <label className={LABEL_STYLE}>
+                  Imagen Corporativa Central (Sello o Logotipo de la Tarjeta)
+                </label>
+
+                {/* Input de archivo nativo oculto para el logo */}
+                <input
+                  type="file"
+                  ref={logoFileInputRef}
+                  onChange={handleLogoFileSelect}
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  className="hidden"
+                />
+
+                {/* Botón para examinar y subir archivo local de imagen */}
+                <button
+                  type="button"
+                  onClick={() => logoFileInputRef.current?.click()}
+                  disabled={uploadingLogo}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+                >
+                  {uploadingLogo ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Subiendo imagen...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Buscar y Seleccionar Archivo...</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  name="hero_logo_url"
+                  value={logoUrl}
+                  onChange={(e) => setLogoUrl(e.target.value)}
+                  placeholder="/images/branding/seal-transparent.png o /uploads/..."
+                  className={INPUT_STYLE}
+                />
+              </div>
+
+              {/* Botones de selección rápida de logos corporativos */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-[10px] font-mono text-text-subtle">Plantillas:</span>
+                <button
+                  type="button"
+                  onClick={() => setLogoUrl('/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg')}
+                  className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
+                >
+                  Sello Gota Petróleo (Actual)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLogoUrl('/images/branding/seal-transparent.png')}
+                  className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
+                >
+                  Sello Oficial Dorado
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLogoUrl('/images/branding/logo.png')}
+                  className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
+                >
+                  Logotipo Corporativo
+                </button>
+              </div>
+
+              {logoMessage && (
+                <div className="flex items-center gap-2 p-2 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{logoMessage}</span>
+                </div>
+              )}
+              {logoError && (
+                <div className="flex items-center gap-2 p-2 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  <span>{logoError}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Textos y Métricas de la Tarjeta Hero */}
+            <div className="p-4 rounded-lg bg-card/60 border border-border space-y-3">
+              <span className="text-[11px] font-mono text-accent font-semibold block">
+                Textos y Métricas de la Tarjeta:
+              </span>
+
+              <div>
+                <label className={LABEL_STYLE}>Insignia Superior</label>
+                <input
+                  type="text"
+                  value={badgeText}
+                  onChange={(e) => setBadgeText(e.target.value)}
+                  className={INPUT_STYLE}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 1 Etiqueta</label>
+                  <input
+                    type="text"
+                    value={metric1Label}
+                    onChange={(e) => setMetric1Label(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 1 Valor</label>
+                  <input
+                    type="text"
+                    value={metric1Value}
+                    onChange={(e) => setMetric1Value(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 2 Etiqueta</label>
+                  <input
+                    type="text"
+                    value={metric2Label}
+                    onChange={(e) => setMetric2Label(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 2 Valor</label>
+                  <input
+                    type="text"
+                    value={metric2Value}
+                    onChange={(e) => setMetric2Value(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 3 Etiqueta</label>
+                  <input
+                    type="text"
+                    value={metric3Label}
+                    onChange={(e) => setMetric3Label(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 3 Valor</label>
+                  <input
+                    type="text"
+                    value={metric3Value}
+                    onChange={(e) => setMetric3Value(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Vista previa en vivo */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center p-4 rounded-xl bg-black/40 border border-border/80">
+          <div className="lg:col-span-5 flex flex-col items-center justify-center p-4 rounded-xl bg-black/40 border border-border/80 sticky top-4">
             <span className="text-[10px] font-mono text-text-subtle uppercase tracking-wider mb-3">
-              Vista previa
+              Vista previa sincronizada en tiempo real
             </span>
             <div className="relative w-full max-w-[280px]">
               <div
@@ -476,14 +768,14 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
                 >
                   <span className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
-                    <span>VERIFICACIÓN SGS</span>
+                    <span>{badgeText}</span>
                   </span>
                 </div>
 
                 <div className="flex justify-center py-1">
                   <img
-                    src="/images/branding/seal-transparent.png"
-                    alt="Preview"
+                    src={logoUrl || '/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg'}
+                    alt="Sello Oficial Invest Oil LLC"
                     className="w-28 h-28 object-contain transition-all duration-200"
                     style={{
                       filter: `hue-rotate(${logoHue}deg) brightness(${logoBrightness}%) saturate(${logoSaturation}%) drop-shadow(0 0 ${logoShadowBlur}px ${logoShadowColor})`,
@@ -496,12 +788,16 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
                   style={{ borderTop: `1px solid ${cardBorder}40` }}
                 >
                   <div className="flex justify-between text-slate-300">
-                    <span>Despachos:</span>
-                    <span className="font-bold text-white">12.5M BBLS</span>
+                    <span>{metric1Label}</span>
+                    <span className="font-bold text-white">{metric1Value}</span>
                   </div>
                   <div className="flex justify-between text-slate-300">
-                    <span>Estatus:</span>
-                    <span className="font-bold text-emerald-400">ACTIVO 100%</span>
+                    <span>{metric2Label}</span>
+                    <span className="font-bold text-white">{metric2Value}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>{metric3Label}</span>
+                    <span className="font-bold text-emerald-400">{metric3Value}</span>
                   </div>
                 </div>
               </div>

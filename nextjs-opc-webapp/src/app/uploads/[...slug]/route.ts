@@ -51,6 +51,21 @@ function nodeStreamToWebStream(nodeStream: Readable): ReadableStream<Uint8Array>
   });
 }
 
+function resolveUploadFilePath(relPath: string): string | null {
+  const candidates = [
+    path.join(process.cwd(), 'public', 'uploads', relPath),
+    path.join(process.cwd(), 'nextjs-opc-webapp', 'public', 'uploads', relPath),
+    path.join(process.cwd(), 'public', 'videos', relPath),
+    path.join(process.cwd(), 'nextjs-opc-webapp', 'public', 'videos', relPath),
+    path.join(process.cwd(), 'public', relPath),
+    path.join(process.cwd(), 'nextjs-opc-webapp', 'public', relPath),
+  ];
+  for (const p of candidates) {
+    if (existsSync(p)) return p;
+  }
+  return null;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string[] } }
@@ -58,9 +73,9 @@ export async function GET(
   try {
     const slugParts = params.slug || [];
     const relPath = slugParts.join('/');
-    const filePath = path.join(process.cwd(), 'public', 'uploads', relPath);
+    const filePath = resolveUploadFilePath(relPath);
 
-    if (!existsSync(filePath)) {
+    if (!filePath || !existsSync(filePath)) {
       return new NextResponse('Archivo no encontrado', { status: 404 });
     }
 
@@ -130,9 +145,9 @@ export async function HEAD(
   try {
     const slugParts = params.slug || [];
     const relPath = slugParts.join('/');
-    const filePath = path.join(process.cwd(), 'public', 'uploads', relPath);
+    const filePath = resolveUploadFilePath(relPath);
 
-    if (!existsSync(filePath)) {
+    if (!filePath || !existsSync(filePath)) {
       return new NextResponse(null, { status: 404 });
     }
 

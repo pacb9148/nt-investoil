@@ -60,7 +60,7 @@ export function AdminSidebar() {
   const [contentOpen, setContentOpen] = useState(true);
 
   return (
-    <aside className="w-64 border-r border-border bg-surf/95 flex flex-col justify-between shrink-0 min-h-screen">
+    <aside className="w-64 border-r border-border bg-surf/95 flex flex-col justify-between shrink-0 h-full max-h-screen overflow-y-auto">
       <div className="p-5 space-y-6">
         {/* Brand header */}
         <div className="pb-4 border-b border-border/80">

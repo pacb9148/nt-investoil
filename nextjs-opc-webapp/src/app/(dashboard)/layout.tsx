@@ -45,14 +45,14 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-bg text-text">
+    <div className="fixed inset-0 flex h-screen w-full max-h-screen overflow-hidden bg-bg text-text">
       {/* Sidebar */}
       <AdminSidebar />
 
       {/* Main Content Area */}
-      <div className="flex h-screen min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
         <DashboardTopbar userEmail={session.email} userName={session.name} />
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+        <main className="flex-1 overflow-y-auto p-6 md:p-8 overscroll-contain">
           <div className="max-w-7xl mx-auto space-y-6">
             {children}
           </div>

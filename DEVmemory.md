@@ -225,6 +225,29 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 - **Endpoint CRUD de Usuarios (`/api/users`)**:
   - Implementación de métodos GET, POST, PUT y DELETE con sanitización de contraseñas hacia el cliente y protección del último superadmin.
 
+---
 
-
-
+## 6. Estado de Implementación — Fase 12 (Resolución de Layout UX/UI, Sincronización de Tarjeta Hero y Reparación de Videos)
+- **Corrección de UX/UI y Scroll de Backoffice (`DashboardLayout`, `AdminSidebar`, `HeroEditorPage`)**:
+  - **Causa raíz identificada**: `AdminSidebar` poseía `min-h-screen` sin scroll interno. Al desplegar los menús de navegación, la altura total superaba la ventana y forzaba el desplazamiento vertical del objeto `window` del navegador. Como el layout de Next.js empleaba `h-screen overflow-hidden`, el scroll de ventana enviaba todo el contenedor hacia arriba, mostrando una pantalla negra/vacía. Además, `HeroEditorPage` incluía un padding excesivo de `pb-36` (144px).
+  - **Solución implementada**: `DashboardLayout` fijado con `fixed inset-0 flex h-screen w-full max-h-screen overflow-hidden bg-bg` para bloquear cualquier desborde de ventana. `AdminSidebar` configurado con `h-full max-h-screen overflow-y-auto` con scroll interno independiente. Eliminado el padding excesivo en `HeroEditorPage` a `pb-8`.
+- **Unificación y Sincronización Absoluta de la Tarjeta Hero (`HeroForm` y `AparienciaForm`)**:
+  - **Causa raíz identificada**: `apariencia-form.tsx` renderizaba una imagen estática con ruta fija (`/images/branding/seal-transparent.png`) y no sincronizaba el logotipo corporativo subido (`logo_url`), la insignia ni las métricas de la tarjeta.
+  - **Solución implementada**:
+    - Descarga e integración permanente de la imagen corporativa del sello de gota de petróleo subida por el usuario (`/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg`), respaldada también como `public/images/branding/corporate-card-logo.jpeg`.
+    - Actualización de `apariencia-form.tsx` con controles completos de imagen corporativa (subida, selección de plantillas y URL), textos de insignias y métricas.
+    - Sincronización bidireccional inmediata en `updateAppearanceAction` y `updateHeroAction` en `src/lib/services/content-actions.ts`: cualquier cambio en Apariencia actualiza tanto `appearance.json` como `hero.json`, y viceversa.
+- **Corrección de Videos Rotos en la Biblioteca de Medios (`AdminMediaPage`)**:
+  - **Causa raíz identificada**: La galería de medios utilizaba indiscriminadamente el tag `<img src={item.url} />`. Cuando el medio era un video (`.mp4`), el navegador fallaba y mostraba el icono de imagen rota.
+  - **Solución implementada**: Detección de formato de video y renderizado dinámico mediante etiqueta `<video>` con vista previa en tiempo real, badge identificador "VIDEO" y botón de reproducción.
+- **Resolución de Subida y Streaming Persistente de Videos (`/api/upload`, `/uploads/[...slug]`, `.gitignore`)**:
+  - **Causa raíz identificada**: `nextjs-opc-webapp/.gitignore` contenía `/public/uploads/*`, impidiendo que los videos y assets subidos se versionaran o desplegaran al contenedor de producción en Coolify/VPS.
+  - **Solución implementada**:
+    - Eliminada la regla bloqueadora en `.gitignore` para versionar y desplegar los assets requeridos.
+    - Creado el directorio y archivo canónico `public/videos/hero-background.mp4` para el fondo del Hero.
+    - Funciones `resolveUploadsDir()` y `resolveUploadFilePath()` en `/api/upload` y `/uploads/[...slug]` con búsqueda multi-directorio para entornos monorepo / standalone.
+    - `HeroSection`: configuración de fondo de video con fallback automático a `/videos/hero-background.mp4` y atributos `muted playsInline autoPlay`.
+- **Verificación**:
+  - `npx tsc --noEmit`: 0 errores.
+  - `npm run build`: 49 rutas compiladas exitosamente.
+  - `scripts/bateria-seguridad.ps1`: 100% aprobada sin fallos.
