@@ -135,6 +135,34 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - En `middleware.ts`, se eliminó la redirección ciega que expulsaba forzosamente fuera de `/login` a los usuarios que ya tenían una sesión previa activa, permitiéndoles siempre ver el formulario.
   - Se implementó el endpoint `/api/auth/me` y en `/login` se añadió detección de sesión activa con banner superior ("Sesión activa detectada" con botones "Ir al Backoffice →" y "Cerrar sesión"), manteniendo visible abajo el formulario completo con inputs accesibles (`autoComplete`), botón para autocompletar credenciales autorizadas de operador y submit validado con Zod.
 
+### Fase 9: Corrección de Acceso a Backoffice y Capa Unificada de Base de Datos (Posts con Imagen/Video, Multimedia y Consejo Directivo)
+- **Corrección de Acceso y Sesión en el Backoffice (`/login`, `/api/auth/login`, `session.ts`)**:
+  - Corrección de la directiva de cookies: se sustituyó `secure: process.env.NODE_ENV === 'production'` por una evaluación dinámica `secure: isHttps` que detecta si la conexión entrante es HTTPS real o HTTP local (`http://localhost:3000`), evitando que los navegadores rechacen la cookie de sesión en builds locales de producción.
+  - Implementación de codificación/decodificación isomórfica base64url (`toBase64Url`, `fromBase64Url`) en `src/lib/auth/session.ts`, eliminando la dependencia rígida de `Buffer` de Node.js para compatibilidad transparente en Edge Runtime y Node.js.
+- **Capa Unificada de Base de Datos y Persistencia Dual (`src/lib/db/db-service.ts`)**:
+  - Creación de un servicio unificado con operaciones CRUD completas y almacenamiento atómico persistente en `src/data/` (`posts.json`, `media.json`, `leads.json`, `team.json`, `categories.json`), con sincronización dual automática hacia Supabase cuando esté configurado (`isSupabaseConfigured()`).
+  - Eliminación definitiva de bloqueos de red por timeouts al dominio placeholder `demo-project.supabase.co` en `/admin`, `/admin/posts`, `/admin/media` y `/admin/leads`.
+- **Endpoints de Base de Datos para Posts, Multimedia, Leads y Equipo**:
+  - `/api/posts` y `/api/posts/[id]`: operaciones de lectura, creación, actualización y eliminación de artículos con soporte de taxonomía de categorías, cálculo de tiempo de lectura y revalidación inmediata de caché de Next.js (`revalidatePath`).
+  - `/api/media` y `/api/media/[id]`: galería persistente de medios con registro automático desde `/api/upload`, soporte de filtrado y almacenamiento de metadatos (tamaño, tipo MIME, dimensiones, texto alternativo).
+  - `/api/leads`: recepción y guardado permanente de prospectos comerciales y consultas desde el formulario de contacto institucional.
+  - `/api/content/team`: actualización de la lista de directivos con soporte flexible tanto para array plano como para estructura `{ members: [...] }`.
+- **Soporte Integral de Imagen Destacada y Video Relacionado en Posts**:
+  - En el formulario editor de artículos (`PostEditorForm`), integración de `MediaUploadField` para subir la imagen destacada y bloque dedicado de "Video Relacionado" con selector para subir archivo de video local (MP4/WebM) o ingresar enlaces de YouTube/Vimeo con previsualización en vivo.
+  - En la vista pública de artículos (`/blog/[slug]`), renderizado responsivo del reproductor de video (iframe responsivo o etiqueta `<video>` nativa con controles) ubicado bajo la imagen principal.
+  - En las tarjetas del blog (`BlogCard`), insignia indicadora de "Video" cuando el post incluye material audiovisual.
+- **Verificación Automatizada con Evidencia Real (`scripts/test-persistence.mjs`)**:
+  - Batería de 8 pruebas ejecutadas de forma real contra el servidor Next.js compilado:
+    1. Login de superadmin exitoso con cookie HTTP (`admin@investoil.es`).
+    2. Verificación de sesión con `/api/auth/me`.
+    3. Acceso autorizado al backoffice `/admin` (HTTP 200).
+    4. Creación y guardado de artículo con imagen y video vía API.
+    5. Comprobación de persistencia física en disco (`posts.json`).
+    6. Registro y persistencia de archivos multimedia (`media.json`).
+    7. Modificación y persistencia del equipo directivo (`team.json`).
+    8. Renderizado del artículo con su video e imagen en la página pública del blog.
+  - Resultado: 8/8 pruebas aprobadas (0 fallos). Batería de seguridad Strix superada al 100%.
+
 ---
 
 ## 3. Lecciones Aprendidas y Decisiones de Arquitectura
@@ -148,5 +176,7 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 8. **Suspense en Rutas con `useSearchParams`**: En Next.js 14 App Router, cualquier componente cliente que consuma parámetros de URL (`useSearchParams()`) debe estar encapsulado en un límite `<Suspense>` para posibilitar la generación estática (SSG/ISR) sin errores durante `next build`.
 9. **No Bloquear el Formulario de Login con Redirecciones Automáticas Ciega**: Si un usuario con cookie de sesión navega deliberadamente a `/login`, redirigirlo instantáneamente al panel `/admin` le oculta el formulario y genera la falsa impresión de que no existe o falló. La pantalla de login debe mostrar que la sesión está activa y ofrecer tanto ir al panel como cerrar sesión, dejando el formulario disponible para conmutar de cuenta.
 10. **Inyección en RootLayout para Personalización Global**: Los proveedores de contexto de apariencia (`AppearanceProvider`) en la raíz deben recibir siempre la configuración real hidratada en el Server Component (`layout.tsx`) para que las variables CSS y fuentes no dependan únicamente del cliente ni queden congeladas en sus valores por defecto.
+11. **Directiva Secure Dinámica en Cookies**: Hardcodear `secure: process.env.NODE_ENV === 'production'` en la emisión de cookies HTTP-only provoca que pruebas de builds de producción sobre HTTP local (`http://localhost`) fallen silenciosamente porque el navegador descarta la cookie. Debe evaluarse dinámicamente el protocolo del request (`request.url.startsWith('https:')` o `x-forwarded-proto`).
+12. **Persistencia Dual Sin Bloqueo de Red**: Para evitar que la caída o ausencia de configuración de un backend externo paralice la administración de contenidos, una capa de abstracción con almacenamiento local atómico en archivos estructurados garantiza continuidad operativa inmediata y sincronización automática en cuanto el servicio remoto está disponible.
 
 
