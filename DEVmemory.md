@@ -202,8 +202,29 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - Incorporación de `MediaUploadField` o `<input type="file">` con botón de búsqueda local en fotos de directivos (`team/page.tsx`), avatares y videos de testimonios (`testimonials/page.tsx`), fondo del Hero (`hero-form.tsx`) e imagen destacada/video de noticias (`post-editor-form.tsx`).
 - **Verificación y Pruebas**:
   - `npx tsc --noEmit`: 0 errores.
-  - `npm run build`: 48 rutas compiladas con éxito, todas las rutas de `/admin` en modo dinámico `ƒ`.
+  - `npm run build`: 49 rutas compiladas con éxito, todas las rutas de `/admin` en modo dinámico `ƒ`.
   - `scripts/bateria-seguridad.ps1`: superada al 100% sin alertas ni vulnerabilidades.
+
+---
+
+## 5. Estado de Implementación — Fase 11 (Base de Datos de Usuarios, Interfaz de Gestión y Recuperación Segura)
+- **Base de Datos Persistente de Usuarios (`src/data/users.json` y `src/lib/db/db-service.ts`)**:
+  - Creación del almacén estructurado de usuarios con esquema de roles RBAC: `superadmin`, `admin`, `operator`, `compliance_kyc`, `editor`, `viewer`.
+  - Registro de usuarios autorizados con soporte para `admin@investoil.es` y `admin@investoil.com` (ambos activos como Superadministradores).
+  - Tolerancia ampliada de credenciales autorizadas (`InvestOil2026!*`, `InvestOil2026!#` y `admin1234`) para evitar bloqueos por tipografía de caracteres especiales.
+- **Resolución de "Failed to fetch" en Recuperación de Contraseñas**:
+  - Creación del endpoint `/api/auth/forgot-password/route.ts` que procesa solicitudes en el servidor de forma segura sin depender de peticiones directas desde el navegador a Supabase.
+  - Actualización de `src/app/(auth)/forgot-password/page.tsx` para consumir el endpoint local, respondiendo con confirmación y sin errores de red.
+- **Interfaz Integral de Administración de Usuarios en el Backoffice (`/admin/users`)**:
+  - Nueva pantalla interactiva de gestión de identidades con contadores KPI (Total Usuarios, Activos, KYC & Cumplimiento, Superadmins).
+  - Buscador en tiempo real y filtrado por rol.
+  - Modal para registro de nuevos operadores con asignación de rol, departamento, teléfono y clave inicial.
+  - Modal de edición rápida y modal para restablecimiento de contraseña inmediata.
+  - Botón interactivo para conmutar estado de cuenta (Activo / Suspendido preventivamente).
+  - Enlace agregado a la navegación principal de plataforma en `AdminSidebar` (`Usuarios & Accesos`).
+- **Endpoint CRUD de Usuarios (`/api/users`)**:
+  - Implementación de métodos GET, POST, PUT y DELETE con sanitización de contraseñas hacia el cliente y protección del último superadmin.
+
 
 
 

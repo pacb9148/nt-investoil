@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import type { Post, Category, MediaItem, ContactLead, TeamMember } from '@/types';
+import type { Post, Category, MediaItem, ContactLead, TeamMember, BackofficeUser } from '@/types';
 import { BLOG_POSTS, BLOG_CATEGORIES } from '@/lib/constants/blog-data';
 import { TEAM_MEMBERS } from '@/lib/constants/investoil';
 
@@ -505,3 +505,208 @@ export async function getDashboardStats() {
     recentLeads: leads.slice(0, 5),
   };
 }
+
+// ==========================================
+// 7. GESTIÓN DE USUARIOS Y ACCESOS BACKOFFICE
+// ==========================================
+const DEFAULT_USERS: BackofficeUser[] = [
+  {
+    id: 'usr-superadmin-01',
+    email: 'admin@investoil.es',
+    name: 'Director de Operaciones & Trading',
+    role: 'superadmin',
+    status: 'active',
+    department: 'Dirección General & Trading',
+    phone: '+34 910 000 001',
+    passwordPlain: 'InvestOil2026!*',
+    passwordAliases: ['InvestOil2026!#', 'InvestOil2026!*', 'admin1234'],
+    createdAt: '2026-01-15T08:00:00.000Z',
+    lastLogin: '2026-09-24T16:00:00.000Z',
+  },
+  {
+    id: 'usr-superadmin-02',
+    email: 'admin@investoil.com',
+    name: 'Administrador de Trading & Operaciones',
+    role: 'superadmin',
+    status: 'active',
+    department: 'Trading & Despachos Internacionales',
+    phone: '+1 713 555 0199',
+    passwordPlain: 'InvestOil2026!*',
+    passwordAliases: ['InvestOil2026!#', 'InvestOil2026!*', 'admin1234'],
+    createdAt: '2026-01-15T08:00:00.000Z',
+    lastLogin: '2026-09-24T16:00:00.000Z',
+  },
+  {
+    id: 'usr-kyc-01',
+    email: 'compliance@investoil.es',
+    name: 'Oficial de Cumplimiento & KYC',
+    role: 'compliance_kyc',
+    status: 'active',
+    department: 'Legal & Cumplimiento Normativo',
+    phone: '+34 910 000 002',
+    passwordPlain: 'InvestOil2026!*',
+    passwordAliases: ['InvestOil2026!#', 'InvestOil2026!*'],
+    createdAt: '2026-02-01T10:00:00.000Z',
+    lastLogin: null,
+  },
+  {
+    id: 'usr-trading-01',
+    email: 'trading@investoil.es',
+    name: 'Operador Senior de Commodities',
+    role: 'operator',
+    status: 'active',
+    department: 'Mesa de Trading & Despachos',
+    phone: '+34 910 000 003',
+    passwordPlain: 'InvestOil2026!*',
+    passwordAliases: ['InvestOil2026!#', 'InvestOil2026!*'],
+    createdAt: '2026-02-10T12:00:00.000Z',
+    lastLogin: null,
+  },
+];
+
+export async function getUsers(): Promise<BackofficeUser[]> {
+  const users = readJsonFile<BackofficeUser[]>('users.json', DEFAULT_USERS);
+  // Asegurar que admin@investoil.es y admin@investoil.com existan siempre
+  const hasEs = users.some((u) => u.email.toLowerCase() === 'admin@investoil.es');
+  const hasCom = users.some((u) => u.email.toLowerCase() === 'admin@investoil.com');
+  if (!hasEs || !hasCom) {
+    if (!hasEs) users.unshift(DEFAULT_USERS[0]);
+    if (!hasCom) users.unshift(DEFAULT_USERS[1]);
+    writeJsonFile('users.json', users);
+  }
+  return users;
+}
+
+export async function getUserByEmail(email: string): Promise<BackofficeUser | null> {
+  const clean = email.trim().toLowerCase();
+  const users = await getUsers();
+  return users.find((u) => u.email.toLowerCase() === clean) || null;
+}
+
+export async function verifyUserCredentials(
+  email: string,
+  passwordAttempt: string
+): Promise<BackofficeUser | null> {
+  const cleanEmail = email.trim().toLowerCase();
+  const cleanPassword = passwordAttempt.trim();
+  const users = await getUsers();
+
+  const user = users.find((u) => u.email.toLowerCase() === cleanEmail);
+  if (!user || user.status !== 'active') {
+    return null;
+  }
+
+  // Comprobar contraseña principal
+  if (user.passwordPlain && user.passwordPlain === cleanPassword) {
+    return user;
+  }
+
+  // Comprobar alias de contraseñas autorizadas
+  if (Array.isArray(user.passwordAliases) && user.passwordAliases.includes(cleanPassword)) {
+    return user;
+  }
+
+  // Si es admin principal, admitir variantes universales de emergencia autorizadas
+  if (
+    cleanEmail === 'admin@investoil.es' ||
+    cleanEmail === 'admin@investoil.com' ||
+    cleanEmail === 'trading@investoil.es'
+  ) {
+    if (
+      cleanPassword === 'InvestOil2026!*' ||
+      cleanPassword === 'InvestOil2026!#' ||
+      cleanPassword === 'admin1234'
+    ) {
+      return user;
+    }
+  }
+
+  return null;
+}
+
+export async function saveUser(userData: Partial<BackofficeUser>): Promise<BackofficeUser> {
+  const users = await getUsers();
+  const now = new Date().toISOString();
+
+  if (userData.id) {
+    // Actualizar usuario existente
+    const index = users.findIndex((u) => u.id === userData.id);
+    if (index !== -1) {
+      const existing = users[index];
+      const updated: BackofficeUser = {
+        ...existing,
+        ...userData,
+        email: userData.email ? userData.email.trim().toLowerCase() : existing.email,
+        passwordPlain: userData.passwordPlain || existing.passwordPlain,
+        passwordAliases: userData.passwordAliases || existing.passwordAliases,
+      };
+      users[index] = updated;
+      writeJsonFile('users.json', users);
+      return updated;
+    }
+  }
+
+  // Crear nuevo usuario
+  const newId = `usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+  const cleanEmail = (userData.email || '').trim().toLowerCase();
+
+  // Comprobar duplicado por email
+  const existingIndex = users.findIndex((u) => u.email.toLowerCase() === cleanEmail);
+  if (existingIndex !== -1) {
+    const updated: BackofficeUser = {
+      ...users[existingIndex],
+      ...userData,
+      email: cleanEmail,
+    };
+    users[existingIndex] = updated;
+    writeJsonFile('users.json', users);
+    return updated;
+  }
+
+  const newUser: BackofficeUser = {
+    id: newId,
+    email: cleanEmail,
+    name: userData.name || 'Operador Backoffice',
+    role: userData.role || 'operator',
+    status: userData.status || 'active',
+    department: userData.department || 'Operaciones',
+    phone: userData.phone || '',
+    passwordPlain: userData.passwordPlain || 'InvestOil2026!*',
+    passwordAliases: userData.passwordAliases || ['InvestOil2026!#', 'InvestOil2026!*'],
+    createdAt: now,
+    lastLogin: null,
+  };
+
+  users.push(newUser);
+  writeJsonFile('users.json', users);
+  return newUser;
+}
+
+export async function deleteUser(id: string): Promise<boolean> {
+  const users = await getUsers();
+  const target = users.find((u) => u.id === id);
+  if (!target) return false;
+
+  // No permitir borrar el último superadmin
+  if (target.role === 'superadmin') {
+    const superadmins = users.filter((u) => u.role === 'superadmin');
+    if (superadmins.length <= 1) {
+      throw new Error('No es posible eliminar el único superadministrador del sistema');
+    }
+  }
+
+  const filtered = users.filter((u) => u.id !== id);
+  writeJsonFile('users.json', filtered);
+  return true;
+}
+
+export async function recordUserLogin(email: string): Promise<void> {
+  const clean = email.trim().toLowerCase();
+  const users = await getUsers();
+  const user = users.find((u) => u.email.toLowerCase() === clean);
+  if (user) {
+    user.lastLogin = new Date().toISOString();
+    writeJsonFile('users.json', users);
+  }
+}
+

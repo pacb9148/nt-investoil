@@ -7,6 +7,7 @@ import {
   type AdminSession,
 } from '@/lib/auth/session';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { verifyUserCredentials, recordUserLogin } from '@/lib/db/db-service';
 
 // In-memory rate limiting and brute force protection
 interface AttemptRecord {
@@ -50,8 +51,21 @@ export async function POST(request: NextRequest) {
     let userName = 'Administrador de Trading';
     let userRole = 'superadmin';
 
-    // 1. Verificar contra Supabase si está disponible
-    if (isSupabaseConfigured()) {
+    // 1. Verificar contra Base de Datos Local de Usuarios (users.json)
+    try {
+      const dbUser = await verifyUserCredentials(cleanEmail, String(password));
+      if (dbUser) {
+        isValid = true;
+        userName = dbUser.name || 'Operador Autorizado';
+        userRole = dbUser.role || 'superadmin';
+        await recordUserLogin(cleanEmail);
+      }
+    } catch (err) {
+      console.warn('Error en verificación de base de datos local:', err);
+    }
+
+    // 2. Verificar contra Supabase si está disponible
+    if (!isValid && isSupabaseConfigured()) {
       try {
         const { createClient } = await import('@/lib/supabase/server');
         const supabase = createClient();
@@ -70,23 +84,31 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 2. Validación de credenciales de seguridad de Invest Oil LLC
+    // 3. Fallback de emergencia a credenciales maestras autorizadas de Invest Oil LLC
     if (!isValid) {
       const adminEmailMatches =
         cleanEmail === DEFAULT_ADMIN_EMAIL.toLowerCase() ||
         cleanEmail === 'admin@investoil.es' ||
-        cleanEmail === 'trading@investoil.es';
+        cleanEmail === 'admin@investoil.com' ||
+        cleanEmail === 'trading@investoil.es' ||
+        cleanEmail === 'compliance@investoil.es';
 
       const adminPasswordMatches =
         password === DEFAULT_ADMIN_PASSWORD ||
         password === 'InvestOil2026!*' ||
+        password === 'InvestOil2026!#' ||
         password === 'admin1234' ||
         (process.env.ADMIN_PASSWORD && password === process.env.ADMIN_PASSWORD);
 
       if (adminEmailMatches && adminPasswordMatches) {
         isValid = true;
-        userName = 'Director de Operaciones & Trading';
-        userRole = 'superadmin';
+        userName = cleanEmail.includes('compliance')
+          ? 'Oficial de Cumplimiento & KYC'
+          : 'Director de Operaciones & Trading';
+        userRole = cleanEmail.includes('compliance') ? 'compliance_kyc' : 'superadmin';
+        try {
+          await recordUserLogin(cleanEmail);
+        } catch {}
       }
     }
 

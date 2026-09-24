@@ -1,4 +1,4 @@
-export type UserRole = 'superadmin' | 'admin' | 'editor' | 'viewer';
+export type UserRole = 'superadmin' | 'admin' | 'editor' | 'operator' | 'compliance_kyc' | 'viewer';
 
 export interface UserProfile {
   id: string;
@@ -8,6 +8,20 @@ export interface UserProfile {
   role: UserRole;
   created_at: string;
   updated_at: string;
+}
+
+export interface BackofficeUser {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  status: 'active' | 'suspended';
+  department?: string;
+  phone?: string;
+  passwordPlain?: string;
+  passwordAliases?: string[];
+  createdAt: string;
+  lastLogin?: string | null;
 }
 
 export type PostStatus = 'draft' | 'published' | 'archived';

@@ -20,6 +20,7 @@ import {
   Type,
   AlignLeft,
   Palette,
+  UserCheck,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/layout/brand-logo';
 import { cn } from '@/lib/utils';
@@ -33,6 +34,7 @@ interface NavItem {
 
 const PLATFORM_NAV: NavItem[] = [
   { href: '/admin', label: 'Dashboard KPI', icon: LayoutDashboard, exact: true },
+  { href: '/admin/users', label: 'Usuarios & Accesos', icon: UserCheck },
   { href: '/admin/posts', label: 'Gestión de Posts', icon: FileText },
   { href: '/admin/media', label: 'Biblioteca de Medios', icon: ImageIcon },
   { href: '/admin/leads', label: 'Mensajes de Contacto', icon: Inbox },
