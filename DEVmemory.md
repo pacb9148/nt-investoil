@@ -56,6 +56,16 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - Tarjetas individuales de configuración para las 3 sedes con inputs separados para Fila 1 (Ciudad/País) y Fila 2 (Detalle y Dirección Física).
   - Sincronización dinámica de sedes y direcciones con `INVESTOIL_OFFICES` en la tarjeta de contacto principal (`contact-section.tsx`) con soporte multi-idioma (ES/EN).
 
+### Fase 9: Eliminación estricta del Doble Scroll y Reparación Integral de Videos con Auditoría Playwright
+- **Erradicación definitiva de la doble barra de scroll vertical en el Backoffice (`/admin/*`)**:
+  - **Diagnóstico con evidencia Playwright**: Se comprobó que `html.scrollHeight` medía 1440px contra un `html.clientHeight` de 900px con `overflowY: "visible"`, lo que provocaba que la ventana entera del navegador tuviese su propia barra de scroll simultáneamente con la barra interior de `<main>` (3398px). Al scrollear, la ventana se desplazaba hacia arriba rompiendo el topbar y sidebar.
+  - **Solución implementada**: En `nextjs-opc-webapp/src/app/(dashboard)/layout.tsx` se añadió un bloque `<style>` y la clase raíz `.admin-dashboard-root` fijando `html, body` a `height: 100vh !important; max-height: 100vh !important; overflow: hidden !important; overscroll-behavior: none !important; position: fixed !important; width: 100vw !important; inset: 0 !important;`.
+  - **Resultado certificado en Playwright**: `html.hasScroll: false` (exactamente 900px), `body.hasScroll: false`, `main.hasScroll: true` (única barra funcional de scroll), y `window.scrollY: 0` constante tras cualquier interacción de desplazamiento.
+- **Reparación y previsualización de videos en Hero y Biblioteca de Medios**:
+  - **Hero Section (`hero-section.tsx`)**: Se optimizó la etiqueta `<video>` con `preload="auto"`, `playsInline`, `muted`, `autoPlay` y overlay de gradiente calibrado (`via-bg/40`) para que los videos en segundo plano tengan presencia cinematográfica nítida y visible.
+  - **Formulario de Hero (`hero-form.tsx`)**: Altura de previsualización ampliada a 224px (16:9), `preload="auto"` y accesos directos actualizados incluyendo el video 4K subido (`14529100_3840_2160_30fps.mp4`) y el video oficial de refinería.
+  - **Biblioteca de Medios (`admin/media/page.tsx`)**: Cumplimiento de la regla de discriminación obligatoria de video sin tags `<img>`. Se implementó un reproductor interactivo con vista previa en hover (`onMouseEnter`/`onMouseLeave`), badges de video ámbar, metadata de duración y tamaño, y modal interactivo para inspección completa con audio y controles.
+
 ### Fase 5: Selector y Carga de Medios del Hero, Scroll y Persistencia de Direcciones sin Tarjetas
 - **Selector y Subida de Archivos Multimedia (`HeroForm`)**:
   - Implementación del botón "Seleccionar archivo (Video / Imagen)..." conectado a `<input type="file">` nativo.

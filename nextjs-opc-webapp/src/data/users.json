@@ -8,9 +8,13 @@
     "department": "Dirección General & Trading",
     "phone": "+34 910 000 001",
     "passwordPlain": "InvestOil2026!*",
-    "passwordAliases": ["InvestOil2026!#", "InvestOil2026!*", "admin1234"],
+    "passwordAliases": [
+      "InvestOil2026!#",
+      "InvestOil2026!*",
+      "admin1234"
+    ],
     "createdAt": "2026-01-15T08:00:00.000Z",
-    "lastLogin": "2026-09-24T16:00:00.000Z"
+    "lastLogin": "2026-09-24T16:41:24.533Z"
   },
   {
     "id": "usr-superadmin-02",
@@ -21,7 +25,11 @@
     "department": "Trading & Despachos Internacionales",
     "phone": "+1 713 555 0199",
     "passwordPlain": "InvestOil2026!*",
-    "passwordAliases": ["InvestOil2026!#", "InvestOil2026!*", "admin1234"],
+    "passwordAliases": [
+      "InvestOil2026!#",
+      "InvestOil2026!*",
+      "admin1234"
+    ],
     "createdAt": "2026-01-15T08:00:00.000Z",
     "lastLogin": "2026-09-24T16:00:00.000Z"
   },
@@ -34,7 +42,10 @@
     "department": "Legal & Cumplimiento Normativo",
     "phone": "+34 910 000 002",
     "passwordPlain": "InvestOil2026!*",
-    "passwordAliases": ["InvestOil2026!#", "InvestOil2026!*"],
+    "passwordAliases": [
+      "InvestOil2026!#",
+      "InvestOil2026!*"
+    ],
     "createdAt": "2026-02-01T10:00:00.000Z",
     "lastLogin": null
   },
@@ -47,7 +58,10 @@
     "department": "Mesa de Trading & Despachos",
     "phone": "+34 910 000 003",
     "passwordPlain": "InvestOil2026!*",
-    "passwordAliases": ["InvestOil2026!#", "InvestOil2026!*"],
+    "passwordAliases": [
+      "InvestOil2026!#",
+      "InvestOil2026!*"
+    ],
     "createdAt": "2026-02-10T12:00:00.000Z",
     "lastLogin": null
   }

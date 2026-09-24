@@ -101,3 +101,33 @@
   - Typecheck limpio: 0 errores (`npx tsc --noEmit`).
   - Next.js Build de producción exitoso: 49/49 rutas compiladas (`npm run build`).
   - Batería de seguridad Strix ejecutada y aprobada al 100% sin vulnerabilidades ni fugas (`pwsh ./scripts/bateria-seguridad.ps1`).
+
+---
+
+### [2026-09-24 18:42] — Auditoría Playwright: Erradicación del Doble Scroll y Reparación Integral de Videos
+- **Petición del usuario**:
+  1. Resolver el problema de scroll en el backoffice (persistencia de dos barras de scroll vertical).
+  2. Solucionar la previsualización del video (aparecía en 0:00 y en negro) y asegurar su presencia en el Hero.
+  3. Resolver los videos en la biblioteca de medios que aparecían como rotos.
+  4. Realizar pruebas obligatorias con Playwright para certificar fehacientemente la solución sin falsos positivos.
+  5. Cierre con orden `+dap`.
+- **Acciones Realizadas**:
+  1. **Auditoría Inicial Playwright contra Producción**:
+     - Constató que `html.scrollHeight` medía 1440px vs `html.clientHeight` de 900px con `overflowY: "visible"`.
+     - Evidenció que existían dos scrollbars activos simultáneos: uno en `html` y otro en `<main>`.
+  2. **Bloqueo Estricto de Scroll en Backoffice**:
+     - Modificado `src/app/(dashboard)/layout.tsx` incorporando bloque `<style>` y clase `.admin-dashboard-root` fijando `html, body` con `height: 100vh !important; max-height: 100vh !important; overflow: hidden !important; overscroll-behavior: none !important; position: fixed !important; width: 100vw !important; inset: 0 !important;`.
+     - Añadida regla CSS homóloga en `src/app/globals.css`.
+  3. **Reparación y Previsualización de Videos**:
+     - `hero-section.tsx`: optimizada etiqueta `<video>` con `preload="auto"`, `playsInline`, `autoPlay`, `muted` y gradiente refinado (`via-bg/40`).
+     - `hero-form.tsx`: previsualizador ampliado a 224px, `preload="auto"`, selector directo para el video 4K subido (`14529100_3840_2160_30fps.mp4`) y el oficial.
+     - `admin/media/page.tsx`: discriminación total de archivos de video sin tags `<img>`, preview dinámico en hover y modal interactivo de reproducción con controles y audio.
+  4. **Auditoría Final Playwright Certificada**:
+     - `html.hasScroll`: `false` (scrollHeight 900px === clientHeight 900px, overflowY: "hidden").
+     - `body.hasScroll`: `false` (scrollHeight 900px === clientHeight 900px, overflowY: "hidden").
+     - `main.hasScroll`: `true` (única barra de scroll interna del contenedor).
+     - `window.scrollY`: `0` constante tras interacciones de scroll.
+     - Videos en `/admin/media` y `/`: `readyState: 4`, duración válida y reproducción fluida.
+  5. **Batería de Seguridad**:
+     - `pwsh ./scripts/bateria-seguridad.ps1` ejecutada y aprobada 100% limpia.
+

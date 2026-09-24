@@ -13,6 +13,7 @@ import {
   Plus,
   Video as VideoIcon,
   Play,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +28,7 @@ export default function AdminMediaPage() {
   const [search, setSearch] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [activeVideo, setActiveVideo] = useState<MediaItem | null>(null);
 
   const fetchMedia = async () => {
     setLoading(true);
@@ -109,7 +111,7 @@ export default function AdminMediaPage() {
             Biblioteca de Medios
           </h1>
           <p className="text-xs text-text-muted">
-            Sube y administra imágenes de productos, logos, certificados e infografías.
+            Sube y administra imágenes de productos, logos, certificados, infografías y videos corporativos.
           </p>
         </div>
 
@@ -154,12 +156,16 @@ export default function AdminMediaPage() {
         <div className="p-16 text-center space-y-2 border border-border rounded-xl bg-card">
           <ImageIcon className="w-10 h-10 text-border mx-auto" />
           <p className="text-sm font-semibold text-text">No se encontraron archivos</p>
-          <p className="text-xs text-text-muted">Sube tu primera imagen usando el botón superior.</p>
+          <p className="text-xs text-text-muted">Sube tu primera imagen o video usando el botón superior.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {filteredMedia.map((item) => {
-            const isVideo = item.type === 'video' || /\.(mp4|webm|mov|ogg)$/i.test(item.url) || /\.(mp4|webm|mov|ogg)$/i.test(item.filename);
+            const isVideo =
+              item.type === 'video' ||
+              (item.mime_type && item.mime_type.startsWith('video/')) ||
+              /\.(mp4|webm|mov|ogg|m4v)$/i.test(item.url) ||
+              /\.(mp4|webm|mov|ogg|m4v)$/i.test(item.filename);
 
             return (
               <Card
@@ -168,15 +174,30 @@ export default function AdminMediaPage() {
               >
                 <div className="relative aspect-square w-full overflow-hidden bg-surf/80">
                   {isVideo ? (
-                    <div className="relative w-full h-full bg-black/60 flex items-center justify-center">
+                    <div
+                      className="relative w-full h-full bg-black/70 flex items-center justify-center cursor-pointer"
+                      onClick={() => setActiveVideo(item)}
+                      onMouseEnter={(e) => {
+                        const vid = e.currentTarget.querySelector('video');
+                        if (vid) vid.play().catch(() => {});
+                      }}
+                      onMouseLeave={(e) => {
+                        const vid = e.currentTarget.querySelector('video');
+                        if (vid) {
+                          vid.pause();
+                          vid.currentTime = 0;
+                        }
+                      }}
+                    >
                       <video
                         src={item.url}
                         muted
                         playsInline
-                        preload="metadata"
+                        preload="auto"
+                        loop
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/80 border border-accent/40 text-[9px] font-mono text-accent flex items-center gap-1 z-10">
+                      <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/80 border border-amber-500/40 text-[9px] font-mono text-amber-400 flex items-center gap-1 z-10">
                         <VideoIcon className="w-3 h-3" />
                         <span>VIDEO</span>
                       </div>
@@ -192,60 +213,135 @@ export default function AdminMediaPage() {
                       alt={item.alt_text || item.filename}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
-                        // Fallback si la imagen no carga
                         (e.target as HTMLElement).style.display = 'none';
                       }}
                     />
                   )}
 
-                {/* Hover overlay with actions */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
-                  <button
-                    type="button"
-                    onClick={() => handleCopyUrl(item.id, item.url)}
-                    className="p-2 rounded-lg bg-surf text-text hover:text-accent border border-border shadow-md"
-                    title="Copiar URL"
-                  >
-                    {copiedId === item.id ? (
-                      <Check className="w-4 h-4 text-accent" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </button>
+                  {/* Hover overlay with actions */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2 pointer-events-none group-hover:pointer-events-auto">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyUrl(item.id, item.url);
+                      }}
+                      className="p-2 rounded-lg bg-surf text-text hover:text-accent border border-border shadow-md"
+                      title="Copiar URL"
+                    >
+                      {copiedId === item.id ? (
+                        <Check className="w-4 h-4 text-accent" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </button>
 
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-surf text-text hover:text-accent border border-border shadow-md"
-                    title="Abrir en pestaña nueva"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-2 rounded-lg bg-surf text-text hover:text-accent border border-border shadow-md"
+                      title="Abrir en pestaña nueva"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
 
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(item.id)}
-                    className="p-2 rounded-lg bg-surf text-text hover:text-rose-400 border border-border shadow-md"
-                    title="Eliminar archivo"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(item.id);
+                      }}
+                      className="p-2 rounded-lg bg-surf text-text hover:text-rose-400 border border-border shadow-md"
+                      title="Eliminar archivo"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="p-3 space-y-1">
-                <p className="text-xs font-semibold text-text truncate" title={item.filename}>
-                  {item.filename}
-                </p>
-                <div className="flex items-center justify-between text-[10px] text-text-subtle font-mono">
-                  <span>{formatBytes(item.size)}</span>
-                  <span>{item.type}</span>
+                <div className="p-3 space-y-1">
+                  <p className="text-xs font-semibold text-text truncate" title={item.filename}>
+                    {item.filename}
+                  </p>
+                  <div className="flex items-center justify-between text-[10px] text-text-subtle font-mono">
+                    <span>{formatBytes(item.size)}</span>
+                    <span className="uppercase text-[9px] px-1.5 py-0.5 rounded bg-card border border-border">
+                      {isVideo ? 'video' : 'image'}
+                    </span>
+                  </div>
                 </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Modal de Reproducción de Video */}
+      {activeVideo && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-fade-in"
+          onClick={() => setActiveVideo(null)}
+        >
+          <div
+            className="relative w-full max-w-3xl rounded-2xl overflow-hidden border border-border bg-surf shadow-2xl p-4 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border/80 pb-3">
+              <div className="flex items-center gap-2">
+                <VideoIcon className="w-4 h-4 text-accent" />
+                <span className="text-xs font-mono font-semibold text-text truncate max-w-md">
+                  {activeVideo.filename}
+                </span>
+                <span className="text-[10px] font-mono text-text-subtle">
+                  ({formatBytes(activeVideo.size)})
+                </span>
               </div>
-            </Card>
-          );
-        })}
+              <button
+                type="button"
+                onClick={() => setActiveVideo(null)}
+                className="p-1.5 rounded-lg bg-card text-text-muted hover:text-text hover:bg-card/80 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black flex items-center justify-center">
+              <video
+                src={activeVideo.url}
+                controls
+                autoPlay
+                playsInline
+                preload="auto"
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            <div className="flex items-center justify-between pt-1 text-xs">
+              <span className="text-text-subtle font-mono truncate max-w-md">
+                URL: {activeVideo.url}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleCopyUrl(activeVideo.id, activeVideo.url)}
+                className="text-xs"
+              >
+                {copiedId === activeVideo.id ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 mr-1 text-accent" />
+                    <span>Copiado</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 mr-1" />
+                    <span>Copiar URL</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -650,6 +650,22 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                     type="button"
                     onClick={() => {
                       setBgType('video');
+                      setBgUrl('/uploads/1790266996976-14529100_3840_2160_30fps.mp4');
+                    }}
+                    className={cn(
+                      'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
+                      bgUrl.includes('14529100')
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-400 font-semibold shadow-sm'
+                        : 'bg-card border-border hover:border-amber-500/50 text-text-muted hover:text-text'
+                    )}
+                  >
+                    <FileVideo className="w-3 h-3 text-amber-400" />
+                    <span>Video 4K Atardecer (Subido)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBgType('video');
                       setBgUrl('/videos/hero-background.mp4');
                     }}
                     className={cn(
@@ -741,7 +757,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                       <span className="text-[10px] text-text-subtle truncate max-w-xs">{bgUrl}</span>
                     </div>
 
-                    <div className="relative w-full h-44 rounded-lg overflow-hidden border border-border/50 bg-black flex items-center justify-center">
+                    <div className="relative w-full h-56 rounded-lg overflow-hidden border border-border/50 bg-black flex items-center justify-center">
                       {bgType === 'video' ? (
                         <video
                           key={bgUrl}
@@ -751,6 +767,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                           loop
                           muted
                           playsInline
+                          preload="auto"
                           className="w-full h-full object-cover"
                         />
                       ) : (

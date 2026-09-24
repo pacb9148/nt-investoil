@@ -145,3 +145,18 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent);
 }
+
+/* ── PREVENCIÓN ESTRICTA DE DOBLE SCROLL EN DASHBOARD / BACKOFFICE ── */
+html:has(.admin-dashboard-root),
+body:has(.admin-dashboard-root) {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: fixed !important;
+  width: 100vw !important;
+  inset: 0 !important;
+}
+
