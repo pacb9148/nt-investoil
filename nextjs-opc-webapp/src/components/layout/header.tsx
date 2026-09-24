@@ -5,26 +5,31 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ArrowRight, ShieldCheck } from 'lucide-react';
 import { BrandLogo } from './brand-logo';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { LanguageSelector } from './language-selector';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { cn } from '@/lib/utils';
+import type { HeaderData } from '@/components/admin/content/header-form';
+import defaultHeaderData from '@/data/header.json';
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [headerConfig, setHeaderConfig] = useState<HeaderData>(defaultHeaderData as HeaderData);
   const pathname = usePathname();
   const { t, language } = useLanguage();
   const isEn = language === 'en';
 
-  const navItems = [
-    { href: '/', label: t.nav.home },
-    { href: '/services', label: t.nav.services },
-    { href: '/products', label: t.nav.products },
-    { href: '/about', label: t.nav.about },
-    { href: '/blog', label: t.nav.blog },
-    { href: '/contact', label: t.nav.contact },
-  ];
+  useEffect(() => {
+    fetch('/api/content/header')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.menu_items) {
+          setHeaderConfig(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,6 +43,10 @@ export function Header() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  const activeMenuItems = (headerConfig.menu_items || []).filter(
+    (item) => item.is_active !== false
+  );
+
   return (
     <>
       <header
@@ -50,26 +59,33 @@ export function Header() {
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Brand Logo */}
-          <BrandLogo variant="logo" size={42} />
+          <BrandLogo
+            variant="logo"
+            size={42}
+            src={headerConfig.logo_url}
+            customTitle={headerConfig.logo_text}
+            customSubtitle={headerConfig.logo_tagline}
+          />
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6" aria-label="Navegación principal">
-            {navItems.map((link) => {
+            {activeMenuItems.map((link) => {
+              const label = isEn ? (link.label_en || link.label) : link.label;
               const isActive =
                 link.href === '/'
                   ? pathname === '/'
-                  : pathname.startsWith(link.href);
+                  : pathname.startsWith(link.href) && link.href !== '/#';
 
               return (
                 <Link
-                  key={link.href}
+                  key={link.id || link.href}
                   href={link.href}
                   className={cn(
                     'relative text-xs font-semibold uppercase tracking-wider transition-colors py-1 hover:text-text group',
                     isActive ? 'text-accent font-bold' : 'text-text-muted'
                   )}
                 >
-                  {link.label}
+                  {label}
                   <span
                     className={cn(
                       'absolute left-0 right-0 -bottom-1 h-[2px] bg-accent rounded-full transition-transform duration-200',
@@ -86,30 +102,42 @@ export function Header() {
             {/* Language Switcher ES / EN */}
             <LanguageSelector />
 
-            <Link
-              href="/login"
-              className={buttonVariants({
-                variant: 'ghost',
-                size: 'sm',
-                className: 'text-xs gap-1.5 border border-border/60 hover:border-accent/40',
-              })}
-              title="Acceso seguro con usuario y contraseña"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-accent" />
-              <span>{isEn ? 'Login' : 'Acceso Backoffice'}</span>
-            </Link>
+            {headerConfig.backoffice_button?.is_visible !== false && (
+              <Link
+                href="/login"
+                className={buttonVariants({
+                  variant: 'ghost',
+                  size: 'sm',
+                  className: 'text-xs gap-1.5 border border-border/60 hover:border-accent/40',
+                })}
+                title="Acceso seguro con usuario y contraseña"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-accent" />
+                <span>
+                  {isEn
+                    ? (headerConfig.backoffice_button?.text_en || 'Login')
+                    : (headerConfig.backoffice_button?.text || 'Acceso Backoffice')}
+                </span>
+              </Link>
+            )}
 
-            <Link
-              href="/contact"
-              className={buttonVariants({
-                variant: 'accent',
-                size: 'sm',
-                className: 'text-xs gap-1.5 shadow-glow-accent',
-              })}
-            >
-              <span>{t.common.contactUs}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            {headerConfig.action_button?.is_visible !== false && (
+              <Link
+                href={headerConfig.action_button?.url || '/contact'}
+                className={buttonVariants({
+                  variant: 'accent',
+                  size: 'sm',
+                  className: 'text-xs gap-1.5 shadow-glow-accent',
+                })}
+              >
+                <span>
+                  {isEn
+                    ? (headerConfig.action_button?.text_en || t.common.contactUs)
+                    : (headerConfig.action_button?.text || t.common.contactUs)}
+                </span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu & Language Toggle */}
@@ -131,41 +159,56 @@ export function Header() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-30 md:hidden bg-bg/95 backdrop-blur-xl pt-24 px-6 pb-8 flex flex-col justify-between animate-fade-in">
           <nav className="flex flex-col gap-4">
-            {navItems.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-base font-semibold text-text hover:text-accent py-2 border-b border-border/40 transition-colors uppercase tracking-wider"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {activeMenuItems.map((link) => {
+              const label = isEn ? (link.label_en || link.label) : link.label;
+              return (
+                <Link
+                  key={link.id || link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-base font-semibold text-text hover:text-accent py-2 border-b border-border/40 transition-colors uppercase tracking-wider"
+                >
+                  {label}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex flex-col gap-3 pt-6 border-t border-border">
-            <Link
-              href="/login"
-              onClick={() => setMobileMenuOpen(false)}
-              className={buttonVariants({
-                variant: 'secondary',
-                className: 'w-full justify-center gap-2 text-xs',
-              })}
-            >
-              <ShieldCheck className="w-4 h-4 text-accent" />
-              <span>{isEn ? 'Backoffice Login (User & Password)' : 'Acceso Backoffice (Usuario y Contraseña)'}</span>
-            </Link>
-            <Link
-              href="/contact"
-              onClick={() => setMobileMenuOpen(false)}
-              className={buttonVariants({
-                variant: 'accent',
-                className: 'w-full justify-center gap-2 text-xs',
-              })}
-            >
-              <span>{t.common.contactUs}</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            {headerConfig.backoffice_button?.is_visible !== false && (
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className={buttonVariants({
+                  variant: 'secondary',
+                  className: 'w-full justify-center gap-2 text-xs',
+                })}
+              >
+                <ShieldCheck className="w-4 h-4 text-accent" />
+                <span>
+                  {isEn
+                    ? (headerConfig.backoffice_button?.text_en || 'Backoffice Login')
+                    : (headerConfig.backoffice_button?.text || 'Acceso Backoffice')}
+                </span>
+              </Link>
+            )}
+            {headerConfig.action_button?.is_visible !== false && (
+              <Link
+                href={headerConfig.action_button?.url || '/contact'}
+                onClick={() => setMobileMenuOpen(false)}
+                className={buttonVariants({
+                  variant: 'accent',
+                  className: 'w-full justify-center gap-2 text-xs',
+                })}
+              >
+                <span>
+                  {isEn
+                    ? (headerConfig.action_button?.text_en || t.common.contactUs)
+                    : (headerConfig.action_button?.text || t.common.contactUs)}
+                </span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            )}
           </div>
         </div>
       )}

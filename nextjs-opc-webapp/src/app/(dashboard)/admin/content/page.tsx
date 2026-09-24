@@ -2,50 +2,214 @@ import React from 'react';
 import Link from 'next/link';
 import { getLandingSections } from '@/lib/services/content-service';
 import { SectionToggle } from '@/components/admin/content/section-toggle';
-import { ExternalLink, ArrowRight } from 'lucide-react';
+import {
+  ExternalLink,
+  ArrowRight,
+  Menu as MenuIcon,
+  Sparkles,
+  Sliders,
+  Flame,
+  Zap,
+  DollarSign,
+  Building2,
+  Users,
+  Star,
+  HelpCircle,
+  Mail,
+  Award,
+  FileText,
+  Palette,
+  Search,
+} from 'lucide-react';
 
 export const metadata = {
-  title: 'Gestión de Landing Page | Admin Invest Oil LLC',
+  title: 'Gestión de Contenido & Landing | Admin Invest Oil LLC',
 };
 
-const MODULE_ROUTES: Record<string, string> = {
-  hero: '/admin/content/hero',
-  marquee: '/admin/content/marquee',
-  estadisticas: '/admin/content/estadisticas',
-  problema: '/admin/content/problema',
-  services: '/admin/content/services',
-  products: '/admin/content/products',
-  plataforma: '/admin/content/plataforma',
-  team: '/admin/content/team',
-  testimonials: '/admin/content/testimonials',
-  faq: '/admin/content/faq-editor',
-  cta_final: '/admin/content/cta-final',
-  contact: '/admin/content/contact',
-};
+interface ContentCardItem {
+  href: string;
+  label: string;
+  badge?: string;
+  icon: any;
+  desc: string;
+}
 
-const QUICK_MODULES = [
-  { href: '/admin/content/apariencia', label: 'Personalización Visual', icon: '🎨', desc: 'Tipografías, paleta corporativa, colores por sección y efectos' },
-  { href: '/admin/content/hero', label: 'Hero & Tarjeta Trading', icon: '🎯', desc: 'Titular, subtítulo, CTAs, video/fondo y tarjeta de operaciones' },
-  { href: '/admin/content/estadisticas', label: 'Estadísticas KPI', icon: '📊', desc: '4 números de impacto (150M+, 38+, 99.8%)' },
-  { href: '/admin/content/testimonials', label: 'Testimonios', icon: '⭐', desc: 'Tarjetas de refinerías y socios comerciales' },
-  { href: '/admin/content/services', label: 'Servicios Petroleros', icon: '⚡', desc: '10 servicios integrales de hidrocarburos' },
-  { href: '/admin/content/products', label: 'Portafolio Productos', icon: '💰', desc: 'Catálogo de crudos, Jet Fuel A1, EN590, D2' },
-  { href: '/admin/content/problema', label: 'Retos del Sector', icon: '🔥', desc: '3 tarjetas de retos energéticos y volatilidad' },
-  { href: '/admin/content/plataforma', label: 'Infraestructura', icon: '🏢', desc: 'Terminales marítimas, logística y capacidad' },
-  { href: '/admin/content/faq-editor', label: 'Preguntas Frecuentes', icon: '❓', desc: 'Preguntas frecuentes y respuestas editables' },
-  { href: '/admin/content/cta-final', label: 'CTA Final de Cierre', icon: '🚀', desc: 'Sección de cierre y botón de contacto principal' },
-  { href: '/admin/content/marquee', label: 'Marquesina Doble', icon: '🏷️', desc: 'Banda animada de cotizaciones y reportes OPEP+' },
-  { href: '/admin/content/textos', label: 'Textos & i18n', icon: '✏️', desc: 'Titulares y etiquetas bilingües ES / EN' },
-  { href: '/admin/content/legales', label: 'Páginas Legales', icon: '⚖️', desc: 'Términos, privacidad, cookies y alerta de fraude' },
-  { href: '/admin/content/seo', label: 'SEO & Metadata', icon: '🔍', desc: 'Meta tags, Open Graph, redes y Schema.org' },
-  { href: '/admin/content/settings', label: 'Ajustes Generales', icon: '⚙️', desc: 'Oficinas Houston/Madrid/Bogotá, teléfonos y datos' },
+const HEADER_MODULES: ContentCardItem[] = [
+  {
+    href: '/admin/content/header',
+    label: 'Cabecera, Logotipo & Menú Principal',
+    badge: 'Identidad',
+    icon: MenuIcon,
+    desc: 'Logotipo de cabecera, eslogan, enlaces de navegación (ES/EN) y botones de acción (Login y CTA).',
+  },
+];
+
+const SECTIONS_MODULES: ContentCardItem[] = [
+  {
+    href: '/admin/content/hero',
+    label: '01. Hero Principal & Tarjeta Trading',
+    badge: 'Sección 01',
+    icon: Sparkles,
+    desc: 'Titular de alto impacto, video/imagen de fondo, CTAs comerciales y tarjeta de operaciones verificada.',
+  },
+  {
+    href: '/admin/content/marquee',
+    label: '02. Marquesina Doble (Precios & Ticker)',
+    badge: 'Sección 02',
+    icon: Sliders,
+    desc: 'Banda animada con cotizaciones en vivo Brent/WTI, certificaciones SGS y reportes de mercado.',
+  },
+  {
+    href: '/admin/content/problema',
+    label: '03. Retos del Sector (El Problema)',
+    badge: 'Sección 03',
+    icon: Flame,
+    desc: '3 tarjetas de desafíos de la intermediación no regulada, volatilidad de fletes y disrupciones globales.',
+  },
+  {
+    href: '/admin/content/services',
+    label: '04. Servicios Petroleros',
+    badge: 'Sección 04',
+    icon: Zap,
+    desc: '10 soluciones integrales: comercialización, fletamento marítimo, blending, almacenamiento y derivados.',
+  },
+  {
+    href: '/admin/content/products',
+    label: '05. Portafolio de Hidrocarburos',
+    badge: 'Sección 05',
+    icon: DollarSign,
+    desc: 'Catálogo de crudos pesados/ligeros, Jet Fuel A1, Diesel EN590, Pet Coke, D2 y Gas Natural Licuado.',
+  },
+  {
+    href: '/admin/content/plataforma',
+    label: '06. Operaciones & Infraestructura',
+    badge: 'Sección 06',
+    icon: Building2,
+    desc: 'Terminales marítimas estratégicas, capacidad de almacenamiento y corredores logísticos globales.',
+  },
+  {
+    href: '/admin/content/team',
+    label: '07. Consejo Directivo & Gobernanza',
+    badge: 'Sección 07',
+    icon: Users,
+    desc: 'Perfiles ejecutivos del consejo directivo, directores de trading, cumplimiento y gobernanza corporativa.',
+  },
+  {
+    href: '/admin/content/testimonials',
+    label: '08. Testimonios & Clientes',
+    badge: 'Sección 08',
+    icon: Star,
+    desc: 'Prueba social y cartas de satisfacción de refinerías, distribuidores independientes y socios comerciales.',
+  },
+  {
+    href: '/admin/content/faq-editor',
+    label: '09. Preguntas Frecuentes (FAQ)',
+    badge: 'Sección 09',
+    icon: HelpCircle,
+    desc: 'Preguntas y respuestas operativas sobre contratos ICC, inspecciones SGS e Incoterms 2020.',
+  },
+  {
+    href: '/admin/content/contact',
+    label: '10. Formulario de Contacto & Leads',
+    badge: 'Sección 10',
+    icon: Mail,
+    desc: 'Módulo de captación de consultas comerciales, ofertas de compra/venta y soporte al cliente.',
+  },
+  {
+    href: '/admin/content/cta-final',
+    label: '11. CTA Final de Cierre Comercial',
+    badge: 'Sección 11',
+    icon: Award,
+    desc: 'Sección de cierre comercial para apertura de cuentas y negociación de contratos a largo plazo.',
+  },
+];
+
+const PAGES_MODULES: ContentCardItem[] = [
+  {
+    href: '/admin/content/nosotros',
+    label: 'Página Nosotros (/about)',
+    badge: 'Página',
+    icon: Users,
+    desc: 'Logotipo de la página, título institucional, eslogan, misión y los 3 pilares estratégicos de valor.',
+  },
+  {
+    href: '/admin/content/legales',
+    label: 'Páginas Legales & Marco Normativo',
+    badge: 'Cumplimiento',
+    icon: FileText,
+    desc: 'Aviso legal, política de privacidad, política de cookies, términos de trading y prevención de fraudes.',
+  },
+];
+
+const FOOTER_MODULES: ContentCardItem[] = [
+  {
+    href: '/admin/content/settings',
+    label: 'Pie de Página, Sedes & Copyright (Footer)',
+    badge: 'Pie de Página',
+    icon: Building2,
+    desc: 'Logotipo inferior, eslogan corporativo, sedes internacionales en 2 filas (Houston, Madrid, Bogotá), LinkedIn, certificaciones y copyright.',
+  },
+];
+
+const DESIGN_MODULES: ContentCardItem[] = [
+  {
+    href: '/admin/content/apariencia',
+    label: 'Apariencia, Tipografía & Paleta',
+    badge: 'Diseño',
+    icon: Palette,
+    desc: 'Fuentes tipográficas de titulares y cuerpo, colores de fondo por sección y personalización visual.',
+  },
+  {
+    href: '/admin/content/seo',
+    label: 'SEO, Open Graph & Redes Sociales',
+    badge: 'Posicionamiento',
+    icon: Search,
+    desc: 'Metadatos para Google, título meta, descripción, palabras clave y subida de imagen para tarjetas sociales.',
+  },
 ];
 
 export default async function ContentOverviewPage() {
   const sections = await getLandingSections();
 
+  const renderModuleGrid = (items: ContentCardItem[]) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+      {items.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="flex flex-col justify-between gap-3 rounded-xl border border-border/70 bg-surf/60 p-4 hover:border-accent/40 hover:bg-card/90 transition-all duration-200 group shadow-sm"
+          >
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="p-2 rounded-lg bg-card border border-border/80 text-accent group-hover:scale-105 transition-transform">
+                  <Icon className="w-4 h-4" />
+                </span>
+                {item.badge && (
+                  <span className="text-[10px] font-mono text-accent/80 bg-accent/10 px-2 py-0.5 rounded border border-accent/20">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-text group-hover:text-accent transition-colors flex items-center justify-between">
+                  <span>{item.label}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-text-subtle group-hover:text-accent group-hover:translate-x-0.5 transition-transform" />
+                </h3>
+                <p className="mt-1 text-xs text-text-muted line-clamp-2 leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  );
+
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-9 max-w-7xl mx-auto pb-20">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border/80">
         <div>
@@ -53,10 +217,10 @@ export default async function ContentOverviewPage() {
             ADMIN / CONTENIDO
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text">
-            Gestión de Landing Page
+            Gestión de Contenido & Landing Page
           </h1>
           <p className="mt-1 text-sm text-text-muted">
-            {QUICK_MODULES.length} módulos editables · Controla cada sección, fondos de video, tipografías y textos desde aquí.
+            Todas las secciones y elementos ordenados exactamente como aparecen en el sitio web en vivo.
           </p>
         </div>
         <Link
@@ -70,47 +234,74 @@ export default async function ContentOverviewPage() {
         </Link>
       </div>
 
-      {/* Module cards grid */}
-      <div>
-        <h2 className="mb-3 text-xs font-mono uppercase tracking-wider text-text-subtle">
-          Módulos Rápidos de Contenido
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
-          {QUICK_MODULES.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex flex-col justify-between gap-3 rounded-xl border border-border/70 bg-surf/60 p-4 hover:border-accent/40 hover:bg-card/90 transition-all duration-200 group shadow-sm"
-            >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl" role="img" aria-label={item.label}>
-                    {item.icon}
-                  </span>
-                  <ArrowRight className="w-4 h-4 text-text-subtle group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-text group-hover:text-accent transition-colors">
-                    {item.label}
-                  </h3>
-                  <p className="mt-1 text-xs text-text-muted line-clamp-2 leading-relaxed">
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
+      {/* 1. Cabecera & Navegación */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between border-b border-border/40 pb-2">
+          <h2 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+            <MenuIcon className="w-4 h-4" />
+            <span>01. Cabecera, Logotipo & Menú Principal</span>
+          </h2>
+          <span className="text-[11px] text-text-subtle font-mono">Barra superior fija</span>
         </div>
-      </div>
+        {renderModuleGrid(HEADER_MODULES)}
+      </section>
 
-      {/* Sections visibility table */}
-      <div className="pt-2">
+      {/* 2. Secciones de la Landing en Orden */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between border-b border-border/40 pb-2">
+          <h2 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            <span>02. Secciones de la Landing Page (Orden 1:1 en Línea)</span>
+          </h2>
+          <span className="text-[11px] text-text-subtle font-mono">11 secciones secuenciales</span>
+        </div>
+        {renderModuleGrid(SECTIONS_MODULES)}
+      </section>
+
+      {/* 3. Páginas del Sitio */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between border-b border-border/40 pb-2">
+          <h2 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            <span>03. Páginas del Sitio Web</span>
+          </h2>
+          <span className="text-[11px] text-text-subtle font-mono">Rutas independientes</span>
+        </div>
+        {renderModuleGrid(PAGES_MODULES)}
+      </section>
+
+      {/* 4. Pie de Página */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between border-b border-border/40 pb-2">
+          <h2 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+            <Building2 className="w-4 h-4" />
+            <span>04. Pie de Página, Sedes & Ajustes Generales (Footer)</span>
+          </h2>
+          <span className="text-[11px] text-text-subtle font-mono">Direcciones en 2 filas & marco legal</span>
+        </div>
+        {renderModuleGrid(FOOTER_MODULES)}
+      </section>
+
+      {/* 5. Diseño, Apariencia & SEO */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between border-b border-border/40 pb-2">
+          <h2 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+            <Palette className="w-4 h-4" />
+            <span>05. Diseño Global, Apariencia & SEO</span>
+          </h2>
+          <span className="text-[11px] text-text-subtle font-mono">Tipografía & Redes</span>
+        </div>
+        {renderModuleGrid(DESIGN_MODULES)}
+      </section>
+
+      {/* Tabla de Visibilidad y Control de Secciones */}
+      <div className="pt-4 border-t border-border/60">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xs font-mono uppercase tracking-wider text-text-subtle">
-            Visibilidad y Control de Secciones
+            Visibilidad y Control Activo de Secciones
           </h2>
           <span className="text-xs text-text-muted">
-            Los cambios de visibilidad se reflejan de inmediato en la landing
+            Los interruptores activan o desactivan las secciones de inmediato
           </span>
         </div>
 
@@ -119,64 +310,54 @@ export default async function ContentOverviewPage() {
             <table className="w-full text-left text-sm">
               <thead className="border-b border-border/80 bg-card/60">
                 <tr>
-                  <th className="px-4 py-3.5 text-xs font-mono font-semibold uppercase tracking-wider text-text-muted">
+                  <th className="py-3 px-4 text-xs font-mono uppercase tracking-wider text-text-subtle">
+                    #
+                  </th>
+                  <th className="py-3 px-4 text-xs font-mono uppercase tracking-wider text-text-subtle">
                     Sección
                   </th>
-                  <th className="px-4 py-3.5 text-xs font-mono font-semibold uppercase tracking-wider text-text-muted hidden md:table-cell">
+                  <th className="py-3 px-4 text-xs font-mono uppercase tracking-wider text-text-subtle hidden sm:table-cell">
                     Descripción
                   </th>
-                  <th className="px-4 py-3.5 text-center text-xs font-mono font-semibold uppercase tracking-wider text-text-muted">
-                    Visible
-                  </th>
-                  <th className="px-4 py-3.5 text-right text-xs font-mono font-semibold uppercase tracking-wider text-text-muted">
-                    Acción
+                  <th className="py-3 px-4 text-xs font-mono uppercase tracking-wider text-text-subtle text-right">
+                    Estado en Vivo
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/60">
-                {sections.map((s) => {
-                  const editLink = MODULE_ROUTES[s.id];
-
-                  return (
-                    <tr
-                      key={s.id}
-                      className="hover:bg-card/40 transition-colors duration-150"
-                    >
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <span className="text-lg" role="img" aria-label={s.title}>
-                            {s.icon}
-                          </span>
-                          <div>
-                            <p className="font-semibold text-text text-sm">{s.title}</p>
-                            <p className="text-[11px] text-accent/80 font-mono">#{s.id}</p>
-                          </div>
+              <tbody className="divide-y divide-border/50">
+                {sections.map((section, idx) => (
+                  <tr
+                    key={section.id}
+                    className="hover:bg-card/40 transition-colors group"
+                  >
+                    <td className="py-3.5 px-4 font-mono text-xs text-text-subtle">
+                      {String(idx + 1).padStart(2, '0')}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-base">{section.icon}</span>
+                        <div>
+                          <p className="font-semibold text-text text-xs group-hover:text-accent transition-colors">
+                            {section.title}
+                          </p>
+                          <p className="text-[11px] text-text-subtle font-mono">
+                            id: {section.id}
+                          </p>
                         </div>
-                      </td>
-                      <td className="px-4 py-3.5 text-text-muted hidden md:table-cell text-xs max-w-md">
-                        {s.description}
-                      </td>
-                      <td className="px-4 py-3.5 text-center">
-                        <div className="flex justify-center">
-                          <SectionToggle id={s.id} isActive={s.is_active} title={s.title} />
-                        </div>
-                      </td>
-                      <td className="px-4 py-3.5 text-right">
-                        {editLink ? (
-                          <Link
-                            href={editLink}
-                            className="inline-flex items-center gap-1 rounded-md bg-accent/15 border border-accent/30 px-3 py-1 text-xs font-semibold text-accent hover:bg-accent/25 hover:border-accent/60 transition-colors"
-                          >
-                            <span>Editar</span>
-                            <ArrowRight className="w-3 h-3" />
-                          </Link>
-                        ) : (
-                          <span className="text-xs text-text-subtle font-mono">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-xs text-text-muted hidden sm:table-cell max-w-xs truncate">
+                      {section.description}
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <SectionToggle
+                        id={section.id}
+                        isActive={section.is_active}
+                        title={section.title}
+                      />
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

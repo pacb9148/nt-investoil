@@ -11,8 +11,19 @@ import { COMPANY_INFO, LEGAL_LINKS } from '@/lib/constants/investoil';
 
 export function Footer() {
   const { t, language } = useLanguage();
-  const { offices, email, copyright } = useSiteSettings();
+  const settings = useSiteSettings();
   const isEn = language === 'en';
+
+  const footerLogo = settings.footerLogoUrl || '/images/branding/corporate-card-logo.jpeg';
+  const tagline = isEn
+    ? (settings.footerTaglineEn || t.footer.tagline)
+    : (settings.footerTagline || t.footer.tagline);
+  const linkedinUrl = settings.linkedinUrl || COMPANY_INFO.linkedin;
+  const schedule = settings.schedule || COMPANY_INFO.schedule;
+  const copyrightText = isEn
+    ? (settings.copyrightEn || settings.copyright || t.footer.rights)
+    : (settings.copyright || t.footer.rights);
+  const certifications = settings.certificationsText || 'ASTM D1655 / GOST COMPLIANT · INCOTERMS 2020 · SGS & INTERTEK VERIFIED';
 
   return (
     <footer className="border-t border-border bg-surf/95 pt-16 pb-12 text-text">
@@ -20,13 +31,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-border/60 items-start">
           {/* Col 1: Marca e Identidad (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <BrandLogo variant="seal" size={56} />
+            <BrandLogo variant="seal" size={56} src={footerLogo} />
             <p className="text-xs text-text-muted leading-relaxed max-w-sm">
-              {t.footer.tagline}
+              {tagline}
             </p>
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <a
-                href={COMPANY_INFO.linkedin}
+                href={linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-card text-xs font-medium text-text hover:text-accent hover:border-accent/40 transition-colors"
@@ -72,7 +83,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Col 3: Sedes Internacionales y Direcciones en 2 filas (Sin tarjetas, tipografía limpia) */}
+          {/* Col 3: Sedes Internacionales y Direcciones en 2 filas */}
           <div className="lg:col-span-5 space-y-4">
             <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-accent font-mono flex items-center gap-2">
               <Building2 className="w-4 h-4 text-accent" />
@@ -80,7 +91,7 @@ export function Footer() {
             </h3>
 
             <div className="space-y-4">
-              {offices.map((office, idx) => {
+              {(settings.offices || []).map((office, idx) => {
                 const cityCountry = isEn ? (office.cityCountryEn || office.cityCountry) : office.cityCountry;
                 const detail = isEn ? (office.detailEn || office.detail) : office.detail;
 
@@ -114,15 +125,15 @@ export function Footer() {
                 <div className="flex items-center gap-1.5">
                   <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
                   <a
-                    href={`mailto:${email || COMPANY_INFO.email}`}
+                    href={`mailto:${settings.email || COMPANY_INFO.email}`}
                     className="hover:text-accent font-mono text-xs transition-colors"
                   >
-                    {email || COMPANY_INFO.email}
+                    {settings.email || COMPANY_INFO.email}
                   </a>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-warm shrink-0" />
-                  <span className="font-mono text-[11px]">{COMPANY_INFO.schedule}</span>
+                  <span className="font-mono text-[11px]">{schedule}</span>
                 </div>
               </div>
             </div>
@@ -131,13 +142,9 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-muted">
-          <p>{copyright || t.footer.rights}</p>
+          <p>{copyrightText}</p>
           <div className="flex items-center gap-4 text-[11px] font-mono text-text-subtle">
-            <span>ASTM D1655 / GOST COMPLIANT</span>
-            <span>·</span>
-            <span>INCOTERMS 2020</span>
-            <span>·</span>
-            <span>SGS & INTERTEK VERIFIED</span>
+            <span>{certifications}</span>
           </div>
         </div>
       </div>

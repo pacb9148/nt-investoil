@@ -10,7 +10,7 @@ export const DEFAULT_HERO_CARD_CUSTOMIZATION: HeroCardCustomization = {
   card_bg_color: '#0e1424',
   card_border_color: '#f59e0b',
   card_glow_opacity: 50,
-  logo_url: '/images/branding/seal-transparent.png',
+  logo_url: '/images/branding/corporate-card-logo.jpeg',
   logo_hue: 0,
   logo_brightness: 100,
   logo_saturation: 100,

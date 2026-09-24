@@ -8,6 +8,9 @@ export interface BrandLogoProps {
   showText?: boolean;
   className?: string;
   size?: number;
+  src?: string;
+  customTitle?: string;
+  customSubtitle?: string;
 }
 
 export function BrandLogo({
@@ -15,11 +18,15 @@ export function BrandLogo({
   showText = true,
   className,
   size = 40,
+  src,
+  customTitle,
+  customSubtitle,
 }: BrandLogoProps) {
   const imageSrc =
-    variant === 'seal'
-      ? '/images/branding/seal-transparent.png'
-      : '/images/branding/logo.png';
+    src ||
+    (variant === 'seal'
+      ? '/images/branding/corporate-card-logo.jpeg'
+      : '/images/branding/logo.png');
 
   return (
     <Link
@@ -30,10 +37,10 @@ export function BrandLogo({
       <div className="relative flex items-center justify-center overflow-hidden rounded-lg transition-transform duration-300 group-hover:scale-105">
         <Image
           src={imageSrc}
-          alt="Invest Oil LLC"
+          alt={customTitle || 'Invest Oil LLC'}
           width={size}
           height={size}
-          className="object-contain filter drop-shadow-[0_2px_8px_rgba(0,201,167,0.3)]"
+          className="object-contain filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.3)]"
           priority
         />
       </div>
@@ -41,10 +48,10 @@ export function BrandLogo({
       {showText && (
         <div className="flex flex-col">
           <span className="font-heading font-extrabold text-base md:text-lg tracking-tight text-text group-hover:text-accent transition-colors">
-            INVEST OIL
+            {customTitle || 'INVEST OIL'}
           </span>
           <span className="text-[10px] uppercase font-mono tracking-widest text-text-muted -mt-1">
-            Trading Company
+            {customSubtitle || 'Trading Company'}
           </span>
         </div>
       )}

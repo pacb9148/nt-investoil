@@ -4,7 +4,7 @@
     "rating": 5,
     "name": "Director de Aprovisionamiento",
     "role": "Jefe de Compras · Refinería Asiática",
-    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&h=240&q=80",
+    "avatar": "/images/testimonials/test-01.jpg",
     "videoUrl": "",
     "text": "El equipo de Invest Oil coordinó toda la operación de compra de Pet Coke de principio a fin, con una transparencia y solidez contractual que no habíamos visto en otros brokers."
   },
@@ -13,7 +13,7 @@
     "rating": 5,
     "name": "Gerente General de Trading",
     "role": "Director de Trading · Fondo Energético",
-    "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&h=240&q=80",
+    "avatar": "/images/testimonials/test-02.jpg",
     "videoUrl": "",
     "text": "La gestión de riesgo y la coordinación de logística marítima fueron impecables. Cerramos el contrato spot en tiempo récord con liquidación transparente."
   },
@@ -22,7 +22,7 @@
     "rating": 5,
     "name": "Responsable de Operaciones",
     "role": "Gerente de Operaciones · Red de Distribución Europea",
-    "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=240&h=240&q=80",
+    "avatar": "/images/testimonials/test-03.jpg",
     "videoUrl": "",
     "text": "Encontramos en Invest Oil un socio estratégico y de total confianza para el suministro recurrente de Diesel EN590 a nuestra red de estaciones de servicio."
   },
@@ -31,7 +31,7 @@
     "rating": 5,
     "name": "Ingeniero Jefe de Obra",
     "role": "Director de Proyecto · Consorcio Constructor",
-    "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=240&h=240&q=80",
+    "avatar": "/images/testimonials/test-04.jpg",
     "videoUrl": "",
     "text": "El suministro de bitumen llegó exactamente en la especificación técnica acordada (60/70), permitiendo avanzar los tramos de autopista sin el menor retraso."
   },
@@ -40,7 +40,7 @@
     "rating": 5,
     "name": "Directora Comercial",
     "role": "Directora Comercial · Compañía Naviera y de Suministro",
-    "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=240&h=240&q=80",
+    "avatar": "/images/testimonials/test-05.jpg",
     "videoUrl": "",
     "text": "Profesionalismo, rigor en el KYC y comunicación constante en cada fase del fletamento y ventanas de carga. Repetiremos operaciones el próximo trimestre."
   }

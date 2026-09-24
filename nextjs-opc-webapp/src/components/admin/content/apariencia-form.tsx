@@ -85,9 +85,13 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
   const [cardGlow, setCardGlow] = useState<number>(
     defaultValues.hero_card?.card_glow_opacity ?? 50
   );
-  const [logoUrl, setLogoUrl] = useState<string>(
-    defaultValues.hero_card?.logo_url || '/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg'
-  );
+  const [logoUrl, setLogoUrl] = useState<string>(() => {
+    const raw = defaultValues.hero_card?.logo_url;
+    if (!raw || raw.includes('seal-transparent') || raw.includes('1790262200243')) {
+      return '/images/branding/corporate-card-logo.jpeg';
+    }
+    return raw;
+  });
   const [logoHue, setLogoHue] = useState<number>(
     defaultValues.hero_card?.logo_hue ?? 0
   );
@@ -626,7 +630,7 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
                 <span className="text-[10px] font-mono text-text-subtle">Plantillas:</span>
                 <button
                   type="button"
-                  onClick={() => setLogoUrl('/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg')}
+                  onClick={() => setLogoUrl('/images/branding/corporate-card-logo.jpeg')}
                   className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
                 >
                   Sello Gota Petróleo (Actual)
@@ -774,7 +778,7 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
 
                 <div className="flex justify-center py-1">
                   <img
-                    src={logoUrl || '/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg'}
+                    src={logoUrl || '/images/branding/corporate-card-logo.jpeg'}
                     alt="Sello Oficial Invest Oil LLC"
                     className="w-28 h-28 object-contain transition-all duration-200"
                     style={{

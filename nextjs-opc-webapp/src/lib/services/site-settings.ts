@@ -6,14 +6,28 @@ import { INVESTOIL_OFFICES, type OfficeLocation } from '@/lib/constants/investoi
 export interface SiteSettingsData {
   companyName: string;
   email: string;
+  schedule?: string;
   copyright: string;
+  copyrightEn?: string;
+  footerLogoUrl?: string;
+  footerTagline?: string;
+  footerTaglineEn?: string;
+  linkedinUrl?: string;
+  certificationsText?: string;
   offices: OfficeLocation[];
 }
 
 export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
   companyName: 'Invest Oil LLC',
-  email: 'info@investoil.es',
+  email: 'contacto@investoil.es',
+  schedule: '24/7 Trading Desks & Operations',
   copyright: '© 2026 Invest Oil LLC. Todos los derechos reservados.',
+  copyrightEn: '© 2026 Invest Oil LLC. All Rights Reserved.',
+  footerLogoUrl: '/images/branding/corporate-card-logo.jpeg',
+  footerTagline: 'Compañía internacional de comercio de petróleo y derivados, fletamento marítimo e infraestructura energética.',
+  footerTaglineEn: 'International trading company for crude oil, refined petroleum products, marine chartering, and energy infrastructure.',
+  linkedinUrl: 'https://linkedin.com/company/invest-oil-llc',
+  certificationsText: 'ASTM D1655 / GOST COMPLIANT · INCOTERMS 2020 · SGS & INTERTEK VERIFIED',
   offices: INVESTOIL_OFFICES,
 };
 
@@ -28,7 +42,14 @@ export function getClientSiteSettings(): SiteSettingsData {
     return {
       companyName: parsed.companyName || DEFAULT_SITE_SETTINGS.companyName,
       email: parsed.email || DEFAULT_SITE_SETTINGS.email,
+      schedule: parsed.schedule || DEFAULT_SITE_SETTINGS.schedule,
       copyright: parsed.copyright || DEFAULT_SITE_SETTINGS.copyright,
+      copyrightEn: parsed.copyrightEn || DEFAULT_SITE_SETTINGS.copyrightEn,
+      footerLogoUrl: parsed.footerLogoUrl || DEFAULT_SITE_SETTINGS.footerLogoUrl,
+      footerTagline: parsed.footerTagline || DEFAULT_SITE_SETTINGS.footerTagline,
+      footerTaglineEn: parsed.footerTaglineEn || DEFAULT_SITE_SETTINGS.footerTaglineEn,
+      linkedinUrl: parsed.linkedinUrl || DEFAULT_SITE_SETTINGS.linkedinUrl,
+      certificationsText: parsed.certificationsText || DEFAULT_SITE_SETTINGS.certificationsText,
       offices: Array.isArray(parsed.offices) && parsed.offices.length > 0 ? parsed.offices : DEFAULT_SITE_SETTINGS.offices,
     };
   } catch {
@@ -62,7 +83,7 @@ export function useSiteSettings() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && data.offices) {
-          setSettings(data);
+          setSettings((prev) => ({ ...prev, ...data }));
           try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
           } catch {}

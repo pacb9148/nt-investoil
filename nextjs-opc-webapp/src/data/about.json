@@ -1,0 +1,37 @@
+{
+  "badge_text": "IDENTIDAD & VALORES",
+  "badge_text_en": "IDENTITY & CORE VALUES",
+  "title": "Liderando el puente comercial entre productores y refinerías globales",
+  "title_en": "Leading the commercial bridge between producers and global refineries",
+  "slogan": "En Invest Oil LLC, nos especializamos en la comercialización física y estructuración de contratos para crudos pesados, ligeros y derivados como Pet Coke, Merey 16, Brent Blend y Diesel EN590.",
+  "slogan_en": "At Invest Oil LLC, we specialize in physical trading and contract structuring for heavy, light crudes, and refined products such as Pet Coke, Merey 16, Brent Blend, and Diesel EN590.",
+  "mission": "Nuestra misión es mitigar los riesgos operativos y financieros en cada transacción mediante una red global de fletamentos, análisis riguroso de mercado y estricto cumplimiento normativo KYC y antiblanqueo.",
+  "mission_en": "Our mission is to mitigate operational and financial risks in every transaction through a global chartering network, rigorous market analysis, and strict KYC and AML compliance.",
+  "cta_text": "Contactar con la dirección",
+  "cta_text_en": "Contact Leadership",
+  "cta_url": "/#contact",
+  "featured_image": "/images/branding/corporate-card-logo.jpeg",
+  "pillars": [
+    {
+      "id": "p-1",
+      "title": "Transparencia Total",
+      "title_en": "Total Transparency",
+      "desc": "Cada operación se rige por contratos estandarizados bajo normativas internacionales y reglas ICC Incoterms 2020, sin cargos ocultos ni intermediarios no verificados.",
+      "desc_en": "Every transaction is governed by standardized contracts under international regulations and ICC Incoterms 2020 rules, with zero hidden fees or unverified intermediaries."
+    },
+    {
+      "id": "p-2",
+      "title": "Alcance Multirregional",
+      "title_en": "Multiregional Reach",
+      "desc": "Presencia operativa en Houston, Madrid y Bogotá para dar cobertura a las principales rutas marítimas de Europa, Asia y América.",
+      "desc_en": "Operational presence in Houston, Madrid, and Bogotá to provide comprehensive coverage across key maritime routes in Europe, Asia, and the Americas."
+    },
+    {
+      "id": "p-3",
+      "title": "Gestión de Riesgo Integral",
+      "title_en": "Comprehensive Risk Mitigation",
+      "desc": "Monitoreo continuo de cotizaciones de referencia, derivados financieros de cobertura e inspecciones SGS en puertos de carga y descarga.",
+      "desc_en": "Continuous monitoring of benchmark market pricing, financial hedging derivatives, and SGS inspections at load and discharge ports."
+    }
+  ]
+}

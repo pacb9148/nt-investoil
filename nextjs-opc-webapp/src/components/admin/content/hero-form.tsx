@@ -42,7 +42,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   const [cardBorder, setCardBorder] = useState<string>(defaultValues.hero_card?.card_border_color || '#1a3264');
   const [cardGlow, setCardGlow] = useState<number>(defaultValues.hero_card?.card_glow_opacity ?? 50);
   const [logoUrl, setLogoUrl] = useState<string>(
-    defaultValues.hero_card?.logo_url || '/images/branding/seal-transparent.png'
+    defaultValues.hero_card?.logo_url || '/images/branding/corporate-card-logo.jpeg'
   );
   const [logoHue, setLogoHue] = useState<number>(defaultValues.hero_card?.logo_hue ?? 0);
   const [logoBrightness, setLogoBrightness] = useState<number>(defaultValues.hero_card?.logo_brightness ?? 100);
@@ -1232,7 +1232,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
 
                 <div className="flex justify-center py-1">
                   <img
-                    src={logoUrl || '/images/branding/seal-transparent.png'}
+                    src={logoUrl || '/images/branding/corporate-card-logo.jpeg'}
                     alt="Preview"
                     className="w-28 h-28 object-contain transition-all duration-200"
                     style={{

@@ -1,8 +1,27 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, CheckCircle2, Building2, Mail, ShieldCheck, Loader2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Save,
+  CheckCircle2,
+  AlertCircle,
+  Building2,
+  Mail,
+  ShieldCheck,
+  Loader2,
+  Upload,
+  Plus,
+  Trash2,
+  MapPin,
+  Clock,
+  Linkedin,
+  ExternalLink,
+  Globe,
+  Sliders,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   DEFAULT_SITE_SETTINGS,
   getClientSiteSettings,
@@ -11,14 +30,19 @@ import {
 } from '@/lib/services/site-settings';
 import type { OfficeLocation } from '@/lib/constants/investoil';
 
-const INPUT =
-  'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2.5 text-xs text-text focus:outline-none focus:border-accent transition-colors';
-const LABEL = 'block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1.5';
+const INPUT_STYLE =
+  'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2.5 text-xs text-text focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors';
+const LABEL_STYLE = 'block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1.5';
 
 export default function SettingsContentPage() {
   const [settings, setSettings] = useState<SiteSettingsData>(DEFAULT_SITE_SETTINGS);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Logo file upload state
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const local = getClientSiteSettings();
@@ -28,12 +52,42 @@ export default function SettingsContentPage() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && data.offices) {
-          setSettings(data);
+          setSettings((prev) => ({ ...prev, ...data }));
           saveClientSiteSettings(data);
         }
       })
       .catch(() => {});
   }, []);
+
+  const handleLogoFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/media', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const resData = await res.json();
+      if (res.ok && resData.url) {
+        setSettings((prev) => ({ ...prev, footerLogoUrl: resData.url }));
+      } else {
+        setError(resData.error || 'Error al subir el logotipo del pie de página.');
+      }
+    } catch {
+      setError('Error de conexión al subir el logotipo.');
+    } finally {
+      setUploadingLogo(false);
+      if (logoFileInputRef.current) logoFileInputRef.current.value = '';
+    }
+  };
 
   const updateOffice = (id: string, field: keyof OfficeLocation, val: string) => {
     setSettings((prev) => ({
@@ -42,12 +96,36 @@ export default function SettingsContentPage() {
     }));
   };
 
+  const addOffice = () => {
+    const newId = `office-${Date.now()}`;
+    const newOffice: OfficeLocation = {
+      id: newId,
+      cityCountry: 'Nueva Sede, País',
+      cityCountryEn: 'New Office, Country',
+      address: 'Dirección o Puerto Operativo',
+      detail: 'Sede Operativa / Trading Desk',
+      detailEn: 'Operations Desk',
+    };
+    setSettings((prev) => ({
+      ...prev,
+      offices: [...prev.offices, newOffice],
+    }));
+  };
+
+  const removeOffice = (id: string) => {
+    setSettings((prev) => ({
+      ...prev,
+      offices: prev.offices.filter((off) => off.id !== id),
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+    setSaved(false);
 
     try {
-      // 1. Guardar en servidor local / API
       const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -60,13 +138,13 @@ export default function SettingsContentPage() {
           setSettings(data.settings);
           saveClientSiteSettings(data.settings);
         }
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3500);
       } else {
-        // Fallback local
         saveClientSiteSettings(settings);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3500);
       }
-
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3500);
     } catch {
       saveClientSiteSettings(settings);
       setSaved(true);
@@ -77,145 +155,293 @@ export default function SettingsContentPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-32">
-      <div className="flex items-center justify-between pb-4 border-b border-border">
+    <div className="space-y-6 max-w-5xl mx-auto pb-28">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
         <div>
-          <Link
-            href="/admin/content"
-            className="inline-flex items-center gap-1 text-xs text-text-subtle hover:text-accent font-mono transition-colors mb-1"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Volver a Contenido</span>
-          </Link>
+          <div className="flex items-center gap-2 mb-1">
+            <Link
+              href="/admin/content"
+              className="inline-flex items-center gap-1 text-xs text-text-subtle hover:text-accent font-mono transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Volver a Contenido</span>
+            </Link>
+          </div>
           <h1 className="text-2xl font-bold tracking-tight text-text">
-            Ajustes Generales del Sitio y Sedes
+            Pie de Página & Ajustes Generales (Footer)
           </h1>
           <p className="mt-1 text-xs text-text-muted">
-            Configure las direcciones internacionales y datos corporativos que se reflejan de inmediato en toda la plataforma y pie de página.
+            Configuración unificada del pie de página: logotipo, descripción corporativa, sedes internacionales en 2 filas, marco legal, certificaciones y copyright.
           </p>
         </div>
+
+        <Link
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 self-start px-3.5 py-2 rounded-lg bg-card border border-border text-xs font-semibold text-text-muted hover:text-accent hover:border-accent/40 transition-colors"
+        >
+          <span>Ver sitio en vivo</span>
+          <ExternalLink className="w-3.5 h-3.5 text-accent" />
+        </Link>
       </div>
 
+      {/* Feedback alerts */}
+      {saved && (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          <span>Configuración del pie de página y sedes guardada correctamente. Se refleja en todo el sitio web.</span>
+        </div>
+      )}
+      {error && (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Formulario */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Bloque 1: Datos de Contacto y Legales */}
+        {/* 1. Logotipo e Identidad del Footer */}
         <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-4">
-          <h2 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
-            <Mail className="w-4 h-4 text-accent" />
-            <span>01. Datos Corporativos</span>
+          <h2 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2 border-b border-border/60 pb-3">
+            <Sliders className="w-4 h-4" />
+            <span>Identidad & Logotipo del Pie de Página</span>
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={LABEL}>Nombre Comercial de la Empresa</label>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+            {/* Imagen del Footer */}
+            <div className="md:col-span-4 flex flex-col items-center justify-center p-4 rounded-xl border border-border bg-card/60 text-center space-y-3">
               <input
-                type="text"
-                value={settings.companyName}
-                onChange={(e) => setSettings({ ...settings, companyName: e.target.value })}
-                className={INPUT}
-                required
+                type="file"
+                ref={logoFileInputRef}
+                onChange={handleLogoFileSelect}
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                className="hidden"
               />
+              <div className="w-20 h-20 rounded-xl border border-border/80 bg-black/40 flex items-center justify-center p-2 overflow-hidden shadow-inner">
+                <img
+                  src={settings.footerLogoUrl || '/images/branding/corporate-card-logo.jpeg'}
+                  alt="Logo Footer"
+                  className="w-full h-full object-contain filter drop-shadow"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => logoFileInputRef.current?.click()}
+                disabled={uploadingLogo}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+              >
+                {uploadingLogo ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Subiendo...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Subir Sello / Logo...</span>
+                  </>
+                )}
+              </button>
+              <div className="flex flex-wrap gap-1.5 justify-center pt-1">
+                <button
+                  type="button"
+                  onClick={() => setSettings((p) => ({ ...p, footerLogoUrl: '/images/branding/corporate-card-logo.jpeg' }))}
+                  className="text-[10px] font-mono px-2 py-0.5 rounded bg-card border border-border hover:border-accent/50 text-text-muted"
+                >
+                  Gota Ámbar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSettings((p) => ({ ...p, footerLogoUrl: '/images/branding/logo.png' }))}
+                  className="text-[10px] font-mono px-2 py-0.5 rounded bg-card border border-border hover:border-accent/50 text-text-muted"
+                >
+                  Logo Rectangular
+                </button>
+              </div>
             </div>
+
+            {/* Campos de texto */}
+            <div className="md:col-span-8 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={LABEL_STYLE}>Nombre Legal de la Empresa</label>
+                  <input
+                    type="text"
+                    value={settings.companyName}
+                    onChange={(e) => setSettings({ ...settings, companyName: e.target.value })}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+                <div>
+                  <label className={LABEL_STYLE}>Perfil de LinkedIn</label>
+                  <input
+                    type="text"
+                    value={settings.linkedinUrl || ''}
+                    onChange={(e) => setSettings({ ...settings, linkedinUrl: e.target.value })}
+                    placeholder="https://linkedin.com/company/invest-oil-llc"
+                    className={INPUT_STYLE}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={LABEL_STYLE}>Descripción Corporativa / Tagline (Español)</label>
+                <textarea
+                  rows={2}
+                  value={settings.footerTagline || ''}
+                  onChange={(e) => setSettings({ ...settings, footerTagline: e.target.value })}
+                  className={INPUT_STYLE}
+                />
+              </div>
+
+              <div>
+                <label className={LABEL_STYLE}>Descripción Corporativa / Tagline (Inglés)</label>
+                <textarea
+                  rows={2}
+                  value={settings.footerTaglineEn || ''}
+                  onChange={(e) => setSettings({ ...settings, footerTaglineEn: e.target.value })}
+                  className={INPUT_STYLE}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Contacto Directo & Horario */}
+        <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-4">
+          <h2 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2 border-b border-border/60 pb-3">
+            <Mail className="w-4 h-4" />
+            <span>Datos de Contacto & Operaciones</span>
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={LABEL}>Email Principal de Contacto</label>
+              <label className={LABEL_STYLE}>Correo Electrónico de Contacto</label>
               <input
                 type="email"
                 value={settings.email}
                 onChange={(e) => setSettings({ ...settings, email: e.target.value })}
-                className={INPUT}
-                required
+                className={INPUT_STYLE}
+                placeholder="contacto@investoil.es"
+              />
+            </div>
+            <div>
+              <label className={LABEL_STYLE}>Horario Operativo de Trading</label>
+              <input
+                type="text"
+                value={settings.schedule || ''}
+                onChange={(e) => setSettings({ ...settings, schedule: e.target.value })}
+                className={INPUT_STYLE}
+                placeholder="24/7 Trading Desks & Operations"
               />
             </div>
           </div>
-
-          <div>
-            <label className={LABEL}>Texto de Copyright (Footer)</label>
-            <input
-              type="text"
-              value={settings.copyright}
-              onChange={(e) => setSettings({ ...settings, copyright: e.target.value })}
-              className={INPUT}
-              required
-            />
-          </div>
         </div>
 
-        {/* Bloque 2: Sedes Internacionales en 2 filas (Sin tarjetas de contenedor pesado) */}
-        <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-5">
+        {/* 3. Sedes Internacionales y Direcciones en 2 Filas */}
+        <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-border/60 pb-3">
-            <h2 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-accent" />
-              <span>02. Sedes Internacionales y Direcciones Físicas (Estructura en 2 filas)</span>
-            </h2>
-            <span className="text-[11px] font-mono text-text-subtle">Houston · Madrid · Bogotá</span>
+            <div>
+              <h2 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+                <Building2 className="w-4 h-4" />
+                <span>Sedes Internacionales & Direcciones (2 Filas)</span>
+              </h2>
+              <p className="text-[11px] text-text-muted mt-0.5">
+                Fila 1: Ciudad, País [HQ / DESK]. Fila 2: Dirección física y especificación del desk.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addOffice}
+              className="text-xs gap-1.5 border-border hover:border-accent/40"
+            >
+              <Plus className="w-3.5 h-3.5 text-accent" />
+              <span>Agregar Sede</span>
+            </Button>
           </div>
 
-          <p className="text-xs text-text-muted">
-            Los cambios se actualizan de forma permanente en el pie de página de la landing page.
-          </p>
-
-          <div className="space-y-6">
-            {settings.offices.map((office, idx) => (
+          <div className="space-y-4">
+            {(settings.offices || []).map((office, idx) => (
               <div
-                key={office.id}
-                className={`space-y-3 ${idx > 0 ? 'pt-5 border-t border-border/50' : ''}`}
+                key={office.id || idx}
+                className="p-4 rounded-xl border border-border/80 bg-card/60 space-y-3 relative group"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold font-mono text-text uppercase flex items-center gap-2">
-                    <span className="text-accent">#{idx + 1}</span> Sede {office.cityCountry.split(',')[0]}
-                  </span>
-                  <span className="text-[10px] font-mono text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20">
-                    {office.id === 'houston' ? 'GLOBAL HQ' : 'DESK'}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-accent" />
+                    <span className="text-xs font-mono font-bold text-accent">
+                      Sede #{idx + 1}: {office.cityCountry || office.id}
+                    </span>
+                  </div>
+                  {settings.offices.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeOffice(office.id)}
+                      className="p-1 rounded text-red-400 hover:bg-red-500/10 transition-colors"
+                      title="Eliminar esta sede"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
 
-                {/* Fila 1: Ciudad y País */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className={LABEL}>Fila 1: Ciudad y País (Español)</label>
+                    <label className={LABEL_STYLE}>Ciudad / País (Español)</label>
                     <input
                       type="text"
                       value={office.cityCountry}
                       onChange={(e) => updateOffice(office.id, 'cityCountry', e.target.value)}
-                      className={INPUT}
-                      placeholder="ej. Houston, Estados Unidos"
-                      required
+                      placeholder="Houston, Estados Unidos"
+                      className={INPUT_STYLE}
                     />
                   </div>
                   <div>
-                    <label className={LABEL}>Fila 1: Ciudad y País (Inglés)</label>
+                    <label className={LABEL_STYLE}>Ciudad / País (Inglés)</label>
                     <input
                       type="text"
                       value={office.cityCountryEn || ''}
                       onChange={(e) => updateOffice(office.id, 'cityCountryEn', e.target.value)}
-                      className={INPUT}
-                      placeholder="ej. Houston, United States"
+                      placeholder="Houston, United States"
+                      className={INPUT_STYLE}
                     />
                   </div>
                 </div>
 
-                {/* Fila 2: Detalle y Dirección física */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className={LABEL}>Fila 2: Detalle Corporativo / Rol de Sede</label>
-                    <input
-                      type="text"
-                      value={office.detail}
-                      onChange={(e) => updateOffice(office.id, 'detail', e.target.value)}
-                      className={INPUT}
-                      placeholder="ej. Headquarters · Sede Central"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className={LABEL}>Fila 2: Dirección Física Completa</label>
+                    <label className={LABEL_STYLE}>Dirección Física (Fila 2)</label>
                     <input
                       type="text"
                       value={office.address}
                       onChange={(e) => updateOffice(office.id, 'address', e.target.value)}
-                      className={INPUT}
-                      placeholder="ej. 1000 Louisiana St, Suite 4000, Houston, TX 77002"
-                      required
+                      placeholder="1000 Louisiana St, Suite 4300, Houston, TX 77002"
+                      className={INPUT_STYLE}
                     />
+                  </div>
+                  <div>
+                    <label className={LABEL_STYLE}>Detalle / Rol de la Sede (Español / Inglés)</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={office.detail}
+                        onChange={(e) => updateOffice(office.id, 'detail', e.target.value)}
+                        placeholder="Headquarters · Sede Central"
+                        className={INPUT_STYLE}
+                      />
+                      <input
+                        type="text"
+                        value={office.detailEn || ''}
+                        onChange={(e) => updateOffice(office.id, 'detailEn', e.target.value)}
+                        placeholder="Global Headquarters"
+                        className={INPUT_STYLE}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -223,18 +449,54 @@ export default function SettingsContentPage() {
           </div>
         </div>
 
-        {saved && (
-          <div className="flex items-center gap-2 p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>✓ Direcciones y ajustes actualizados y sincronizados con éxito</span>
-          </div>
-        )}
+        {/* 4. Copyright & Certificaciones */}
+        <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-4">
+          <h2 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2 border-b border-border/60 pb-3">
+            <ShieldCheck className="w-4 h-4" />
+            <span>Copyright & Certificaciones del Pie de Página</span>
+          </h2>
 
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <button
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={LABEL_STYLE}>Texto de Copyright (Español)</label>
+              <input
+                type="text"
+                value={settings.copyright}
+                onChange={(e) => setSettings({ ...settings, copyright: e.target.value })}
+                placeholder="© 2026 Invest Oil LLC. Todos los derechos reservados."
+                className={INPUT_STYLE}
+              />
+            </div>
+            <div>
+              <label className={LABEL_STYLE}>Texto de Copyright (Inglés)</label>
+              <input
+                type="text"
+                value={settings.copyrightEn || ''}
+                onChange={(e) => setSettings({ ...settings, copyrightEn: e.target.value })}
+                placeholder="© 2026 Invest Oil LLC. All Rights Reserved."
+                className={INPUT_STYLE}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className={LABEL_STYLE}>Cintillo de Certificaciones & Estándares</label>
+            <input
+              type="text"
+              value={settings.certificationsText || ''}
+              onChange={(e) => setSettings({ ...settings, certificationsText: e.target.value })}
+              placeholder="ASTM D1655 / GOST COMPLIANT · INCOTERMS 2020 · SGS & INTERTEK VERIFIED"
+              className={INPUT_STYLE}
+            />
+          </div>
+        </div>
+
+        {/* Floating Save Button */}
+        <div className="fixed bottom-6 right-8 z-30 flex items-center gap-3">
+          <Button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all disabled:opacity-50"
+            className="gap-2 bg-accent text-bg hover:bg-accent-hover font-bold shadow-lg shadow-amber-500/20 px-6 py-2.5"
           >
             {loading ? (
               <>
@@ -244,10 +506,10 @@ export default function SettingsContentPage() {
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                <span>Guardar Ajustes y Direcciones</span>
+                <span>Guardar Pie de Página & Sedes</span>
               </>
             )}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

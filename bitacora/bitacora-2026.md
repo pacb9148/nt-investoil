@@ -131,3 +131,42 @@
   5. **Batería de Seguridad**:
      - `pwsh ./scripts/bateria-seguridad.ps1` ejecutada y aprobada 100% limpia.
 
+---
+
+### [2026-09-24 20:50] — Reorganización 1:1 de Secciones, Cabecera & Menú, Pie de Página Unificado, Página Nosotros, SEO y Auditoría Playwright
+- **Petición del usuario**:
+  1. Corregir desborde/recorte en la interfaz del Hero Editor.
+  2. Resolver imagen antigua en Apariencia y unificar el logotipo de tarjeta.
+  3. Personalización de logotipo, título y eslogan de la página Nosotros (/about).
+  4. Ordenar las entradas del backoffice 1:1 de acuerdo a cómo aparecen en línea estructuradas en listas.
+  5. Interfaz de carga de imagen y previsualización para SEO y redes sociales.
+  6. Unificar Ajustes Generales y Pie de Página en una misma interfaz integral.
+  7. Ejecución con orden `+dap`.
+- **Acciones Realizadas**:
+  1. **Ajuste de Ancho y Layout en Hero Editor**:
+     - Sustituido `w-screen` por `w-full max-w-full` y `overflow-x-hidden` en `<main>` para evitar que el ancho de la barra de desplazamiento provoque recorte horizontal en pantallas de escritorio.
+  2. **Sincronización Total de la Imagen Corporativa**:
+     - Sello oficial con gota de petróleo dorada (`corporate-card-logo.jpeg`) fijado como valor por defecto en `appearance-defaults.ts`, `appearance.json`, `hero.json`, `hero-form.tsx` y `apariencia-form.tsx`.
+  3. **Editor de Cabecera & Menú Principal (`/admin/content/header`)**:
+     - Creados `header.json`, `/api/content/header`, `HeaderForm` y `/admin/content/header/page.tsx`.
+     - Permite editar logotipo, marca, enlaces del menú dinámico en ES/EN y botones de acción (Login y Contactar) con previsualización en vivo.
+     - Conectado dinámicamente con `src/components/layout/header.tsx`.
+  4. **Editor de la Página Nosotros (`/admin/content/nosotros`)**:
+     - Creados `about.json`, `/api/content/about`, `AboutForm` y `/admin/content/nosotros/page.tsx`.
+     - Gestión bilingüe (ES/EN) de titular, eslogan, misión, imagen corporativa destacada y los 3 pilares de valor institucional.
+     - Conectado dinámicamente con la página pública `/about`.
+  5. **Unificación de Pie de Página & Sedes (`/admin/content/settings` y `/admin/content/footer`)**:
+     - Integración unificada con edición de logotipo del footer, taglines bilingües, sedes internacionales en 2 filas (Houston, Madrid, Bogotá), LinkedIn, certificaciones y copyright al detalle.
+     - Conectado dinámicamente con `src/components/layout/footer.tsx`.
+  6. **Reorganización Estructurada 1:1 del Backoffice**:
+     - `AdminSidebar` y `/admin/content/page.tsx` reorganizados en listas secuenciales que replican 1:1 la estructura visual del sitio en vivo.
+  7. **SEO & Previsualización Social (`/admin/content/seo`)**:
+     - Subida de archivo de imagen Open Graph con simulación interactiva de tarjeta social compartida.
+  8. **Persistencia de Imágenes de Equipo y Testimonios ante Despliegues**:
+     - Guardados retratos locales en `public/images/team/` y `public/images/testimonials/` para garantizar persistencia ante redespliegues en contenedores efímeros.
+  9. **Verificación Automatizada con Playwright**:
+     - Script `test-complete-audit.mjs` completó 9/9 pruebas automatizadas con éxito, capturando pantallas en `audit-screenshots/`.
+  10. **Batería de Seguridad**:
+      - `pwsh ./scripts/bateria-seguridad.ps1` superada al 100% limpia sin secretos ni vulnerabilidades.
+
+

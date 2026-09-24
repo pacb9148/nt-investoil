@@ -261,3 +261,43 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - `npx tsc --noEmit`: 0 errores.
   - `npm run build`: 49 rutas compiladas exitosamente.
   - `scripts/bateria-seguridad.ps1`: 100% aprobada sin fallos.
+
+---
+
+## 7. Estado de Implementación — Fase 13 (Reorganización 1:1 de Secciones, Cabecera & Menú, Pie de Página Unificado, Nosotros, SEO y Auditoría Playwright)
+- **Corrección Definitiva del Ancho y Recorte en Hero Form**:
+  - Sustitución de `w-screen` por `w-full max-w-full` y `overflow-x-hidden` en `<main>` dentro de `(dashboard)/layout.tsx` y `globals.css`, eliminando el desborde causado por el ancho de la barra de desplazamiento.
+- **Sincronización Total del Logotipo Oficial en Apariencia y Hero**:
+  - Sincronización absoluta de la imagen corporativa dorada con gota de petróleo (`corporate-card-logo.jpeg`) como valor por defecto persistente en `appearance-defaults.ts`, `appearance.json`, `hero.json`, `hero-form.tsx` y `apariencia-form.tsx`.
+  - Eliminada cualquier referencia residual a imágenes temporales o sellos antiguos.
+- **Editor Completo de Cabecera, Logotipo & Menú Principal (`/admin/content/header`)**:
+  - Creación de `src/data/header.json` y del endpoint `/api/content/header`.
+  - Nuevo componente `HeaderForm` con carga de logotipo, textos corporativos, gestor interactivo de enlaces de navegación (agregar, eliminar, etiquetas ES/EN y URLs), configuración de botones de acción y banner de previsualización en vivo.
+  - Integración dinámica en `src/components/layout/header.tsx` con carga reactiva y preservación de fallbacks.
+- **Editor Completo de la Página Nosotros (`/admin/content/nosotros`)**:
+  - Creación de `src/data/about.json`, endpoint `/api/content/about` y componente `AboutForm`.
+  - Gestión bilingüe (ES/EN) de titular, eslogan, misión, imagen corporativa destacada y los 3 pilares de valor institucional.
+  - Conexión dinámica en la ruta pública `/about`.
+- **Unificación de Pie de Página & Sedes (`/admin/content/settings` y `/admin/content/footer`)**:
+  - Agrupación integral de todos los elementos del pie de página y ajustes generales en una sola interfaz:
+    - Logotipo del footer con uploader y previsualización.
+    - Taglines corporativos en español e inglés.
+    - Sedes internacionales en 2 filas (Houston, Madrid, Bogotá) con gestión de ubicaciones y detalles operativos.
+    - Marco legal, contacto directo, horario de trading, certificaciones y copyright editable al detalle.
+  - Sincronización en `src/lib/services/site-settings.ts`, `src/data/site-settings.json`, `/api/settings` y `src/components/layout/footer.tsx`.
+- **Reorganización Estructurada 1:1 del Backoffice de Contenido**:
+  - Estructuración de las entradas del backoffice en listas secuenciales ordenadas idénticamente al sitio web en vivo tanto en `AdminSidebar` como en `/admin/content/page.tsx`:
+    1. *01. Cabecera & Menú Principal*
+    2. *02. Secciones de la Landing Page (01. Hero a 11. CTA Final)*
+    3. *03. Páginas del Sitio (Nosotros y Legales)*
+    4. *04. Pie de Página & Sedes (Footer)*
+    5. *05. Diseño, Apariencia & SEO*
+- **SEO & Previsualización de Tarjeta Social (`/admin/content/seo`)**:
+  - Editor con subida de imagen Open Graph, metadatos, palabras clave y simulación interactiva de tarjeta social compartida.
+- **Persistencia de Imágenes de Equipo y Testimonios ante Redespliegues en Coolify**:
+  - Descarga y persistencia en Git de los 6 retratos ejecutivos en `public/images/team/` y los 5 testimonios en `public/images/testimonials/` para evitar pérdidas durante los builds efímeros de Docker.
+- **Verificación Automatizada con Playwright y Batería de Seguridad**:
+  - `npm run build`: 52 rutas compiladas con éxito (0 errores).
+  - Script Playwright `test-complete-audit.mjs`: 9/9 pruebas aprobadas con éxito en portada pública, about, login y todos los editores de backoffice.
+  - `pwsh ./scripts/bateria-seguridad.ps1`: superada al 100% sin alertas ni vulnerabilidades.
+
