@@ -1,0 +1,56 @@
+[
+  {
+    "id": "cat-1",
+    "name": "Mercado Petrolero & Precios",
+    "name_en": "Oil Markets & Pricing",
+    "slug": "mercado-petrolero",
+    "description": "Análisis de diferenciales Brent/WTI, cotizaciones y balances de inventarios.",
+    "description_en": "Analysis of Brent/WTI differentials, quotes, and inventory balances.",
+    "color": "#f59e0b"
+  },
+  {
+    "id": "cat-2",
+    "name": "Logística & Fletes Marítimos",
+    "name_en": "Maritime & Freight Logistics",
+    "slug": "logistica-maritima",
+    "description": "Rutas VLCC/Aframax, fletes internacionales y operaciones terminales.",
+    "description_en": "VLCC/Aframax trade routes, international freight, and terminal operations.",
+    "color": "#06b6d4"
+  },
+  {
+    "id": "cat-3",
+    "name": "Refinación & Derivados",
+    "name_en": "Refining & Derivatives",
+    "slug": "refinacion-derivados",
+    "description": "Merey 16, Diésel EN590, Jet A-1 y procesamiento en unidades de alta conversión.",
+    "description_en": "Merey 16, Diesel EN590, Jet A-1, and complex refinery hydrocracking.",
+    "color": "#eab308"
+  },
+  {
+    "id": "cat-4",
+    "name": "Compliance & Regulaciones",
+    "name_en": "Compliance & Regulations",
+    "slug": "compliance-regulaciones",
+    "description": "Incoterms 2020, cartas de crédito documentarias e inspección SGS.",
+    "description_en": "Incoterms 2020, documentary letters of credit, and SGS inspection.",
+    "color": "#10b981"
+  },
+  {
+    "id": "cat-5",
+    "name": "Pet Coke & Commodities Sólidos",
+    "name_en": "Pet Coke & Solid Carbon",
+    "slug": "pet-coke-solidos",
+    "description": "Coque de petróleo verde y calcinado para cementeras y metalurgia.",
+    "description_en": "Green and calcined petroleum coke for cement and metallurgy plants.",
+    "color": "#ec4899"
+  },
+  {
+    "id": "cat-6",
+    "name": "Transición & Sostenibilidad",
+    "name_en": "Energy Transition & ESG",
+    "slug": "transicion-sostenibilidad",
+    "description": "GNL criogénico, combustibles marítimos de ultra bajo azufre (MGO).",
+    "description_en": "Cryogenic LNG, ultra-low sulfur marine fuels (MGO), and decarbonization.",
+    "color": "#14b8a6"
+  }
+]

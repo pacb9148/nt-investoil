@@ -12,38 +12,14 @@ export const metadata: Metadata = {
     'Informes de mercado, análisis de cotizaciones de crudo, dinámicas de fletes y noticias de trading por el equipo de Invest Oil LLC.',
 };
 
-export const revalidate = 60; // ISR cache revalidation
+export const revalidate = 0; // Dynamic blog feed from database
 
 export default async function BlogPage() {
-  let posts: Post[] = getCuratedPosts();
-  let categories: Category[] = getCuratedCategories();
-
-  if (isSupabaseConfigured()) {
-    try {
-      const { createClient } = await import('@/lib/supabase/server');
-      const supabase = createClient();
-      const { data: postsData } = await supabase
-        .from('posts')
-        .select('*, categories(*)')
-        .eq('status', 'published')
-        .order('published_at', { ascending: false });
-
-      if (postsData && postsData.length > 0) {
-        posts = postsData;
-      }
-
-      const { data: categoriesData } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
-
-      if (categoriesData && categoriesData.length > 0) {
-        categories = categoriesData;
-      }
-    } catch (error) {
-      console.warn('Fallback a datos de blog locales');
-    }
-  }
+  const { getPosts, getCategories } = await import('@/lib/db/db-service');
+  const [posts, categories] = await Promise.all([
+    getPosts({ status: 'published' }),
+    getCategories(),
+  ]);
 
   return (
     <div className="pt-32 pb-24 max-w-7xl mx-auto px-4 md:px-8 space-y-12">

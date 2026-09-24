@@ -16,7 +16,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { createClient } from '@/lib/supabase/client';
 import { formatBytes, formatDate } from '@/lib/utils';
 import { type MediaItem } from '@/types';
 
@@ -30,68 +29,10 @@ export default function AdminMediaPage() {
   const fetchMedia = async () => {
     setLoading(true);
     try {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from('media')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (data && data.length > 0) {
+      const res = await fetch('/api/media');
+      if (res.ok) {
+        const data = await res.json();
         setMediaList(data);
-      } else {
-        // Fallback demo media
-        setMediaList([
-          {
-            id: 'm-1',
-            filename: 'investoil-seal.png',
-            url: '/images/branding/seal-transparent.png',
-            type: 'image',
-            mime_type: 'image/png',
-            size: 540000,
-            alt_text: 'Sello Oficial Invest Oil LLC',
-            created_at: new Date().toISOString(),
-          },
-          {
-            id: 'm-2',
-            filename: 'investoil-logo.png',
-            url: '/images/branding/logo.png',
-            type: 'image',
-            mime_type: 'image/png',
-            size: 210000,
-            alt_text: 'Logotipo Principal Invest Oil LLC',
-            created_at: new Date().toISOString(),
-          },
-          {
-            id: 'm-3',
-            filename: 'pet-coke-terminal.jpg',
-            url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
-            type: 'image',
-            mime_type: 'image/jpeg',
-            size: 420000,
-            alt_text: 'Terminal de carga de Pet Coke',
-            created_at: new Date().toISOString(),
-          },
-          {
-            id: 'm-4',
-            filename: 'oil-tanker-vessel.jpg',
-            url: 'https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1200&q=80',
-            type: 'image',
-            mime_type: 'image/jpeg',
-            size: 680000,
-            alt_text: 'Buque petrolero VLCC en alta mar',
-            created_at: new Date().toISOString(),
-          },
-          {
-            id: 'm-5',
-            filename: 'refinery-complex.jpg',
-            url: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1200&q=80',
-            type: 'image',
-            mime_type: 'image/jpeg',
-            size: 510000,
-            alt_text: 'Complejo de refinación petroquímica',
-            created_at: new Date().toISOString(),
-          },
-        ]);
       }
     } catch (e) {
       console.error(e);
@@ -118,53 +59,23 @@ export default function AdminMediaPage() {
     const file = files[0];
 
     try {
-      const supabase = createClient();
-      const filename = `${Date.now()}-${file.name.replace(/\s+/g, '_')}`;
+      const formData = new FormData();
+      formData.append('file', file);
 
-      // Upload file to Supabase storage bucket 'media'
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('media')
-        .upload(filename, file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-      let publicUrl = URL.createObjectURL(file);
-
-      if (!uploadError && uploadData) {
-        const { data: urlData } = supabase.storage
-          .from('media')
-          .getPublicUrl(filename);
-        if (urlData) publicUrl = urlData.publicUrl;
+      if (!res.ok) {
+        const errJson = await res.json();
+        throw new Error(errJson.error || 'Error al subir archivo');
       }
 
-      // Record in media table
-      const newItem: MediaItem = {
-        id: `m-${Date.now()}`,
-        filename: file.name,
-        url: publicUrl,
-        type: file.type.startsWith('video') ? 'video' : 'image',
-        mime_type: file.type,
-        size: file.size,
-        alt_text: file.name.split('.')[0],
-        created_at: new Date().toISOString(),
-      };
-
-      try {
-        await supabase.from('media').insert([
-          {
-            filename: newItem.filename,
-            url: newItem.url,
-            type: newItem.type,
-            mime_type: newItem.mime_type,
-            size: newItem.size,
-            alt_text: newItem.alt_text,
-          },
-        ]);
-      } catch (err) {
-        console.warn('DB insert skipped in demo mode:', err);
-      }
-
-      setMediaList((prev) => [newItem, ...prev]);
-    } catch (err) {
-      console.error(err);
+      await fetchMedia();
+    } catch (err: any) {
+      console.error('Error al subir:', err);
+      alert(err.message || 'Error al subir archivo a la base de datos');
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -172,12 +83,13 @@ export default function AdminMediaPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('¿Deseas eliminar este archivo de la biblioteca?')) return;
+    if (!window.confirm('¿Deseas eliminar este archivo de la base de datos y del almacenamiento?')) return;
     try {
-      const supabase = createClient();
-      await supabase.from('media').delete().eq('id', id);
-    } catch (e) {}
-    setMediaList((prev) => prev.filter((m) => m.id !== id));
+      await fetch(`/api/media/${id}`, { method: 'DELETE' });
+      setMediaList((prev) => prev.filter((m) => m.id !== id));
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const filteredMedia = mediaList.filter((m) =>

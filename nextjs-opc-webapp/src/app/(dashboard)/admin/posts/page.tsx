@@ -13,11 +13,12 @@ import {
   CheckCircle,
   Archive,
   AlertCircle,
+  Video,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { createClient } from '@/lib/supabase/client';
 import { formatDate } from '@/lib/utils';
 import { type Post, type PostStatus } from '@/types';
 
@@ -31,66 +32,10 @@ export default function AdminPostsPage() {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from('posts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (data && data.length > 0) {
+      const res = await fetch('/api/posts');
+      if (res.ok) {
+        const data = await res.json();
         setPosts(data);
-      } else {
-        // Fallback demo posts if DB empty
-        setPosts([
-          {
-            id: '1',
-            slug: 'dinamica-de-suministro-pet-coke-mercado-asiatico-2026',
-            title: 'Dinámica del Suministro de Pet Coke hacia los Principales Centros Industriales de Asia',
-            excerpt: 'Análisis de demanda y fletes marítimos para plantas de cemento en Asia.',
-            content: null,
-            status: 'published',
-            featured_image_url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
-            published_at: new Date().toISOString(),
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            tags: ['Pet Coke', 'Asia'],
-            reading_time: 5,
-            views: 342,
-            is_republished: false,
-          },
-          {
-            id: '2',
-            slug: 'merey-16-demanda-refinerias-complejas-diferenciales',
-            title: 'Merey 16: Demanda Sólida en Refinerías de Alta Conversión y Dinámica de Diferenciales',
-            excerpt: 'Evaluación del comportamiento del crudo pesado venezolano en refinerías asiáticas.',
-            content: null,
-            status: 'published',
-            featured_image_url: 'https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=600&q=80',
-            published_at: new Date().toISOString(),
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            tags: ['Merey 16', 'Crudo Pesado'],
-            reading_time: 4,
-            views: 512,
-            is_republished: false,
-          },
-          {
-            id: '3',
-            slug: 'cobertura-riesgos-financieros-mercado-petrolero-global',
-            title: 'Estrategias Avanzadas de Cobertura y Gestión de Riesgo en Transacciones de Crudo',
-            excerpt: 'Blindaje de márgenes mediante derivados financieros y cartas de crédito.',
-            content: null,
-            status: 'draft',
-            featured_image_url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80',
-            published_at: null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            tags: ['Riesgo'],
-            reading_time: 6,
-            views: 0,
-            is_republished: false,
-          },
-        ]);
       }
     } catch (e) {
       console.error(e);
@@ -105,30 +50,35 @@ export default function AdminPostsPage() {
 
   const handleUpdateStatus = async (id: string, newStatus: PostStatus) => {
     try {
-      const supabase = createClient();
-      await supabase.from('posts').update({ status: newStatus }).eq('id', id);
+      const res = await fetch(`/api/posts/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
-      setPosts((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
-      );
-      setActionMessage(`Estado actualizado a "${newStatus}"`);
-      setTimeout(() => setActionMessage(null), 3000);
+      if (res.ok) {
+        setPosts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
+        );
+        setActionMessage(`Estado actualizado a "${newStatus}" en la base de datos`);
+        setTimeout(() => setActionMessage(null), 3000);
+      }
     } catch (err: any) {
       console.error(err);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar este artículo permanentemente?')) {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este artículo permanentemente de la base de datos?')) {
       return;
     }
     try {
-      const supabase = createClient();
-      await supabase.from('posts').delete().eq('id', id);
-
-      setPosts((prev) => prev.filter((p) => p.id !== id));
-      setActionMessage('Artículo eliminado correctamente');
-      setTimeout(() => setActionMessage(null), 3000);
+      const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setPosts((prev) => prev.filter((p) => p.id !== id));
+        setActionMessage('Artículo eliminado correctamente de la base de datos');
+        setTimeout(() => setActionMessage(null), 3000);
+      }
     } catch (err: any) {
       console.error(err);
     }
@@ -240,16 +190,39 @@ export default function AdminPostsPage() {
                 {filteredPosts.map((post) => (
                   <tr key={post.id} className="hover:bg-surf/40 transition-colors">
                     <td className="py-3.5 px-4 font-medium max-w-sm">
-                      <div className="flex flex-col gap-0.5">
-                        <Link
-                          href={`/admin/posts/${post.id}`}
-                          className="font-heading font-semibold text-text hover:text-accent transition-colors line-clamp-1"
-                        >
-                          {post.title}
-                        </Link>
-                        <span className="font-mono text-[10px] text-text-subtle">
-                          /{post.slug}
-                        </span>
+                      <div className="flex items-center gap-3">
+                        {post.featured_image_url ? (
+                          <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border bg-surf relative">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={post.featured_image_url}
+                              alt={post.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg shrink-0 border border-border/60 bg-surf flex items-center justify-center text-text-muted">
+                            <FileText className="w-4 h-4" />
+                          </div>
+                        )}
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                          <Link
+                            href={`/admin/posts/${post.id}`}
+                            className="font-heading font-semibold text-text hover:text-accent transition-colors line-clamp-1"
+                          >
+                            {post.title}
+                          </Link>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-[10px] text-text-subtle truncate">
+                              /{post.slug}
+                            </span>
+                            {post.video_url && (
+                              <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-cyan-400 bg-cyan-500/10 px-1 rounded border border-cyan-500/30">
+                                <Video className="w-2.5 h-2.5" /> Video
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </td>
 

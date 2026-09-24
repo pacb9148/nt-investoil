@@ -5,7 +5,6 @@ import { Mail, Clock, CheckCircle2, Inbox, MessageSquare, AlertCircle } from 'lu
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { createClient } from '@/lib/supabase/client';
 import { formatDateTime } from '@/lib/utils';
 import { type ContactLead } from '@/types';
 
@@ -17,40 +16,10 @@ export default function AdminLeadsPage() {
   const fetchLeads = async () => {
     setLoading(true);
     try {
-      const supabase = createClient();
-      const { data } = await supabase
-        .from('contact_leads')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (data && data.length > 0) {
+      const res = await fetch('/api/leads');
+      if (res.ok) {
+        const data = await res.json();
         setLeads(data);
-      } else {
-        // Fallback demo leads
-        setLeads([
-          {
-            id: 'l-1',
-            name: 'Li Wei Trading Corp',
-            email: 'procurement@liweitrading.cn',
-            subject: 'Cotización Pet Coke cargamento 50.000 MT',
-            message: 'Solicitamos cotización CIF puerto de Qingdao para 50.000 MT de coque de petróleo verde (especificación PC-4500) con entrega estimada en noviembre.',
-            status: 'new',
-            source: 'web_contact_form',
-            created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          {
-            id: 'l-2',
-            name: 'Mediterranean Bunkering Ltd',
-            email: 'trading@medbunker.gr',
-            subject: 'Suministro Fuel Oil HSFO 380 CST',
-            message: 'Interesados en programar entregas mensuales de HSFO 380 CST en terminales de Gibraltar / Algeciras. Rogamos remitir ficha de especificaciones y procedimiento KYC.',
-            status: 'contacted',
-            source: 'web_contact_form',
-            created_at: new Date(Date.now() - 86400000).toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-        ]);
       }
     } catch (e) {
       console.error(e);
@@ -65,8 +34,11 @@ export default function AdminLeadsPage() {
 
   const handleUpdateStatus = async (id: string, newStatus: any) => {
     try {
-      const supabase = createClient();
-      await supabase.from('contact_leads').update({ status: newStatus }).eq('id', id);
+      await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
     } catch (e) {}
     setLeads((prev) =>
       prev.map((l) => (l.id === id ? { ...l, status: newStatus } : l))

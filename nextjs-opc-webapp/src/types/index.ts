@@ -17,6 +17,9 @@ export interface Category {
   name: string;
   slug: string;
   description?: string | null;
+  name_en?: string | null;
+  description_en?: string | null;
+  color?: string | null;
   parent_id?: string | null;
   created_at?: string;
 }
@@ -29,6 +32,7 @@ export interface Post {
   content: any; // Tiptap JSON or string content
   status: PostStatus;
   featured_image_url: string | null;
+  video_url?: string | null;
   author_id?: string | null;
   author?: UserProfile | null;
   published_at: string | null;

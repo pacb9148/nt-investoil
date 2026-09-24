@@ -1,17 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, writeFile } from 'fs/promises';
-import path from 'path';
 import { revalidatePath } from 'next/cache';
+import { getTeamMembers, saveTeamMembers } from '@/lib/db/db-service';
 import type { TeamMember } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
-const TEAM_FILE = path.join(process.cwd(), 'src', 'data', 'team.json');
-
 export async function GET() {
   try {
-    const raw = await readFile(TEAM_FILE, 'utf-8');
-    const data = JSON.parse(raw);
+    const data = await getTeamMembers();
     return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json([]);
@@ -20,13 +16,14 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const members = (await request.json()) as TeamMember[];
+    const body = await request.json();
+    const members = Array.isArray(body) ? body : body?.members;
 
     if (!Array.isArray(members)) {
-      return NextResponse.json({ error: 'Formato inválido' }, { status: 400 });
+      return NextResponse.json({ error: 'Formato inválido. Se espera un array de miembros.' }, { status: 400 });
     }
 
-    await writeFile(TEAM_FILE, JSON.stringify(members, null, 2), 'utf-8');
+    await saveTeamMembers(members);
     revalidatePath('/', 'layout');
     revalidatePath('/admin/content/team');
 

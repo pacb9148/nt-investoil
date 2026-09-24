@@ -1,0 +1,62 @@
+[
+  {
+    "id": "m-1790240311589",
+    "filename": "oleoducto-valvula-inspeccion.jpg",
+    "url": "/uploads/oleoducto-valvula-inspeccion.jpg",
+    "type": "image",
+    "mime_type": "image/jpeg",
+    "size": 245000,
+    "alt_text": "Válvula de seguridad en estación de compresión",
+    "created_at": "2026-09-24T08:58:31.589Z"
+  },
+  {
+    "id": "m-1",
+    "filename": "seal-transparent.png",
+    "url": "/images/branding/seal-transparent.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 540000,
+    "alt_text": "Sello Oficial Invest Oil LLC",
+    "created_at": "2026-09-24T08:56:23.139Z"
+  },
+  {
+    "id": "m-2",
+    "filename": "logo.png",
+    "url": "/images/branding/logo.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 210000,
+    "alt_text": "Logotipo Principal Invest Oil LLC",
+    "created_at": "2026-09-24T08:56:23.139Z"
+  },
+  {
+    "id": "m-3",
+    "filename": "pet-coke-terminal.jpg",
+    "url": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
+    "type": "image",
+    "mime_type": "image/jpeg",
+    "size": 420000,
+    "alt_text": "Terminal de carga de Pet Coke",
+    "created_at": "2026-09-24T08:56:23.139Z"
+  },
+  {
+    "id": "m-4",
+    "filename": "oil-tanker-vessel.jpg",
+    "url": "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1200&q=80",
+    "type": "image",
+    "mime_type": "image/jpeg",
+    "size": 680000,
+    "alt_text": "Buque petrolero VLCC en alta mar",
+    "created_at": "2026-09-24T08:56:23.139Z"
+  },
+  {
+    "id": "m-5",
+    "filename": "refinery-complex.jpg",
+    "url": "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1200&q=80",
+    "type": "image",
+    "mime_type": "image/jpeg",
+    "size": 510000,
+    "alt_text": "Complejo de refinación petroquímica",
+    "created_at": "2026-09-24T08:56:23.139Z"
+  }
+]

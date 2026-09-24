@@ -10,17 +10,18 @@ import {
   CheckCircle,
   AlertCircle,
   Image as ImageIcon,
+  Video,
 } from 'lucide-react';
 import Link from 'next/link';
 import { TiptapEditor } from './tiptap-editor';
 import { NewsRepublishDialog } from './news-republish-dialog';
+import { MediaUploadField } from './media-upload-field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { slugify } from '@/lib/utils';
-import { createClient } from '@/lib/supabase/client';
 import { type Post, type NewsRepublishMetadata, type PostStatus } from '@/types';
 
 export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
@@ -33,6 +34,7 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
   const [featuredImageUrl, setFeaturedImageUrl] = useState(
     initialPost?.featured_image_url || ''
   );
+  const [videoUrl, setVideoUrl] = useState(initialPost?.video_url || '');
   const [tagsInput, setTagsInput] = useState(
     initialPost?.tags?.join(', ') || ''
   );
@@ -111,44 +113,39 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
       content,
       status: finalStatus,
       featured_image_url: featuredImageUrl || null,
+      video_url: videoUrl || null,
       tags: tagsArray,
       is_republished: isRepublished,
       original_source_url: isRepublished ? originalSourceUrl : null,
       original_source_name: isRepublished ? originalSourceName : null,
-      published_at: finalStatus === 'published' ? new Date().toISOString() : null,
+      published_at: finalStatus === 'published' ? (initialPost?.published_at || new Date().toISOString()) : null,
       updated_at: new Date().toISOString(),
     };
 
     try {
-      const supabase = createClient();
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...(initialPost?.id ? { id: initialPost.id } : {}),
+          ...payload,
+        }),
+      });
 
-      if (initialPost?.id) {
-        // Update existing post
-        const { error } = await supabase
-          .from('posts')
-          .update(payload)
-          .eq('id', initialPost.id);
-
-        if (error) throw error;
-      } else {
-        // Create new post
-        const { error } = await supabase.from('posts').insert([payload]);
-        if (error) throw error;
+      if (!res.ok) {
+        const errorJson = await res.json();
+        throw new Error(errorJson.error || 'Error al guardar el artículo');
       }
 
-      setSaveMessage('¡Artículo guardado exitosamente!');
+      setSaveMessage('¡Artículo, imagen y video guardados exitosamente en la base de datos!');
       setStatus(finalStatus);
       setTimeout(() => {
         router.push('/admin/posts');
         router.refresh();
       }, 1000);
     } catch (err: any) {
-      // In local showcase mode without active db connection, save smoothly
-      console.warn('DB warning (local mode):', err);
-      setSaveMessage('Artículo guardado localmente (modo demostración)');
-      setTimeout(() => {
-        router.push('/admin/posts');
-      }, 1000);
+      console.error('Error al guardar artículo:', err);
+      setErrorMessage(err.message || 'Error al persistir artículo en la base de datos');
     } finally {
       setSaving(false);
     }
@@ -298,20 +295,73 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
               </select>
             </div>
 
-            <Input
-              label="URL de Imagen Destacada"
-              placeholder="https://images.unsplash.com/..."
-              value={featuredImageUrl}
-              onChange={(e) => setFeaturedImageUrl(e.target.value)}
+            <div className="space-y-1">
+              <MediaUploadField
+                label="Imagen Destacada"
+                accept="image"
+                value={featuredImageUrl}
+                onChange={(url) => setFeaturedImageUrl(url)}
+                placeholder="/uploads/... o https://..."
+                description="Selecciona un archivo del disco o pega una URL de imagen."
+              />
+            </div>
+          </Card>
+
+          {/* Video Relacionado Card */}
+          <Card className="p-5 space-y-4 bg-card border-cyan-500/20">
+            <div className="flex items-center justify-between border-b border-border/80 pb-2">
+              <h3 className="font-heading font-bold text-sm text-text flex items-center gap-1.5">
+                <Video className="w-4 h-4 text-cyan-400" />
+                <span>Video Relacionado</span>
+              </h3>
+              {videoUrl && (
+                <Badge variant="outline" className="border-cyan-500/40 text-cyan-400 text-[10px]">
+                  Video Activo
+                </Badge>
+              )}
+            </div>
+
+            <MediaUploadField
+              label="Archivo de Video o Enlace"
+              accept="video"
+              value={videoUrl}
+              onChange={(url) => setVideoUrl(url)}
+              placeholder="/uploads/... o https://youtube.com/watch?v=..."
+              description="Sube un video MP4/WebM o pega un enlace de YouTube/Vimeo."
             />
 
-            {featuredImageUrl && (
-              <div className="relative aspect-video w-full rounded-lg overflow-hidden border border-border">
-                <img
-                  src={featuredImageUrl}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                />
+            {videoUrl && (
+              <div className="pt-2">
+                <span className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1.5">
+                  Vista Previa del Video
+                </span>
+                {videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') ? (
+                  <div className="relative aspect-video w-full rounded-lg overflow-hidden border border-border">
+                    <iframe
+                      src={
+                        videoUrl.includes('watch?v=')
+                          ? videoUrl.replace('watch?v=', 'embed/')
+                          : videoUrl.includes('youtu.be/')
+                          ? videoUrl.replace('youtu.be/', 'www.youtube.com/embed/')
+                          : videoUrl
+                      }
+                      title="Video Preview"
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <div className="relative aspect-video w-full rounded-lg overflow-hidden border border-border bg-black">
+                    <video
+                      src={videoUrl}
+                      controls
+                      className="w-full h-full object-cover"
+                    >
+                      Tu navegador no soporta el tag de video.
+                    </video>
+                  </div>
+                )}
               </div>
             )}
           </Card>

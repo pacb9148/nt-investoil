@@ -3,13 +3,11 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Clock, Calendar, Eye, Share2, Tag, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Eye, Share2, Tag, ArrowRight, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NewsRepublishBadge } from '@/components/blog/news-republish-badge';
 import { formatDate } from '@/lib/utils';
-import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { getCuratedPostBySlug, getCuratedPosts } from '@/lib/constants/blog-data';
 import { type Post } from '@/types';
 
 export async function generateMetadata({
@@ -17,24 +15,8 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  let post: Post | null = null;
-
-  if (isSupabaseConfigured()) {
-    try {
-      const { createClient } = await import('@/lib/supabase/server');
-      const supabase = createClient();
-      const { data } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('slug', params.slug)
-        .single();
-      if (data) post = data;
-    } catch {}
-  }
-
-  if (!post) {
-    post = getCuratedPostBySlug(params.slug);
-  }
+  const { getPostBySlug } = await import('@/lib/db/db-service');
+  const post = await getPostBySlug(params.slug);
 
   if (!post) {
     return {
@@ -107,38 +89,20 @@ export default async function BlogPostPage({
 }: {
   params: { slug: string };
 }) {
-  let post: (Post & { category?: any; categories?: any[] }) | null = null;
-
-  if (isSupabaseConfigured()) {
-    try {
-      const { createClient } = await import('@/lib/supabase/server');
-      const supabase = createClient();
-      const { data } = await supabase
-        .from('posts')
-        .select('*, categories(*)')
-        .eq('slug', params.slug)
-        .single();
-
-      if (data) post = data;
-    } catch (e) {}
-  }
-
-  if (!post) {
-    post = getCuratedPostBySlug(params.slug);
-  }
+  const { getPostBySlug, getPosts } = await import('@/lib/db/db-service');
+  const post = await getPostBySlug(params.slug);
 
   if (!post) {
     notFound();
   }
 
   const category =
-    post.category ||
-    (post.categories && post.categories.length > 0 ? post.categories[0] : null);
+    post.categories && post.categories.length > 0 ? post.categories[0] : null;
 
   // Artículos relacionados de la misma categoría o recientes
-  const allPosts = getCuratedPosts();
+  const allPosts = await getPosts({ status: 'published' });
   const relatedPosts = allPosts
-    .filter((p) => p.id !== post?.id)
+    .filter((p) => p.id !== post.id)
     .slice(0, 2);
 
   return (
@@ -209,6 +173,41 @@ export default async function BlogPostPage({
             className="object-cover"
             priority
           />
+        </div>
+      )}
+
+      {/* Video Relacionado */}
+      {post.video_url && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-cyan-400">
+            <Video className="w-4 h-4" />
+            <span>Video Relacionado del Análisis</span>
+          </div>
+          <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-cyan-500/30 shadow-2xl bg-black">
+            {post.video_url.includes('youtube.com') || post.video_url.includes('youtu.be') ? (
+              <iframe
+                src={
+                  post.video_url.includes('watch?v=')
+                    ? post.video_url.replace('watch?v=', 'embed/')
+                    : post.video_url.includes('youtu.be/')
+                    ? post.video_url.replace('youtu.be/', 'www.youtube.com/embed/')
+                    : post.video_url
+                }
+                title={post.title}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                src={post.video_url}
+                controls
+                className="w-full h-full object-cover"
+              >
+                Tu navegador no soporta el tag de video.
+              </video>
+            )}
+          </div>
         </div>
       )}
 

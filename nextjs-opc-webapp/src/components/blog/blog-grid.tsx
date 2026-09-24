@@ -12,7 +12,7 @@ export function BlogGrid({
   categories = [],
 }: {
   posts: Post[];
-  categories?: (Category & { name_en?: string; color?: string })[];
+  categories?: Category[];
 }) {
   const { language } = useLanguage();
   const isEn = language === 'en';

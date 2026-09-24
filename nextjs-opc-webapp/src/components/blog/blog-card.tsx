@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, Eye, Calendar, ArrowRight } from 'lucide-react';
+import { Clock, Eye, Calendar, ArrowRight, Video } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/lib/utils';
@@ -38,6 +38,14 @@ export function BlogCard({ post }: { post: Post & { categories?: any[] } }) {
           {post.is_republished && (
             <div className="absolute top-3 left-3">
               <Badge variant="warm">{isEn ? 'REPUBLICATED' : 'REPUBLICACIÓN'}</Badge>
+            </div>
+          )}
+          {post.video_url && (
+            <div className="absolute bottom-3 left-3">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider backdrop-blur-md bg-black/80 text-cyan-400 border border-cyan-500/40">
+                <Video className="w-3 h-3" />
+                <span>Video</span>
+              </span>
             </div>
           )}
           {categoryLabel && (

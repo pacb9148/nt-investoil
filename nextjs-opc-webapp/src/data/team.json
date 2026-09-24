@@ -46,5 +46,14 @@
     "role": "Directora Comercial Internacional",
     "location": "Madrid",
     "image": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=480&h=480&q=80"
+  },
+  {
+    "id": "team-director-operaciones",
+    "name": "Ing. Carlos Mendoza",
+    "role": "Director de Operaciones & Logística",
+    "bio": "Especialista en distribución de hidrocarburos y comercio internacional con más de 18 años de experiencia.",
+    "avatar_url": "/uploads/team-carlos.jpg",
+    "email": "carlos.mendoza@investoil.es",
+    "order": 7
   }
 ]

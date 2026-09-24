@@ -25,9 +25,30 @@ function simpleHash(str: string): string {
   return Math.abs(hash).toString(36);
 }
 
+function toBase64Url(str: string): string {
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(str, 'utf8').toString('base64url');
+  }
+  return btoa(unescape(encodeURIComponent(str)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+function fromBase64Url(base64url: string): string {
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(base64url, 'base64url').toString('utf8');
+  }
+  let base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) {
+    base64 += '=';
+  }
+  return decodeURIComponent(escape(atob(base64)));
+}
+
 export function encodeSessionToken(session: AdminSession): string {
   const json = JSON.stringify(session);
-  const base64 = Buffer.from(json).toString('base64url');
+  const base64 = toBase64Url(json);
   const signature = simpleHash(`${base64}.${SESSION_SECRET}`);
   return `${base64}.${signature}`;
 }
@@ -42,7 +63,7 @@ export function decodeSessionToken(token: string): AdminSession | null {
   if (signature !== expectedSig) return null;
 
   try {
-    const json = Buffer.from(base64, 'base64url').toString('utf8');
+    const json = fromBase64Url(base64);
     const session: AdminSession = JSON.parse(json);
     if (session.expiresAt && Date.now() > session.expiresAt) {
       return null; // Expirado

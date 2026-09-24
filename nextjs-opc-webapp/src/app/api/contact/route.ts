@@ -21,21 +21,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, message: 'Recibido' });
     }
 
-    // Insert into Supabase database
-    try {
-      const supabase = createAdminClient();
-      await supabase.from('contact_leads').insert({
-        name,
-        email,
-        subject: subject || 'Consulta general',
-        message,
-        status: 'new',
-        source: 'landing_contact_form',
-      });
-    } catch (dbError) {
-      // In local demo mode without live DB, we gracefully acknowledge
-      console.warn('Advertencia DB (modo local):', dbError);
-    }
+    // Guardar en la base de datos unificada
+    const { saveLead } = await import('@/lib/db/db-service');
+    await saveLead({
+      name,
+      email,
+      subject: subject || 'Consulta general',
+      message,
+      status: 'new',
+      source: 'landing_contact_form',
+    });
 
     return NextResponse.json({
       success: true,

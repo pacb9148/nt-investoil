@@ -41,6 +41,21 @@ export async function POST(request: NextRequest) {
 
     const publicUrl = `/uploads/${filename}`;
 
+    // Registrar en la base de datos de media
+    try {
+      const { saveMediaItem } = await import('@/lib/db/db-service');
+      await saveMediaItem({
+        filename: safeName,
+        url: publicUrl,
+        type: isVideo ? 'video' : 'image',
+        mime_type: mimeType,
+        size: file.size,
+        alt_text: safeName.split('.')[0],
+      });
+    } catch (dbErr) {
+      console.warn('Error al registrar media en base de datos:', dbErr);
+    }
+
     return NextResponse.json({
       success: true,
       url: publicUrl,

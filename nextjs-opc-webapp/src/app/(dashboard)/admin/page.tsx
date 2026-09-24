@@ -21,93 +21,18 @@ import { type Post, type ContactLead } from '@/types';
 export const revalidate = 0; // Dynamic data for dashboard
 
 export default async function AdminDashboardPage() {
-  let posts: Post[] = [];
-  let leads: ContactLead[] = [];
-  let mediaCount = 5;
+  const { getDashboardStats, getPosts, getLeads } = await import('@/lib/db/db-service');
+  const [stats, allPosts, leads] = await Promise.all([
+    getDashboardStats(),
+    getPosts(),
+    getLeads(),
+  ]);
 
-  try {
-    const supabase = createClient();
-    const { data: postsData } = await supabase
-      .from('posts')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (postsData) posts = postsData;
-
-    const { data: leadsData } = await supabase
-      .from('contact_leads')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(5);
-
-    if (leadsData) leads = leadsData;
-
-    const { count } = await supabase
-      .from('media')
-      .select('*', { count: 'exact', head: true });
-
-    if (count !== null && count !== undefined) mediaCount = count;
-  } catch (e) {
-    // In local demo mode, fallback values are used
-  }
-
-  // Fallback demo posts if DB is fresh
-  if (posts.length === 0) {
-    posts = [
-      {
-        id: '1',
-        slug: 'dinamica-pet-coke',
-        title: 'Dinámica del Suministro de Pet Coke hacia Asia',
-        excerpt: null,
-        content: null,
-        status: 'published',
-        featured_image_url: null,
-        published_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        tags: ['Pet Coke', 'Asia'],
-        reading_time: 5,
-        views: 342,
-        is_republished: false,
-      },
-      {
-        id: '2',
-        slug: 'merey-16-refinerias',
-        title: 'Merey 16: Demanda Sólida en Refinerías de Alta Conversión',
-        excerpt: null,
-        content: null,
-        status: 'published',
-        featured_image_url: null,
-        published_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        tags: ['Merey 16'],
-        reading_time: 4,
-        views: 512,
-        is_republished: false,
-      },
-      {
-        id: '3',
-        slug: 'diesel-en590',
-        title: 'Perspectivas del Diésel EN590 de Bajo Azufre',
-        excerpt: null,
-        content: null,
-        status: 'draft',
-        featured_image_url: null,
-        published_at: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        tags: ['Diesel'],
-        reading_time: 4,
-        views: 195,
-        is_republished: false,
-      },
-    ];
-  }
-
-  const totalViews = posts.reduce((acc, p) => acc + (p.views || 0), 0);
-  const publishedCount = posts.filter((p) => p.status === 'published').length;
-  const draftCount = posts.filter((p) => p.status === 'draft').length;
+  const posts = stats.recentPosts;
+  const publishedCount = stats.publishedPostsCount;
+  const draftCount = stats.draftPostsCount;
+  const mediaCount = stats.mediaCount;
+  const totalViews = allPosts.reduce((acc, p) => acc + (p.views || 0), 0);
 
   return (
     <div className="space-y-8 animate-fade-in">
