@@ -274,6 +274,10 @@ puede prerenderizarla como HTML estático (`○`), y los servidores o proxies si
 la pantalla sin evaluar cookies ni ejecutar la redirección. Siempre forzar dinámico
 (`ƒ`) y `revalidate = 0` en layouts y páginas privadas.
 
+**En dashboards con sidebar, nunca usar `min-h-screen` en el aside si el layout usa `h-screen overflow-hidden`.** Si los submenús superan 100vh, el navegador activa el scroll de la ventana (`window.scrollY`), desplazando todo el contenedor de 100vh hacia arriba y dejando la pantalla en un vacío negro. El layout raíz debe anclarse con `fixed inset-0 overflow-hidden` y el sidebar debe llevar `h-full max-h-screen overflow-y-auto` con scroll interno.
+
+**En bibliotecas de medios, nunca renderizar con `<img>` sin discriminar videos.** Un archivo `.mp4` en una etiqueta `<img>` siempre falla como imagen rota; debe bifurcar dinámicamente a `<video>` con vista previa y reproductor nativo.
+
 **Una captura de pantalla encuentra lo que leer código no encuentra.** Los
 fallos de contraste aparecieron mirando imágenes, no revisando clases.
 
