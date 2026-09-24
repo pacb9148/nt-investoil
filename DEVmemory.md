@@ -301,3 +301,28 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - Script Playwright `test-complete-audit.mjs`: 9/9 pruebas aprobadas con éxito en portada pública, about, login y todos los editores de backoffice.
   - `pwsh ./scripts/bateria-seguridad.ps1`: superada al 100% sin alertas ni vulnerabilidades.
 
+### Fase 11: Acordeón Exclusivo en Sidebar, Botón Fijo al Pie, Logo Dorado Sincronizado y Persistencia Completa en Base de Datos
+- **AdminSidebar con Acordeón Exclusivo y Cierre por Defecto**:
+  - Todos los menús principales del backoffice (`Plataforma`, `Cabecera & Menú`, `Secciones Landing`, `Páginas del Sitio`, `Pie de Página & Sedes`, `Diseño & SEO`) inician de forma predeterminada **cerrados**.
+  - Comportamiento de acordeón exclusivo: al hacer clic en uno, se abre y se cierra automáticamente cualquier otro menú abierto.
+  - El botón **"Ver sitio público"** queda **fijo y visible en todo momento al pie del sidebar** (`shrink-0 z-10 shadow-md`), mientras los demás módulos se desplazan con scroll por detrás de él.
+- **Sincronización Total del Logotipo de Cabecera**:
+  - Actualizado el fallback de `BrandLogo` (`src/components/layout/brand-logo.tsx`) y `src/data/header.json` para utilizar consistentemente el emblema oficial dorado con gota de petróleo (`corporate-card-logo.jpeg`).
+- **Esquema de Migración SQL Completo (`0006_complete_database_schema.sql`)**:
+  - Creación de tablas de PostgreSQL/Supabase con políticas RLS y valores semilla para:
+    `landing_header`, `landing_about`, `landing_footer`, `landing_seo`, `landing_team`, `landing_testimonials`, `landing_services`, `landing_products`, `landing_operations`, `landing_problem`, `landing_marquee`, `landing_cta_final`, y `backoffice_users`.
+- **Persistencia Bidireccional en Servicios & APIs**:
+  - Actualización de `src/lib/services/content-service.ts` con funciones de lectura/escritura en Supabase para cabecera, nosotros, footer y seo con fallback a disco.
+  - Actualización de `src/lib/db/db-service.ts` para que `getMediaList`, `saveMediaItem`, `getTeamMembers`, `saveTeamMembers`, `getUsers`, `saveUser`, `deleteUser` y `recordUserLogin` persistan y consulten directamente la base de datos PostgreSQL/Supabase.
+  - Actualización de `/api/content/header/route.ts` y `/api/content/about/route.ts` para usar los nuevos métodos persistentes.
+- **Verificación Rigurosa con Evidencia Real**:
+  - `npm run build`: 52/52 rutas compiladas y optimizadas sin errores.
+  - Script Playwright `test-sidebar-persistence.mjs`:
+    - ✓ Cabecera pública muestra `corporate-card-logo.jpeg`.
+    - ✓ Submenús inician cerrados por defecto (Plataforma=0, Secciones=0, Páginas=0).
+    - ✓ Acordeón exclusivo cierra la sección anterior al abrir una nueva.
+    - ✓ Botón "Ver sitio público" visible y anclado al pie del sidebar.
+    - ✓ APIs de cabecera y nosotros entregan datos actualizados con status 200.
+  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% aprobada sin alertas de secretos ni dependencias vulnerables.
+
+

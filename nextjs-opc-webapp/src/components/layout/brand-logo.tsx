@@ -26,7 +26,7 @@ export function BrandLogo({
     src ||
     (variant === 'seal'
       ? '/images/branding/corporate-card-logo.jpeg'
-      : '/images/branding/logo.png');
+      : '/images/branding/corporate-card-logo.jpeg');
 
   return (
     <Link

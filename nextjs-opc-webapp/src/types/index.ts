@@ -110,11 +110,18 @@ export interface ProductItem {
 
 export interface TeamMember {
   id: string;
-  number: string;
   name: string;
   role: string;
-  location: string;
+  role_en?: string;
+  number?: string;
+  location?: string;
   image: string;
+  photo_url?: string;
+  bio?: string;
+  bio_en?: string;
+  linkedin_url?: string;
+  sort_order?: number;
+  is_active?: boolean;
 }
 
 export interface FeaturedOperation {

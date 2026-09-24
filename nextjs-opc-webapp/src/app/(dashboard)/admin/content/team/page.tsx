@@ -211,7 +211,7 @@ export default function TeamEditorPage() {
                   {/* Selector universal de fotos con botón de buscar archivo y preview */}
                   <MediaUploadField
                     label="Fotografía / Retrato Oficial (Subir o URL)"
-                    value={m.image}
+                    value={m.image || ''}
                     onChange={(url) => updateMember(m.id, 'image', url)}
                     accept="image"
                     placeholder="https://... o seleccione un archivo local"

@@ -43,7 +43,7 @@ function resolveDataDir(): string {
   return fallback;
 }
 
-function readLocalJson<T>(filename: string, fallback: T): T {
+export function readLocalJson<T>(filename: string, fallback: T): T {
   if (typeof window !== 'undefined') return fallback;
   try {
     const fs = require('fs');
@@ -59,7 +59,7 @@ function readLocalJson<T>(filename: string, fallback: T): T {
   return fallback;
 }
 
-function writeLocalJson(filename: string, data: any): void {
+export function writeLocalJson(filename: string, data: any): void {
   if (typeof window !== 'undefined') return;
   try {
     const fs = require('fs');
@@ -77,6 +77,9 @@ let memorySections = [...DEFAULT_LANDING_SECTIONS];
 let memoryHero = readLocalJson<LandingHeroConfig>('hero.json', { ...DEFAULT_HERO_CONFIG });
 let memoryAppearance = readLocalJson<LandingAppearanceConfig>('appearance.json', { ...DEFAULT_APPEARANCE_CONFIG });
 
+// ==============================================================================
+// 1. SECCIONES GENERALES
+// ==============================================================================
 export async function getLandingSections(): Promise<LandingSectionConfig[]> {
   if (!isSupabaseConfigured()) {
     return memorySections;
@@ -94,6 +97,9 @@ export async function getLandingSections(): Promise<LandingSectionConfig[]> {
   return memorySections;
 }
 
+// ==============================================================================
+// 2. HERO PRINCIPAL & TARJETA
+// ==============================================================================
 export async function getLandingHero(): Promise<LandingHeroConfig> {
   const localData = readLocalJson<LandingHeroConfig>('hero.json', { ...DEFAULT_HERO_CONFIG });
   if (!isSupabaseConfigured()) {
@@ -112,6 +118,9 @@ export async function getLandingHero(): Promise<LandingHeroConfig> {
   return localData;
 }
 
+// ==============================================================================
+// 3. APARIENCIA & PALETA
+// ==============================================================================
 export async function getLandingAppearance(): Promise<LandingAppearanceConfig> {
   const localData = readLocalJson<LandingAppearanceConfig>('appearance.json', { ...DEFAULT_APPEARANCE_CONFIG });
   if (!isSupabaseConfigured()) {
@@ -128,6 +137,195 @@ export async function getLandingAppearance(): Promise<LandingAppearanceConfig> {
     // Fallback
   }
   return localData;
+}
+
+// ==============================================================================
+// 4. CABECERA & MENÚ (landing_header)
+// ==============================================================================
+export async function getLandingHeader(): Promise<any> {
+  const local = readLocalJson<any>('header.json', {
+    logo_url: '/images/branding/corporate-card-logo.jpeg',
+    logo_text: 'INVEST OIL',
+    logo_tagline: 'Trading Company',
+    menu_items: [],
+  });
+
+  if (!isSupabaseConfigured()) return local;
+
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const db = createAdminClient();
+    const { data, error } = await db.from('landing_header').select('*').eq('id', 1).maybeSingle();
+    if (!error && data) {
+      return { ...local, ...data };
+    }
+  } catch {}
+
+  return local;
+}
+
+export async function saveLandingHeader(data: any): Promise<any> {
+  writeLocalJson('header.json', data);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const db = createAdminClient();
+      await db.from('landing_header').upsert({
+        id: 1,
+        logo_url: data.logo_url || '/images/branding/corporate-card-logo.jpeg',
+        logo_text: data.logo_text || 'INVEST OIL',
+        logo_tagline: data.logo_tagline || 'Trading Company',
+        menu_items: data.menu_items || [],
+        action_button: data.action_button || {},
+        backoffice_button: data.backoffice_button || {},
+        updated_at: new Date().toISOString(),
+      });
+    } catch (e) {
+      console.warn('[content-service] Supabase saveLandingHeader fallback:', e);
+    }
+  }
+
+  return data;
+}
+
+// ==============================================================================
+// 5. PÁGINA NOSOTROS (/about) (landing_about)
+// ==============================================================================
+export async function getLandingAbout(): Promise<any> {
+  const local = readLocalJson<any>('about.json', {});
+  if (!isSupabaseConfigured()) return local;
+
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const db = createAdminClient();
+    const { data, error } = await db.from('landing_about').select('*').eq('id', 1).maybeSingle();
+    if (!error && data) {
+      return { ...local, ...data };
+    }
+  } catch {}
+
+  return local;
+}
+
+export async function saveLandingAbout(data: any): Promise<any> {
+  writeLocalJson('about.json', data);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const db = createAdminClient();
+      await db.from('landing_about').upsert({
+        id: 1,
+        badge: data.badge,
+        badge_en: data.badge_en,
+        title: data.title,
+        title_en: data.title_en,
+        tagline: data.tagline,
+        tagline_en: data.tagline_en,
+        story_paragraphs: data.story_paragraphs,
+        story_paragraphs_en: data.story_paragraphs_en,
+        mission_vision: data.mission_vision,
+        values: data.values,
+        stats: data.stats,
+        updated_at: new Date().toISOString(),
+      });
+    } catch (e) {
+      console.warn('[content-service] Supabase saveLandingAbout fallback:', e);
+    }
+  }
+
+  return data;
+}
+
+// ==============================================================================
+// 6. PIE DE PÁGINA & SEDES (landing_footer)
+// ==============================================================================
+export async function getLandingFooter(): Promise<any> {
+  const local = readLocalJson<any>('footer.json', {});
+  if (!isSupabaseConfigured()) return local;
+
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const db = createAdminClient();
+    const { data, error } = await db.from('landing_footer').select('*').eq('id', 1).maybeSingle();
+    if (!error && data) {
+      return { ...local, ...data };
+    }
+  } catch {}
+
+  return local;
+}
+
+export async function saveLandingFooter(data: any): Promise<any> {
+  writeLocalJson('footer.json', data);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const db = createAdminClient();
+      await db.from('landing_footer').upsert({
+        id: 1,
+        brand: data.brand || {},
+        columns: data.columns || [],
+        headquarters: data.headquarters || [],
+        social_links: data.social_links || [],
+        legal_notice: data.legal_notice,
+        copyright: data.copyright,
+        updated_at: new Date().toISOString(),
+      });
+    } catch (e) {
+      console.warn('[content-service] Supabase saveLandingFooter fallback:', e);
+    }
+  }
+
+  return data;
+}
+
+// ==============================================================================
+// 7. SEO & REDES SOCIALES (landing_seo)
+// ==============================================================================
+export async function getLandingSeo(): Promise<any> {
+  const local = readLocalJson<any>('seo.json', {});
+  if (!isSupabaseConfigured()) return local;
+
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const db = createAdminClient();
+    const { data, error } = await db.from('landing_seo').select('*').eq('id', 1).maybeSingle();
+    if (!error && data) {
+      return { ...local, ...data };
+    }
+  } catch {}
+
+  return local;
+}
+
+export async function saveLandingSeo(data: any): Promise<any> {
+  writeLocalJson('seo.json', data);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const db = createAdminClient();
+      await db.from('landing_seo').upsert({
+        id: 1,
+        site_name: data.site_name,
+        title_template: data.title_template,
+        default_meta_description: data.default_meta_description,
+        default_og_image: data.default_og_image,
+        twitter_handle: data.twitter_handle,
+        keywords: data.keywords,
+        canonical_url: data.canonical_url,
+        robots_txt: data.robots_txt,
+        updated_at: new Date().toISOString(),
+      });
+    } catch (e) {
+      console.warn('[content-service] Supabase saveLandingSeo fallback:', e);
+    }
+  }
+
+  return data;
 }
 
 // Helpers para actualizar el fallback local con persistencia en archivo

@@ -310,6 +310,31 @@ export async function getCategories(): Promise<Category[]> {
 export async function getMediaList(search?: string): Promise<MediaItem[]> {
   let media = readJsonFile<MediaItem[]>('media.json', DEFAULT_MEDIA);
 
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const supabase = createAdminClient();
+      const { data, error } = await supabase.from('media').select('*').order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) {
+        const map = new Map<string, MediaItem>();
+        for (const m of media) map.set(m.url, m);
+        for (const item of data) {
+          map.set(item.url, {
+            id: item.id || `m-${Date.now()}`,
+            filename: item.filename,
+            url: item.url,
+            type: item.type,
+            mime_type: item.mime_type,
+            size: item.size,
+            alt_text: item.alt_text,
+            created_at: item.created_at,
+          });
+        }
+        media = Array.from(map.values());
+      }
+    } catch {}
+  }
+
   if (search) {
     const q = search.toLowerCase();
     media = media.filter(
@@ -395,11 +420,51 @@ export async function deleteMediaItem(id: string): Promise<boolean> {
 // 4. EQUIPO DIRECTIVO (Consejo & Management)
 // ==========================================
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  return readJsonFile<TeamMember[]>('team.json', TEAM_MEMBERS);
+  const local = readJsonFile<TeamMember[]>('team.json', TEAM_MEMBERS);
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const supabase = createAdminClient();
+      const { data, error } = await supabase
+        .from('landing_team')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (!error && data && data.length > 0) {
+        return data as TeamMember[];
+      }
+    } catch {}
+  }
+  return local;
 }
 
 export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember[]> {
   writeJsonFile('team.json', members);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const supabase = createAdminClient();
+      for (let i = 0; i < members.length; i++) {
+        const m = members[i];
+        await supabase.from('landing_team').upsert({
+          id: m.id || `tm-${i + 1}`,
+          name: m.name,
+          role: m.role,
+          role_en: m.role_en || m.role,
+          bio: m.bio || '',
+          bio_en: m.bio_en || m.bio || '',
+          photo_url: m.photo_url || m.image || '',
+          linkedin_url: m.linkedin_url || '',
+          sort_order: i,
+          is_active: m.is_active !== false,
+          updated_at: new Date().toISOString(),
+        });
+      }
+    } catch (e) {
+      console.warn('[db-service] Supabase saveTeamMembers fallback:', e);
+    }
+  }
+
   return members;
 }
 
@@ -565,7 +630,35 @@ const DEFAULT_USERS: BackofficeUser[] = [
 ];
 
 export async function getUsers(): Promise<BackofficeUser[]> {
-  const users = readJsonFile<BackofficeUser[]>('users.json', DEFAULT_USERS);
+  let users = readJsonFile<BackofficeUser[]>('users.json', DEFAULT_USERS);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const supabase = createAdminClient();
+      const { data, error } = await supabase.from('backoffice_users').select('*').order('created_at', { ascending: true });
+      if (!error && data && data.length > 0) {
+        const dbUsers: BackofficeUser[] = data.map((d: any) => ({
+          id: d.id,
+          email: d.email,
+          name: d.name,
+          role: d.role,
+          status: d.status,
+          department: d.department,
+          phone: d.phone,
+          passwordPlain: d.password_plain,
+          passwordAliases: d.password_aliases || [],
+          createdAt: d.created_at,
+          lastLogin: d.last_login,
+        }));
+        const map = new Map<string, BackofficeUser>();
+        for (const u of users) map.set(u.email.toLowerCase(), u);
+        for (const u of dbUsers) map.set(u.email.toLowerCase(), u);
+        users = Array.from(map.values());
+      }
+    } catch {}
+  }
+
   // Asegurar que admin@investoil.es y admin@investoil.com existan siempre
   const hasEs = users.some((u) => u.email.toLowerCase() === 'admin@investoil.es');
   const hasCom = users.some((u) => u.email.toLowerCase() === 'admin@investoil.com');
@@ -628,58 +721,92 @@ export async function saveUser(userData: Partial<BackofficeUser>): Promise<Backo
   const users = await getUsers();
   const now = new Date().toISOString();
 
+  let targetUser: BackofficeUser;
+
   if (userData.id) {
     // Actualizar usuario existente
     const index = users.findIndex((u) => u.id === userData.id);
     if (index !== -1) {
       const existing = users[index];
-      const updated: BackofficeUser = {
+      targetUser = {
         ...existing,
         ...userData,
         email: userData.email ? userData.email.trim().toLowerCase() : existing.email,
         passwordPlain: userData.passwordPlain || existing.passwordPlain,
         passwordAliases: userData.passwordAliases || existing.passwordAliases,
       };
-      users[index] = updated;
-      writeJsonFile('users.json', users);
-      return updated;
+      users[index] = targetUser;
+    } else {
+      targetUser = {
+        id: userData.id,
+        email: (userData.email || '').trim().toLowerCase(),
+        name: userData.name || 'Operador Backoffice',
+        role: userData.role || 'operator',
+        status: userData.status || 'active',
+        department: userData.department || 'Operaciones',
+        phone: userData.phone || '',
+        passwordPlain: userData.passwordPlain || 'InvestOil2026!*',
+        passwordAliases: userData.passwordAliases || ['InvestOil2026!#', 'InvestOil2026!*'],
+        createdAt: now,
+        lastLogin: null,
+      };
+      users.push(targetUser);
+    }
+  } else {
+    // Crear nuevo usuario
+    const newId = `usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    const cleanEmail = (userData.email || '').trim().toLowerCase();
+
+    const existingIndex = users.findIndex((u) => u.email.toLowerCase() === cleanEmail);
+    if (existingIndex !== -1) {
+      targetUser = {
+        ...users[existingIndex],
+        ...userData,
+        email: cleanEmail,
+      };
+      users[existingIndex] = targetUser;
+    } else {
+      targetUser = {
+        id: newId,
+        email: cleanEmail,
+        name: userData.name || 'Operador Backoffice',
+        role: userData.role || 'operator',
+        status: userData.status || 'active',
+        department: userData.department || 'Operaciones',
+        phone: userData.phone || '',
+        passwordPlain: userData.passwordPlain || 'InvestOil2026!*',
+        passwordAliases: userData.passwordAliases || ['InvestOil2026!#', 'InvestOil2026!*'],
+        createdAt: now,
+        lastLogin: null,
+      };
+      users.push(targetUser);
     }
   }
 
-  // Crear nuevo usuario
-  const newId = `usr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
-  const cleanEmail = (userData.email || '').trim().toLowerCase();
+  writeJsonFile('users.json', users);
 
-  // Comprobar duplicado por email
-  const existingIndex = users.findIndex((u) => u.email.toLowerCase() === cleanEmail);
-  if (existingIndex !== -1) {
-    const updated: BackofficeUser = {
-      ...users[existingIndex],
-      ...userData,
-      email: cleanEmail,
-    };
-    users[existingIndex] = updated;
-    writeJsonFile('users.json', users);
-    return updated;
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const supabase = createAdminClient();
+      await supabase.from('backoffice_users').upsert({
+        id: targetUser.id,
+        email: targetUser.email,
+        name: targetUser.name,
+        role: targetUser.role,
+        status: targetUser.status,
+        department: targetUser.department,
+        phone: targetUser.phone,
+        password_plain: targetUser.passwordPlain,
+        password_aliases: targetUser.passwordAliases,
+        last_login: targetUser.lastLogin,
+      });
+    } catch (e) {
+      console.warn('[db-service] Supabase saveUser fallback:', e);
+    }
   }
 
-  const newUser: BackofficeUser = {
-    id: newId,
-    email: cleanEmail,
-    name: userData.name || 'Operador Backoffice',
-    role: userData.role || 'operator',
-    status: userData.status || 'active',
-    department: userData.department || 'Operaciones',
-    phone: userData.phone || '',
-    passwordPlain: userData.passwordPlain || 'InvestOil2026!*',
-    passwordAliases: userData.passwordAliases || ['InvestOil2026!#', 'InvestOil2026!*'],
-    createdAt: now,
-    lastLogin: null,
-  };
-
-  users.push(newUser);
-  writeJsonFile('users.json', users);
-  return newUser;
+  return targetUser;
 }
 
 export async function deleteUser(id: string): Promise<boolean> {
@@ -697,6 +824,15 @@ export async function deleteUser(id: string): Promise<boolean> {
 
   const filtered = users.filter((u) => u.id !== id);
   writeJsonFile('users.json', filtered);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const supabase = createAdminClient();
+      await supabase.from('backoffice_users').delete().eq('id', id);
+    } catch {}
+  }
+
   return true;
 }
 
@@ -707,6 +843,18 @@ export async function recordUserLogin(email: string): Promise<void> {
   if (user) {
     user.lastLogin = new Date().toISOString();
     writeJsonFile('users.json', users);
+
+    if (isSupabaseConfigured()) {
+      try {
+        const { createAdminClient } = await import('@/lib/supabase/admin');
+        const supabase = createAdminClient();
+        await supabase
+          .from('backoffice_users')
+          .update({ last_login: user.lastLogin })
+          .eq('email', clean);
+      } catch {}
+    }
   }
 }
+
 

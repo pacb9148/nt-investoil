@@ -170,3 +170,38 @@
       - `pwsh ./scripts/bateria-seguridad.ps1` superada al 100% limpia sin secretos ni vulnerabilidades.
 
 
+
+---
+
+## [2026-09-24 22:38] Acordeón Exclusivo de Sidebar, Botón Fijo al Pie, Sincronización de Logo y Persistencia Total en Base de Datos (+dap)
+- **Petición del Usuario**:
+  1. Todos los menús principales del backoffice deben iniciar de forma predeterminada cerrados; se abren con el clic del usuario y permanecen abiertos mientras interactúa, cerrándose automáticamente al abrir otro (acordeón exclusivo).
+  2. "Ver sitio público" debe estar siempre visible, fijo al pie del menú lateral, y los otros elementos se deben desplazar por detrás con scroll.
+  3. Logo de cabecera sincronizado con la imagen oficial dorada en web pública y backoffice.
+  4. Persistencia integral en base de datos para todos los componentes, imágenes, publicaciones, equipo y usuarios para evitar pérdida de datos tras redespliegues con Docker en Coolify.
+  5. Ejecución con orden `+dap`.
+- **Acciones Realizadas**:
+  1. **AdminSidebar con Acordeón Exclusivo y Pie Fijo**:
+     - Implementado estado unificado de acordeón `openSection: string | null = null` (inicia cerrado por defecto).
+     - Cada bloque principal (`Plataforma`, `Cabecera & Menú`, `Secciones Landing`, `Páginas del Sitio`, `Pie de Página & Sedes`, `Diseño & SEO`) cuenta con botón colapsable interactivo con chevron dinámico. Al abrir uno, se cierra automáticamente el anterior.
+     - Contenedor de navegación envuelto en `flex-1 overflow-y-auto`.
+     - Botón "Ver sitio público" fijado al pie con `shrink-0 border-t border-border bg-surf z-10 shadow-lg` para que los menús se desplacen por detrás.
+  2. **Sincronización Total del Logotipo de Cabecera**:
+     - Actualizado `BrandLogo` (`src/components/layout/brand-logo.tsx`) y `src/data/header.json` para que el emblema oficial dorado con gota de petróleo (`corporate-card-logo.jpeg`) sea el predeterminado tanto en variantes `logo` como `seal`.
+  3. **Esquema Integral de Persistencia en Base de Datos (`0006_complete_database_schema.sql`)**:
+     - Creada migración con tablas: `landing_header`, `landing_about`, `landing_footer`, `landing_seo`, `landing_team`, `landing_testimonials`, `landing_services`, `landing_products`, `landing_operations`, `landing_problem`, `landing_marquee`, `landing_cta_final` y `backoffice_users`.
+     - Políticas RLS universales para lectura pública y mutación para usuarios autorizados / service_role.
+  4. **Persistencia Bidireccional en Servicios & APIs**:
+     - `content-service.ts`: agregadas funciones de persistencia y lectura en Supabase para cabecera, nosotros, footer y seo con fallback a disco.
+     - `db-service.ts`: integradas consultas y sincronización directa con `landing_team`, `media` y `backoffice_users`.
+     - `/api/content/header/route.ts` y `/api/content/about/route.ts`: conectadas a los servicios persistentes.
+  5. **Verificación Automatizada con Playwright**:
+     - Script `test-sidebar-persistence.mjs`:
+       - ✓ Logo en cabecera pública verificado como `corporate-card-logo.jpeg`.
+       - ✓ Menús inician cerrados por defecto en el panel.
+       - ✓ Acordeón exclusivo probado: abrir Secciones Landing cierra Plataforma de forma automática.
+       - ✓ Botón "Ver sitio público" validado como visible y anclado al pie del sidebar.
+       - ✓ Endpoints de API verificados respondiendo con código 200 y datos actualizados.
+  6. **Build y Batería de Seguridad**:
+     - `npm run build`: 52/52 rutas generadas sin errores (código de salida 0).
+     - `pwsh ./scripts/bateria-seguridad.ps1`: superada al 100% aprobada.
