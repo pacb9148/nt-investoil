@@ -22,25 +22,33 @@ export function BlogGrid({
 
   // Contar publicaciones por categoría
   const countByCategory = (slug: string) => {
-    return posts.filter(
-      (p) =>
-        p.categories && p.categories.some((c) => c.slug === slug)
-    ).length;
+    const targetCat = categories.find((c) => c.slug === slug);
+    return posts.filter((p) => {
+      const pCatName = typeof p.category === 'string' ? p.category : p.category?.name || '';
+      if (p.category_id && targetCat && p.category_id === targetCat.id) return true;
+      if (pCatName && targetCat && pCatName.toLowerCase() === targetCat.name.toLowerCase()) return true;
+      if (p.categories && p.categories.some((c) => c.slug === slug || (targetCat && c.id === targetCat.id))) return true;
+      return false;
+    }).length;
   };
 
   const filteredPosts = posts.filter((post) => {
+    const pCatName = typeof post.category === 'string' ? post.category : post.category?.name || '';
     const matchesSearch =
       post.title.toLowerCase().includes(search.toLowerCase()) ||
+      (pCatName && pCatName.toLowerCase().includes(search.toLowerCase())) ||
       (post.excerpt && post.excerpt.toLowerCase().includes(search.toLowerCase())) ||
       (post.tags && post.tags.some((t) => t.toLowerCase().includes(search.toLowerCase())));
 
     if (!matchesSearch) return false;
 
     if (selectedCategory) {
-      if (post.categories && post.categories.length > 0) {
-        return post.categories.some((c) => c.slug === selectedCategory);
-      }
-      return false;
+      const targetCat = categories.find((c) => c.slug === selectedCategory);
+      const matches =
+        (post.category_id && targetCat && post.category_id === targetCat.id) ||
+        (pCatName && targetCat && pCatName.toLowerCase() === targetCat.name.toLowerCase()) ||
+        (post.categories && post.categories.some((c) => c.slug === selectedCategory || (targetCat && c.id === targetCat.id)));
+      if (!matches) return false;
     }
 
     return true;

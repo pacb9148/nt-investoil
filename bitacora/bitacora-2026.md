@@ -205,3 +205,28 @@
   6. **Build y Batería de Seguridad**:
      - `npm run build`: 52/52 rutas generadas sin errores (código de salida 0).
      - `pwsh ./scripts/bateria-seguridad.ps1`: superada al 100% aprobada.
+
+
+## [2026-09-24 23:50] Botón "Gestionar Blog", Categorías en Base de Datos, Publicación Estricta y Respaldo de Producción (+dap)
+- **Petición del Usuario**:
+  1. Cambiar el botón del menú de "Nuevo Artículo" a "Gestionar Blog", ya que dentro existe el botón "Nuevo/Crear Post".
+  2. Crear categorías en base de datos (`public.categories`), permitir gestionarlas y hacer que los artículos tengan categoría obligatoria.
+  3. No se puede asignar una categoría inexistente ni publicar un artículo sin categoría ("esto es imprescindible").
+  4. Garantizar que no se pierda ninguna de las personalizaciones ya realizadas por el usuario en la landing de producción al hacer el próximo deploy.
+  5. Ejecutar orden `+dap` y verificar el despliegue.
+- **Acciones Realizadas**:
+  1. **Respaldo Integral de Configuración de Producción**:
+     - Sincronizados todos los JSON de `https://investoil.es/api/*` hacia `src/data/*.json` antes del despliegue para salvaguardar textos, sedes, productos, apariencia, seo y publicaciones creadas en producción.
+  2. **Botón en AdminSidebar**:
+     - Modificado `src/components/admin/admin-sidebar.tsx`: el botón naranja ahora dice "Gestionar Blog", usa el icono `FileText` y enlaza a `/admin/posts`.
+  3. **Categorías en Base de Datos**:
+     - Creada migración `0007_categories_crud.sql` y tabla `public.categories` con RLS y seed inicial.
+     - Implementado servicio CRUD completo en `src/lib/db/db-service.ts` y endpoints `/api/categories` y `/api/categories/[id]`.
+     - Creado componente interactivo `CategoriesManagerModal`.
+  4. **Validación Estricta de Publicación**:
+     - Backend (`db-service.ts`) y Frontend (`post-editor-form.tsx` y `/admin/posts`): se impide publicar cualquier artículo que carezca de categoría.
+     - Enriquecidos los posts existentes en `src/data/posts.json` con sus respectivas categorías oficiales.
+  5. **Verificación Automatizada**:
+     - `npm run build`: 52 rutas compiladas y empaquetadas sin errores de TypeScript.
+     - Script Playwright `test-categories-blog.mjs`: superado al 100% (botón sidebar, modal de categorías, creación de categoría en BD, bloqueo por falta de categoría y vista pública del blog).
+     - Batería de seguridad (`bateria-seguridad.ps1`): superada 100% limpia.

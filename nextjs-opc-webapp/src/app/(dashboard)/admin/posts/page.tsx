@@ -15,19 +15,25 @@ import {
   AlertCircle,
   Video,
   Image as ImageIcon,
+  FolderPlus,
+  Tag,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/lib/utils';
-import { type Post, type PostStatus } from '@/types';
+import { type Post, type PostStatus, type Category } from '@/types';
+import { CategoriesManagerModal } from '@/components/admin/blog/categories-manager-modal';
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -44,11 +50,33 @@ export default function AdminPostsPage() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('/api/categories');
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     fetchPosts();
+    fetchCategories();
   }, []);
 
   const handleUpdateStatus = async (id: string, newStatus: PostStatus) => {
+    // Si intenta publicar un post sin categoría, rechazar
+    if (newStatus === 'published') {
+      const post = posts.find((p) => p.id === id);
+      if (post && !post.category_id && !post.category && (!post.categories || post.categories.length === 0)) {
+        alert('Es imprescindible asignar una categoría válida antes de publicar el artículo.');
+        return;
+      }
+    }
+
     try {
       const res = await fetch(`/api/posts/${id}`, {
         method: 'PUT',
@@ -62,6 +90,9 @@ export default function AdminPostsPage() {
         );
         setActionMessage(`Estado actualizado a "${newStatus}" en la base de datos`);
         setTimeout(() => setActionMessage(null), 3000);
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Error al actualizar estado');
       }
     } catch (err: any) {
       console.error(err);
@@ -85,12 +116,22 @@ export default function AdminPostsPage() {
   };
 
   const filteredPosts = posts.filter((p) => {
+    const pCatName = typeof p.category === 'string' ? p.category : p.category?.name || '';
     const matchesSearch =
       p.title.toLowerCase().includes(search.toLowerCase()) ||
+      (pCatName && pCatName.toLowerCase().includes(search.toLowerCase())) ||
       (p.tags && p.tags.some((t) => t.toLowerCase().includes(search.toLowerCase())));
 
     if (!matchesSearch) return false;
     if (statusFilter !== 'all' && p.status !== statusFilter) return false;
+
+    if (categoryFilter !== 'all') {
+      const matchesCat =
+        p.category_id === categoryFilter ||
+        (pCatName && pCatName.toLowerCase() === categoryFilter.toLowerCase()) ||
+        (p.categories && p.categories.some((c) => c.id === categoryFilter || c.slug === categoryFilter));
+      if (!matchesCat) return false;
+    }
 
     return true;
   });
@@ -109,12 +150,24 @@ export default function AdminPostsPage() {
           </p>
         </div>
 
-        <Link href="/admin/posts/new">
-          <Button variant="accent" size="sm" className="gap-2 shadow-glow-accent">
-            <PlusCircle className="w-4 h-4" />
-            <span>Crear Post</span>
+        <div className="flex items-center gap-2.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCategoryModalOpen(true)}
+            className="gap-2 border-accent/40 text-accent hover:bg-accent/10"
+          >
+            <FolderPlus className="w-4 h-4 text-accent" />
+            <span>Gestionar Categorías</span>
           </Button>
-        </Link>
+
+          <Link href="/admin/posts/new">
+            <Button variant="accent" size="sm" className="gap-2 shadow-glow-accent">
+              <PlusCircle className="w-4 h-4" />
+              <span>Crear Post</span>
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {actionMessage && (
@@ -125,18 +178,34 @@ export default function AdminPostsPage() {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl border border-border bg-card">
-        <div className="relative w-full sm:max-w-xs">
-          <Input
-            placeholder="Buscar artículos..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-9 text-xs"
-          />
-          <Search className="w-4 h-4 text-text-subtle absolute left-3 top-2.5 pointer-events-none" />
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-xl border border-border bg-card">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+          <div className="relative w-full sm:w-64">
+            <Input
+              placeholder="Buscar artículos o tags..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 h-9 text-xs"
+            />
+            <Search className="w-4 h-4 text-text-subtle absolute left-3 top-2.5 pointer-events-none" />
+          </div>
+
+          {/* Filtro por Categoría */}
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="w-full sm:w-auto bg-surf border border-border text-text rounded-lg px-3 py-2 text-xs font-medium focus:border-accent focus:outline-none"
+          >
+            <option value="all">Todas las Categorías</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 sm:pb-0">
           {['all', 'published', 'draft', 'archived'].map((status) => {
             const labels: Record<string, string> = {
               all: 'Todos',
@@ -150,7 +219,7 @@ export default function AdminPostsPage() {
                 key={status}
                 type="button"
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
                   statusFilter === status
                     ? 'bg-accent text-bg shadow-glow-accent'
                     : 'bg-surf text-text-muted hover:text-text border border-border'
@@ -180,6 +249,7 @@ export default function AdminPostsPage() {
               <thead>
                 <tr className="border-b border-border bg-surf/60 text-text-muted uppercase font-mono tracking-wider">
                   <th className="py-3 px-4">Título</th>
+                  <th className="py-3 px-4">Categoría</th>
                   <th className="py-3 px-4">Estado</th>
                   <th className="py-3 px-4">Vistas</th>
                   <th className="py-3 px-4">Fecha</th>
@@ -187,105 +257,147 @@ export default function AdminPostsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60 text-text">
-                {filteredPosts.map((post) => (
-                  <tr key={post.id} className="hover:bg-surf/40 transition-colors">
-                    <td className="py-3.5 px-4 font-medium max-w-sm">
-                      <div className="flex items-center gap-3">
-                        {post.featured_image_url ? (
-                          <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border bg-surf relative">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={post.featured_image_url}
-                              alt={post.title}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-10 h-10 rounded-lg shrink-0 border border-border/60 bg-surf flex items-center justify-center text-text-muted">
-                            <FileText className="w-4 h-4" />
-                          </div>
-                        )}
-                        <div className="flex flex-col gap-0.5 min-w-0">
-                          <Link
-                            href={`/admin/posts/${post.id}`}
-                            className="font-heading font-semibold text-text hover:text-accent transition-colors line-clamp-1"
-                          >
-                            {post.title}
-                          </Link>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-[10px] text-text-subtle truncate">
-                              /{post.slug}
-                            </span>
-                            {post.video_url && (
-                              <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-cyan-400 bg-cyan-500/10 px-1 rounded border border-cyan-500/30">
-                                <Video className="w-2.5 h-2.5" /> Video
+                {filteredPosts.map((post) => {
+                  const catName =
+                    typeof post.category === 'string'
+                      ? post.category
+                      : post.category?.name || post.categories?.[0]?.name;
+                  const catObj = categories.find(
+                    (c) => c.id === post.category_id || c.name === catName
+                  );
+                  const catColor = catObj?.color || '#f59e0b';
+
+                  return (
+                    <tr key={post.id} className="hover:bg-surf/40 transition-colors">
+                      <td className="py-3.5 px-4 font-medium max-w-sm">
+                        <div className="flex items-center gap-3">
+                          {post.featured_image_url ? (
+                            <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border bg-surf relative">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={post.featured_image_url}
+                                alt={post.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-10 h-10 rounded-lg shrink-0 border border-border/60 bg-surf flex items-center justify-center text-text-muted">
+                              <FileText className="w-4 h-4" />
+                            </div>
+                          )}
+                          <div className="flex flex-col gap-0.5 min-w-0">
+                            <Link
+                              href={`/admin/posts/${post.id}`}
+                              className="font-heading font-semibold text-text hover:text-accent transition-colors line-clamp-1"
+                            >
+                              {post.title}
+                            </Link>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-[10px] text-text-subtle truncate">
+                                /{post.slug}
                               </span>
-                            )}
+                              {post.video_url && (
+                                <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-cyan-400 bg-cyan-500/10 px-1 rounded border border-cyan-500/30">
+                                  <Video className="w-2.5 h-2.5" /> Video
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="py-3.5 px-4">
-                      <select
-                        value={post.status}
-                        onChange={(e) =>
-                          handleUpdateStatus(post.id, e.target.value as PostStatus)
-                        }
-                        className="bg-surf border border-border text-text rounded px-2 py-1 text-xs font-mono focus:border-accent focus:outline-none"
-                      >
-                        <option value="published">Publicado</option>
-                        <option value="draft">Borrador</option>
-                        <option value="archived">Archivado</option>
-                      </select>
-                    </td>
+                      {/* Columna Categoría */}
+                      <td className="py-3.5 px-4">
+                        {catName ? (
+                          <span
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border"
+                            style={{
+                              backgroundColor: `${catColor}15`,
+                              borderColor: `${catColor}40`,
+                              color: catColor,
+                            }}
+                          >
+                            <Tag className="w-3 h-3 shrink-0" />
+                            <span className="truncate max-w-[140px]">{catName}</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] text-rose-400 font-mono">
+                            <AlertCircle className="w-3 h-3" />
+                            <span>Sin categoría</span>
+                          </span>
+                        )}
+                      </td>
 
-                    <td className="py-3.5 px-4 font-mono text-text-muted">
-                      {post.views || 0}
-                    </td>
+                      <td className="py-3.5 px-4">
+                        <select
+                          value={post.status}
+                          onChange={(e) =>
+                            handleUpdateStatus(post.id, e.target.value as PostStatus)
+                          }
+                          className="bg-surf border border-border text-text rounded px-2 py-1 text-xs font-mono focus:border-accent focus:outline-none"
+                        >
+                          <option value="published">Publicado</option>
+                          <option value="draft">Borrador</option>
+                          <option value="archived">Archivado</option>
+                        </select>
+                      </td>
 
-                    <td className="py-3.5 px-4 font-mono text-text-muted">
-                      {formatDate(post.published_at || post.created_at)}
-                    </td>
+                      <td className="py-3.5 px-4 text-text-muted font-mono">
+                        <div className="flex items-center gap-1.5">
+                          <Eye className="w-3.5 h-3.5 text-text-subtle" />
+                          <span>{post.views || 0}</span>
+                        </div>
+                      </td>
 
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {post.status === 'published' && (
+                      <td className="py-3.5 px-4 text-text-muted font-mono whitespace-nowrap">
+                        {formatDate(post.published_at || post.created_at)}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
                           <Link
                             href={`/blog/${post.slug}`}
                             target="_blank"
-                            className="p-1.5 rounded hover:bg-surf text-text-muted hover:text-text"
-                            title="Ver en vivo"
+                            className="p-1.5 rounded-lg text-text-subtle hover:text-accent hover:bg-surf transition-colors"
+                            title="Ver artículo público"
                           >
-                            <ExternalLink className="w-3.5 h-3.5" />
+                            <ExternalLink className="w-4 h-4" />
                           </Link>
-                        )}
-
-                        <Link
-                          href={`/admin/posts/${post.id}`}
-                          className="p-1.5 rounded hover:bg-surf text-text-muted hover:text-accent"
-                          title="Editar post"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </Link>
-
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(post.id)}
-                          className="p-1.5 rounded hover:bg-rose-500/20 text-text-muted hover:text-rose-400"
-                          title="Eliminar post"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          <Link
+                            href={`/admin/posts/${post.id}`}
+                            className="p-1.5 rounded-lg text-text-subtle hover:text-accent hover:bg-surf transition-colors"
+                            title="Editar artículo"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(post.id)}
+                            className="p-1.5 rounded-lg text-text-subtle hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                            title="Eliminar artículo de la base de datos"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
+
+      {/* Modal para Gestión de Categorías */}
+      <CategoriesManagerModal
+        isOpen={categoryModalOpen}
+        onClose={() => setCategoryModalOpen(false)}
+        onCategoryCreated={(newCat) => {
+          setCategories((prev) => [...prev, newCat]);
+          fetchPosts();
+        }}
+      />
     </div>
   );
 }

@@ -30,13 +30,10 @@
     "badge_text": "VERIFICACIÓN SGS & ASTM D1655",
     "badge_text_en": "SGS & ASTM D1655 VERIFICATION",
     "metric1_label": "Despachos Mensuales:",
-    "metric1_label_en": "Monthly Shipments:",
     "metric1_value": "12.5M BBLS",
     "metric2_label": "Terminales Marítimas:",
-    "metric2_label_en": "Marine Terminals:",
     "metric2_value": "Houston / Rotterdam",
     "metric3_label": "Estatus Operativo:",
-    "metric3_label_en": "Operational Status:",
     "metric3_value": "ACTIVO 100%"
   }
 }

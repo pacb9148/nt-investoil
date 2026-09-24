@@ -4,55 +4,87 @@
     "title": "Trading y corretaje de crudos pesados y ligeros",
     "description": "Facilitamos operaciones spot y de medio plazo para crudos tipo Merey 16, Brent-blend y mezclas de alta densidad hacia refinerías clave.",
     "iconName": "Flame",
-    "tags": ["Crudos", "Merey 16", "Spot"]
+    "tags": [
+      "Crudos",
+      "Merey 16",
+      "Spot"
+    ]
   },
   {
     "code": "S/02",
     "title": "Suministro internacional de Pet Coke",
     "description": "Originación, control de calidad y fletamento de coque de petróleo verde para industrias de cemento y calderas de generación en Asia y Europa.",
     "iconName": "Fuel",
-    "tags": ["Pet Coke", "Granel", "Asia"]
+    "tags": [
+      "Pet Coke",
+      "Granel",
+      "Asia"
+    ]
   },
   {
     "code": "S/03",
     "title": "Comercialización de destilados medios (EN590, D2)",
     "description": "Estructuramos cargamentos de Ultra Low Sulfur Diesel (ULSD 10 ppm) y D2 cumpliendo especificaciones EN590 para redes de distribución mayorista.",
     "iconName": "Droplet",
-    "tags": ["Diesel", "ULSD", "EN590"]
+    "tags": [
+      "Diesel",
+      "ULSD",
+      "EN590"
+    ]
   },
   {
     "code": "S/04",
     "title": "Suministro de combustible de aviación (Jet Fuel A1)",
     "description": "Negociación contractual de combustible de aviación para operadores aeroportuarios bajo estándares internacionales ASTM D1655 / Def Stan 91-091.",
     "iconName": "Plane",
-    "tags": ["Jet A1", "ASTM", "Aviación"]
+    "tags": [
+      "Jet A1",
+      "ASTM",
+      "Aviación"
+    ]
   },
   {
     "code": "S/05",
     "title": "Comercialización de Gas Natural Licuado (GNL)",
     "description": "Coordinación de ventanas de regasificación, contratos DES/FOB y aseguramiento de volúmenes criogénicos en terminales europeas e internacionales.",
     "iconName": "Ship",
-    "tags": ["GNL", "LNG", "Terminales"]
+    "tags": [
+      "GNL",
+      "LNG",
+      "Terminales"
+    ]
   },
   {
     "code": "S/06",
     "title": "Suministro de bitumen y asfalto a granel",
     "description": "Soluciones de suministro para megaproyectos de infraestructura vial con asfaltos grado 60/70 y modificados de alta durabilidad.",
     "iconName": "Layers",
-    "tags": ["Bitumen", "Asfalto", "Infraestructura"]
+    "tags": [
+      "Bitumen",
+      "Asfalto",
+      "Infraestructura"
+    ]
   },
   {
     "code": "S/07",
     "title": "Logística marítima, fletamentos y almacenamiento",
     "description": "Gestión de charteos por viaje o por tiempo, inspecciones independientes SGS/Intertek y almacenamiento en hubs estratégicos.",
     "iconName": "Anchor",
-    "tags": ["Fletamento", "SGS", "Tanques"]
+    "tags": [
+      "Fletamento",
+      "SGS",
+      "Tanques"
+    ]
   },
   {
     "code": "S/08",
     "title": "Inteligencia de mercado y análisis de diferenciales",
     "description": "Seguimiento de cotizaciones Platts, Argus, OPEP y análisis predictivo para fijación óptima de pricing contractual.",
     "iconName": "TrendingUp",
-    "tags": ["Precios", "Benchmarks", "Análisis"]
+    "tags": [
+      "Precios",
+      "Benchmarks",
+      "Análisis"
+    ]
   }
 ]

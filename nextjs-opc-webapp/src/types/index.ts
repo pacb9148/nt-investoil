@@ -60,6 +60,8 @@ export interface Post {
   is_republished: boolean;
   original_source_url?: string | null;
   original_source_name?: string | null;
+  category_id?: string | null;
+  category?: string | Category | null;
   categories?: Category[];
 }
 

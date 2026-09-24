@@ -2,17 +2,17 @@
   {
     "id": "op-01",
     "title": "Exportación de Pet Coke a mercado asiático",
-    "description": "Coordinación integral de un cargamento de 50.000 MT de Pet Coke, desde la negociación contractual hasta la entrega en puerto destino.",
-    "client": "Refinería Internacional",
-    "year": "2024",
-    "result": "50.000 MT entregadas estrictamente en plazo"
+    "description": "Coordinación integral de un cargamento de 50.000 MT/mes de Pet Coke, desde la negociación contractual hasta la entrega en puerto destino. El acuerdo contempla la entrega continua mensual por un periodo de 5 años",
+    "client": "Refinería Internacional China",
+    "year": "2026",
+    "result": "50.000 MT/mes entregadas estrictamente en plazo"
   },
   {
     "id": "op-02",
     "title": "Contrato term de Merey 16",
-    "description": "Estructuración y cierre de un contrato a 12 meses con entregas mensuales programadas para refinación profunda.",
+    "description": "Estructuración y cierre de un contrato a 20 meses con entregas mensuales programadas para refinación profunda.",
     "client": "Trader Global",
-    "year": "2024",
+    "year": "2025",
     "result": "Contrato renovado por 12 meses adicionales"
   },
   {
@@ -20,15 +20,15 @@
     "title": "Suministro recurrente de Diesel EN590",
     "description": "Programa continuo de suministro mensual con control de calidad de ultra bajo azufre para red de distribución europea.",
     "client": "Distribuidor Mayorista",
-    "year": "2023",
+    "year": "2024",
     "result": "0 incidencias logísticas en 12 meses de operación"
   },
   {
     "id": "op-04",
     "title": "Suministro de bitumen para infraestructura vial",
     "description": "Suministro programado de bitumen 60/70 a granel para megaproyecto de pavimentación e infraestructura.",
-    "client": "Constructora de Infraestructuras",
-    "year": "2023",
+    "client": "Constructora de Infraestructuras China",
+    "year": "2024",
     "result": "Entregas sin demoras durante toda la ejecución de obra"
   }
 ]

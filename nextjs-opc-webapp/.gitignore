@@ -34,4 +34,5 @@ next-env.d.ts
 # Ignore only oversized media files if any
 *.tmp
 audit-screenshots/
+audit-screenshots-categories/
 

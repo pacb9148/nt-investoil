@@ -190,6 +190,39 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 export async function savePost(postData: Partial<Post>): Promise<Post> {
   const posts = readJsonFile<Post[]>('posts.json', BLOG_POSTS);
   const now = new Date().toISOString();
+  const allCategories = await getCategories();
+
+  // Resolución y validación estricta de categoría
+  let targetCategoryId = postData.category_id || postData.categories?.[0]?.id || null;
+  let targetCategoryName =
+    typeof postData.category === 'string'
+      ? postData.category
+      : (postData.category as any)?.name || postData.categories?.[0]?.name || null;
+
+  let matchedCategory: Category | null = null;
+  if (targetCategoryId) {
+    matchedCategory = allCategories.find((c) => c.id === targetCategoryId) || null;
+  }
+  if (!matchedCategory && targetCategoryName) {
+    matchedCategory =
+      allCategories.find(
+        (c) => c.name.toLowerCase() === targetCategoryName!.toLowerCase() || c.slug === targetCategoryName!.toLowerCase()
+      ) || null;
+  }
+
+  // Si se asignó un identificador de categoría pero no existe en el catálogo de BD
+  if ((targetCategoryId || targetCategoryName) && !matchedCategory) {
+    throw new Error('La categoría seleccionada no existe en la base de datos.');
+  }
+
+  const finalStatus = postData.status || 'draft';
+
+  // No se puede publicar un artículo sin categoría (requisito imprescindible)
+  if (finalStatus === 'published' && !matchedCategory) {
+    throw new Error('Es imprescindible asignar una categoría válida antes de publicar el artículo.');
+  }
+
+  const categoryList: Category[] = matchedCategory ? [matchedCategory] : [];
 
   let targetPost: Post;
 
@@ -197,9 +230,20 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
     // Actualizar post existente
     const index = posts.findIndex((p) => p.id === postData.id);
     if (index !== -1) {
+      const existing = posts[index];
+      // Si el post existente ya tenía categoría y no se pasó una nueva, mantenerla
+      const effectiveCategory = matchedCategory || (existing.category_id ? allCategories.find((c) => c.id === existing.category_id) : null);
+      if (finalStatus === 'published' && !effectiveCategory) {
+        throw new Error('Es imprescindible asignar una categoría válida antes de publicar el artículo.');
+      }
+
       targetPost = {
-        ...posts[index],
+        ...existing,
         ...postData,
+        status: finalStatus,
+        category_id: effectiveCategory ? effectiveCategory.id : null,
+        category: effectiveCategory ? effectiveCategory.name : null,
+        categories: effectiveCategory ? [effectiveCategory] : [],
         updated_at: now,
       };
       posts[index] = targetPost;
@@ -210,7 +254,10 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
         title: postData.title || 'Sin título',
         excerpt: postData.excerpt || '',
         content: postData.content || null,
-        status: postData.status || 'draft',
+        status: finalStatus,
+        category_id: matchedCategory ? matchedCategory.id : null,
+        category: matchedCategory ? matchedCategory.name : null,
+        categories: categoryList,
         featured_image_url: postData.featured_image_url || null,
         video_url: postData.video_url || null,
         tags: postData.tags || [],
@@ -221,7 +268,7 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
         original_source_name: postData.original_source_name || null,
         created_at: now,
         updated_at: now,
-        published_at: postData.status === 'published' ? now : null,
+        published_at: finalStatus === 'published' ? now : null,
       };
       posts.unshift(targetPost);
     }
@@ -233,7 +280,10 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
       title: postData.title || 'Sin título',
       excerpt: postData.excerpt || '',
       content: postData.content || null,
-      status: postData.status || 'draft',
+      status: finalStatus,
+      category_id: matchedCategory ? matchedCategory.id : null,
+      category: matchedCategory ? matchedCategory.name : null,
+      categories: categoryList,
       featured_image_url: postData.featured_image_url || null,
       video_url: postData.video_url || null,
       tags: postData.tags || [],
@@ -244,7 +294,7 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
       original_source_name: postData.original_source_name || null,
       created_at: now,
       updated_at: now,
-      published_at: postData.status === 'published' ? now : null,
+      published_at: finalStatus === 'published' ? now : null,
     };
     posts.unshift(targetPost);
   }
@@ -263,7 +313,10 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
         excerpt: targetPost.excerpt,
         content: targetPost.content,
         status: targetPost.status,
+        category_id: targetPost.category_id,
+        category: targetPost.category,
         featured_image_url: targetPost.featured_image_url,
+        video_url: targetPost.video_url,
         tags: targetPost.tags,
         reading_time: targetPost.reading_time,
         views: targetPost.views,
@@ -274,7 +327,7 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
         updated_at: targetPost.updated_at,
       });
     } catch (err) {
-      console.warn('Sync post to Supabase failed, kept locally');
+      console.warn('Sync post to Supabase failed, kept locally:', err);
     }
   }
 
@@ -298,10 +351,135 @@ export async function deletePost(id: string): Promise<boolean> {
 }
 
 // ==========================================
-// 2. CATEGORÍAS
+// 2. CATEGORÍAS (CRUD en Base de Datos & Local)
 // ==========================================
 export async function getCategories(): Promise<Category[]> {
-  return readJsonFile<Category[]>('categories.json', BLOG_CATEGORIES);
+  let categories = readJsonFile<Category[]>('categories.json', BLOG_CATEGORIES);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const supabase = createAdminClient();
+      const { data, error } = await supabase.from('categories').select('*').order('name');
+      if (!error && data && data.length > 0) {
+        const map = new Map<string, Category>();
+        for (const c of categories) map.set(c.id, c);
+        for (const item of data) {
+          map.set(item.id, {
+            id: item.id,
+            name: item.name,
+            slug: item.slug,
+            description: item.description,
+            name_en: item.name_en,
+            description_en: item.description_en,
+            color: item.color,
+            created_at: item.created_at,
+          });
+        }
+        categories = Array.from(map.values());
+      }
+    } catch {}
+  }
+
+  return categories;
+}
+
+export async function getCategoryById(id: string): Promise<Category | null> {
+  const cats = await getCategories();
+  return cats.find((c) => c.id === id) || null;
+}
+
+export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  const cats = await getCategories();
+  return cats.find((c) => c.slug === slug) || null;
+}
+
+export async function saveCategory(catData: Partial<Category>): Promise<Category> {
+  if (!catData.name || !catData.name.trim()) {
+    throw new Error('El nombre de la categoría es obligatorio.');
+  }
+
+  const categories = await getCategories();
+  const cleanName = catData.name.trim();
+  const cleanSlug = (catData.slug || cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')).trim();
+
+  // Comprobar si ya existe con ese slug o id
+  const existingIndex = categories.findIndex(
+    (c) => (catData.id && c.id === catData.id) || c.slug === cleanSlug
+  );
+
+  let targetCat: Category;
+  if (existingIndex !== -1) {
+    targetCat = {
+      ...categories[existingIndex],
+      ...catData,
+      name: cleanName,
+      slug: cleanSlug,
+    };
+    categories[existingIndex] = targetCat;
+  } else {
+    targetCat = {
+      id: catData.id || `cat-${Date.now().toString(36)}`,
+      name: cleanName,
+      slug: cleanSlug,
+      description: catData.description || '',
+      name_en: catData.name_en || cleanName,
+      description_en: catData.description_en || '',
+      color: catData.color || '#f59e0b',
+      created_at: new Date().toISOString(),
+    };
+    categories.push(targetCat);
+  }
+
+  writeJsonFile('categories.json', categories);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const supabase = createAdminClient();
+      await supabase.from('categories').upsert({
+        id: targetCat.id,
+        name: targetCat.name,
+        slug: targetCat.slug,
+        description: targetCat.description,
+        name_en: targetCat.name_en,
+        color: targetCat.color,
+      });
+    } catch (e) {
+      console.warn('[db-service] Supabase saveCategory fallback:', e);
+    }
+  }
+
+  return targetCat;
+}
+
+export async function deleteCategory(id: string): Promise<boolean> {
+  const categories = await getCategories();
+  const target = categories.find((c) => c.id === id);
+  if (!target) return false;
+
+  // Validar que ningún post tenga esta categoría asignada
+  const posts = readJsonFile<Post[]>('posts.json', BLOG_POSTS);
+  const isInUse = posts.some(
+    (p) => p.category_id === id || p.category === target.name || p.categories?.some((c) => c.id === id)
+  );
+
+  if (isInUse) {
+    throw new Error(`No es posible eliminar la categoría "${target.name}" porque existen artículos asignados a ella. Reasigna los artículos antes de eliminarla.`);
+  }
+
+  const filtered = categories.filter((c) => c.id !== id);
+  writeJsonFile('categories.json', filtered);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      const supabase = createAdminClient();
+      await supabase.from('categories').delete().eq('id', id);
+    } catch {}
+  }
+
+  return true;
 }
 
 // ==========================================

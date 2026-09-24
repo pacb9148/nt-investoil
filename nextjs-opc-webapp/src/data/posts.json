@@ -1,12 +1,45 @@
 [
   {
+    "id": "p-1790286754828",
+    "slug": "articulo-test-sin-categoria",
+    "title": "Artículo Test Sin Categoría",
+    "excerpt": "",
+    "content": null,
+    "status": "draft",
+    "category_id": "cat-mug2glc4",
+    "category": "Transición Energética",
+    "categories": [
+      {
+        "id": "cat-mug2glc4",
+        "name": "Transición Energética",
+        "slug": "transicion-energetica",
+        "description": "Artículos sobre renovables, biocombustibles y descarbonización.",
+        "name_en": "Transición Energética",
+        "description_en": "",
+        "color": "#f59e0b",
+        "created_at": "2026-09-24T21:51:12.388Z"
+      }
+    ],
+    "featured_image_url": null,
+    "video_url": null,
+    "tags": [],
+    "reading_time": 3,
+    "views": 0,
+    "is_republished": false,
+    "original_source_url": null,
+    "original_source_name": null,
+    "created_at": "2026-09-24T21:52:34.826Z",
+    "updated_at": "2026-09-24T21:52:34.826Z",
+    "published_at": null
+  },
+  {
     "id": "p-1790240311559",
     "slug": "proyecto-estrategico-oleoductos-2026",
     "title": "Proyecto Estratégico de Oleoductos 2026",
     "excerpt": "Análisis detallado de la infraestructura de transporte petrolífero y modernización.",
     "content": "<p>Contenido completo del artículo técnico con proyecciones y detalles operativos.</p>",
     "status": "published",
-    "featured_image_url": "/uploads/featured-pipeline.jpg",
+    "featured_image_url": "/uploads/1790283046164-oleoducto.jpg",
     "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     "tags": [
       "Infraestructura",
@@ -19,9 +52,17 @@
     "original_source_url": null,
     "original_source_name": null,
     "created_at": "2026-09-24T08:58:31.559Z",
-    "updated_at": "2026-09-24T08:58:31.559Z",
-    "published_at": "2026-09-24T08:58:31.559Z"
-
+    "updated_at": "2026-09-24T20:50:51.786Z",
+    "published_at": "2026-09-24T08:58:31.559Z",
+    "category_id": "cat-2",
+    "category": "Logística & Fletes Marítimos",
+    "categories": [
+      {
+        "id": "cat-2",
+        "name": "Logística & Fletes Marítimos",
+        "slug": "log-stica-fletes-mar-timos"
+      }
+    ]
   },
   {
     "id": "p-1",
@@ -64,10 +105,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790283001867-petcoke.png.png",
     "published_at": "2026-09-22T08:56:23.138Z",
     "created_at": "2026-09-22T08:56:23.139Z",
-    "updated_at": "2026-09-24T08:56:23.139Z",
+    "updated_at": "2026-09-24T20:50:08.915Z",
     "tags": [
       "Pet Coke",
       "Asia",
@@ -78,25 +119,17 @@
       {
         "id": "cat-5",
         "name": "Pet Coke & Commodities Sólidos",
-        "name_en": "Pet Coke & Solid Carbon",
-        "slug": "pet-coke-solidos",
-        "description": "Coque de petróleo verde y calcinado para cementeras y metalurgia.",
-        "description_en": "Green and calcined petroleum coke for cement and metallurgy plants.",
-        "color": "#ec4899"
+        "slug": "pet-coke-commodities-s-lidos"
       }
     ],
-    "category": {
-      "id": "cat-5",
-      "name": "Pet Coke & Commodities Sólidos",
-      "name_en": "Pet Coke & Solid Carbon",
-      "slug": "pet-coke-solidos",
-      "description": "Coque de petróleo verde y calcinado para cementeras y metalurgia.",
-      "description_en": "Green and calcined petroleum coke for cement and metallurgy plants.",
-      "color": "#ec4899"
-    },
+    "category": "Pet Coke & Commodities Sólidos",
     "reading_time": 5,
     "views": 342,
-    "is_republished": false
+    "is_republished": false,
+    "video_url": null,
+    "original_source_url": null,
+    "original_source_name": null,
+    "category_id": "cat-5"
   },
   {
     "id": "p-2",
@@ -118,10 +151,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790285350806-images.jpg",
     "published_at": "2026-09-20T08:56:23.139Z",
     "created_at": "2026-09-20T08:56:23.139Z",
-    "updated_at": "2026-09-24T08:56:23.139Z",
+    "updated_at": "2026-09-24T21:29:13.72Z",
     "tags": [
       "Merey 16",
       "Crudo Pesado",
@@ -132,25 +165,17 @@
       {
         "id": "cat-3",
         "name": "Refinación & Derivados",
-        "name_en": "Refining & Derivatives",
-        "slug": "refinacion-derivados",
-        "description": "Merey 16, Diésel EN590, Jet A-1 y procesamiento en unidades de alta conversión.",
-        "description_en": "Merey 16, Diesel EN590, Jet A-1, and complex refinery hydrocracking.",
-        "color": "#eab308"
+        "slug": "refinaci-n-derivados"
       }
     ],
-    "category": {
-      "id": "cat-3",
-      "name": "Refinación & Derivados",
-      "name_en": "Refining & Derivatives",
-      "slug": "refinacion-derivados",
-      "description": "Merey 16, Diésel EN590, Jet A-1 y procesamiento en unidades de alta conversión.",
-      "description_en": "Merey 16, Diesel EN590, Jet A-1, and complex refinery hydrocracking.",
-      "color": "#eab308"
-    },
+    "category": "Refinación & Derivados",
     "reading_time": 4,
     "views": 512,
-    "is_republished": false
+    "is_republished": false,
+    "video_url": null,
+    "original_source_url": null,
+    "original_source_name": null,
+    "category_id": "cat-3"
   },
   {
     "id": "p-3",
@@ -172,10 +197,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790285420613-11158993.png",
     "published_at": "2026-09-18T08:56:23.139Z",
     "created_at": "2026-09-18T08:56:23.139Z",
-    "updated_at": "2026-09-24T08:56:23.139Z",
+    "updated_at": "2026-09-24T21:30:24.272Z",
     "tags": [
       "Riesgo Financiero",
       "Compliance",
@@ -184,27 +209,19 @@
     ],
     "categories": [
       {
-        "id": "cat-4",
-        "name": "Compliance & Regulaciones",
-        "name_en": "Compliance & Regulations",
-        "slug": "compliance-regulaciones",
-        "description": "Incoterms 2020, cartas de crédito documentarias e inspección SGS.",
-        "description_en": "Incoterms 2020, documentary letters of credit, and SGS inspection.",
-        "color": "#10b981"
+        "id": "cat-1",
+        "name": "Mercado Petrolero & Precios",
+        "slug": "mercado-petrolero-precios"
       }
     ],
-    "category": {
-      "id": "cat-4",
-      "name": "Compliance & Regulaciones",
-      "name_en": "Compliance & Regulations",
-      "slug": "compliance-regulaciones",
-      "description": "Incoterms 2020, cartas de crédito documentarias e inspección SGS.",
-      "description_en": "Incoterms 2020, documentary letters of credit, and SGS inspection.",
-      "color": "#10b981"
-    },
+    "category": "Mercado Petrolero & Precios",
     "reading_time": 6,
     "views": 289,
-    "is_republished": false
+    "is_republished": false,
+    "video_url": null,
+    "original_source_url": null,
+    "original_source_name": null,
+    "category_id": "cat-1"
   },
   {
     "id": "p-4",
@@ -226,10 +243,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790285401021-diesel-engine-efficiency.webp",
     "published_at": "2026-09-16T08:56:23.139Z",
     "created_at": "2026-09-16T08:56:23.139Z",
-    "updated_at": "2026-09-24T08:56:23.139Z",
+    "updated_at": "2026-09-24T21:30:04.271Z",
     "tags": [
       "Diesel EN590",
       "Refinados",
@@ -240,25 +257,17 @@
       {
         "id": "cat-3",
         "name": "Refinación & Derivados",
-        "name_en": "Refining & Derivatives",
-        "slug": "refinacion-derivados",
-        "description": "Merey 16, Diésel EN590, Jet A-1 y procesamiento en unidades de alta conversión.",
-        "description_en": "Merey 16, Diesel EN590, Jet A-1, and complex refinery hydrocracking.",
-        "color": "#eab308"
+        "slug": "refinaci-n-derivados"
       }
     ],
-    "category": {
-      "id": "cat-3",
-      "name": "Refinación & Derivados",
-      "name_en": "Refining & Derivatives",
-      "slug": "refinacion-derivados",
-      "description": "Merey 16, Diésel EN590, Jet A-1 y procesamiento en unidades de alta conversión.",
-      "description_en": "Merey 16, Diesel EN590, Jet A-1, and complex refinery hydrocracking.",
-      "color": "#eab308"
-    },
+    "category": "Refinación & Derivados",
     "reading_time": 4,
     "views": 195,
-    "is_republished": false
+    "is_republished": false,
+    "video_url": null,
+    "original_source_url": null,
+    "original_source_name": null,
+    "category_id": "cat-3"
   },
   {
     "id": "p-5",
@@ -280,10 +289,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790285436332-C5OJNJFIZZD.png",
     "published_at": "2026-09-14T08:56:23.139Z",
     "created_at": "2026-09-14T08:56:23.139Z",
-    "updated_at": "2026-09-24T08:56:23.139Z",
+    "updated_at": "2026-09-24T21:30:39.182Z",
     "tags": [
       "IEA",
       "Brent",
@@ -294,27 +303,17 @@
       {
         "id": "cat-1",
         "name": "Mercado Petrolero & Precios",
-        "name_en": "Oil Markets & Pricing",
-        "slug": "mercado-petrolero",
-        "description": "Análisis de diferenciales Brent/WTI, cotizaciones y balances de inventarios.",
-        "description_en": "Analysis of Brent/WTI differentials, quotes, and inventory balances.",
-        "color": "#f59e0b"
+        "slug": "mercado-petrolero-precios"
       }
     ],
-    "category": {
-      "id": "cat-1",
-      "name": "Mercado Petrolero & Precios",
-      "name_en": "Oil Markets & Pricing",
-      "slug": "mercado-petrolero",
-      "description": "Análisis de diferenciales Brent/WTI, cotizaciones y balances de inventarios.",
-      "description_en": "Analysis of Brent/WTI differentials, quotes, and inventory balances.",
-      "color": "#f59e0b"
-    },
+    "category": "Mercado Petrolero & Precios",
     "reading_time": 3,
     "views": 640,
     "is_republished": true,
     "original_source_url": "https://www.iea.org/reports/oil-market-report",
-    "original_source_name": "International Energy Agency"
+    "original_source_name": "International Energy Agency",
+    "video_url": null,
+    "category_id": "cat-1"
   },
   {
     "id": "p-6",
@@ -336,10 +335,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790285453093-1790279740.png",
     "published_at": "2026-09-12T08:56:23.139Z",
     "created_at": "2026-09-12T08:56:23.139Z",
-    "updated_at": "2026-09-24T08:56:23.139Z",
+    "updated_at": "2026-09-24T21:30:54.37Z",
     "tags": [
       "Fletes",
       "VLCC",
@@ -349,27 +348,19 @@
     ],
     "categories": [
       {
-        "id": "cat-2",
-        "name": "Logística & Fletes Marítimos",
-        "name_en": "Maritime & Freight Logistics",
-        "slug": "logistica-maritima",
-        "description": "Rutas VLCC/Aframax, fletes internacionales y operaciones terminales.",
-        "description_en": "VLCC/Aframax trade routes, international freight, and terminal operations.",
-        "color": "#06b6d4"
+        "id": "cat-1",
+        "name": "Mercado Petrolero & Precios",
+        "slug": "mercado-petrolero-precios"
       }
     ],
-    "category": {
-      "id": "cat-2",
-      "name": "Logística & Fletes Marítimos",
-      "name_en": "Maritime & Freight Logistics",
-      "slug": "logistica-maritima",
-      "description": "Rutas VLCC/Aframax, fletes internacionales y operaciones terminales.",
-      "description_en": "VLCC/Aframax trade routes, international freight, and terminal operations.",
-      "color": "#06b6d4"
-    },
+    "category": "Mercado Petrolero & Precios",
     "reading_time": 5,
     "views": 418,
-    "is_republished": false
+    "is_republished": false,
+    "video_url": null,
+    "original_source_url": null,
+    "original_source_name": null,
+    "category_id": "cat-1"
   },
   {
     "id": "p-7",
@@ -391,10 +382,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790285470748-images__1_.jpg",
     "published_at": "2026-09-10T08:56:23.139Z",
     "created_at": "2026-09-10T08:56:23.139Z",
-    "updated_at": "2026-09-24T08:56:23.139Z",
+    "updated_at": "2026-09-24T21:31:16.76Z",
     "tags": [
       "GNL",
       "Gas Natural",
@@ -403,26 +394,18 @@
     ],
     "categories": [
       {
-        "id": "cat-6",
-        "name": "Transición & Sostenibilidad",
-        "name_en": "Energy Transition & ESG",
-        "slug": "transicion-sostenibilidad",
-        "description": "GNL criogénico, combustibles marítimos de ultra bajo azufre (MGO).",
-        "description_en": "Cryogenic LNG, ultra-low sulfur marine fuels (MGO), and decarbonization.",
-        "color": "#14b8a6"
+        "id": "cat-1",
+        "name": "Mercado Petrolero & Precios",
+        "slug": "mercado-petrolero-precios"
       }
     ],
-    "category": {
-      "id": "cat-6",
-      "name": "Transición & Sostenibilidad",
-      "name_en": "Energy Transition & ESG",
-      "slug": "transicion-sostenibilidad",
-      "description": "GNL criogénico, combustibles marítimos de ultra bajo azufre (MGO).",
-      "description_en": "Cryogenic LNG, ultra-low sulfur marine fuels (MGO), and decarbonization.",
-      "color": "#14b8a6"
-    },
+    "category": "Mercado Petrolero & Precios",
     "reading_time": 4,
     "views": 380,
-    "is_republished": false
+    "is_republished": false,
+    "video_url": null,
+    "original_source_url": null,
+    "original_source_name": null,
+    "category_id": "cat-1"
   }
 ]

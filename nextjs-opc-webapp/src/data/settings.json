@@ -1,0 +1,38 @@
+{
+  "companyName": "Invest Oil LLC",
+  "email": "business@investoil.es",
+  "schedule": "24/7 Trading Desks & Operations",
+  "copyright": "© 2024 - 2026 Invest Oil LLC. Todos los derechos reservados.",
+  "copyrightEn": "© 2024 - 2026 Invest Oil LLC. All Rights Reserved.",
+  "footerLogoUrl": "/images/branding/corporate-card-logo.jpeg",
+  "footerTagline": "Compañía internacional de comercio de petróleo y derivados, fletamento marítimo e infraestructura energética global.",
+  "footerTaglineEn": "International energy company trading crude oil, refined products, marine chartering, and global logistics infrastructure.",
+  "linkedinUrl": "https://linkedin.com/company/invest-oil-llc",
+  "certificationsText": "ASTM D1655 / GOST COMPLIANT · INCOTERMS 2020 · SGS & INTERTEK VERIFIED",
+  "offices": [
+    {
+      "id": "houston",
+      "address": "Houston, TX",
+      "detail": "Headquarters · Sede Central",
+      "detailEn": "Global Headquarters",
+      "cityCountry": "Houston, Estados Unidos",
+      "cityCountryEn": "Houston, United States"
+    },
+    {
+      "id": "madrid",
+      "address": "Madrid, ES",
+      "detail": "European Operations Desk",
+      "detailEn": "European Operations Desk",
+      "cityCountry": "Madrid, España",
+      "cityCountryEn": "Madrid, Spain"
+    },
+    {
+      "id": "bogota",
+      "address": "Bogotá, CO",
+      "detail": "Latin America Operations Desk",
+      "detailEn": "Latin America Operations Desk",
+      "cityCountry": "Bogotá, Colombia",
+      "cityCountryEn": "Bogotá, Colombia"
+    }
+  ]
+}

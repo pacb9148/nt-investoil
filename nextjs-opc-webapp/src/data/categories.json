@@ -52,5 +52,15 @@
     "description": "GNL criogénico, combustibles marítimos de ultra bajo azufre (MGO).",
     "description_en": "Cryogenic LNG, ultra-low sulfur marine fuels (MGO), and decarbonization.",
     "color": "#14b8a6"
+  },
+  {
+    "id": "cat-mug2glc4",
+    "name": "Transición Energética",
+    "slug": "transicion-energetica",
+    "description": "Artículos sobre renovables, biocombustibles y descarbonización.",
+    "name_en": "Transición Energética",
+    "description_en": "",
+    "color": "#f59e0b",
+    "created_at": "2026-09-24T21:51:12.388Z"
   }
 ]

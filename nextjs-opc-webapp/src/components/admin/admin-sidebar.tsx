@@ -88,13 +88,13 @@ export function AdminSidebar() {
           </div>
         </div>
 
-        {/* Quick action button */}
+        {/* Quick action button: Gestionar Blog */}
         <Link
-          href="/admin/posts/new"
+          href="/admin/posts"
           className="flex items-center justify-center gap-2 w-full py-2 px-3 rounded-lg bg-accent text-bg text-xs font-bold shadow-glow-accent hover:shadow-glow-neon transition-all"
         >
-          <PlusCircle className="w-3.5 h-3.5" />
-          <span>Nuevo Artículo</span>
+          <FileText className="w-3.5 h-3.5" />
+          <span>Gestionar Blog</span>
         </Link>
 
         {/* Acordeón de menús principales */}

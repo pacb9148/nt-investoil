@@ -325,4 +325,29 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
     - ✓ APIs de cabecera y nosotros entregan datos actualizados con status 200.
   - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% aprobada sin alertas de secretos ni dependencias vulnerables.
 
+### Fase 12: Botón Gestionar Blog en Sidebar, CRUD de Categorías en Base de Datos y Asignación Obligatoria en Publicaciones
+- **Botón de Acción Rápida en Sidebar**:
+  - Sustituido el botón "Nuevo Artículo" en `AdminSidebar` por **"Gestionar Blog"** con enlace a `/admin/posts` e icono `FileText`, optimizando la navegación ya que la vista interna ya dispone de su propio botón de creación.
+- **Gestión Integral de Categorías en Base de Datos (`public.categories`)**:
+  - Migración SQL `0007_categories_crud.sql` para la tabla `public.categories` con RLS, clave foránea y columna `category_id` y `category` en `public.posts`.
+  - Rutas de API `/api/categories` y `/api/categories/[id]` con soporte para GET, POST, PUT y DELETE (validando que no se eliminen categorías con artículos vinculados).
+  - Componente modal `CategoriesManagerModal` accesible desde el listado de posts y desde el formulario de edición, con creación de categoría y selector de color distintivo.
+- **Validación Estricta de Categoría Obligatoria**:
+  - Bloqueo en backend (`savePost` en `db-service.ts` y `/api/posts`): deniega la publicación (`status === 'published'`) si el artículo no tiene categoría asignada o si la categoría no existe en la base de datos.
+  - Validación en frontend (`post-editor-form.tsx`): alerta al usuario impidiendo el envío si se intenta publicar sin categoría.
+  - Bloqueo en listado (`/admin/posts`): el interruptor de estado impide cambiar a "publicado" si el post carece de categoría válida.
+- **Preservación y Respaldo de Personalizaciones de Producción**:
+  - Sincronización y volcado de todas las configuraciones vivas de producción (`investoil.es`) a `src/data/*.json` (`header.json`, `hero.json`, `appearance.json`, `about.json`, `services.json`, `products.json`, `operations.json`, `problem.json`, `marquee.json`, `seo.json`, `team.json`, `testimonials.json`, `posts.json`, `settings.json`, `leads.json`, `media.json`) para garantizar que ningún cambio realizado por el cliente se pierda tras el despliegue.
+- **Verificación Rigurosa con Evidencia Real**:
+  - `npm run build`: 52/52 rutas compiladas y optimizadas exitosamente con TypeScript y Next.js.
+  - Suite Playwright `test-categories-blog.mjs`:
+    - ✓ Botón "Gestionar Blog" localizado en el sidebar y enlazado a `/admin/posts`.
+    - ✓ Columna "Categoría" y botón "Gestionar Categorías" verificados en `/admin/posts`.
+    - ✓ Modal de categorías abierto, creación de "Transición Energética" persistida y visible.
+    - ✓ Intento de publicación de post sin categoría bloqueado con mensaje de error estricto visible.
+    - ✓ Guardado de borrador con categoría seleccionada validado.
+    - ✓ Filtros de categorías y badges visibles en `/blog`.
+  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): superada con resultado 100% aprobado.
+
+
 

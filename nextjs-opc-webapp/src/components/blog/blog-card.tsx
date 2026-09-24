@@ -18,7 +18,14 @@ export function BlogCard({ post }: { post: Post & { categories?: any[] } }) {
     post.featured_image_url ||
     'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80';
 
-  const category = post.categories && post.categories.length > 0 ? post.categories[0] : null;
+  const category =
+    post.categories && post.categories.length > 0
+      ? post.categories[0]
+      : post.category
+      ? typeof post.category === 'string'
+        ? { name: post.category, name_en: post.category, color: '#f59e0b' }
+        : post.category
+      : null;
   const categoryLabel = category
     ? (isEn && category.name_en ? category.name_en : category.name)
     : null;
