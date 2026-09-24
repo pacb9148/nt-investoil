@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, CheckCircle2, RefreshCw, Plus, Trash2, ExternalLink, TrendingUp } from 'lucide-react';
 import { CommodityPrice } from '@/app/api/market-prices/route';
+import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
 
 const INPUT =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2.5 text-xs text-text focus:outline-none focus:border-accent transition-colors';
@@ -131,6 +132,13 @@ export default function MarqueePage() {
           </p>
         </div>
       </div>
+
+      {/* Barra de ColorPicker integrada para la sección Marquee */}
+      <SectionDesignBar
+        sectionId="marquee"
+        sectionName="Marquee de Cotizaciones"
+        defaultBgColor="#0b0f19"
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Interruptores principales */}

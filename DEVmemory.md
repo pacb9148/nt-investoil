@@ -178,5 +178,32 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 10. **Inyección en RootLayout para Personalización Global**: Los proveedores de contexto de apariencia (`AppearanceProvider`) en la raíz deben recibir siempre la configuración real hidratada en el Server Component (`layout.tsx`) para que las variables CSS y fuentes no dependan únicamente del cliente ni queden congeladas en sus valores por defecto.
 11. **Directiva Secure Dinámica en Cookies**: Hardcodear `secure: process.env.NODE_ENV === 'production'` en la emisión de cookies HTTP-only provoca que pruebas de builds de producción sobre HTTP local (`http://localhost`) fallen silenciosamente porque el navegador descarta la cookie. Debe evaluarse dinámicamente el protocolo del request (`request.url.startsWith('https:')` o `x-forwarded-proto`).
 12. **Persistencia Dual Sin Bloqueo de Red**: Para evitar que la caída o ausencia de configuración de un backend externo paralice la administración de contenidos, una capa de abstracción con almacenamiento local atómico en archivos estructurados garantiza continuidad operativa inmediata y sincronización automática en cuanto el servicio remoto está disponible.
+13. **Evitar Prerender Estático en Rutas Protegidas (`force-dynamic`)**: En Next.js 14 App Router, si un layout o página dentro de una ruta protegida (`/admin`) no declara explícitamente `export const dynamic = 'force-dynamic'`, el compilador puede generar un artefacto HTML estático durante el build (`○ (Static)`), lo que permite a proxies o servidores servir el contenido sin invocar el evaluador de sesión del servidor. La declaración explícita de `dynamic = 'force-dynamic'` y `revalidate = 0` asegura la ejecución en cada petición (`ƒ (Dynamic)`).
+14. **Consistencia de Rutas en Monorepos (`process.cwd()`)**: Al ejecutar procesos de Next.js o scripts desde la raíz de un repositorio monorepo vs la subcarpeta del proyecto, `process.cwd()` varía. Es fundamental emplear resolutores multi-candidato (`resolveDataDir`) para garantizar que la persistencia en disco siempre apunte a la ubicación física correcta sin fallar en silencio.
+
+---
+
+## 4. Estado de Implementación — Fase 10 (Seguridad Estricta de Backoffice, Personalización Hero y Colorpickers Unificados)
+- **Cierre Estricto de Seguridad y Autenticación Obligatoria en Backoffice**:
+  - Forzado de renderizado dinámico en servidor (`export const dynamic = 'force-dynamic'`, `revalidate = 0`) en `src/app/(dashboard)/layout.tsx`.
+  - Validación de expiración de sesión (`session.expiresAt`) y redirección inmediata a `/login?next=...` ante cualquier petición no autenticada.
+  - El botón "Acceso Backoffice" en el Header de navegación conduce directamente al portal de autenticación institucional `/login`.
+- **Herramientas de Edición para Imagen Corporativa y Tarjeta Hero Señalada**:
+  - Extensión del esquema `LandingHeroConfig` con `hero_card`: `card_bg_color`, `card_border_color`, `card_glow_opacity`, `logo_url`, `logo_hue`, `logo_brightness`, `logo_saturation`, `logo_shadow_color`, `logo_shadow_blur`, `badge_text`, y métricas 1, 2 y 3.
+  - Integración en `HeroForm` de selector y subida de archivos nativa (`/api/upload`) con botón para explorar archivos del disco local.
+  - Controles de filtros SVG/CSS en tiempo real con previsualización reactiva de la insignia corporativa y las métricas.
+- **Persistencia Multi-Navegador e Incógnito**:
+  - Creación de `/api/content/hero` y `/api/content/appearance` con guardado físico directo a disco (`hero.json`, `appearance.json`) y revalidación de caché SSR (`revalidatePath`).
+  - Consumo síncrono en `hero-section.tsx` desde la API del servidor al montar el componente, eliminando la pérdida de configuración al cambiar de navegador o abrir modo incógnito.
+- **Colorpickers Reutilizables en Todas las Secciones del Backoffice**:
+  - Componente universal `SectionDesignBar` con selector nativo de color (`<input type="color">`), campo hexadecimal, swatches de paleta institucional y guardado directo.
+  - Integrado directamente en los editores de: Hero, Doble Marquesina, Problema/Solución, Servicios, Productos, Plataforma/Operaciones, Equipo Directivo, Testimonios, Preguntas Frecuentes, Contacto y Estadísticas.
+- **Botones de Selección de Archivos Locales en Campos Multimedia**:
+  - Incorporación de `MediaUploadField` o `<input type="file">` con botón de búsqueda local en fotos de directivos (`team/page.tsx`), avatares y videos de testimonios (`testimonials/page.tsx`), fondo del Hero (`hero-form.tsx`) e imagen destacada/video de noticias (`post-editor-form.tsx`).
+- **Verificación y Pruebas**:
+  - `npx tsc --noEmit`: 0 errores.
+  - `npm run build`: 48 rutas compiladas con éxito, todas las rutas de `/admin` en modo dinámico `ƒ`.
+  - `scripts/bateria-seguridad.ps1`: superada al 100% sin alertas ni vulnerabilidades.
+
 
 

@@ -11,6 +11,7 @@ import {
   Loader2,
   HelpCircle,
 } from 'lucide-react';
+import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
 
 interface FaqItem {
   id: string;
@@ -138,6 +139,8 @@ export default function FaqEditorPage() {
           <span>Añadir Pregunta</span>
         </button>
       </div>
+
+      <SectionDesignBar sectionId="faq" sectionName="Preguntas Frecuentes (FAQ)" />
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {faqs.map((faq, idx) => (

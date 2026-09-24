@@ -6,6 +6,9 @@ import { DashboardTopbar } from '@/components/admin/dashboard-topbar';
 import { ADMIN_COOKIE_NAME, decodeSessionToken } from '@/lib/auth/session';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -14,6 +17,11 @@ export default async function DashboardLayout({
   const cookieStore = cookies();
   const sessionToken = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
   let session = sessionToken ? decodeSessionToken(sessionToken) : null;
+
+  // Verificar si la sesión expiró
+  if (session && session.expiresAt && Date.now() > session.expiresAt) {
+    session = null;
+  }
 
   if (!session && isSupabaseConfigured()) {
     try {

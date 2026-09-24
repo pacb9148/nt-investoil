@@ -47,11 +47,23 @@ export async function updateHeroAction(
     card_bg_color: (formData.get('hero_card_bg') as string) || undefined,
     card_border_color: (formData.get('hero_card_border') as string) || undefined,
     card_glow_opacity: formData.get('hero_card_glow_opacity') !== null ? Number(formData.get('hero_card_glow_opacity')) : undefined,
+    logo_url: (formData.get('hero_logo_url') as string) || undefined,
     logo_hue: formData.get('hero_logo_hue') !== null ? Number(formData.get('hero_logo_hue')) : undefined,
     logo_brightness: formData.get('hero_logo_brightness') !== null ? Number(formData.get('hero_logo_brightness')) : undefined,
     logo_saturation: formData.get('hero_logo_saturation') !== null ? Number(formData.get('hero_logo_saturation')) : undefined,
     logo_shadow_color: (formData.get('hero_logo_shadow_color') as string) || undefined,
     logo_shadow_blur: formData.get('hero_logo_shadow_blur') !== null ? Number(formData.get('hero_logo_shadow_blur')) : undefined,
+    badge_text: (formData.get('hero_badge_text') as string) || undefined,
+    badge_text_en: (formData.get('hero_badge_text_en') as string) || undefined,
+    metric1_label: (formData.get('hero_metric1_label') as string) || undefined,
+    metric1_label_en: (formData.get('hero_metric1_label_en') as string) || undefined,
+    metric1_value: (formData.get('hero_metric1_value') as string) || undefined,
+    metric2_label: (formData.get('hero_metric2_label') as string) || undefined,
+    metric2_label_en: (formData.get('hero_metric2_label_en') as string) || undefined,
+    metric2_value: (formData.get('hero_metric2_value') as string) || undefined,
+    metric3_label: (formData.get('hero_metric3_label') as string) || undefined,
+    metric3_label_en: (formData.get('hero_metric3_label_en') as string) || undefined,
+    metric3_value: (formData.get('hero_metric3_value') as string) || undefined,
   };
 
   const data = {

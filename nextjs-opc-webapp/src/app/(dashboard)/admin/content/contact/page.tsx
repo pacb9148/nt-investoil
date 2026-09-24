@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, CheckCircle2 } from 'lucide-react';
+import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
 
 const INPUT =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2.5 text-xs text-text focus:outline-none focus:border-accent transition-colors';
@@ -36,6 +37,8 @@ export default function ContactContentPage() {
           </p>
         </div>
       </div>
+
+      <SectionDesignBar sectionId="contact" sectionName="Contacto & Formulario" />
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-4">

@@ -27,11 +27,23 @@ export interface HeroCardCustomization {
   card_bg_color?: string;
   card_border_color?: string;
   card_glow_opacity?: number;
+  logo_url?: string;
   logo_hue?: number;
   logo_brightness?: number;
   logo_saturation?: number;
   logo_shadow_color?: string;
   logo_shadow_blur?: number;
+  badge_text?: string;
+  badge_text_en?: string;
+  metric1_label?: string;
+  metric1_label_en?: string;
+  metric1_value?: string;
+  metric2_label?: string;
+  metric2_label_en?: string;
+  metric2_value?: string;
+  metric3_label?: string;
+  metric3_label_en?: string;
+  metric3_value?: string;
 }
 
 export interface LandingHeroConfig {

@@ -13,6 +13,7 @@ import {
   Package,
 } from 'lucide-react';
 import { MediaUploadField } from '@/components/admin/media-upload-field';
+import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
 
 const INPUT =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2 text-xs text-text focus:outline-none focus:border-accent transition-colors';
@@ -139,6 +140,12 @@ export default function ProductsEditorPage() {
           <span>Añadir Producto</span>
         </button>
       </div>
+
+      <SectionDesignBar
+        sectionId="products"
+        sectionName="Portafolio de Hidrocarburos"
+        defaultBgColor="#07090e"
+      />
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {items.map((item, idx) => (

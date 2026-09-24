@@ -19,13 +19,15 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
   const [activeConfig, setActiveConfig] = useState<LandingHeroConfig | undefined>(initialConfig);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('investoil_hero_config');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setActiveConfig((prev) => ({ ...(prev || {}), ...parsed }));
-      }
-    } catch {}
+    // Sincronizar desde la API para asegurar persistencia entre navegadores e incógnito
+    fetch('/api/content/hero')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.id) {
+          setActiveConfig((prev) => ({ ...(prev || {}), ...data }));
+        }
+      })
+      .catch(() => {});
 
     const handleUpdate = (e: Event) => {
       const customEvent = e as CustomEvent<LandingHeroConfig>;
@@ -254,20 +256,23 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
                   <div className="flex items-center gap-2.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
                     <span className="text-xs font-mono uppercase tracking-wider font-semibold text-slate-200">
-                      {isEn ? 'SGS & ASTM D1655 VERIFICATION' : 'VERIFICACIÓN SGS & ASTM D1655'}
+                      {isEn
+                        ? heroCard?.badge_text_en || t.hero.sgsVerification
+                        : heroCard?.badge_text || t.hero.sgsVerification}
                     </span>
                   </div>
                   <ShieldCheck className="w-4 h-4 text-accent" />
                 </div>
 
-                {/* Sello Oficial con Filtros Dinámicos (Color/Hue, Sombra, Luminosidad) */}
+                {/* Sello / Imagen Corporativa Oficial con Filtros Dinámicos */}
                 <div className="flex justify-center py-2">
                   <div className="relative w-44 h-44 group">
                     <Image
-                      src="/images/branding/seal-transparent.png"
+                      src={heroCard?.logo_url || '/images/branding/seal-transparent.png'}
                       alt="Invest Oil LLC Official Seal"
                       width={176}
                       height={176}
+                      unoptimized={Boolean(heroCard?.logo_url && heroCard.logo_url.startsWith('/uploads'))}
                       className="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
                       style={{
                         filter: logoFilterStyle,
@@ -285,22 +290,22 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
                 >
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-text-muted">
-                      {isEn ? 'Monthly Shipments:' : 'Despachos Mensuales:'}
+                      {isEn ? (heroCard?.metric1_label_en || 'Monthly Shipments:') : (heroCard?.metric1_label || 'Despachos Mensuales:')}
                     </span>
-                    <span className="font-mono font-semibold text-white">12.5M BBLS</span>
+                    <span className="font-mono font-semibold text-white">{heroCard?.metric1_value || '12.5M BBLS'}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-text-muted">
-                      {isEn ? 'Marine Terminals:' : 'Terminales Marítimas:'}
+                      {isEn ? (heroCard?.metric2_label_en || 'Marine Terminals:') : (heroCard?.metric2_label || 'Terminales Marítimas:')}
                     </span>
-                    <span className="font-mono font-semibold text-white">Houston / Rotterdam</span>
+                    <span className="font-mono font-semibold text-white">{heroCard?.metric2_value || 'Houston / Rotterdam'}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-text-muted">
-                      {isEn ? 'Operational Status:' : 'Estatus Operativo:'}
+                      {isEn ? (heroCard?.metric3_label_en || 'Operational Status:') : (heroCard?.metric3_label || 'Estatus Operativo:')}
                     </span>
                     <span className="font-mono font-semibold text-emerald-400">
-                      {isEn ? 'ACTIVE 100%' : 'ACTIVO 100%'}
+                      {heroCard?.metric3_value || (isEn ? 'ACTIVE 100%' : 'ACTIVO 100%')}
                     </span>
                   </div>
                 </div>

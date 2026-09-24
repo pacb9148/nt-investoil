@@ -25,3 +25,27 @@
      - Renderizado público en `/blog` y `/blog/[slug]` -> 200 OK con título y video visible.
      - Resultado: 8/8 pruebas superadas (0 fallos).
   5. Batería de seguridad `bateria-seguridad.ps1` superada al 100% sin alertas ni fugas.
+
+## [2026-09-24 15:45 CET]
+- **Petición del usuario**:
+  1. Falla de seguridad en el botón Backoffice: entra directamente sin pedir usuario ni contraseña. Requiere resolver esta brecha de seguridad y exigir credenciales válidas antes de permitir el acceso.
+  2. Falta de herramientas en el backoffice para editar colores del Hero y específicamente la imagen corporativa / tarjeta señalada. Reutilizar colorpickers agrupados con cero fricción.
+  3. Fondos, imágenes, videos y colores del Hero no persisten entre navegadores o incógnito.
+  4. Integrar colorpicker en todas las secciones sin dispersión.
+  5. Añadir botón para buscar y seleccionar archivos locales en todos los campos que admitan imagen, video u objeto.
+- **Diagnóstico**:
+  1. `/admin` en Next.js se estaba prerenderizando como contenido estático en tiempo de compilación por falta de `export const dynamic = 'force-dynamic'`, permitiendo a proxies y servidores servir el HTML sin evaluar la sesión.
+  2. Los esquemas y componentes no exponían personalización para la tarjeta hero señalada (`hero_card`: fondo, borde, glow, logotipo, filtros SVG y métricas).
+  3. La persistencia en disco se perdía o fallaba por discrepancia de rutas relativas (`process.cwd()`) en monorepo entre la raíz y `nextjs-opc-webapp`, dependiendo de `localStorage` en el cliente.
+  4. Varias secciones carecían de colorpicker integrado.
+- **Acciones Realizadas**:
+  1. **Seguridad Estricta**: `export const dynamic = 'force-dynamic'` y `revalidate = 0` en `DashboardLayout` con verificación de expiración de cookie y redirección forzada a `/login`.
+  2. **Editor de Tarjeta Hero & Imagen Corporativa**: esquema `hero_card` completo con selector de archivos locales (`/api/upload`), filtros (hue, brightness, saturation, glow, shadow) y previsualización interactiva reactiva.
+  3. **Persistencia Servidor Multi-Navegador**: endpoints `/api/content/hero` y `/api/content/appearance` con escritura física atómica (`resolveDataDir`) y revalidación SSR inmediata.
+  4. **Colorpickers en todas las secciones**: componente `SectionDesignBar` integrado en Hero, Doble Marquesina, Problema, Servicios, Productos, Plataforma/Operaciones, Equipo Directivo, Testimonios, FAQs, Contacto y Estadísticas.
+  5. **Selectores de archivos locales**: botones de carga de archivo local en fotos de directivos, avatares y videos de testimonios, Hero media y blog.
+- **Verificación**:
+  - Compilación exitosa: 48 rutas en verde (`ƒ` dinámicas para todo `/admin`).
+  - Typecheck limpio: 0 errores de TypeScript (`npx tsc --noEmit`).
+  - Batería de seguridad Strix (`bateria-seguridad.ps1`): aprobada al 100% sin secretos ni vulnerabilidades.
+

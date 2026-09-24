@@ -11,6 +11,7 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
+import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
 
 interface ProblemItem {
   id: string;
@@ -143,6 +144,12 @@ export default function ProblemaPage() {
           <span>Añadir Reto</span>
         </button>
       </div>
+
+      <SectionDesignBar
+        sectionId="problema"
+        sectionName="Retos del Sector Petrolero"
+        defaultBgColor="#07090e"
+      />
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {items.map((item, idx) => (

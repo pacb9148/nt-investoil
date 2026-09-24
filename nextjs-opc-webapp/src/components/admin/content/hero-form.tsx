@@ -3,6 +3,7 @@
 import React, { useState, useTransition, useRef } from 'react';
 import { updateHeroAction } from '@/lib/services/content-actions';
 import type { LandingHeroConfig, ContentActionResponse } from '@/types/content';
+import { SectionDesignBar } from './section-design-bar';
 import {
   Loader2,
   Save,
@@ -40,19 +41,54 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   const [cardBg, setCardBg] = useState<string>(defaultValues.hero_card?.card_bg_color || '#0e1e3d');
   const [cardBorder, setCardBorder] = useState<string>(defaultValues.hero_card?.card_border_color || '#1a3264');
   const [cardGlow, setCardGlow] = useState<number>(defaultValues.hero_card?.card_glow_opacity ?? 50);
+  const [logoUrl, setLogoUrl] = useState<string>(
+    defaultValues.hero_card?.logo_url || '/images/branding/seal-transparent.png'
+  );
   const [logoHue, setLogoHue] = useState<number>(defaultValues.hero_card?.logo_hue ?? 0);
   const [logoBrightness, setLogoBrightness] = useState<number>(defaultValues.hero_card?.logo_brightness ?? 100);
   const [logoSaturation, setLogoSaturation] = useState<number>(defaultValues.hero_card?.logo_saturation ?? 100);
   const [logoShadowColor, setLogoShadowColor] = useState<string>(defaultValues.hero_card?.logo_shadow_color || '#f59e0b');
   const [logoShadowBlur, setLogoShadowBlur] = useState<number>(defaultValues.hero_card?.logo_shadow_blur ?? 20);
 
-  // Estados para subida de archivos
+  // Estados de textos métricos de la tarjeta
+  const [badgeText, setBadgeText] = useState<string>(
+    defaultValues.hero_card?.badge_text || 'VERIFICACIÓN SGS & ASTM D1655'
+  );
+  const [badgeTextEn, setBadgeTextEn] = useState<string>(
+    defaultValues.hero_card?.badge_text_en || 'SGS & ASTM D1655 VERIFICATION'
+  );
+  const [metric1Label, setMetric1Label] = useState<string>(
+    defaultValues.hero_card?.metric1_label || 'Despachos Mensuales:'
+  );
+  const [metric1Value, setMetric1Value] = useState<string>(
+    defaultValues.hero_card?.metric1_value || '12.5M BBLS'
+  );
+  const [metric2Label, setMetric2Label] = useState<string>(
+    defaultValues.hero_card?.metric2_label || 'Terminales Marítimas:'
+  );
+  const [metric2Value, setMetric2Value] = useState<string>(
+    defaultValues.hero_card?.metric2_value || 'Houston / Rotterdam'
+  );
+  const [metric3Label, setMetric3Label] = useState<string>(
+    defaultValues.hero_card?.metric3_label || 'Estatus Operativo:'
+  );
+  const [metric3Value, setMetric3Value] = useState<string>(
+    defaultValues.hero_card?.metric3_value || 'ACTIVO 100%'
+  );
+
+  // Estados para subida de archivos del fondo
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Manejador de subida de archivo local
+  // Estados para subida de la imagen corporativa / sello
+  const [uploadingLogo, setUploadingLogo] = useState<boolean>(false);
+  const [logoMessage, setLogoMessage] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const logoFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Manejador de subida de archivo de fondo
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -91,6 +127,43 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
       setUploading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Manejador de subida de imagen corporativa / logo
+  const handleLogoFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    setLogoError(null);
+    setLogoMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Error al subir imagen corporativa');
+      }
+
+      setLogoUrl(data.url);
+      setLogoMessage(`✓ Imagen corporativa "${file.name}" cargada correctamente.`);
+      setTimeout(() => setLogoMessage(null), 5000);
+    } catch (err) {
+      setLogoError(err instanceof Error ? err.message : 'Error al subir imagen corporativa');
+    } finally {
+      setUploadingLogo(false);
+      if (logoFileInputRef.current) {
+        logoFileInputRef.current.value = '';
       }
     }
   };
@@ -135,34 +208,103 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   // Detectar si la URL parece una ruta local de Windows
   const isLocalDiskPath = /^[a-zA-Z]:[\\/]/.test(bgUrl.trim());
 
-  // Enviar formulario
+  // Enviar formulario con persistencia dual
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     formData.set('hero_bg_url', bgUrl);
     formData.set('hero_bg_type', bgType);
+    formData.set('hero_logo_url', logoUrl);
+    formData.set('hero_card_bg', cardBg);
+    formData.set('hero_card_border', cardBorder);
+    formData.set('hero_card_glow_opacity', String(cardGlow));
+    formData.set('hero_logo_hue', String(logoHue));
+    formData.set('hero_logo_brightness', String(logoBrightness));
+    formData.set('hero_logo_saturation', String(logoSaturation));
+    formData.set('hero_logo_shadow_color', logoShadowColor);
+    formData.set('hero_logo_shadow_blur', String(logoShadowBlur));
+    formData.set('hero_badge_text', badgeText);
+    formData.set('hero_badge_text_en', badgeTextEn);
+    formData.set('hero_metric1_label', metric1Label);
+    formData.set('hero_metric1_value', metric1Value);
+    formData.set('hero_metric2_label', metric2Label);
+    formData.set('hero_metric2_value', metric2Value);
+    formData.set('hero_metric3_label', metric3Label);
+    formData.set('hero_metric3_value', metric3Value);
 
     startTransition(async () => {
+      // 1. Guardar vía API REST directa
+      try {
+        const payload: Partial<LandingHeroConfig> = {
+          ...defaultValues,
+          eyebrow_text: formData.get('eyebrow_text') as string,
+          eyebrow_text_en: formData.get('eyebrow_text_en') as string,
+          heading_line_1: formData.get('heading_line_1') as string,
+          heading_line_1_en: formData.get('heading_line_1_en') as string,
+          heading_line_2: formData.get('heading_line_2') as string,
+          heading_line_2_en: formData.get('heading_line_2_en') as string,
+          heading_accent: formData.get('heading_accent') as string,
+          heading_accent_en: formData.get('heading_accent_en') as string,
+          subtitle: formData.get('subtitle') as string,
+          subtitle_en: formData.get('subtitle_en') as string,
+          cta_primary_text: formData.get('cta_primary_text') as string,
+          cta_primary_text_en: formData.get('cta_primary_text_en') as string,
+          cta_primary_url: formData.get('cta_primary_url') as string,
+          cta_secondary_text: formData.get('cta_secondary_text') as string,
+          cta_secondary_text_en: formData.get('cta_secondary_text_en') as string,
+          cta_secondary_url: formData.get('cta_secondary_url') as string,
+          hero_bg_type: bgType as any,
+          hero_bg_url: bgUrl,
+          hero_bg_opacity: opacity,
+          hero_bg_fit: (formData.get('hero_bg_fit') || 'cover') as any,
+          hero_visual_tipo: (formData.get('hero_visual_tipo') || 'mockup') as any,
+          market_ticker: formData.get('market_ticker') as string,
+          hero_card: {
+            card_bg_color: cardBg,
+            card_border_color: cardBorder,
+            card_glow_opacity: cardGlow,
+            logo_url: logoUrl,
+            logo_hue: logoHue,
+            logo_brightness: logoBrightness,
+            logo_saturation: logoSaturation,
+            logo_shadow_color: logoShadowColor,
+            logo_shadow_blur: logoShadowBlur,
+            badge_text: badgeText,
+            badge_text_en: badgeTextEn,
+            metric1_label: metric1Label,
+            metric1_value: metric1Value,
+            metric2_label: metric2Label,
+            metric2_value: metric2Value,
+            metric3_label: metric3Label,
+            metric3_value: metric3Value,
+          },
+        };
+
+        await fetch('/api/content/hero', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        window.dispatchEvent(new CustomEvent('investoil_hero_updated', { detail: payload }));
+      } catch (err) {
+        console.error('Error al guardar en /api/content/hero:', err);
+      }
+
+      // 2. Ejecutar Server Action para revalidar SSR
       const res = await updateHeroAction(INITIAL_STATE, formData);
       setState(res);
-
-      if (res.success && typeof window !== 'undefined') {
-        try {
-          const heroConfig = {
-            ...defaultValues,
-            hero_bg_type: bgType,
-            hero_bg_url: bgUrl,
-            hero_bg_opacity: opacity,
-          };
-          localStorage.setItem('investoil_hero_config', JSON.stringify(heroConfig));
-          window.dispatchEvent(new CustomEvent('investoil_hero_updated', { detail: heroConfig }));
-        } catch {}
-      }
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 pb-12">
+      {/* Barra de ColorPicker integrada para el fondo de la sección Hero */}
+      <SectionDesignBar
+        sectionId="hero"
+        sectionName="Hero Principal"
+        defaultBgColor="#07090e"
+      />
       {/* Selector de idioma para la edición de textos */}
       <div className="flex items-center justify-between p-3 rounded-xl border border-border/80 bg-surf/80">
         <div className="flex items-center gap-2">
@@ -747,51 +889,223 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                   className="w-full accent-amber-500"
                 />
               </div>
+            </div>
 
-              {/* Sombra del Logotipo (Color y Difuminado) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                <div>
-                  <span className="text-[11px] font-mono text-text-muted block mb-1">Color de Sombra</span>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={logoShadowColor.startsWith('#') ? logoShadowColor : '#f59e0b'}
-                      onChange={(e) => setLogoShadowColor(e.target.value)}
-                      className="w-8 h-8 rounded-lg border border-border bg-transparent cursor-pointer p-0.5"
-                    />
-                    <input
-                      type="text"
-                      name="hero_logo_shadow_color"
-                      value={logoShadowColor}
-                      onChange={(e) => setLogoShadowColor(e.target.value)}
-                      className={INPUT_STYLE}
-                    />
-                  </div>
+            {/* Imagen Corporativa / Sello Oficial */}
+            <div className="p-4 rounded-lg bg-card/60 border border-border space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <label className={LABEL_STYLE}>
+                  Imagen Corporativa Central (Sello o Logotipo de la Tarjeta)
+                </label>
+
+                {/* Input de archivo nativo oculto para el logo */}
+                <input
+                  type="file"
+                  ref={logoFileInputRef}
+                  onChange={handleLogoFileSelect}
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  className="hidden"
+                />
+
+                {/* Botón para examinar y subir archivo local de imagen */}
+                <button
+                  type="button"
+                  onClick={() => logoFileInputRef.current?.click()}
+                  disabled={uploadingLogo}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+                >
+                  {uploadingLogo ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Subiendo imagen...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Buscar y Seleccionar Archivo...</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  name="hero_logo_url"
+                  value={logoUrl}
+                  onChange={(e) => setLogoUrl(e.target.value)}
+                  placeholder="/images/branding/seal-transparent.png o https://..."
+                  className={INPUT_STYLE}
+                />
+              </div>
+
+              {/* Botones de selección rápida de logos corporativos */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-[10px] font-mono text-text-subtle">Plantillas:</span>
+                <button
+                  type="button"
+                  onClick={() => setLogoUrl('/images/branding/seal-transparent.png')}
+                  className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
+                >
+                  Sello Oficial Dorado
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLogoUrl('/images/branding/logo.png')}
+                  className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
+                >
+                  Logotipo Corporativo
+                </button>
+              </div>
+
+              {logoMessage && (
+                <div className="flex items-center gap-2 p-2 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{logoMessage}</span>
                 </div>
+              )}
+              {logoError && (
+                <div className="flex items-center gap-2 p-2 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  <span>{logoError}</span>
+                </div>
+              )}
+            </div>
 
+            {/* Textos y Métricas de la Tarjeta Hero */}
+            <div className="p-4 rounded-lg bg-card/60 border border-border space-y-3">
+              <span className="text-[11px] font-mono text-accent font-semibold block">
+                Textos y Métricas Editables de la Tarjeta:
+              </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-[11px] font-mono text-text-muted">Intensidad / Blur Sombra</span>
-                    <span className="text-xs font-mono text-accent">{logoShadowBlur}px</span>
-                  </div>
+                  <label className={LABEL_STYLE}>Insignia Superior (ES)</label>
                   <input
-                    type="range"
-                    name="hero_logo_shadow_blur"
-                    min="0"
-                    max="50"
-                    value={logoShadowBlur}
-                    onChange={(e) => setLogoShadowBlur(Number(e.target.value))}
-                    className="w-full accent-amber-500 mt-2"
+                    type="text"
+                    value={badgeText}
+                    onChange={(e) => setBadgeText(e.target.value)}
+                    className={INPUT_STYLE}
                   />
                 </div>
+                <div>
+                  <label className={LABEL_STYLE}>Insignia Superior (EN)</label>
+                  <input
+                    type="text"
+                    value={badgeTextEn}
+                    onChange={(e) => setBadgeTextEn(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 1 Etiqueta</label>
+                  <input
+                    type="text"
+                    value={metric1Label}
+                    onChange={(e) => setMetric1Label(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 1 Valor</label>
+                  <input
+                    type="text"
+                    value={metric1Value}
+                    onChange={(e) => setMetric1Value(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 2 Etiqueta</label>
+                  <input
+                    type="text"
+                    value={metric2Label}
+                    onChange={(e) => setMetric2Label(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 2 Valor</label>
+                  <input
+                    type="text"
+                    value={metric2Value}
+                    onChange={(e) => setMetric2Value(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 3 Etiqueta</label>
+                  <input
+                    type="text"
+                    value={metric3Label}
+                    onChange={(e) => setMetric3Label(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 3 Valor</label>
+                  <input
+                    type="text"
+                    value={metric3Value}
+                    onChange={(e) => setMetric3Value(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Sombra del Logotipo (Color y Difuminado) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+              <div>
+                <span className="text-[11px] font-mono text-text-muted block mb-1">Color de Sombra del Logo</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={logoShadowColor.startsWith('#') ? logoShadowColor : '#f59e0b'}
+                    onChange={(e) => setLogoShadowColor(e.target.value)}
+                    className="w-8 h-8 rounded-lg border border-border bg-transparent cursor-pointer p-0.5"
+                  />
+                  <input
+                    type="text"
+                    name="hero_logo_shadow_color"
+                    value={logoShadowColor}
+                    onChange={(e) => setLogoShadowColor(e.target.value)}
+                    className={INPUT_STYLE}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[11px] font-mono text-text-muted">Intensidad / Blur Sombra</span>
+                  <span className="text-xs font-mono text-accent">{logoShadowBlur}px</span>
+                </div>
+                <input
+                  type="range"
+                  name="hero_logo_shadow_blur"
+                  min="0"
+                  max="50"
+                  value={logoShadowBlur}
+                  onChange={(e) => setLogoShadowBlur(Number(e.target.value))}
+                  className="w-full accent-amber-500 mt-2"
+                />
               </div>
             </div>
           </div>
 
           {/* Vista previa en vivo del componente */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center p-4 rounded-xl bg-black/40 border border-border/80">
+          <div className="lg:col-span-5 flex flex-col items-center justify-center p-4 rounded-xl bg-black/40 border border-border/80 sticky top-4">
             <span className="text-[10px] font-mono text-text-subtle uppercase tracking-wider mb-3">
-              Vista previa interactiva
+              Vista previa interactiva en tiempo real
             </span>
             <div className="relative w-full max-w-[280px]">
               <div
@@ -814,13 +1128,13 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                 >
                   <span className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
-                    <span>VERIFICACIÓN SGS</span>
+                    <span>{badgeText}</span>
                   </span>
                 </div>
 
                 <div className="flex justify-center py-1">
                   <img
-                    src="/images/branding/seal-transparent.png"
+                    src={logoUrl || '/images/branding/seal-transparent.png'}
                     alt="Preview"
                     className="w-28 h-28 object-contain transition-all duration-200"
                     style={{
@@ -834,12 +1148,16 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                   style={{ borderTop: `1px solid ${cardBorder}40` }}
                 >
                   <div className="flex justify-between text-slate-300">
-                    <span>Despachos:</span>
-                    <span className="font-bold text-white">12.5M BBLS</span>
+                    <span>{metric1Label}</span>
+                    <span className="font-bold text-white">{metric1Value}</span>
                   </div>
                   <div className="flex justify-between text-slate-300">
-                    <span>Estatus:</span>
-                    <span className="font-bold text-emerald-400">ACTIVO 100%</span>
+                    <span>{metric2Label}</span>
+                    <span className="font-bold text-white">{metric2Value}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>{metric3Label}</span>
+                    <span className="font-bold text-emerald-400">{metric3Value}</span>
                   </div>
                 </div>
               </div>

@@ -13,6 +13,7 @@ import {
   Loader2,
   Building2,
 } from 'lucide-react';
+import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
 
 const INPUT =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2 text-xs text-text focus:outline-none focus:border-accent transition-colors';
@@ -136,6 +137,8 @@ export default function PlataformaPage() {
           <span>Añadir Operación</span>
         </button>
       </div>
+
+      <SectionDesignBar sectionId="plataforma" sectionName="Operaciones / Plataforma" />
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {ops.map((item: FeaturedOperation, idx: number) => (

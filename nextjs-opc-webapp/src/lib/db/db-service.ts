@@ -5,7 +5,26 @@ import type { Post, Category, MediaItem, ContactLead, TeamMember } from '@/types
 import { BLOG_POSTS, BLOG_CATEGORIES } from '@/lib/constants/blog-data';
 import { TEAM_MEMBERS } from '@/lib/constants/investoil';
 
-const DATA_DIR = path.join(process.cwd(), 'src', 'data');
+function resolveDataDir(): string {
+  const candidates = [
+    path.join(process.cwd(), 'src', 'data'),
+    path.join(process.cwd(), 'nextjs-opc-webapp', 'src', 'data'),
+    path.resolve(__dirname, '../../data'),
+    path.resolve(__dirname, '../../../data'),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  const fallback = fs.existsSync(path.join(process.cwd(), 'nextjs-opc-webapp'))
+    ? path.join(process.cwd(), 'nextjs-opc-webapp', 'src', 'data')
+    : path.join(process.cwd(), 'src', 'data');
+  try {
+    fs.mkdirSync(fallback, { recursive: true });
+  } catch {}
+  return fallback;
+}
+
+const DATA_DIR = resolveDataDir();
 
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) {

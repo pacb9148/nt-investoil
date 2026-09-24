@@ -12,6 +12,7 @@ import {
   Loader2,
   Layers,
 } from 'lucide-react';
+import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
 
 const INPUT =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2 text-xs text-text focus:outline-none focus:border-accent transition-colors';
@@ -136,6 +137,12 @@ export default function ServicesEditorPage() {
           <span>Añadir Servicio</span>
         </button>
       </div>
+
+      <SectionDesignBar
+        sectionId="services"
+        sectionName="Servicios Petroleros"
+        defaultBgColor="#0a0d14"
+      />
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {items.map((item, idx) => (
