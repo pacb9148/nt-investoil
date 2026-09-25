@@ -54,6 +54,15 @@
     "color": "#14b8a6"
   },
   {
+    "id": "cat-oil101",
+    "name": "Oil 101",
+    "name_en": "Oil 101",
+    "slug": "oil-101",
+    "description": "Conceptos clave del petróleo, diferencias Brent vs. WTI y fundamentos del mercado energético.",
+    "description_en": "Key petroleum concepts, Brent vs. WTI differentials, and energy market fundamentals.",
+    "color": "#f59e0b"
+  },
+  {
     "id": "cat-mug2glc4",
     "name": "Transición Energética",
     "slug": "transicion-energetica",

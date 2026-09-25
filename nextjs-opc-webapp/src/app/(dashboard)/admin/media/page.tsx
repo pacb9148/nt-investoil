@@ -14,6 +14,7 @@ import {
   Video as VideoIcon,
   Play,
   X,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,6 +49,27 @@ export default function AdminMediaPage() {
   useEffect(() => {
     fetchMedia();
   }, []);
+
+  const [deduplicating, setDeduplicating] = useState(false);
+
+  const handleDeduplicate = async () => {
+    if (!window.confirm('¿Deseas buscar y eliminar archivos y logos duplicados en la base de datos?')) return;
+    setDeduplicating(true);
+    try {
+      const res = await fetch('/api/media/deduplicate', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Deduplicación completada: Se eliminaron ${data.removedCount} elementos duplicados.`);
+        await fetchMedia();
+      } else {
+        alert(`Error al deduplicar: ${data.error}`);
+      }
+    } catch {
+      alert('Error al conectar con el servidor.');
+    } finally {
+      setDeduplicating(false);
+    }
+  };
 
   const handleCopyUrl = (id: string, url: string) => {
     navigator.clipboard.writeText(url);
@@ -115,20 +137,33 @@ export default function AdminMediaPage() {
           </p>
         </div>
 
-        {/* Upload Trigger */}
-        <label className="cursor-pointer">
-          <input
-            type="file"
-            accept="image/*,video/*"
-            onChange={handleFileUpload}
-            className="hidden"
-            disabled={uploading}
-          />
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-bg text-xs font-bold shadow-glow-accent hover:shadow-glow-neon transition-all">
-            <Upload className="w-4 h-4" />
-            <span>{uploading ? 'Subiendo...' : 'Subir Archivo'}</span>
-          </div>
-        </label>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleDeduplicate}
+            disabled={deduplicating}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border/80 bg-card/60 hover:bg-card text-text text-xs font-semibold transition-all disabled:opacity-50"
+            title="Buscar y limpiar archivos y logos repetidos en la base de datos"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-accent" />
+            <span>{deduplicating ? 'Deduplicando...' : 'Deduplicar Medios'}</span>
+          </button>
+
+          {/* Upload Trigger */}
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              accept="image/*,video/*"
+              onChange={handleFileUpload}
+              className="hidden"
+              disabled={uploading}
+            />
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-bg text-xs font-bold shadow-glow-accent hover:shadow-glow-neon transition-all">
+              <Upload className="w-4 h-4" />
+              <span>{uploading ? 'Subiendo...' : 'Subir Archivo'}</span>
+            </div>
+          </label>
+        </div>
       </div>
 
       {/* Banner de Especificaciones Técnicas y Persistencia */}

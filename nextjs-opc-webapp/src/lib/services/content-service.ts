@@ -129,19 +129,12 @@ export async function getLandingSections(): Promise<LandingSectionConfig[]> {
     return pgData;
   }
 
-  if (isSupabaseConfigured()) {
-    try {
-      const { createAdminClient } = await import('@/lib/supabase/admin');
-      const db = createAdminClient();
-      const { data, error } = await db.from('landing_sections').select('*').order('sort_order');
-      if (!error && data && data.length > 0) {
-        return data as LandingSectionConfig[];
-      }
-    } catch {
-      // Supabase no disponible o tabla no creada aún
-    }
+  const local = readLocalJson<LandingSectionConfig[]>('sections.json', DEFAULT_LANDING_SECTIONS);
+  if (local && Array.isArray(local) && local.length > 0) {
+    return local;
   }
-  return memorySections;
+
+  return DEFAULT_LANDING_SECTIONS;
 }
 
 // ==============================================================================
@@ -414,9 +407,11 @@ export async function saveLandingSeo(data: any): Promise<any> {
 
 // Helpers para actualizar el fallback local con persistencia en archivo y PostgreSQL
 export async function updateMemorySection(id: string, isActive: boolean) {
-  memorySections = memorySections.map((s) => (s.id === id ? { ...s, is_active: isActive } : s));
-  writeLocalJson('sections.json', memorySections);
-  await saveSectionToPg('sections', memorySections);
+  const currentSections = await getLandingSections();
+  const updated = currentSections.map((s) => (s.id === id ? { ...s, is_active: isActive } : s));
+  memorySections = updated;
+  writeLocalJson('sections.json', updated);
+  await saveSectionToPg('sections', updated);
 }
 
 export async function updateMemoryHero(data: Partial<LandingHeroConfig>) {

@@ -783,49 +783,44 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                 {/* Previsualización en Vivo de Imagen o Video */}
                 {bgUrl && !isLocalDiskPath && (
                   <div className="mt-4 p-3 rounded-xl border border-border/80 bg-black/40 space-y-2">
-                    <div className="flex items-center justify-between text-[11px] font-mono text-text-muted">
-                      <span className="flex items-center gap-1.5 text-accent">
-                        {bgType === 'video' ? <FileVideo className="w-3.5 h-3.5" /> : <FileImage className="w-3.5 h-3.5" />}
-                        <span>Vista previa de {bgType === 'video' ? 'Video' : 'Imagen'} en vivo:</span>
-                      </span>
-                      <span className="text-[10px] text-text-subtle truncate max-w-xs">{bgUrl}</span>
-                    </div>
+                    {(() => {
+                      const isRealVideo = /\.(mp4|webm|mov)$/i.test(bgUrl.trim()) || (bgType === 'video' && !/\.(jpg|jpeg|png|webp|svg|gif)$/i.test(bgUrl.trim()));
+                      return (
+                        <>
+                          <div className="flex items-center justify-between text-[11px] font-mono text-text-muted">
+                            <span className="flex items-center gap-1.5 text-accent font-semibold">
+                              {isRealVideo ? <FileVideo className="w-3.5 h-3.5" /> : <FileImage className="w-3.5 h-3.5" />}
+                              <span>Vista previa en vivo ({isRealVideo ? 'Video' : 'Imagen'}):</span>
+                            </span>
+                            <span className="text-[10px] text-text-subtle truncate max-w-xs">{bgUrl}</span>
+                          </div>
 
-                    <div className="relative w-full h-56 rounded-lg overflow-hidden border border-border/50 bg-black flex items-center justify-center">
-                      {bgType === 'video' ? (
-                        <video
-                          key={bgUrl}
-                          src={bgUrl}
-                          controls
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          preload="auto"
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            if (!target.src.includes('hero-background.mp4')) {
-                              target.src = '/videos/hero-background.mp4';
-                              target.load();
-                              target.play().catch(() => {});
-                            }
-                          }}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={bgUrl}
-                          alt="Previsualización de fondo"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            target.onerror = null;
-                            target.src = 'https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1920&q=80';
-                          }}
-                        />
-                      )}
-                    </div>
+                          <div className="relative w-full h-56 max-h-56 rounded-lg overflow-hidden border border-border/50 bg-[#070b14] flex items-center justify-center">
+                            {isRealVideo ? (
+                              <video
+                                key={bgUrl}
+                                src={bgUrl}
+                                controls
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                preload="metadata"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                key={bgUrl}
+                                src={bgUrl}
+                                alt="Previsualización de fondo"
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
@@ -1323,12 +1318,26 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
         </div>
       )}
 
-      {/* Botón de Guardado */}
-      <div className="flex items-center justify-end gap-3 pt-4">
+      {/* Barra de Guardado Flotante Sticky */}
+      <div className="sticky bottom-0 z-30 -mx-4 md:-mx-8 px-4 md:px-8 py-3.5 bg-card/95 backdrop-blur-md border-t border-border shadow-2xl flex items-center justify-between gap-4 mt-6">
+        <div className="flex items-center gap-2">
+          {state.success && (
+            <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5 animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>{state.message || 'Configuración del Hero guardada con éxito'}</span>
+            </span>
+          )}
+          {state.error && (
+            <span className="text-xs text-red-400 font-semibold flex items-center gap-1.5 animate-in fade-in">
+              <AlertCircle className="w-4 h-4" />
+              <span>{state.error}</span>
+            </span>
+          )}
+        </div>
         <button
           type="submit"
           disabled={isPending || uploading}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all duration-200 disabled:opacity-50"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all duration-200 disabled:opacity-50 shrink-0"
         >
           {isPending ? (
             <>
@@ -1343,6 +1352,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
           )}
         </button>
       </div>
+      <div className="h-10" />
     </form>
   );
 }

@@ -29,6 +29,7 @@ import {
   Users,
   Star,
   Award,
+  Cpu,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/layout/brand-logo';
 import { cn } from '@/lib/utils';
@@ -46,6 +47,7 @@ const PLATFORM_NAV: NavItem[] = [
   { href: '/admin/posts', label: 'Gestión de Posts / Blog', icon: FileText },
   { href: '/admin/media', label: 'Biblioteca de Medios', icon: ImageIcon },
   { href: '/admin/leads', label: 'Mensajes de Contacto', icon: Inbox },
+  { href: '/admin/settings/ai', label: 'Proveedores de IA', icon: Cpu },
 ];
 
 const SECTIONS_NAV: NavItem[] = [

@@ -13,10 +13,15 @@ import {
   Video,
   FolderPlus,
   Tag,
+  Radio,
+  Eye,
+  Heart,
+  ThumbsUp,
 } from 'lucide-react';
 import Link from 'next/link';
 import { TiptapEditor } from './tiptap-editor';
 import { NewsRepublishDialog } from './news-republish-dialog';
+import { NewsAgentModal } from './news-agent-modal';
 import { MediaUploadField } from './media-upload-field';
 import { CategoriesManagerModal } from './blog/categories-manager-modal';
 import { Input } from '@/components/ui/input';
@@ -77,6 +82,9 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [republishModalOpen, setRepublishModalOpen] = useState(false);
+  const [newsAgentOpen, setNewsAgentOpen] = useState(false);
+  const [views, setViews] = useState<number>(initialPost?.views ?? 0);
+  const [likes, setLikes] = useState<number>(initialPost?.likes ?? 0);
 
   // Cargar categorías disponibles desde la base de datos
   useEffect(() => {
@@ -89,13 +97,28 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
           const initCatName =
             typeof initialPost.category === 'string'
               ? initialPost.category
-              : initialPost.category?.name || '';
+              : (initialPost.category as any)?.name || '';
+          const norm = (s: string) => (s || '').toLowerCase().replace(/[\s\-_]/g, '');
           const match = data.find(
             (c) =>
-              c.name.toLowerCase() === initCatName.toLowerCase() ||
-              c.slug === initCatName.toLowerCase()
+              norm(c.name) === norm(initCatName) ||
+              norm(c.slug) === norm(initCatName) ||
+              c.id === initCatName
           );
-          if (match) setCategoryId(match.id);
+          if (match) {
+            setCategoryId(match.id);
+          } else if (initCatName) {
+            // Si la categoría no está en la lista pero existe en el post, inyectarla
+            const fallbackCat: Category = {
+              id: `cat-${norm(initCatName)}`,
+              name: initCatName,
+              slug: norm(initCatName),
+              description: 'Categoría existente en publicación',
+              color: '#f59e0b',
+            };
+            setCategories((prev) => [...prev, fallbackCat]);
+            setCategoryId(fallbackCat.id);
+          }
         }
       })
       .catch((err) => console.error('Error al cargar categorías:', err));
@@ -165,6 +188,53 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
     });
   };
 
+  const handleSelectNewsAgent = (data: {
+    title: string;
+    excerpt: string;
+    contentHtml: string;
+    sourceName: string;
+    sourceUrl: string;
+    tags: string[];
+    imageUrl?: string;
+    category?: string;
+  }) => {
+    setTitle(data.title);
+    setSlug(slugify(data.title));
+    setExcerpt(data.excerpt);
+    if (data.tags && data.tags.length > 0) {
+      setTagsInput(data.tags.join(', '));
+    }
+    if (data.imageUrl) {
+      setFeaturedImageUrl(data.imageUrl);
+    }
+    setIsRepublished(true);
+    setOriginalSourceName(data.sourceName);
+    setOriginalSourceUrl(data.sourceUrl);
+
+    if (data.category && categories.length > 0) {
+      const norm = (s: string) => (s || '').toLowerCase().replace(/[\s\-_]/g, '');
+      const match = categories.find(
+        (c) => norm(c.name) === norm(data.category!) || norm(c.slug) === norm(data.category!)
+      );
+      if (match) setCategoryId(match.id);
+    }
+
+    setContent({
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: data.excerpt,
+            },
+          ],
+        },
+      ],
+    });
+  };
+
   const handleSave = async (targetStatus?: PostStatus) => {
     if (!title.trim()) {
       setErrorMessage('El título del post es obligatorio');
@@ -207,6 +277,8 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
       featured_image_url: featuredImageUrl || null,
       video_url: videoUrl || null,
       tags: tagsArray,
+      views: Number(views) || 0,
+      likes: Number(likes) || 0,
       is_republished: isRepublished,
       original_source_url: isRepublished ? originalSourceUrl : null,
       original_source_name: isRepublished ? originalSourceName : null,
@@ -262,6 +334,17 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setNewsAgentOpen(true)}
+            className="gap-1.5 border-amber-500/50 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 text-xs h-8 px-2.5 font-semibold"
+          >
+            <Radio className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+            <span className="hidden sm:inline">Agente de Noticias (Radar AI)</span>
+            <span className="sm:hidden">Noticias AI</span>
+          </Button>
+
           <Button
             variant="outline"
             size="sm"
@@ -331,49 +414,47 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted">
-                    Slug URL *
-                  </label>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1">
+                  Slug URL *
+                </label>
+                <div className="relative flex items-center">
+                  <Input
+                    placeholder="SLUG URL *"
+                    value={slug}
+                    onChange={(e) => setSlug(slugify(e.target.value))}
+                    className="text-xs font-mono h-9 bg-surf/80 border-border placeholder:text-text-subtle/60 pr-8"
+                  />
                   <button
                     type="button"
                     onClick={suggestSlug}
-                    className="text-[10px] text-accent hover:underline inline-flex items-center gap-1 font-mono"
-                    title="Sugerir slug automáticamente a partir del título"
+                    className="absolute right-2 text-accent hover:text-amber-400 transition-colors p-1"
+                    title="Sugerir slug automáticamente"
                   >
-                    <Sparkles className="w-3 h-3" />
-                    <span>Sugerir automáticamente</span>
+                    <Sparkles className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <Input
-                  placeholder="SLUG URL *"
-                  value={slug}
-                  onChange={(e) => setSlug(slugify(e.target.value))}
-                  className="text-xs font-mono h-9 bg-surf/80 border-border placeholder:text-text-subtle/60"
-                />
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted">
-                    Tags (separados por coma)
-                  </label>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1">
+                  Tags (separados por coma)
+                </label>
+                <div className="relative flex items-center">
+                  <Input
+                    placeholder="TAGS (SEPARADOS POR COMA)"
+                    value={tagsInput}
+                    onChange={(e) => setTagsInput(e.target.value)}
+                    className="text-xs h-9 bg-surf/80 border-border placeholder:text-text-subtle/60 pr-8"
+                  />
                   <button
                     type="button"
                     onClick={suggestTags}
-                    className="text-[10px] text-accent hover:underline inline-flex items-center gap-1 font-mono"
-                    title="Sugerir tags automáticamente a partir del contenido"
+                    className="absolute right-2 text-accent hover:text-amber-400 transition-colors p-1"
+                    title="Sugerir tags automáticamente"
                   >
-                    <Sparkles className="w-3 h-3" />
-                    <span>Sugerir automáticamente</span>
+                    <Sparkles className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <Input
-                  placeholder="TAGS (SEPARADOS POR COMA)"
-                  value={tagsInput}
-                  onChange={(e) => setTagsInput(e.target.value)}
-                  className="text-xs h-9 bg-surf/80 border-border placeholder:text-text-subtle/60"
-                />
               </div>
             </div>
 
@@ -382,11 +463,11 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
                 Extracto / Resumen
               </label>
               <Textarea
-                rows={2}
+                rows={3}
                 placeholder="EXTRACTO / RESUMEN"
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
-                className="text-xs bg-surf/80 border-border placeholder:text-text-subtle/60"
+                className="text-xs bg-surf/80 border-border placeholder:text-text-subtle/60 resize-y"
               />
             </div>
           </Card>
@@ -488,6 +569,37 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
               </select>
             </div>
 
+            {/* Vistas y Likes (Automáticos y Editables) */}
+            <div className="grid grid-cols-2 gap-3 pt-1 border-t border-border/60">
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
+                  <Eye className="w-3 h-3 text-cyan-400" />
+                  <span>Vistas</span>
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={views}
+                  onChange={(e) => setViews(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="w-full bg-surf border border-border text-text rounded-lg px-2.5 py-1.5 text-xs font-mono focus:border-accent focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1">
+                  <Heart className="w-3 h-3 text-rose-400" />
+                  <span>Likes</span>
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={likes}
+                  onChange={(e) => setLikes(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="w-full bg-surf border border-border text-text rounded-lg px-2.5 py-1.5 text-xs font-mono focus:border-accent focus:outline-none"
+                />
+              </div>
+            </div>
+
             {/* Imagen Destacada */}
             <div className="pt-1">
               <MediaUploadField
@@ -560,6 +672,13 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
         open={republishModalOpen}
         onOpenChange={setRepublishModalOpen}
         onImport={handleImportNews}
+      />
+
+      {/* Modal del Agente de Noticias AI */}
+      <NewsAgentModal
+        isOpen={newsAgentOpen}
+        onClose={() => setNewsAgentOpen(false)}
+        onSelectNews={handleSelectNewsAgent}
       />
 
       {/* Modal de Gestión y Creación de Categorías */}

@@ -15,6 +15,7 @@ import { FaqSection } from '@/components/sections/faq-section';
 import { ContactSection } from '@/components/sections/contact-section';
 import { MarqueeTicker } from '@/components/layout/marquee-ticker';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 0; // Contenido dinámico con soporte de revalidación inmediata
 
 export default async function HomePage() {

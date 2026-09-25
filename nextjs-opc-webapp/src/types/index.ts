@@ -57,6 +57,7 @@ export interface Post {
   tags: string[];
   reading_time: number;
   views: number;
+  likes?: number;
   is_republished: boolean;
   original_source_url?: string | null;
   original_source_name?: string | null;

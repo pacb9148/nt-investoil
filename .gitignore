@@ -30,4 +30,5 @@ next-env.d.ts
 
 *.key
 *.tsbuildinfo
+playwright-screenshots/
 

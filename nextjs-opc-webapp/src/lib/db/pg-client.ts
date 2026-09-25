@@ -107,6 +107,7 @@ export async function ensurePgSchema(): Promise<void> {
       tags TEXT[],
       reading_time INTEGER DEFAULT 3,
       views INTEGER DEFAULT 0,
+      likes INTEGER DEFAULT 0,
       is_republished BOOLEAN DEFAULT FALSE,
       original_source_url TEXT,
       original_source_name TEXT,
@@ -114,6 +115,8 @@ export async function ensurePgSchema(): Promise<void> {
       created_at TIMESTAMPTZ DEFAULT NOW(),
       updated_at TIMESTAMPTZ DEFAULT NOW()
     );
+
+    ALTER TABLE public.posts ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0;
 
     -- 5. Tabla de miembros de equipo
     CREATE TABLE IF NOT EXISTS public.landing_team (

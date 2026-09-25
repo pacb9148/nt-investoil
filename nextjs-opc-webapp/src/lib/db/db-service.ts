@@ -33,7 +33,7 @@ function ensureDataDir() {
   }
 }
 
-function readJsonFile<T>(filename: string, defaultData: T): T {
+export function readJsonFile<T>(filename: string, defaultData: T): T {
   ensureDataDir();
   const filePath = path.join(DATA_DIR, filename);
   try {
@@ -50,7 +50,7 @@ function readJsonFile<T>(filename: string, defaultData: T): T {
   }
 }
 
-function writeJsonFile<T>(filename: string, data: T): void {
+export function writeJsonFile<T>(filename: string, data: T): void {
   ensureDataDir();
   const filePath = path.join(DATA_DIR, filename);
   try {
@@ -260,6 +260,8 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
         category_id: effectiveCategory ? effectiveCategory.id : null,
         category: effectiveCategory ? effectiveCategory.name : null,
         categories: effectiveCategory ? [effectiveCategory] : [],
+        views: postData.views !== undefined ? Number(postData.views) : (existing.views ?? 0),
+        likes: postData.likes !== undefined ? Number(postData.likes) : (existing.likes ?? 0),
         published_at: finalStatus === 'published' ? (postData.published_at || existing.published_at || now) : null,
         updated_at: now,
       };
@@ -279,7 +281,8 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
         video_url: postData.video_url || null,
         tags: postData.tags || [],
         reading_time: postData.reading_time || 3,
-        views: postData.views || 0,
+        views: postData.views !== undefined ? Number(postData.views) : 0,
+        likes: postData.likes !== undefined ? Number(postData.likes) : 0,
         is_republished: postData.is_republished || false,
         original_source_url: postData.original_source_url || null,
         original_source_name: postData.original_source_name || null,
@@ -305,7 +308,8 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
       video_url: postData.video_url || null,
       tags: postData.tags || [],
       reading_time: postData.reading_time || 3,
-      views: 0,
+      views: postData.views !== undefined ? Number(postData.views) : 0,
+      likes: postData.likes !== undefined ? Number(postData.likes) : 0,
       is_republished: postData.is_republished || false,
       original_source_url: postData.original_source_url || null,
       original_source_name: postData.original_source_name || null,
@@ -322,8 +326,8 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
   if (hasPostgresDb()) {
     try {
       await queryPg(
-        `INSERT INTO public.posts (id, slug, title, excerpt, content, status, category_id, category, featured_image_url, video_url, tags, reading_time, views, is_republished, original_source_url, original_source_name, published_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, NOW())
+        `INSERT INTO public.posts (id, slug, title, excerpt, content, status, category_id, category, featured_image_url, video_url, tags, reading_time, views, likes, is_republished, original_source_url, original_source_name, published_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW())
          ON CONFLICT (id) DO UPDATE SET
            slug = EXCLUDED.slug,
            title = EXCLUDED.title,
@@ -337,6 +341,7 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
            tags = EXCLUDED.tags,
            reading_time = EXCLUDED.reading_time,
            views = EXCLUDED.views,
+           likes = EXCLUDED.likes,
            is_republished = EXCLUDED.is_republished,
            original_source_url = EXCLUDED.original_source_url,
            original_source_name = EXCLUDED.original_source_name,
@@ -356,6 +361,7 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
           targetPost.tags,
           targetPost.reading_time,
           targetPost.views,
+          targetPost.likes || 0,
           targetPost.is_republished,
           targetPost.original_source_url,
           targetPost.original_source_name,

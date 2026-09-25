@@ -1,5 +1,32 @@
 # Bitácora de Desarrollo — Invest Oil LLC
 
+## [2026-09-25 14:30 CET]
+- **Petición del usuario**:
+  1. Editor de artículos exacto al adjunto (`media_1790336575538.png`): tarjeta integrada con Título, Fila 2 de dos columnas (Slug y Tags con icono `✨` embebido compacto), Fila 3 con Extracto de 3 filas extensible (`resize-y`), barra superior compacta en una fila con Agente de Noticias y Scraper.
+  2. Categoría "Oil 101" creada formalmente en selector y auto-mapeada sin importar mayúsculas o guiones.
+  3. Contadores de vistas y likes manuales en el editor + automático interactivo en el frontend.
+  4. Botones para ver/ocultar secciones funcionando de inmediato.
+  5. Sección "Servicios Petroleros" convertida en las 6 publicaciones recientes del blog.
+  6. Agente de Noticias energéticas con radar y republicación en un solo clic.
+  7. Interfaz de proveedores de IA multi-proveedor (OpenRouter, Anthropic, OpenAI, NVIDIA NIM, Alibaba, Gemini, DeepSeek).
+  8. Agente de atención al público en un Orbe 3D en la landing.
+  9. Deduplicar archivos y logos en la biblioteca de medios.
+  10. Arreglo definitivo del Hero (sin saltos en negro, barra sticky de guardado permanente).
+  11. Orden `+dap` al finalizar.
+- **Resolución y Evidencias**:
+  1. Editor adaptado fielmente al diseño de la captura de referencia: slug y tags en 2 columnas con botón de sugerencia `✨`, extracto de 3 filas con resize, barra superior compacta y panel lateral de publicación con vistas y likes.
+  2. Categoría `Oil 101` añadida a `categories.json` y base de datos con normalizador robusto.
+  3. Soporte para vistas y likes: endpoint `/api/posts/[id]/like`, componente `PostLikeButton` en `/blog/[slug]`, y campos numéricos editables en el backoffice.
+  4. Forzado `dynamic = 'force-dynamic'` en `(public)/page.tsx` y sincronización sincrónica con PostgreSQL `landing_sections`.
+  5. Transformada la sección de servicios en un grid reactivo con las 6 publicaciones más recientes del blog.
+  6. Agente de Noticias implementado en `/api/news-agent` y modal `NewsAgentModal` con botón "Republicar en Editor".
+  7. Interfaz administrativa en `/admin/settings/ai` con gestión de 7 proveedores de IA, encriptación segura y system prompt global.
+  8. Orbe 3D pulsante de atención al público implementado en `public-ai-orbe.tsx`, inyectado en `(public)/layout.tsx` y probado con Playwright.
+  9. Deduplicados los registros redundantes del logo en `media.json`, creado endpoint `/api/media/deduplicate` y botón en la biblioteca de medios.
+  10. Resuelto el salto en negro en el Hero eliminando `position: fixed !important` en `(dashboard)/layout.tsx`, protegiendo la previsualización con `isRealVideo` y añadiendo barra sticky de guardado flotante.
+  11. Pruebas visuales automatizadas con Playwright ejecutadas con 6 capturas de pantalla de evidencia.
+  12. Batería de seguridad Strix aprobada al 100% sin secretos ni vulnerabilidades.
+
 ## [2026-09-24 10:45 CET]
 - **Petición del usuario**: Corrección de acceso al backoffice (no funciona), aseguramiento de persistencia en base de datos de toda la información (imágenes, posts con imagen correspondiente y video relacionado, información del team, etc.).
 - **Diagnóstico**:

@@ -1,92 +1,37 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  Network,
-  FileText,
-  Ship,
-  ShieldCheck,
-  Eye,
-  Users,
-  Anchor,
-  TrendingUp,
-  Scale,
-  LifeBuoy,
-  Flame,
-  Fuel,
-  Droplet,
-  Plane,
-  Layers,
-  Sparkles,
-} from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import Link from 'next/link';
+import { Sparkles, ArrowRight, BookOpen, Newspaper, Eye, Heart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { SERVICES_LIST } from '@/lib/constants/investoil';
+import { Button } from '@/components/ui/button';
+import { BlogCard } from '@/components/blog/blog-card';
 import { useLanguage } from '@/lib/i18n/language-context';
-import type { ServiceItem } from '@/types';
-
-const iconMap: Record<string, React.ElementType> = {
-  Network,
-  FileText,
-  Ship,
-  ShieldCheck,
-  Eye,
-  Users,
-  Anchor,
-  TrendingUp,
-  Scale,
-  LifeBuoy,
-  Flame,
-  Fuel,
-  Droplet,
-  Plane,
-  Layers,
-};
+import type { Post } from '@/types';
 
 export function ServicesSection({ customBg }: { customBg?: string }) {
-  const { t } = useLanguage();
-  const [services, setServices] = useState<ServiceItem[]>(SERVICES_LIST);
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const { language } = useLanguage();
+  const isEn = language === 'en';
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const local = localStorage.getItem('investoil_services');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setServices(parsed);
-        }
-      }
-    } catch {}
-
-    fetch('/api/content/services')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
+    fetch('/api/posts?status=published')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: Post[]) => {
         if (Array.isArray(data) && data.length > 0) {
-          setServices(data);
-          try {
-            localStorage.setItem('investoil_services', JSON.stringify(data));
-          } catch {}
+          // Filtrar publicados y ordenar por fecha descendente
+          const sorted = [...data].sort((a, b) => {
+            const dateA = new Date(a.published_at || a.created_at).getTime();
+            const dateB = new Date(b.published_at || b.created_at).getTime();
+            return dateB - dateA;
+          });
+          setPosts(sorted.slice(0, 6));
         }
       })
-      .catch(() => {});
-
-    const handleUpdate = (e: Event) => {
-      const customEvent = e as CustomEvent<ServiceItem[]>;
-      if (Array.isArray(customEvent.detail)) {
-        setServices(customEvent.detail);
-      }
-    };
-
-    window.addEventListener('investoil_services_updated', handleUpdate);
-    return () => window.removeEventListener('investoil_services_updated', handleUpdate);
+      .catch((err) => console.error('Error cargando posts para servicios:', err))
+      .finally(() => setLoading(false));
   }, []);
-
-  const allTags = Array.from(new Set(services.flatMap((s) => s.tags || [])));
-
-  const filteredServices = selectedTag
-    ? services.filter((s) => s.tags?.includes(selectedTag))
-    : services;
 
   return (
     <section
@@ -95,84 +40,68 @@ export function ServicesSection({ customBg }: { customBg?: string }) {
       style={{ backgroundColor: customBg || undefined }}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
-          <Badge variant="accent">{t.services.tag}</Badge>
+        {/* Encabezado de la sección */}
+        <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
+          <Badge variant="accent">
+            {isEn ? 'MARKET INTELLIGENCE & RESEARCH' : 'INTELIGENCIA DE MERCADO & TRADING'}
+          </Badge>
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
-            {t.services.title}
+            {isEn
+              ? 'Latest Strategic Oil & Energy Publications'
+              : 'Publicaciones & Análisis Estratégicos del Petróleo'}
           </h2>
-          <p className="text-base text-text-muted leading-relaxed">
-            {t.services.subtitle}
+          <p className="text-sm sm:text-base text-text-muted leading-relaxed">
+            {isEn
+              ? 'Real-time insight on Brent/WTI differentials, pet coke supply, middle distillates, and global maritime tanker routes.'
+              : 'Monitoreo en tiempo real de diferenciales Brent/WTI, coque de petróleo, destilados limpios y logística de fletes marítimos.'}
           </p>
-
-          {/* Tag Filter Pills */}
-          <div className="flex flex-wrap justify-center gap-2 pt-4">
-            <button
-              onClick={() => setSelectedTag(null)}
-              className={`px-3 py-1 text-xs font-mono rounded-full border transition-all ${
-                selectedTag === null
-                  ? 'bg-accent text-bg border-accent font-bold'
-                  : 'bg-card text-text-muted border-border hover:border-accent/40'
-              }`}
-            >
-              Todos ({services.length})
-            </button>
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setSelectedTag(tag)}
-                className={`px-3 py-1 text-xs font-mono rounded-full border transition-all ${
-                  selectedTag === tag
-                    ? 'bg-accent text-bg border-accent font-bold'
-                    : 'bg-card text-text-muted border-border hover:border-accent/40'
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredServices.map((service) => {
-            const Icon = iconMap[service.iconName] || Sparkles;
-            return (
-              <Card
-                key={service.code}
-                className="group relative overflow-hidden transition-all duration-300 hover:border-accent/50 hover:shadow-glow-accent/20 flex flex-col justify-between"
+        {/* Grid de 6 publicaciones más recientes */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((idx) => (
+              <div
+                key={idx}
+                className="h-80 rounded-2xl bg-card/40 border border-border/60 animate-pulse flex flex-col justify-end p-6 space-y-3"
               >
-                <CardHeader className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-accent px-2 py-0.5 rounded bg-accent/10 border border-accent/20">
-                      {service.code}
-                    </span>
-                    <div className="p-2.5 rounded-lg bg-surf border border-border group-hover:border-accent/40 group-hover:text-accent transition-colors">
-                      <Icon className="w-5 h-5 text-accent" />
-                    </div>
-                  </div>
-                  <CardTitle className="font-heading font-bold text-lg text-text group-hover:text-accent transition-colors">
-                    {service.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-xs text-text-muted leading-relaxed">
-                    {service.description}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {service.tags?.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-surf/80 border border-border/60 text-text-subtle"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                <div className="h-4 bg-surf rounded w-1/3" />
+                <div className="h-6 bg-surf rounded w-3/4" />
+                <div className="h-3 bg-surf rounded w-full" />
+              </div>
+            ))}
+          </div>
+        ) : posts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {posts.map((post) => (
+              <BlogCard key={post.id} post={post} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-text-muted text-sm font-mono">
+            {isEn
+              ? 'No publications available at the moment.'
+              : 'No hay publicaciones disponibles en este momento.'}
+          </div>
+        )}
+
+        {/* Botón inferior de enlace completo al Blog */}
+        <div className="text-center mt-12">
+          <Link href="/blog">
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-accent/40 text-accent hover:bg-accent hover:text-bg font-bold text-xs gap-2 px-6 h-11 transition-all shadow-glow-accent/10"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>
+                {isEn
+                  ? 'Explore All Publications & Market News'
+                  : 'Explorar Todos los Análisis en el Blog'}
+              </span>
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

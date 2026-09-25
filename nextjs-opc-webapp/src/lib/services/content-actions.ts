@@ -19,7 +19,7 @@ export async function toggleSectionAction(
   id: string,
   isActive: boolean
 ): Promise<ContentActionResponse> {
-  updateMemorySection(id, isActive);
+  await updateMemorySection(id, isActive);
 
   if (isSupabaseConfigured()) {
     try {

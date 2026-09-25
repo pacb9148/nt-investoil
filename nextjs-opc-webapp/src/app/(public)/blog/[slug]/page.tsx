@@ -7,6 +7,7 @@ import { ArrowLeft, Clock, Calendar, Eye, Share2, Tag, ArrowRight, Video } from 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NewsRepublishBadge } from '@/components/blog/news-republish-badge';
+import { PostLikeButton } from '@/components/blog/post-like-button';
 import { formatDate } from '@/lib/utils';
 import { type Post } from '@/types';
 
@@ -160,6 +161,8 @@ export default async function BlogPostPage({
             <Eye className="w-4 h-4 text-neon" />
             <span>{post.views || 0} lecturas</span>
           </span>
+          <span>•</span>
+          <PostLikeButton postId={post.id} initialLikes={post.likes || 0} />
         </div>
       </div>
 

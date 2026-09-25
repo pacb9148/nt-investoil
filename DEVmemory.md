@@ -10,6 +10,32 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 
 ## 2. Hitos y Funcionalidades Desarrolladas
 
+### Fase 11: Editor Compacto, Radar de Noticias, Proveedores Multi-IA, Orbe 3D y Persistencia Total
+1. **Editor de Artículos Idéntico a Captura de Referencia**:
+   - Tarjeta unificada integrada: Fila 1 con Título del Post; Fila 2 con 2 columnas simétricas para Slug y Tags con iconos compactos `✨` embebidos; Fila 3 con Extracto / Resumen de 3 filas con control de redimensionamiento vertical (`resize-y`).
+   - Barra de títulos en una sola fila compacta con navegación, botón de Agente de Noticias (Radar AI), Scraper de noticias, Guardar Borrador y Publicar Ahora.
+   - Panel lateral con métricas de Vistas y Likes editables (para conservar estadísticas de publicaciones históricas), selector de fecha de publicación y asignación obligatoria de categoría.
+2. **Soporte y Normalización de Categoría "Oil 101"**:
+   - Inclusión formal de la categoría `Oil 101` (`id: cat-oil101`, `slug: oil-101`) con normalizador insensible a mayúsculas, espacios y guiones en el editor.
+3. **Métricas de Vistas y Likes con Persistencia Dual**:
+   - Captación automática de likes en `/blog/[slug]` con componente interactivo `PostLikeButton`, persistencia dual en PostgreSQL y `posts.json`, y protección contra likes duplicados en `localStorage`.
+   - Vistas y likes completamente editables desde el panel de publicación del editor.
+4. **Transformación de "Servicios Petroleros"**:
+   - Reemplazo del bloque de servicios estático en la landing por un grid dinámico con las 6 publicaciones más recientes del blog, con metadatos de categoría, fecha, vistas, likes y enlaces directos al artículo.
+5. **Agente de Noticias Estratégicas (Radar AI)**:
+   - Endpoint `/api/news-agent` con monitoreo de noticias de hidrocarburos, crudos, GLP, GNL y diésel, con modal interactivo y botón de republicación inmediata en el editor con un solo clic.
+6. **Módulo Multi-Proveedor y Multi-Modelo de Inteligencia Artificial (`/admin/settings/ai`)**:
+   - Soporte nativo para OpenRouter, Anthropic Claude, OpenAI, NVIDIA NIM, Alibaba Cloud (Qwen), Google Gemini y DeepSeek AI.
+   - Configuración individual de API Keys con almacenamiento seguro, selección de modelos por defecto, endpoints base personalizados, verificación con pruebas de inferencia y System Prompt global de Invest Oil LLC.
+7. **Agente de Atención al Público en un Orbe 3D**:
+   - Widget flotante en toda la landing pública con esfera pulsante 3D ámbar/petróleo, efectos glowing y animación concéntrica.
+   - Ventana de chat corporativo ejecutivo con sugerencias de preguntas rápidas, conexión a `/api/ai/chat` y contingencia inteligente con Knowledge Base de trading y especificaciones internacionales (ASTM D1655 / EN590 / Incoterms 2020).
+8. **Deduplicación de Logos y Assets en Biblioteca de Medios**:
+   - Limpieza de logos repetidos en base de datos y nuevo endpoint `/api/media/deduplicate` con botón "Deduplicar Medios" en la cabecera de la biblioteca.
+9. **Corrección Definitiva del Hero**:
+   - Eliminación del estilo rígido en `(dashboard)/layout.tsx` que causaba el salto en negro al interactuar con formularios extensos.
+   - Adición de barra sticky flotante inferior permanente para guardar la configuración del Hero desde cualquier punto de la página.
+
 ### Fase 1: Arquitectura Base y Landing Corporativa
 - Identidad visual oficial: sello circular de Invest Oil LLC, logotipo con balancín petrolero y gota dorada, isotipos y favicons.
 - Catálogo comercial íntegro extraído de `investoil.es`: 10 servicios petroleros, 8 productos de hidrocarburos, 4 operaciones globales, 6 miembros del consejo directivo, 5 testimonios y 5 páginas legales.

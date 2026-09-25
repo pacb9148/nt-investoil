@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, Eye, Calendar, ArrowRight, Video } from 'lucide-react';
+import { Clock, Eye, Calendar, ArrowRight, Video, Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/lib/utils';
@@ -116,7 +116,7 @@ export function BlogCard({ post }: { post: Post & { categories?: any[] } }) {
         </CardContent>
       </div>
 
-      <div className="p-6 pt-0 border-t border-border/40 mt-auto flex items-center justify-between">
+      <div className="p-6 pt-0 border-t border-border/40 mt-auto flex items-center justify-between text-[11px] font-mono text-text-subtle">
         <Link
           href={`/blog/${post.slug}`}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:text-neon transition-colors"
@@ -124,6 +124,17 @@ export function BlogCard({ post }: { post: Post & { categories?: any[] } }) {
           <span>{isEn ? 'Read article' : 'Leer artículo'}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
+
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1" title={`${post.views || 0} lecturas`}>
+            <Eye className="w-3.5 h-3.5 text-cyan-400" />
+            <span>{post.views || 0}</span>
+          </span>
+          <span className="flex items-center gap-1 text-rose-400" title={`${post.likes || 0} likes`}>
+            <Heart className="w-3.5 h-3.5 fill-rose-500/20" />
+            <span>{post.likes || 0}</span>
+          </span>
+        </div>
       </div>
     </Card>
   );
