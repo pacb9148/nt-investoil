@@ -468,4 +468,39 @@
   - `npm run build`: 53/53 rutas generadas con éxito al 100%.
   - `pwsh ./scripts/bateria-seguridad.ps1`: 4/4 verificaciones OK (Batería 100% limpia).
 
+## [2026-09-25 22:00] - Fase 17: Persistencia Integral en PostgreSQL y Migración Exhaustiva Registro por Registro
+- **Solicitud del Usuario**:
+  "Ahora ya está solucionado el problema de acceso a la base de datos, revisa y comprueba, ya puedes dejar de guardar la información en ficheros json, ahora transfiere toda la información a su sitio en la base de datos de forma ordenada, cada cosa en su lugar, registro por registro y asegurate de no perder información en el camino, toda la información del los json a su correspondiente campo en la base de datos"
+- **Diagnóstico y Arquitectura**:
+  1. *Comprobación en vivo del acceso a la BD*: Se verificó contra el entorno de producción (`https://investoil.es/api/system-status`) que `hasDatabaseUrl: true` está activo y respondiendo a consultas de API con HTTP 200 (`/api/categories`, `/api/posts`, `/api/content/header`, `/api/content/team`, etc.).
+  2. *Inventario y Mapeo Completo de 22 Archivos JSON*:
+     - `categories.json` (8 items) -> Tabla `categories` (id, name, slug, description, name_en, description_en, color, updated_at).
+     - `posts.json` (8 artículos con vistas, likes, slugs y contenido Tiptap) -> Tabla `posts` (id, slug, title, excerpt, content JSONB, status, category_id, category, featured_image_url, video_url, tags, reading_time, views, likes, is_republished, original_source_url, original_source_name, published_at, updated_at).
+     - `team.json` (6 directivos) -> Tabla `landing_team` (id, number, name, role, role_en, location, image, photo_url, bio, bio_en, linkedin_url, sort_order, is_active, updated_at).
+     - `testimonials.json` (5 testimonios) -> Tabla `landing_testimonials` (id, author_name, author_company, author_role, avatar_url, text_es, text_en, rating, sort_order, is_active, updated_at).
+     - `services.json` (8 servicios) -> Tabla `landing_services` (id, title_es, title_en, description_es, description_en, icon, features, sort_order, is_active, updated_at).
+     - `products.json` (6 productos) -> Tablas `landing_products` y `products` (id, name_es, name_en, category, specs, description_es, description_en, image_url, sort_order, is_active, updated_at).
+     - `faq.json` (4 FAQs) -> Tabla `landing_faq` (id, question, answer, question_en, answer_en, category, sort_order, is_active, updated_at).
+     - `media.json` (19 elementos) -> Tabla `media` (id, filename, url, type, mime_type, size, alt_text, data_base64).
+     - `users.json` (4 usuarios) -> Tablas `backoffice_users` y `users`.
+     - `leads.json` (2 prospectos) -> Tabla `leads`.
+     - Secciones Singleton: `header.json` -> `landing_header`, `about.json` -> `landing_about`, `footer.json`/`settings.json` -> `landing_footer`, `seo.json` -> `landing_seo`, `hero.json` -> `landing_hero`, `appearance.json` -> `landing_site_appearance`, `operations.json` -> `landing_operations`, `problem.json` -> `landing_problem`, `marquee.json` -> `landing_marquee`, `cta-final` -> `landing_cta_final`.
+     - Tabla Universal `landing_sections`: Copia completa e indexada de las 18 secciones (`about`, `ai_settings`, `ai_settings_config`, `appearance`, `faq`, `header`, `hero`, `legal_pages`, `marquee`, `operations`, `problem`, `products`, `seo`, `services`, `settings`, `site_settings`, `team`, `testimonials`, `sections`).
+- **Implementaciones Realizadas**:
+  1. **Esquema DDL Completo en `ensurePgSchema()` (`src/lib/db/pg-client.ts`)**:
+     - Definidas las 24 tablas de persistencia con `CREATE TABLE IF NOT EXISTS` (sin prefijo fijo para máxima compatibilidad).
+     - Auto-detección en arranque: si las tablas están vacías (`landing_sections` con 0 registros), se dispara automáticamente `migrateAllJsonToPostgres()` para que no quede vacía.
+  2. **Servicio Central de Migración (`src/lib/db/migration-service.ts`)**:
+     - Función idempotente `migrateAllJsonToPostgres()` con cláusulas `ON CONFLICT (id) DO UPDATE SET...` para todas las tablas.
+     - Registro metódico campo a campo, preservando tipos JSONB, arrays de tags, estadísticas históricas (views, likes) e identidades Delaware USA.
+  3. **Endpoint de API para Migración (`src/app/api/admin/migrate/route.ts`)**:
+     - Endpoint protegido que ejecuta la migración en runtime de Next.js y devuelve el reporte estructurado con el número de filas migradas por tabla.
+  4. **Script CLI Standalone (`scripts/migrate-to-db.mjs`)**:
+     - Ejecutable para migración directa vía terminal pasando la cadena de conexión o variables de entorno.
+- **Verificación Técnica**:
+  - `npm run type-check`: 0 errores de TypeScript.
+  - `npm run build`: 54/54 rutas compiladas exitosamente (100% OK).
+  - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada sin secretos ni dependencias vulnerables.
+
+
 

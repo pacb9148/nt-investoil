@@ -10,6 +10,23 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 
 ## 2. Hitos y Funcionalidades Desarrolladas
 
+### Fase 17: Persistencia Integral en PostgreSQL y Migración Exhaustiva Registro por Registro
+1. **Comprobación y Verificación de Conexión en Base de Datos**:
+   - Se verificó contra el entorno en vivo (`https://investoil.es/api/system-status`) que `hasDatabaseUrl: true` está activo y respondiendo a consultas de API con HTTP 200 (`/api/categories`, `/api/posts`, `/api/content/header`, `/api/content/team`, etc.).
+2. **Esquema DDL Completo en PostgreSQL (`ensurePgSchema`)**:
+   - Ampliación en `src/lib/db/pg-client.ts` para crear automáticamente todas las tablas relacionales y de contenido (`categories`, `posts`, `landing_team`, `landing_testimonials`, `landing_services`, `landing_products`, `products`, `landing_operations`, `landing_problem`, `landing_marquee`, `landing_cta_final`, `landing_faq`, `landing_header`, `landing_about`, `landing_footer`, `landing_seo`, `landing_hero`, `landing_site_appearance`, `backoffice_users`, `users`, `leads`, `media`, `media_files`, `landing_sections`).
+   - Auto-migración en arranque: si se detecta que `landing_sections` tiene 0 registros, la aplicación ejecuta de fondo `migrateAllJsonToPostgres()`.
+3. **Servicio Central de Migración (`src/lib/db/migration-service.ts`)**:
+   - Mapeo exacto registro por registro, campo a campo, de los 22 archivos JSON sin pérdida de información (respetando arrays de tags, estructuras JSONB de Tiptap, contadores históricos de vistas y likes, y personería Delaware USA).
+   - Cláusulas idempotentes `ON CONFLICT (id) DO UPDATE SET...` que preservan la integridad de datos ante múltiples ejecuciones.
+4. **Endpoint Administrativo y Script CLI**:
+   - Creación de endpoint `/api/admin/migrate` para ejecutar la migración en runtime de Next.js y obtener el reporte estructurado con el número de filas migradas por tabla.
+   - Script CLI `scripts/migrate-to-db.mjs` para ejecuciones manuales por terminal.
+5. **Validación Técnica**:
+   - `npm run type-check`: 0 errores de TypeScript.
+   - `npm run build`: 54/54 rutas compiladas exitosamente (100% OK).
+   - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada sin secretos ni dependencias vulnerables.
+
 ### Fase 14: Corrección de Subida de Logotipos, Eliminación de Archivos y Tolerancia a Fallos Multipart
 1. **Resolución de Error JSON Parse al Subir Logotipo**:
    - Diagnóstico raíz: El componente de cabecera (`header-form.tsx`) y el editor de pie de página (`settings/page.tsx`) enviaban `FormData` (multipart) a `/api/media`. Al recibir multipart con encabezado de delimitador de boundary (`----------------...`), `/api/media` ejecutaba `request.json()`, haciendo que V8 arrojara el error: `SyntaxError: No number after minus sign in JSON at position 1 (line 1 column 2)`.
