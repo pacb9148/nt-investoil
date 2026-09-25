@@ -240,3 +240,14 @@ export async function GET(
     return new NextResponse('Error interno al servir el archivo', { status: 500 });
   }
 }
+
+export async function HEAD(
+  request: NextRequest,
+  context: { params: { slug: string[] } }
+) {
+  const getRes = await GET(request, context);
+  return new NextResponse(null, {
+    status: getRes.status,
+    headers: getRes.headers,
+  });
+}

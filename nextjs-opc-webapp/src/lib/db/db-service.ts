@@ -260,6 +260,7 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
         category_id: effectiveCategory ? effectiveCategory.id : null,
         category: effectiveCategory ? effectiveCategory.name : null,
         categories: effectiveCategory ? [effectiveCategory] : [],
+        published_at: finalStatus === 'published' ? (postData.published_at || existing.published_at || now) : null,
         updated_at: now,
       };
       posts[index] = targetPost;
@@ -282,9 +283,9 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
         is_republished: postData.is_republished || false,
         original_source_url: postData.original_source_url || null,
         original_source_name: postData.original_source_name || null,
-        created_at: now,
+        created_at: postData.created_at || now,
         updated_at: now,
-        published_at: finalStatus === 'published' ? now : null,
+        published_at: finalStatus === 'published' ? (postData.published_at || now) : null,
       };
       posts.unshift(targetPost);
     }
@@ -308,9 +309,9 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
       is_republished: postData.is_republished || false,
       original_source_url: postData.original_source_url || null,
       original_source_name: postData.original_source_name || null,
-      created_at: now,
+      created_at: postData.created_at || now,
       updated_at: now,
-      published_at: finalStatus === 'published' ? now : null,
+      published_at: finalStatus === 'published' ? (postData.published_at || now) : null,
     };
     posts.unshift(targetPost);
   }

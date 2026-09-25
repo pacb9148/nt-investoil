@@ -1,68 +1,600 @@
 [
   {
     "id": "p-1790286754828",
-    "slug": "articulo-test-sin-categoria",
-    "title": "Artículo Test Sin Categoría",
-    "excerpt": "Artículo de prueba sobre avances en biocombustibles y nuevas energías renovables.",
-    "content": null,
-    "status": "draft",
-    "category_id": "cat-mug2glc4",
-    "category": "Transición Energética",
+    "slug": "oil101-brent-vs-wti",
+    "title": "Brent vs. WTI - ¿Qué es el Brent?",
+    "excerpt": "Cuando hablamos del precio del petróleo, es frecuente escuchar referencias como Brent y WTI. Ambos son términos fundamentales para entender el mercado energético, pero no representan exactamente lo mismo.",
+    "content": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Oil 101 | #01"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Cuando hablamos del precio del petróleo, es frecuente escuchar referencias como Brent y WTI. Ambos son términos fundamentales para entender el mercado energético, pero no representan exactamente lo mismo."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Entonces, ¿Qué diferencia existe entre ellos? ¿Y por qué el petróleo no tiene un único precio en todo el mundo?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "¿Qué es el Brent?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "El Brent es una de las principales referencias (benchmarks) utilizadas para valorar el petróleo crudo en los mercados internacionales."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Su origen está vinculado históricamente a los crudos producidos en el Mar del Norte, aunque con el tiempo el sistema de referencia Brent ha evolucionado y actualmente sirve como referencia para una amplia variedad de operaciones petroleras a nivel mundial."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Por su importancia en el comercio internacional, cuando se habla de los precios del petróleo en los mercados globales, es muy habitual encontrar el Brent como referencia."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "¿Qué es el WTI?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "WTI, abreviatura de West Texas Intermediate, es otra de las grandes referencias internacionales del petróleo."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Está asociado principalmente al mercado estadounidense y su punto de referencia físico se encuentra en Cushing, Oklahoma, un importante centro de almacenamiento y distribución de crudo en Estados Unidos."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "El WTI es conocido por ser un crudo relativamente ligero y con bajo contenido de azufre, características que influyen en su valoración."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Entonces, ¿por qué Brent y WTI tienen precios diferentes?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "La respuesta está en que el petróleo no es un producto completamente homogéneo."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Existen diferentes tipos de crudo y su valor puede variar dependiendo de factores como:"
+            }
+          ]
+        },
+        {
+          "type": "bulletList",
+          "content": [
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "- Calidad y composición del crudo."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "- Ubicación geográfica."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "- Costes de transporte."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "- Disponibilidad de almacenamiento."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "- Oferta y demanda regional."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "- Capacidad de refinación."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "listItem",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "textAlign": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "- Condiciones de los mercados internacionales."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Por esta razón, no existe un único precio que represente a todo el petróleo producido y comercializado en el mundo."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "Brent y WTI:"
+            },
+            {
+              "type": "text",
+              "text": " dos referencias, un mercado global"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Una forma sencilla de entenderlo es imaginar que Brent y WTI funcionan como puntos de referencia que ayudan a compradores, vendedores y participantes del mercado a determinar el valor de diferentes tipos de crudo."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "No significa que todo el petróleo del mundo se venda exactamente al precio del Brent o del WTI."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "En muchas operaciones, el precio final se determina tomando como referencia uno de estos benchmarks y aplicando posteriormente un diferencial (differential) que refleja las características específicas del crudo y las condiciones de la operación."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "¿Por qué es importante conocer esta diferencia?"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Porque entender los benchmarks es fundamental para comprender cómo funciona el mercado del petróleo."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Cuando vemos que el precio del Brent o del WTI sube o baja, estamos observando el comportamiento de referencias concretas del mercado, no de un precio único y universal aplicable a todos los barriles de petróleo."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Además, las diferencias entre estos mercados pueden proporcionar información sobre las condiciones regionales de oferta, demanda, logística y disponibilidad de crudo."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "En resumen"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "Brent "
+            },
+            {
+              "type": "text",
+              "text": "→ una de las principales referencias para el mercado internacional del petróleo."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "WTI"
+            },
+            {
+              "type": "text",
+              "text": " → referencia fundamental para el mercado estadounidense y uno de los principales benchmarks mundiales."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "La diferencia de precios → responde, entre otros factores, a características del crudo, ubicación, logística, oferta y demanda."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Comprender estos conceptos básicos permite interpretar mejor las noticias, los precios y la evolución del mercado energético."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "Oil 101"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "Conceptos del mercado energético que conviene conocer."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Una serie educativa de Invest Oil LLC para acercar los conceptos fundamentales del mercado energético de una manera clara, sencilla y accesible."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Contenido exclusivamente educativo. No constituye una recomendación de inversión ni una oferta de compra o venta de activos."
+            }
+          ]
+        }
+      ]
+    },
+    "status": "published",
+    "category_id": "cat-mug51qtp",
+    "category": "OIL101",
     "categories": [
       {
-        "id": "cat-mug2glc4",
-        "name": "Transición Energética",
-        "slug": "transicion-energetica",
-        "description": "Artículos sobre renovables, biocombustibles y descarbonización.",
-        "name_en": "Transición Energética",
+        "id": "cat-mug51qtp",
+        "name": "OIL101",
+        "slug": "oil101",
+        "description": "Conceptos del mercado energético que conviene conocer",
+        "name_en": "OIL101",
         "description_en": "",
         "color": "#f59e0b",
-        "created_at": "2026-09-24T21:51:12.388Z"
+        "created_at": "2026-09-24T23:03:38.510Z"
       }
     ],
-    "featured_image_url": "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790317899444-WhatsApp_Image_2026-09-22_at_22.33.02.jpeg",
     "video_url": null,
-    "tags": ["Transición", "Energía", "Sostenibilidad"],
+    "tags": [
+      "petroleo",
+      "crent",
+      "wti",
+      "mercado internacional"
+    ],
     "reading_time": 3,
     "views": 0,
     "is_republished": false,
     "original_source_url": null,
     "original_source_name": null,
     "created_at": "2026-09-24T21:52:34.826Z",
-    "updated_at": "2026-09-24T21:52:34.826Z",
-    "published_at": null
-  },
-  {
-    "id": "p-1790240311559",
-    "slug": "proyecto-estrategico-oleoductos-2026",
-    "title": "Proyecto Estratégico de Oleoductos 2026",
-    "excerpt": "Análisis detallado de la infraestructura de transporte petrolífero y modernización.",
-    "content": "<p>Contenido completo del artículo técnico con proyecciones y detalles operativos.</p>",
-    "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
-    "video_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "tags": [
-      "Infraestructura",
-      "Crudo",
-      "Inversión"
-    ],
-    "reading_time": 3,
-    "views": 0,
-    "is_republished": false,
-    "original_source_url": null,
-    "original_source_name": null,
-    "created_at": "2026-09-24T08:58:31.559Z",
-    "updated_at": "2026-09-24T20:50:51.786Z",
-    "published_at": "2026-09-24T08:58:31.559Z",
-    "category_id": "cat-2",
-    "category": "Logística & Fletes Marítimos",
-    "categories": [
-      {
-        "id": "cat-2",
-        "name": "Logística & Fletes Marítimos",
-        "slug": "log-stica-fletes-mar-timos"
-      }
-    ]
+    "updated_at": "2026-09-25T07:19:52.727Z",
+    "published_at": "2026-09-24T23:04:35.096Z"
   },
   {
     "id": "p-1",
@@ -105,10 +637,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790320883864-petcoke.png.png",
     "published_at": "2026-09-22T08:56:23.138Z",
     "created_at": "2026-09-22T08:56:23.139Z",
-    "updated_at": "2026-09-24T20:50:08.915Z",
+    "updated_at": "2026-09-25T07:21:33.317Z",
     "tags": [
       "Pet Coke",
       "Asia",
@@ -119,7 +651,11 @@
       {
         "id": "cat-5",
         "name": "Pet Coke & Commodities Sólidos",
-        "slug": "pet-coke-commodities-s-lidos"
+        "name_en": "Pet Coke & Solid Carbon",
+        "slug": "pet-coke-solidos",
+        "description": "Coque de petróleo verde y calcinado para cementeras y metalurgia.",
+        "description_en": "Green and calcined petroleum coke for cement and metallurgy plants.",
+        "color": "#ec4899"
       }
     ],
     "category": "Pet Coke & Commodities Sólidos",
@@ -151,10 +687,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790320908480-images.jpg",
     "published_at": "2026-09-20T08:56:23.139Z",
     "created_at": "2026-09-20T08:56:23.139Z",
-    "updated_at": "2026-09-24T21:29:13.72Z",
+    "updated_at": "2026-09-25T07:21:53.486Z",
     "tags": [
       "Merey 16",
       "Crudo Pesado",
@@ -165,7 +701,11 @@
       {
         "id": "cat-3",
         "name": "Refinación & Derivados",
-        "slug": "refinaci-n-derivados"
+        "name_en": "Refining & Derivatives",
+        "slug": "refinacion-derivados",
+        "description": "Merey 16, Diésel EN590, Jet A-1 y procesamiento en unidades de alta conversión.",
+        "description_en": "Merey 16, Diesel EN590, Jet A-1, and complex refinery hydrocracking.",
+        "color": "#eab308"
       }
     ],
     "category": "Refinación & Derivados",
@@ -197,10 +737,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790320929820-11158993.png",
     "published_at": "2026-09-18T08:56:23.139Z",
     "created_at": "2026-09-18T08:56:23.139Z",
-    "updated_at": "2026-09-24T21:30:24.272Z",
+    "updated_at": "2026-09-25T07:22:15.529Z",
     "tags": [
       "Riesgo Financiero",
       "Compliance",
@@ -211,7 +751,11 @@
       {
         "id": "cat-1",
         "name": "Mercado Petrolero & Precios",
-        "slug": "mercado-petrolero-precios"
+        "name_en": "Oil Markets & Pricing",
+        "slug": "mercado-petrolero",
+        "description": "Análisis de diferenciales Brent/WTI, cotizaciones y balances de inventarios.",
+        "description_en": "Analysis of Brent/WTI differentials, quotes, and inventory balances.",
+        "color": "#f59e0b"
       }
     ],
     "category": "Mercado Petrolero & Precios",
@@ -243,10 +787,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790320950129-diesel-engine-efficiency.webp",
     "published_at": "2026-09-16T08:56:23.139Z",
     "created_at": "2026-09-16T08:56:23.139Z",
-    "updated_at": "2026-09-24T21:30:04.271Z",
+    "updated_at": "2026-09-25T07:22:35.095Z",
     "tags": [
       "Diesel EN590",
       "Refinados",
@@ -257,7 +801,11 @@
       {
         "id": "cat-3",
         "name": "Refinación & Derivados",
-        "slug": "refinaci-n-derivados"
+        "name_en": "Refining & Derivatives",
+        "slug": "refinacion-derivados",
+        "description": "Merey 16, Diésel EN590, Jet A-1 y procesamiento en unidades de alta conversión.",
+        "description_en": "Merey 16, Diesel EN590, Jet A-1, and complex refinery hydrocracking.",
+        "color": "#eab308"
       }
     ],
     "category": "Refinación & Derivados",
@@ -289,10 +837,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1516937941344-00b4e0337589?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790320981862-C5OJNJFIZZD.png",
     "published_at": "2026-09-14T08:56:23.139Z",
     "created_at": "2026-09-14T08:56:23.139Z",
-    "updated_at": "2026-09-24T21:30:39.182Z",
+    "updated_at": "2026-09-25T07:23:07.687Z",
     "tags": [
       "IEA",
       "Brent",
@@ -303,7 +851,11 @@
       {
         "id": "cat-1",
         "name": "Mercado Petrolero & Precios",
-        "slug": "mercado-petrolero-precios"
+        "name_en": "Oil Markets & Pricing",
+        "slug": "mercado-petrolero",
+        "description": "Análisis de diferenciales Brent/WTI, cotizaciones y balances de inventarios.",
+        "description_en": "Analysis of Brent/WTI differentials, quotes, and inventory balances.",
+        "color": "#f59e0b"
       }
     ],
     "category": "Mercado Petrolero & Precios",
@@ -335,10 +887,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790321009575-1790279740.png",
     "published_at": "2026-09-12T08:56:23.139Z",
     "created_at": "2026-09-12T08:56:23.139Z",
-    "updated_at": "2026-09-24T21:30:54.37Z",
+    "updated_at": "2026-09-25T07:25:05.852Z",
     "tags": [
       "Fletes",
       "VLCC",
@@ -350,7 +902,11 @@
       {
         "id": "cat-1",
         "name": "Mercado Petrolero & Precios",
-        "slug": "mercado-petrolero-precios"
+        "name_en": "Oil Markets & Pricing",
+        "slug": "mercado-petrolero",
+        "description": "Análisis de diferenciales Brent/WTI, cotizaciones y balances de inventarios.",
+        "description_en": "Analysis of Brent/WTI differentials, quotes, and inventory balances.",
+        "color": "#f59e0b"
       }
     ],
     "category": "Mercado Petrolero & Precios",
@@ -382,10 +938,10 @@
       ]
     },
     "status": "published",
-    "featured_image_url": "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1200&q=80",
+    "featured_image_url": "/uploads/1790321116945-images__1_.jpg",
     "published_at": "2026-09-10T08:56:23.139Z",
     "created_at": "2026-09-10T08:56:23.139Z",
-    "updated_at": "2026-09-24T21:31:16.76Z",
+    "updated_at": "2026-09-25T07:25:23.488Z",
     "tags": [
       "GNL",
       "Gas Natural",
@@ -396,7 +952,11 @@
       {
         "id": "cat-1",
         "name": "Mercado Petrolero & Precios",
-        "slug": "mercado-petrolero-precios"
+        "name_en": "Oil Markets & Pricing",
+        "slug": "mercado-petrolero",
+        "description": "Análisis de diferenciales Brent/WTI, cotizaciones y balances de inventarios.",
+        "description_en": "Analysis of Brent/WTI differentials, quotes, and inventory balances.",
+        "color": "#f59e0b"
       }
     ],
     "category": "Mercado Petrolero & Precios",

@@ -149,8 +149,8 @@ export function TiptapEditor({
 
   return (
     <div className={cn('rounded-xl border border-border bg-surf/90 overflow-hidden', className)}>
-      {/* Editor Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border bg-card/60 text-text-muted">
+      {/* Editor Toolbar: Sticky arriba para no perder herramientas al hacer scroll */}
+      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-1 p-2 border-b border-border bg-card/95 backdrop-blur text-text-muted shadow-sm">
         {/* Undo/Redo */}
         <button
           type="button"
@@ -387,8 +387,10 @@ export function TiptapEditor({
         </button>
       </div>
 
-      {/* Editor Content Area */}
-      <EditorContent editor={editor} />
+      {/* Editor Content Area con Scroll Vertical Propio */}
+      <div className="max-h-[500px] min-h-[350px] overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(245,158,11,0.3)_transparent]">
+        <EditorContent editor={editor} />
+      </div>
 
       {/* Footer stats: Character & Word Count */}
       <div className="flex items-center justify-between px-4 py-2 border-t border-border bg-card/40 text-[11px] font-mono text-text-subtle">

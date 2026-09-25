@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    // 1. Guardar en memoria y archivo JSON
-    updateMemoryAppearance(updated);
+    // 1. Guardar en memoria, archivo JSON y PostgreSQL
+    await updateMemoryAppearance(updated);
 
     // 2. Si Supabase está disponible, sincronizar
     if (isSupabaseConfigured()) {

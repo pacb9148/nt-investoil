@@ -413,19 +413,20 @@ export async function saveLandingSeo(data: any): Promise<any> {
 }
 
 // Helpers para actualizar el fallback local con persistencia en archivo y PostgreSQL
-export function updateMemorySection(id: string, isActive: boolean) {
+export async function updateMemorySection(id: string, isActive: boolean) {
   memorySections = memorySections.map((s) => (s.id === id ? { ...s, is_active: isActive } : s));
-  saveSectionToPg('sections', memorySections).catch(() => {});
+  writeLocalJson('sections.json', memorySections);
+  await saveSectionToPg('sections', memorySections);
 }
 
-export function updateMemoryHero(data: Partial<LandingHeroConfig>) {
+export async function updateMemoryHero(data: Partial<LandingHeroConfig>) {
   memoryHero = { ...memoryHero, ...data };
   writeLocalJson('hero.json', memoryHero);
-  saveSectionToPg('hero', memoryHero).catch(() => {});
+  await saveSectionToPg('hero', memoryHero);
 }
 
-export function updateMemoryAppearance(data: Partial<LandingAppearanceConfig>) {
+export async function updateMemoryAppearance(data: Partial<LandingAppearanceConfig>) {
   memoryAppearance = { ...memoryAppearance, ...data };
   writeLocalJson('appearance.json', memoryAppearance);
-  saveSectionToPg('appearance', memoryAppearance).catch(() => {});
+  await saveSectionToPg('appearance', memoryAppearance);
 }

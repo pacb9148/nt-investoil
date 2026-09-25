@@ -287,3 +287,33 @@
      - `npm run build`: 52/52 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
      - Suite Playwright (`verify-media.mjs`): 100% aprobada con 0 fallos.
      - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.
+
+## [2026-09-25 10:20] Rediseño Compacto de Editor de Posts, Toolbar Fija, Fecha Editable, Sugerencias y Persistencia (+dap)
+- **Petición del Usuario**:
+  - Reducción de la barra de títulos a una sola fila horizontal compacta con botones de acción para ganar espacio.
+  - Bloque unificado y estilizado: Título, Slug con sugerencia automática, Tags con sugerencia automática de términos energéticos, y Extracto.
+  - Toolbar de Tiptap fija arriba (sticky top-0) y contenedor de contenido con barra de desplazamiento vertical interna.
+  - Fecha de publicación editable (datetime-local) para mantener fechas históricas de noticias.
+  - Categorías asignables retroactivamente a artículos antiguos sin categoría.
+  - Sincronización completa de imágenes y miembros del equipo directivo para no perder datos en despliegues.
+  - Previsualizaciones interactivas con spinner de carga y ampliación del límite de videos a 100 MB para permitir videos corporativos pesados.
+  - Orden final: +dap y verificación del deploy.
+- **Acciones Realizadas**:
+  1. **Editor de Artículos (post-editor-form.tsx)**:
+     - Barra superior rediseñada en una sola fila compacta con <-, título y botones de acción.
+     - Bloque integrado: Título, dos columnas alineadas para Slug URL y Tags con botones interactivos Sugerir automáticamente, y Extracto.
+     - Campo editable Fecha de Publicación (type=datetime-local) integrado en la columna de detalles.
+  2. **Editor Tiptap (tiptap-editor.tsx)**:
+     - Toolbar con sticky top-0 z-20 bg-card/95 backdrop-blur border-b border-border shadow-sm.
+     - Contenedor con scroll vertical (max-h-[500px] min-h-[350px] overflow-y-auto) y scrollbar ámbar.
+  3. **Persistencia en Base de Datos (db-service.ts)**:
+     - savePost adaptado para respetar published_at enviado desde el editor, impidiendo pisar fechas históricas con new Date().
+  4. **Sincronización Total de Datos (scripts/sync-prod.mjs)**:
+     - Descargados e incorporados los 8 artículos de producción en posts.json, los 6 miembros del equipo en team.json, y todas las imágenes reales subidas por el usuario a public/uploads/ y nextjs-opc-webapp/public/uploads/.
+  5. **Previsualizaciones y Límites Multimedia (media-upload-field.tsx, /api/upload)**:
+     - Spinner Loader2 y eventos onLoad/onLoadedData para previsualizaciones fluidas sin recuadros negros.
+     - Límite de video ampliado a 100 MB y validación de streaming HTTP 206 Partial Content.
+  6. **Verificación Automatizada con Evidencia Real**:
+     - npm run build: 52/52 páginas y rutas de Next.js compiladas con éxito (0 errores).
+     - Test E2E Playwright: captura verificada con barra en 1 fila, toolbar fija, fecha editable y tags automáticos.
+     - Batería de seguridad (pwsh ./scripts/bateria-seguridad.ps1): superada con resultado 100% aprobado.

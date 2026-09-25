@@ -107,8 +107,8 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
       setUploadError(`La imagen pesa ${fileSizeMB.toFixed(1)} MB y supera el tamaño máximo permitido de 2 MB.`);
       return;
     }
-    if (isVid && fileSizeMB > 10) {
-      setUploadError(`El video pesa ${fileSizeMB.toFixed(1)} MB y supera el tamaño máximo permitido de 10 MB.`);
+    if (isVid && fileSizeMB > 100) {
+      setUploadError(`El video pesa ${fileSizeMB.toFixed(1)} MB y supera el tamaño máximo permitido de 100 MB.`);
       return;
     }
 
@@ -755,7 +755,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                   </div>
                   <ul className="list-disc list-inside space-y-0.5 pl-1 text-[10px] text-text-subtle font-mono">
                     <li>
-                      <strong className="text-text">Videos de fondo:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">10 MB</span>)
+                      <strong className="text-text">Videos de fondo:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">100 MB</span>)
                     </li>
                     <li>
                       <strong className="text-text">Imágenes de fondo:</strong> JPG, JPEG, PNG, WebP, SVG (Máx. <span className="text-amber-400">2 MB</span>)

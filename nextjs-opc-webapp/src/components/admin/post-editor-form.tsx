@@ -54,6 +54,18 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
     initialPost?.original_source_name || ''
   );
 
+  const [publishedAt, setPublishedAt] = useState<string>(() => {
+    if (initialPost?.published_at) {
+      try {
+        const d = new Date(initialPost.published_at);
+        if (!isNaN(d.getTime())) {
+          return d.toISOString().slice(0, 16);
+        }
+      } catch {}
+    }
+    return new Date().toISOString().slice(0, 16);
+  });
+
   // Categorías
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState<string>(
@@ -92,8 +104,38 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
   // Auto-generate slug when title changes if slug was empty
   const handleTitleChange = (val: string) => {
     setTitle(val);
-    if (!initialPost) {
+    if (!initialPost && !slug) {
       setSlug(slugify(val));
+    }
+  };
+
+  const suggestSlug = () => {
+    if (!title.trim()) return;
+    setSlug(slugify(title));
+  };
+
+  const suggestTags = () => {
+    const rawText = `${title} ${excerpt} ${typeof content === 'string' ? content : JSON.stringify(content || '')}`.toLowerCase();
+    const candidateKeywords = [
+      'Brent', 'WTI', 'Pet Coke', 'Merey 16', 'EN590', 'Jet A-1',
+      'Refinación', 'Trading', 'Logística', 'Buques', 'VLCC', 'Aframax',
+      'Demurrage', 'Fletes', 'Arbitraje', 'GNL', 'Gas Natural', 'Crudo Pesado',
+      'Derivados', 'Compliance', 'Riesgo Financiero', 'Houston', 'Rotterdam',
+      'Sostenibilidad', 'Transición', 'Inventarios', 'Mercados'
+    ];
+    const detected = candidateKeywords.filter((kw) =>
+      rawText.includes(kw.toLowerCase())
+    );
+    if (detected.length > 0) {
+      const current = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(Boolean) : [];
+      const combined = Array.from(new Set([...current, ...detected]));
+      setTagsInput(combined.join(', '));
+    } else if (title.trim()) {
+      const words = title
+        .split(/\s+/)
+        .map(w => w.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, ''))
+        .filter(w => w.length > 4 && !['sobre', 'desde', 'hacia', 'entre', 'donde', 'cuando', 'porque'].includes(w.toLowerCase()));
+      setTagsInput(words.slice(0, 5).join(', '));
     }
   };
 
@@ -148,6 +190,11 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
 
     const selectedCat = categories.find((c) => c.id === categoryId);
 
+    const finalPublishedAt =
+      finalStatus === 'published'
+        ? (publishedAt ? new Date(publishedAt).toISOString() : (initialPost?.published_at || new Date().toISOString()))
+        : null;
+
     const payload = {
       title,
       slug: slug || slugify(title),
@@ -163,7 +210,8 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
       is_republished: isRepublished,
       original_source_url: isRepublished ? originalSourceUrl : null,
       original_source_name: isRepublished ? originalSourceName : null,
-      published_at: finalStatus === 'published' ? (initialPost?.published_at || new Date().toISOString()) : null,
+      published_at: finalPublishedAt,
+      created_at: initialPost?.created_at || finalPublishedAt || new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
 
@@ -199,32 +247,30 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
   const selectedCategoryObj = categories.find((c) => c.id === categoryId);
 
   return (
-    <div className="space-y-6">
-      {/* Top action header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-border">
-        <div className="flex items-center gap-3">
+    <div className="space-y-4">
+      {/* Barra superior de títulos y botones en una única fila compacta */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-border/80">
+        <div className="flex items-center gap-2.5">
           <Link href="/admin/posts">
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <ArrowLeft className="w-4 h-4 text-text-muted" />
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-surf text-text-muted hover:text-text">
+              <ArrowLeft className="w-4 h-4" />
             </Button>
           </Link>
-          <div>
-            <Badge variant="accent">EDITOR EDITORIAL</Badge>
-            <h1 className="font-heading font-extrabold text-2xl text-text mt-1">
-              {initialPost ? 'Editar Artículo' : 'Nuevo Artículo del Blog'}
-            </h1>
-          </div>
+          <h1 className="font-heading font-bold text-lg sm:text-xl text-text tracking-wide">
+            {initialPost ? 'Editar Artículo' : 'Editor de Artículos'}
+          </h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setRepublishModalOpen(true)}
-            className="gap-1.5 border-accent/40 text-accent hover:bg-accent/10"
+            className="gap-1.5 border-accent/40 text-accent hover:bg-accent/10 text-xs h-8 px-2.5"
           >
             <Sparkles className="w-3.5 h-3.5 text-accent" />
-            <span>Republicar Noticia (Scraper)</span>
+            <span className="hidden sm:inline">Republicar Noticia (Scraper)</span>
+            <span className="sm:hidden">Scraper</span>
           </Button>
 
           <Button
@@ -232,7 +278,7 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
             size="sm"
             onClick={() => handleSave('draft')}
             disabled={saving}
-            className="gap-1.5"
+            className="gap-1.5 text-xs h-8 px-3"
           >
             <Save className="w-3.5 h-3.5" />
             <span>Guardar Borrador</span>
@@ -243,7 +289,7 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
             size="sm"
             onClick={() => handleSave('published')}
             disabled={saving}
-            className="gap-1.5 shadow-glow-accent"
+            className="gap-1.5 shadow-glow-accent text-xs h-8 px-3.5 font-semibold"
           >
             <Send className="w-3.5 h-3.5" />
             <span>{saving ? 'Publicando...' : 'Publicar Ahora'}</span>
@@ -251,85 +297,126 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
         </div>
       </div>
 
-      {/* Status Messages */}
+      {/* Mensajes de Estado */}
       {saveMessage && (
-        <div className="p-3 rounded-lg border border-accent/40 bg-accent/10 text-accent text-xs flex items-center gap-2 animate-fade-in">
+        <div className="p-2.5 rounded-lg border border-accent/40 bg-accent/10 text-accent text-xs flex items-center gap-2 animate-fade-in">
           <CheckCircle className="w-4 h-4 shrink-0" />
           <span>{saveMessage}</span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="p-3 rounded-lg border border-rose-500/40 bg-rose-500/10 text-rose-400 text-xs flex items-center gap-2 animate-fade-in">
+        <div className="p-2.5 rounded-lg border border-rose-500/40 bg-rose-500/10 text-rose-400 text-xs flex items-center gap-2 animate-fade-in">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{errorMessage}</span>
         </div>
       )}
 
-      {/* Main Grid: Form Inputs & Tiptap Editor */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Title, Excerpt, Tiptap */}
-        <div className="lg:col-span-8 space-y-5">
-          <Card className="p-6 bg-card space-y-4">
-            <Input
-              label="Título del Post *"
-              placeholder="Ej. Dinámica del Suministro de Pet Coke hacia Asia..."
-              value={title}
-              onChange={(e) => handleTitleChange(e.target.value)}
-              className="text-base font-semibold"
-            />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Grid Principal del Editor: Bloque integrado según diseño */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* Columna Izquierda: Título, Slug, Tags, Extracto y Tiptap */}
+        <div className="lg:col-span-8 space-y-4">
+          <Card className="p-4 bg-card/90 border-border/80 space-y-3">
+            <div>
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1">
+                Título del Post *
+              </label>
               <Input
-                label="Slug URL *"
-                placeholder="dinamica-pet-coke-asia"
-                value={slug}
-                onChange={(e) => setSlug(slugify(e.target.value))}
-              />
-
-              <Input
-                label="Tags (separados por coma)"
-                placeholder="Pet Coke, Asia, Logística"
-                value={tagsInput}
-                onChange={(e) => setTagsInput(e.target.value)}
+                placeholder="TÍTULO DEL POST *"
+                value={title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                className="text-sm font-semibold h-10 bg-surf/80 border-border placeholder:text-text-subtle/60"
               />
             </div>
 
-            <Textarea
-              label="Extracto / Resumen"
-              rows={2}
-              placeholder="Breve resumen que aparecerá en tarjetas de blog y meta tags..."
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted">
+                    Slug URL *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={suggestSlug}
+                    className="text-[10px] text-accent hover:underline inline-flex items-center gap-1 font-mono"
+                    title="Sugerir slug automáticamente a partir del título"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>Sugerir automáticamente</span>
+                  </button>
+                </div>
+                <Input
+                  placeholder="SLUG URL *"
+                  value={slug}
+                  onChange={(e) => setSlug(slugify(e.target.value))}
+                  className="text-xs font-mono h-9 bg-surf/80 border-border placeholder:text-text-subtle/60"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted">
+                    Tags (separados por coma)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={suggestTags}
+                    className="text-[10px] text-accent hover:underline inline-flex items-center gap-1 font-mono"
+                    title="Sugerir tags automáticamente a partir del contenido"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>Sugerir automáticamente</span>
+                  </button>
+                </div>
+                <Input
+                  placeholder="TAGS (SEPARADOS POR COMA)"
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  className="text-xs h-9 bg-surf/80 border-border placeholder:text-text-subtle/60"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1">
+                Extracto / Resumen
+              </label>
+              <Textarea
+                rows={2}
+                placeholder="EXTRACTO / RESUMEN"
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                className="text-xs bg-surf/80 border-border placeholder:text-text-subtle/60"
+              />
+            </div>
           </Card>
 
-          {/* Tiptap Rich Editor */}
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted">
+          {/* Tiptap Rich Editor con Barra Fija y Scroll Vertical */}
+          <div className="space-y-1.5">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted">
               Contenido del Artículo
             </label>
             <TiptapEditor content={content} onChange={setContent} />
           </div>
         </div>
 
-        {/* Right Column: Settings & Metadata */}
-        <div className="lg:col-span-4 space-y-5">
-          <Card className="p-5 space-y-4 bg-card">
-            <h3 className="font-heading font-bold text-sm text-text border-b border-border/80 pb-2">
+        {/* Columna Derecha: Configuración y Detalles de Publicación */}
+        <div className="lg:col-span-4 space-y-4">
+          <Card className="p-4 space-y-3.5 bg-card/90 border-border/80">
+            <h3 className="font-heading font-bold text-xs uppercase tracking-wider text-text border-b border-border/80 pb-2">
               Detalles de Publicación
             </h3>
 
             {/* Selector Obligatorio de Categoría */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted">
                   Categoría <span className="text-amber-500 font-bold">*</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => setCategoryModalOpen(true)}
-                  className="text-[11px] text-accent hover:underline flex items-center gap-1 font-mono font-medium"
+                  className="text-[10px] text-accent hover:underline flex items-center gap-1 font-mono"
                 >
                   <FolderPlus className="w-3 h-3" />
                   <span>+ Nueva Categoría</span>
@@ -351,26 +438,43 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
               </select>
 
               {selectedCategoryObj ? (
-                <div className="flex items-center gap-2 pt-1 text-[11px] text-text-muted">
+                <div className="flex items-center gap-1.5 pt-0.5 text-[11px] text-text-muted">
                   <span
                     className="w-2.5 h-2.5 rounded-full inline-block shrink-0"
                     style={{ backgroundColor: selectedCategoryObj.color || '#f59e0b' }}
                   />
                   <span className="font-mono text-accent">/{selectedCategoryObj.slug}</span>
                   {selectedCategoryObj.description && (
-                    <span className="truncate text-text-subtle">· {selectedCategoryObj.description}</span>
+                    <span className="truncate text-text-subtle text-[10px]">· {selectedCategoryObj.description}</span>
                   )}
                 </div>
               ) : (
-                <p className="text-[11px] text-amber-500/90 mt-1 flex items-center gap-1">
+                <p className="text-[10px] text-amber-500/90 mt-0.5 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3 shrink-0" />
                   <span>Es obligatorio asignar una categoría para poder publicar.</span>
                 </p>
               )}
             </div>
 
+            {/* Fecha de Publicación Editable */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-1.5">
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1">
+                Fecha de Publicación
+              </label>
+              <input
+                type="datetime-local"
+                value={publishedAt}
+                onChange={(e) => setPublishedAt(e.target.value)}
+                className="w-full bg-surf border border-border text-text rounded-lg px-3 py-2 text-xs font-mono focus:border-accent focus:outline-none"
+              />
+              <p className="text-[10px] text-text-subtle mt-0.5 font-mono">
+                Permite mantener o corregir fechas históricas de noticias.
+              </p>
+            </div>
+
+            {/* Estado de Publicación */}
+            <div>
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1">
                 Estado de Publicación
               </label>
               <select
@@ -384,7 +488,8 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
               </select>
             </div>
 
-            <div className="space-y-1">
+            {/* Imagen Destacada */}
+            <div className="pt-1">
               <MediaUploadField
                 label="Imagen Destacada"
                 accept="image"

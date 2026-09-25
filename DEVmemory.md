@@ -401,6 +401,34 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - Verificación Playwright (`verify-media.mjs`): aprobada al 100% con 0 fallos.
   - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.
 
-
-
-
+### Fase 15: Rediseño Compacto de Editor de Posts, Toolbar Tiptap Fija, Fechas Editables y Persistencia Total
+- **Rediseño Ergonómico del Editor de Artículos (`post-editor-form.tsx`)**:
+  - **Barra de títulos de una sola fila**: Botón de regreso (`<-`), Título (`Editar Artículo`) y botones de acción (`Republicar Noticia (Scraper)`, `Guardar Borrador`, `Publicar Ahora`) organizados en una única fila horizontal superior, liberando valioso espacio vertical para la redacción.
+  - **Bloque unificado y compacto**:
+    - Campo `Título del post` integrado.
+    - Campos `Slug URL` y `Tags (separados por coma)` alineados en dos columnas, cada uno equipado con botón interactivo de **`✨ Sugerir automáticamente`**:
+      - Slug: genera un identificador URL canónico sin acentos ni caracteres especiales a partir del título.
+      - Tags: analizador semántico que extrae términos clave del contenido y título del post relacionados con hidrocarburos, refino, trading y fletes (Brent, WTI, EN590, Pet Coke, etc.).
+    - Campo `Extracto / Resumen` ubicado justo debajo para una visión holística del artículo.
+- **Barra de Herramientas de Tiptap Fija (`tiptap-editor.tsx`)**:
+  - Toolbar fijada con `sticky top-0 z-20 bg-card/95 backdrop-blur border-b border-border shadow-sm` para mantener todos los controles de formato (H1, H2, H3, negrita, cursiva, listas, enlaces, tablas, medios) permanentemente visibles mientras el redactor escribe.
+  - Contenedor de contenido de redacción dotado de barra de desplazamiento vertical interna (`overflow-y-auto max-h-[500px] min-h-[350px]`) con barra de desplazamiento estilizada en ámbar.
+- **Fecha de Publicación Histórica y Categorías Retroactivas**:
+  - Incorporado campo `Fecha de Publicación` con selector nativo `type="datetime-local"` en el panel lateral de detalles de publicación.
+  - Modificado `savePost` en `src/lib/db/db-service.ts` para respetar y persistir la fecha enviada en el formulario en lugar de pisarla con `new Date()` cada vez que se guarda o actualiza un artículo.
+  - Selector de categorías activado para permitir asociar categorías a artículos antiguos que no tenían categoría asignada.
+- **Sincronización Total de Datos y Medios desde Producción**:
+  - Script `scripts/sync-prod.mjs` desarrollado para descargar e incorporar los 8 artículos de producción en `src/data/posts.json`, los 6 miembros del equipo en `src/data/team.json`, y todas las imágenes reales subidas por el usuario en `public/uploads/` y `nextjs-opc-webapp/public/uploads/`.
+- **Previsualizaciones Fluidas y Límite de Video Ampliado a 100 MB**:
+  - `media-upload-field.tsx` enriquecido con indicador de carga `Loader2` y transiciones suaves (`onLoad`, `onLoadedData`), eliminando la apariencia de recuadros negros vacíos durante la descarga de imágenes.
+  - Límite de video ampliado a 100 MB (`MAX_VIDEO_SIZE = 100 * 1024 * 1024`) en frontend y backend (`/api/upload`) para permitir la subida de videos corporativos pesados de alta calidad.
+  - Ruta de medios `/uploads/[...slug]` validada con soporte para peticiones `HEAD` y `HTTP 206 Partial Content` (streaming por rangos).
+- **Verificación Rigurosa con Evidencia Real**:
+  - `npm run build`: 52/52 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
+  - Verificación visual Playwright E2E (`tests/verify-editor-e2e.mjs`):
+    - ✓ Barra superior en 1 sola fila comprobada visualmente en captura.
+    - ✓ Bloque integrado con botones de sugerencia automática de slug y tags verificado.
+    - ✓ Toolbar fija (`sticky top-0`) de Tiptap y scroll interno operativo.
+    - ✓ Selector de fecha editable verificado con valor histórico `24/09/2026 23:04`.
+    - ✓ Galería de posts con todas las imágenes sincronizadas y nítidas.
+  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.

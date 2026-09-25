@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Upload,
   FolderOpen,
@@ -32,7 +32,7 @@ const INPUT_STYLE =
 const LABEL_STYLE = 'block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1.5';
 
 const MAX_IMAGE_SIZE_MB = 2;
-const MAX_VIDEO_SIZE_MB = 10;
+const MAX_VIDEO_SIZE_MB = 100;
 
 export function MediaUploadField({
   label,
@@ -49,9 +49,20 @@ export function MediaUploadField({
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isLocalDiskPath = /^[a-zA-Z]:[\\/]/.test((value || '').trim());
+
+  useEffect(() => {
+    if (value && !isLocalDiskPath) {
+      setPreviewLoading(true);
+      setPreviewError(false);
+    } else {
+      setPreviewLoading(false);
+      setPreviewError(false);
+    }
+  }, [value, isLocalDiskPath]);
 
   const isVideo =
     /\.(mp4|webm|mov|ogg)$/i.test(value || '') ||
@@ -241,7 +252,7 @@ export function MediaUploadField({
             <strong className="text-text">Imágenes:</strong> JPG, JPEG, PNG, WebP, SVG, GIF (Máx. <span className="text-amber-400">2 MB</span>)
           </li>
           <li>
-            <strong className="text-text">Videos:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">10 MB</span>)
+            <strong className="text-text">Videos:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">100 MB</span>)
           </li>
           <li className="text-[10px] text-text-muted font-sans pt-0.5">
             Los archivos subidos se almacenan en la <span className="text-accent font-semibold">base de datos</span> para persistir entre deploys. Si introduces una URL de internet (HTTPS), se guardará el enlace directo.
@@ -287,14 +298,30 @@ export function MediaUploadField({
             </div>
           </div>
 
-          <div className="relative w-full h-40 rounded-md overflow-hidden bg-black/60 flex items-center justify-center border border-border/40">
+          <div className="relative w-full h-44 rounded-md overflow-hidden bg-[#0c1322] flex items-center justify-center border border-border/50">
+            {previewLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 backdrop-blur-xs">
+                <Loader2 className="w-5 h-5 text-accent animate-spin" />
+              </div>
+            )}
+
             {previewError ? (
-              <div className="p-4 text-center space-y-1">
+              <div className="p-4 text-center space-y-1.5">
                 <AlertCircle className="w-6 h-6 text-amber-500 mx-auto" />
                 <p className="text-xs font-semibold text-text">No se pudo cargar la vista previa</p>
-                <p className="text-[10px] text-text-subtle">
-                  Compruebe la ruta del archivo o que la extensión sea compatible (.jpg, .png, .mp4...).
+                <p className="text-[10px] text-text-subtle font-mono">
+                  {value}
                 </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreviewError(false);
+                    setPreviewLoading(true);
+                  }}
+                  className="text-[11px] text-accent hover:underline font-mono"
+                >
+                  Reintentar carga
+                </button>
               </div>
             ) : isVideo ? (
               <video
@@ -305,8 +332,16 @@ export function MediaUploadField({
                 loop
                 muted
                 playsInline
-                className="w-full h-full object-contain"
-                onError={() => setPreviewError(true)}
+                preload="metadata"
+                className={cn(
+                  "w-full h-full object-contain transition-opacity duration-200",
+                  previewLoading ? "opacity-0" : "opacity-100"
+                )}
+                onLoadedData={() => setPreviewLoading(false)}
+                onError={() => {
+                  setPreviewLoading(false);
+                  setPreviewError(true);
+                }}
               />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
@@ -314,8 +349,15 @@ export function MediaUploadField({
                 key={value}
                 src={value}
                 alt="Vista previa"
-                className="w-full h-full object-contain"
-                onError={() => setPreviewError(true)}
+                className={cn(
+                  "w-full h-full object-contain transition-opacity duration-200",
+                  previewLoading ? "opacity-0" : "opacity-100"
+                )}
+                onLoad={() => setPreviewLoading(false)}
+                onError={() => {
+                  setPreviewLoading(false);
+                  setPreviewError(true);
+                }}
               />
             )}
           </div>

@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Configuración requerida' }, { status: 400 });
     }
 
-    // 1. Guardar en memoria y archivo JSON local
-    updateMemoryHero(body);
+    // 1. Guardar en memoria, archivo JSON local y PostgreSQL
+    await updateMemoryHero(body);
 
     // 2. Si Supabase está configurado, sincronizar
     if (isSupabaseConfigured()) {
