@@ -10,6 +10,22 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 
 ## 2. Hitos y Funcionalidades Desarrolladas
 
+### Fase 13: Módulo de Entrenamiento del Agente de IA, Base de Conocimiento y Calibración Q&A
+1. **Entrenamiento y Base de Conocimiento en `/admin/settings/ai`**:
+   - Pestaña dedicada "🧠 Base de Conocimiento & Entrenamiento" estructurada en 4 bloques:
+     - **Prompt del Sistema**: personalización de personalidad, protocolo de atención y rol ejecutivo.
+     - **Base de Conocimiento Corporativa (Knowledge Base)**: editor extenso para suministrar datos de la empresa (constitución Delaware USA, hubs en Houston, Madrid y Bogotá), catálogo de hidrocarburos, especificaciones ASTM D1655, Diésel EN590 10ppm, Pet Coke, requerimientos ICPO/BCL y términos de pago.
+     - **Preguntas Frecuentes y Respuestas Calibradas (Few-Shot Q&A)**: gestor dinámico de pares pregunta/respuesta oficial para fijar respuestas exactas e impedir alucinaciones.
+     - **Simulador / Probador en Tiempo Real**: consola para probar preguntas y evaluar la respuesta generada por el agente con su base de conocimiento antes de publicar.
+   - Pestaña complementaria "🔑 Proveedores de IA & Modelos": administración de claves, modelos activos y pruebas de inferencia.
+2. **Inyección Dinámica en Motores de IA**:
+   - `executeAiChat` en `src/lib/ai/ai-client.ts` inyecta automáticamente el system prompt enriquecido con la base de conocimiento y ejemplos entrenados hacia los LLMs (OpenAI, Anthropic, OpenRouter, Nvidia, DeepSeek).
+   - Motor de contingencia local calibrado que evalúa primero las FAQs entrenadas por similitud semántica antes de pasar al fallback general.
+3. **Validación Técnica**:
+   - `npm run type-check`: 0 errores.
+   - `npm run build`: 53 rutas generadas con éxito.
+   - `npm run test:security`: Aprobado al 100%.
+
 ### Fase 12: Hero Definitivo, Badges de Marquesina y Editor de Identidad Legal Delaware USA (SEO & Schema.org)
 1. **Hero sin Colapsos y Fondos Petroleros Reales**:
    - Discriminación estricta de `bgType` en `hero-section.tsx` ('video', 'image', 'gradient', 'none') eliminando cualquier estado que dejara la pantalla en negro al seleccionar gradiente o liso.

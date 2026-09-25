@@ -1,5 +1,22 @@
 # Bitácora de Desarrollo — Invest Oil LLC
 
+## [2026-09-25 19:50 CET]
+- **Petición del usuario**:
+  - Habilitar en el backoffice el espacio y herramientas para proporcionarle más información al agente de IA para que sus respuestas sean más ajustadas a la realidad, y entrenarlo con datos precisos de la compañía.
+- **Resolución y Evidencias**:
+  1. Rediseñado [`/admin/settings/ai`](file:///c:/Users/pacb9/Documents/GitHub/WPthemes/nt-investoil/nextjs-opc-webapp/src/app/(dashboard)/admin/settings/ai/page.tsx) con arquitectura de dos pestañas principales:
+     - **Pestaña 1: "🧠 Base de Conocimiento & Entrenamiento"**:
+       - *Prompt del Sistema*: personalidad, rol ejecutivo y reglas de atención.
+       - *Base de Conocimiento Corporativa*: editor amplio para cargar datos de la compañía (constitución legal en Delaware USA, desks en Houston, Madrid y Bogotá), catálogo de hidrocarburos, especificaciones ASTM D1655 / EN590, Pet Coke, requerimientos ICPO/BCL y términos de pago.
+       - *Preguntas Frecuentes y Respuestas Calibradas (Few-Shot Q&A)*: gestor interactivo para agregar preguntas y respuestas oficiales exactas.
+       - *Simulador y Probador de Chat en Vivo*: consola interactiva para probar consultas y ver la respuesta que genera el agente antes de publicarlo.
+     - **Pestaña 2: "🔑 Proveedores de IA & Modelos"**: gestor de modelos activos (OpenRouter, Nvidia NIM, DeepSeek, OpenAI, Anthropic, Gemini, etc.), claves API y pruebas de conectividad.
+  2. En [`ai-types.ts`](file:///c:/Users/pacb9/Documents/GitHub/WPthemes/nt-investoil/nextjs-opc-webapp/src/lib/ai/ai-types.ts), agregada la interfaz `TrainingFaqItem` y ampliados `AiSettingsConfig` y `DEFAULT_AI_SETTINGS` con `knowledgeBase` y `trainingFaqs`.
+  3. En [`ai-client.ts`](file:///c:/Users/pacb9/Documents/GitHub/WPthemes/nt-investoil/nextjs-opc-webapp/src/lib/ai/ai-client.ts), inyectado el contexto enriquecido (`knowledgeBase` + `trainingFaqs`) en los prompts a los LLMs, e implementada coincidencia de FAQs y protocolo de Delaware en el motor de fallback.
+  4. En [`ai-service.ts`](file:///c:/Users/pacb9/Documents/GitHub/WPthemes/nt-investoil/nextjs-opc-webapp/src/lib/ai/ai-service.ts), implementado `getAiSettingsPath()` para resolución atómica de rutas.
+  5. En [`admin-sidebar.tsx`](file:///c:/Users/pacb9/Documents/GitHub/WPthemes/nt-investoil/nextjs-opc-webapp/src/components/admin/admin-sidebar.tsx), renombrado el enlace a *"Agente de IA & Modelos"*.
+  6. Verificación técnica: `npm run type-check` (0 errores), `npm run build` (53 páginas compiladas) y `npm run test:security` (aprobado al 100%).
+
 ## [2026-09-25 18:15 CET]
 - **Petición del usuario**:
   1. Hero: resolver que al cambiar entre gradiente, video, imagen o sin fondo no colapse ni deje la pantalla en negro; corregir imágenes de muestra erróneas (reemplazar dron y casa con piscina por fotos petroleras 100% reales: refinería petroquímica, buque petrolero en alta mar y terminal de tanques); retirar videos rotos (4K inexistente); incorporar botón "Quitar fondo / Limpiar"; sustituir el cajón de especificaciones que ocupaba espacio por un icono interactivo `ⓘ` con popover desplegable.

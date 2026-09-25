@@ -47,7 +47,7 @@ const PLATFORM_NAV: NavItem[] = [
   { href: '/admin/posts', label: 'Gestión de Posts / Blog', icon: FileText },
   { href: '/admin/media', label: 'Biblioteca de Medios', icon: ImageIcon },
   { href: '/admin/leads', label: 'Mensajes de Contacto', icon: Inbox },
-  { href: '/admin/settings/ai', label: 'Proveedores de IA', icon: Cpu },
+  { href: '/admin/settings/ai', label: 'Agente de IA & Modelos', icon: Cpu },
 ];
 
 const SECTIONS_NAV: NavItem[] = [

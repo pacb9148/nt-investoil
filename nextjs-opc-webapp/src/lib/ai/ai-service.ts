@@ -3,7 +3,16 @@ import path from 'path';
 import { AiSettingsConfig, DEFAULT_AI_SETTINGS } from './ai-types';
 import { hasPostgresDb, queryPg } from '../db/pg-client';
 
-const DATA_FILE = path.join(process.cwd(), 'src/data/ai-settings.json');
+function getAiSettingsPath(): string {
+  const candidates = [
+    path.join(process.cwd(), 'src', 'data', 'ai-settings.json'),
+    path.join(process.cwd(), 'nextjs-opc-webapp', 'src', 'data', 'ai-settings.json'),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return c;
+  }
+  return candidates[0];
+}
 
 export async function getAiSettings(): Promise<AiSettingsConfig> {
   // 1. Intentar desde PostgreSQL si está disponible
@@ -25,8 +34,9 @@ export async function getAiSettings(): Promise<AiSettingsConfig> {
 
   // 2. Fallback desde archivo JSON
   try {
-    if (fs.existsSync(DATA_FILE)) {
-      const content = fs.readFileSync(DATA_FILE, 'utf-8');
+    const dataFile = getAiSettingsPath();
+    if (fs.existsSync(dataFile)) {
+      const content = fs.readFileSync(dataFile, 'utf-8');
       const parsed = JSON.parse(content);
       return {
         ...DEFAULT_AI_SETTINGS,
@@ -44,11 +54,12 @@ export async function getAiSettings(): Promise<AiSettingsConfig> {
 export async function saveAiSettings(settings: AiSettingsConfig): Promise<boolean> {
   // 1. Guardar en JSON
   try {
-    const dir = path.dirname(DATA_FILE);
+    const dataFile = getAiSettingsPath();
+    const dir = path.dirname(dataFile);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    fs.writeFileSync(DATA_FILE, JSON.stringify(settings, null, 2), 'utf-8');
+    fs.writeFileSync(dataFile, JSON.stringify(settings, null, 2), 'utf-8');
   } catch (err) {
     console.error('Error al guardar ai-settings.json:', err);
   }

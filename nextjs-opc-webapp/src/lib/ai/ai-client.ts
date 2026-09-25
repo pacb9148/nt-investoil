@@ -14,6 +14,29 @@ export async function executeAiChat(messages: ChatMessage[]): Promise<string> {
     models.find((m) => m.id === settings.activeModelId) ||
     models[0];
 
+  // Construir el prompt de sistema enriquecido con la Base de Conocimiento y FAQs de entrenamiento
+  const systemPromptChunks: string[] = [settings.systemPrompt || ''];
+
+  if (settings.knowledgeBase && settings.knowledgeBase.trim()) {
+    systemPromptChunks.push(
+      `--- BASE DE CONOCIMIENTO CORPORATIVA Y ESPECIFICACIONES ---\n${settings.knowledgeBase.trim()}`
+    );
+  }
+
+  if (Array.isArray(settings.trainingFaqs) && settings.trainingFaqs.length > 0) {
+    const faqsText = settings.trainingFaqs
+      .filter((f) => f.question && f.answer)
+      .map((f, i) => `[Ejemplo ${i + 1}]\nPregunta: ${f.question}\nRespuesta oficial: ${f.answer}`)
+      .join('\n\n');
+    if (faqsText) {
+      systemPromptChunks.push(
+        `--- PREGUNTAS FRECUENTES Y RESPUESTAS ENTRENADAS (SÉ FIEL A ESTAS RESPUESTAS) ---\n${faqsText}`
+      );
+    }
+  }
+
+  const fullSystemPrompt = systemPromptChunks.filter(Boolean).join('\n\n');
+
   // Si tiene API Key configurada, ejecutamos la llamada externa
   if (activeModel && activeModel.apiKey && activeModel.apiKey.trim() !== '') {
     try {
@@ -28,7 +51,7 @@ export async function executeAiChat(messages: ChatMessage[]): Promise<string> {
           body: JSON.stringify({
             model: activeModel.modelName || 'claude-3-5-sonnet-20241022',
             max_tokens: 1024,
-            system: settings.systemPrompt,
+            system: fullSystemPrompt,
             messages: messages.filter((m) => m.role !== 'system').map((m) => ({
               role: m.role,
               content: m.content,
@@ -59,7 +82,7 @@ export async function executeAiChat(messages: ChatMessage[]): Promise<string> {
           body: JSON.stringify({
             model: activeModel.modelName,
             messages: [
-              { role: 'system', content: settings.systemPrompt },
+              { role: 'system', content: fullSystemPrompt },
               ...messages.filter((m) => m.role !== 'system'),
             ],
             temperature: 0.3,
@@ -79,8 +102,9 @@ export async function executeAiChat(messages: ChatMessage[]): Promise<string> {
     }
   }
 
-  // Fallback de Inteligencia Corporativa de Invest Oil LLC
-  const rawReply = generateKnowledgeBaseResponse(messages[messages.length - 1]?.content || '');
+  // Fallback de Inteligencia Corporativa de Invest Oil LLC calibrado con FAQs y Knowledge Base
+  const lastUserMessage = messages[messages.length - 1]?.content || '';
+  const rawReply = generateKnowledgeBaseResponse(lastUserMessage, settings);
   return cleanMarkdownResponse(rawReply);
 }
 
@@ -101,10 +125,44 @@ export function cleanMarkdownResponse(text: string): string {
     .trim();
 }
 
-function generateKnowledgeBaseResponse(query: string): string {
-  const q = query.toLowerCase();
+function generateKnowledgeBaseResponse(query: string, settings?: any): string {
+  const q = query.toLowerCase().trim();
 
-  // PROTOCOLO DE UBICACIÓN ESTRICTO
+  // 1. Evaluar si la consulta coincide con preguntas entrenadas (trainingFaqs)
+  if (settings && Array.isArray(settings.trainingFaqs)) {
+    for (const faq of settings.trainingFaqs) {
+      if (!faq.question || !faq.answer) continue;
+      const faqQ = faq.question.toLowerCase().trim();
+      // Coincidencia exacta o inclusión recíproca
+      if (q === faqQ || q.includes(faqQ) || faqQ.includes(q)) {
+        return faq.answer;
+      }
+
+      // Coincidencia por palabras clave compartidas
+      const queryTokens = q.split(/\s+/).filter((w: string) => w.length > 3);
+      const faqTokens = faqQ.split(/\s+/).filter((w: string) => w.length > 3);
+      if (queryTokens.length > 0 && faqTokens.length > 0) {
+        const shared = queryTokens.filter((token: string) => faqTokens.includes(token));
+        const matchRatio = shared.length / Math.min(queryTokens.length, faqTokens.length);
+        if (matchRatio >= 0.6) {
+          return faq.answer;
+        }
+      }
+    }
+  }
+
+  // 2. PROTOCOLO DE IDENTIDAD Y SEDE LEGAL (DELAWARE USA + HUBS)
+  if (
+    q.includes('delaware') ||
+    q.includes('valencia') ||
+    q.includes('inmobiliaria') ||
+    q.includes('homonimo') ||
+    q.includes('homónimo')
+  ) {
+    return `Invest Oil LLC es una compañía constituida y registrada en el Estado de Delaware, Estados Unidos de América. Operamos exclusivamente en el mercado de petróleo, crudo y derivados energéticos internacionales con coordinación en Houston, Madrid y Bogotá. No tenemos vinculación con entidades inmobiliarias ni sociedades de Valencia (España).`;
+  }
+
+  // 3. PROTOCOLO DE UBICACIÓN Y SEDES
   if (
     q.includes('ubicacion') ||
     q.includes('ubicación') ||
@@ -124,28 +182,46 @@ function generateKnowledgeBaseResponse(query: string): string {
     q.includes('bogota') ||
     q.includes('bogotá')
   ) {
-    return `Invest Oil LLC cuenta con presencia y coordinación operativa en las ciudades de Houston, Madrid y Bogotá.\n\nPara concertar una cita ejecutiva o coordinar una reunión directa con uno de nuestros representantes, le invitamos cordialmente a completar el formulario de contacto disponible en este sitio web.\n\nLe recordamos que toda comunicación formal o requerimiento comercial debe canalizarse de manera oficial vía email corporativo a: trading@investoil.es.`;
+    return `Invest Oil LLC cuenta con sede legal registrada en Delaware (Estados Unidos) y mesas de coordinación operativa en Houston (Texas), Madrid (España) y Bogotá (Colombia).\n\nPara concertar una reunión ejecutiva o solicitar atención directa con un representante, le invitamos a completar el formulario de contacto en nuestro sitio web.\n\nToda comunicación comercial formal o envío de documentos corporativos (ICPO) se canaliza a través de email oficial: trading@investoil.es.`;
   }
 
+  // 4. DIÉSEL EN590
   if (q.includes('diésel') || q.includes('diesel') || q.includes('en590') || q.includes('combustible')) {
-    return `En Invest Oil LLC comercializamos Ultra Low Sulfur Diesel (ULSD) EN590 10 ppm con estricto cumplimiento de especificaciones internacionales de refinería. Facilitamos operaciones Spot y contratos a plazo (LTR) bajo Incoterms FOB y CIF en los principales puertos y terminales internacionales, respaldados por certificación independiente SGS o Saybolt.\n\nSi desea iniciar una solicitud corporativa, por favor remita su ICPO a trading@investoil.es o utilice el formulario de contacto de nuestra web.`;
+    return `En Invest Oil LLC comercializamos Ultra Low Sulfur Diesel (ULSD) EN590 10 ppm con estricto cumplimiento de especificaciones internacionales de refinería (cetano > 51). Facilitamos operaciones Spot y contratos a plazo (LTR) bajo Incoterms FOB y CIF en los principales puertos y terminales internacionales, respaldados por certificación independiente SGS o Saybolt.\n\nPara solicitudes comerciales, remita su ICPO a trading@investoil.es o utilice el formulario de contacto de la web.`;
   }
 
+  // 5. JET FUEL A-1
   if (q.includes('jet') || q.includes('a1') || q.includes('a-1') || q.includes('aviacion') || q.includes('aviación')) {
-    return `Facilitamos asignaciones de Aviation Kerosene Colonial Grade 54 (Jet Fuel A-1) bajo estándar ASTM D1655. Operamos mediante procedimientos seguros en terminales de almacenamiento FOB e itinerarios marítimos CIF. Toda transacción requiere carta de intención corporativa formal (ICPO) y cumplimiento de estándares de verificación bancaria.`;
+    return `Facilitamos asignaciones de Aviation Kerosene Colonial Grade 54 (Jet Fuel A-1) bajo estándar ASTM D1655. Operamos mediante procedimientos seguros en terminales de almacenamiento FOB e itinerarios marítimos CIF. Toda transacción requiere carta de intención corporativa formal (ICPO) y verificación bancaria.`;
   }
 
+  // 6. PET COKE
   if (q.includes('pet coke') || q.includes('coque') || q.includes('solido') || q.includes('carbon')) {
-    return `Invest Oil LLC actúa como facilitador estratégico en el suministro de Coque de Petróleo (Anode Grade y Fuel Grade) en despachos marítimos para la industria metalúrgica, de aluminio y cementera internacional, garantizando parámetros óptimos de poder calorífico y bajo azufre.`;
+    return `Invest Oil LLC actúa como facilitador estratégico en el suministro de Coque de Petróleo Verde (Anode Grade y Fuel Grade) en despachos marítimos para la industria metalúrgica y cementera internacional, garantizando parámetros óptimos de poder calorífico y bajo azufre.`;
   }
 
+  // 7. CRUDOS (MEREY 16 / BRENT)
+  if (q.includes('merey') || q.includes('crudo') || q.includes('crude') || q.includes('brent') || q.includes('wti')) {
+    return `Facilitamos cargamentos programados de crudo pesado Merey 16 (API 16°, azufre ~2.5%) para refinerías con unidades de conversión profunda, así como mezclas ligeras referenciales Brent y WTI en operaciones spot con liquidación transparente indexada a benchmarks oficiales.`;
+  }
+
+  // 8. GAS / GNL / GLP
   if (q.includes('gnl') || q.includes('gas') || q.includes('lng') || q.includes('glp') || q.includes('metano')) {
     return `En el segmento de gas, coordinamos operaciones de Gas Natural Licuado (GNL criogénico) y GLP comercial para abastecimiento marítimo e industrial, estructuradas bajo contratos de suministro de primer orden.`;
   }
 
-  if (q.includes('precio') || q.includes('cotiz') || q.includes('costo') || q.includes('procedimiento') || q.includes('fob') || q.includes('cif')) {
-    return `Nuestras operaciones se estructuran de conformidad con cotizaciones indexadas a índices Platts de referencia internacional con descuentos según volumen y vigencia de contrato. Para emitir una oferta formal (FCO o SCO), requerimos la recepción de una ICPO corporativa con perfil de empresa. Puede remitirla a trading@investoil.es o ingresar sus datos en el formulario de contacto del portal.`;
+  // 9. COTIZACIONES Y PROCEDIMIENTOS
+  if (
+    q.includes('precio') ||
+    q.includes('cotiz') ||
+    q.includes('costo') ||
+    q.includes('procedimiento') ||
+    q.includes('fob') ||
+    q.includes('cif') ||
+    q.includes('icpo')
+  ) {
+    return `Nuestras operaciones se estructuran según cotizaciones indexadas a cotizaciones Platts con descuentos según volumen y vigencia de contrato. Para emitir una oferta formal (FCO o SCO), requerimos la recepción de una ICPO corporativa con perfil de empresa. Puede remitirla a trading@investoil.es o ingresar sus datos en el formulario de contacto.`;
   }
 
-  return `Bienvenido a Invest Oil LLC — Petroleum and Derivates Markets.\n\nSomos facilitadores en el mercado del petróleo y sus derivados entre compradores y vendedores de primer orden. Comercializamos crudos, destilados limpios (Diésel EN590, Jet A-1), coque de petróleo y GNL.\n\n¿En qué especificación o consulta operativa podemos asistirle hoy?`;
+  return `Bienvenido a Invest Oil LLC — Petroleum and Derivates Markets.\n\nSomos una compañía registrada en Delaware, EE. UU., facilitadora en el mercado internacional del petróleo y sus derivados (Diésel EN590, Jet Fuel A-1, Merey 16, Brent, Pet Coke y GNL).\n\n¿En qué especificación o consulta operativa podemos asistirle hoy?`;
 }
