@@ -161,10 +161,10 @@ const DESIGN_MODULES: ContentCardItem[] = [
   },
   {
     href: '/admin/content/seo',
-    label: 'SEO, Open Graph & Redes Sociales',
-    badge: 'Posicionamiento',
+    label: 'Identidad Legal, SEO & Delaware USA',
+    badge: 'Delaware / SEO',
     icon: Search,
-    desc: 'Metadatos para Google, título meta, descripción, palabras clave y subida de imagen para tarjetas sociales.',
+    desc: 'Sede oficial Delaware, centros operativos (Houston, Madrid, Bogotá), desambiguación Google/IA y tarjetas Open Graph.',
   },
 ];
 

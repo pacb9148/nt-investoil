@@ -1,6 +1,32 @@
 # Bitácora de Desarrollo — Invest Oil LLC
 
-## [2026-09-25 14:30 CET]
+## [2026-09-25 18:15 CET]
+- **Petición del usuario**:
+  1. Hero: resolver que al cambiar entre gradiente, video, imagen o sin fondo no colapse ni deje la pantalla en negro; corregir imágenes de muestra erróneas (reemplazar dron y casa con piscina por fotos petroleras 100% reales: refinería petroquímica, buque petrolero en alta mar y terminal de tanques); retirar videos rotos (4K inexistente); incorporar botón "Quitar fondo / Limpiar"; sustituir el cajón de especificaciones que ocupaba espacio por un icono interactivo `ⓘ` con popover desplegable.
+  2. Marquesina: permitir editar de forma bilingüe (ES / EN) los títulos de los badges de ambas filas ("Precios de Energía en Vivo" y "Actualidad & Operaciones").
+  3. SEO & Identidad Legal Delaware USA: incorporar en el backoffice un editor integral de metadatos corporativos para desambiguar ante Google Search y Google AI Overview la personería jurídica de Invest Oil LLC (sociedad registrada en Delaware, EE. UU. con presencia en Houston, Madrid y Bogotá), eliminando confusiones de buscadores con firmas inmobiliarias o entidades locales extintas de Valencia (España). Inyección de Schema.org JSON-LD de grado institucional.
+  4. Orden `+dap` al finalizar.
+- **Resolución y Evidencias**:
+  1. **Hero**:
+     - En `hero-section.tsx`, reestructurada la discriminación estricta de `bgType` ('video', 'image', 'gradient', 'none') para evitar colapsos visuales y asegurar que los modos gradiente y sin fondo rendericen fondos elegantes obsidiana sin pantalla negra.
+     - En `hero-form.tsx`, el Bloque 3 mantiene previsualización permanente en vivo; sustituidas las fotos por activos petroleros 100% reales; retirado video 4K inexistente que generaba 404; agregado botón explícito "✕ Quitar fondo"; sustituido cuadro gigante por icono interactivo `ⓘ` con tooltip.
+     - Corregido cierre balanceado de tags JSX en `hero-form.tsx`.
+  2. **Marquesina Ticker**:
+     - En `marquee.json`, agregados `pricesBadgeText`, `pricesBadgeTextEn`, `newsBadgeText` y `newsBadgeTextEn`.
+     - En `marquee-ticker.tsx`, soporte dinámico bilingüe en los badges de la Fila 1 y Fila 2.
+     - En `admin/content/marquee/page.tsx`, panel de edición bilingüe de títulos de badges con guardado en tiempo real.
+     - En `(public)/page.tsx`, sincronización reactiva con `getSectionContent('marquee')`.
+  3. **SEO, Identidad Legal Delaware USA & Schema.org**:
+     - En `src/types/content.ts`, ampliado `LandingSeoConfig` y creado `CorporateOperatingHub` con datos legales de Delaware USA, hubs de operaciones y declaración formal anti-homónimo.
+     - En `src/data/seo.json`, registrados los datos de Invest Oil LLC, Delaware (USA), hubs (Houston, Madrid, Bogotá), notas de desambiguación y geotags (`geo.region: US-DE`).
+     - En `src/app/api/content/seo/route.ts`, persistencia dual JSON + PostgreSQL `landing_sections`.
+     - En `src/app/(dashboard)/admin/content/seo/page.tsx`, rediseñada la interfaz en 4 pestañas profesionales: 1) Identidad Legal & Delaware USA, 2) Metadatos de Búsqueda ES/EN con contador de caracteres, 3) Tarjeta Social Open Graph con previsualización en vivo, 4) Generador en tiempo real de Schema.org JSON-LD con botón de copia y acceso a Google Rich Results Test.
+     - En `src/app/layout.tsx`, sustituido metadata estático por `generateMetadata()` dinámico e inyectado el script `<script type="application/ld+json">` corporativo con `@type: ["Corporation", "Organization"]`, sede Delaware (USA) y declaración anti-confusión.
+     - Actualizado enlace en sidebar: "Identidad Legal, SEO & Delaware".
+  4. **Evidencia y Calidad**:
+     - `npm run type-check`: 0 errores de tipado TypeScript.
+     - `npm run build`: Compilación exitosa de Next.js 14 (53 páginas estáticas y dinámicas generadas).
+     - `npm run test:security`: Batería Strix aprobada al 100% (0 secretos, 0 vulnerabilidades).
 - **Petición del usuario**:
   1. Editor de artículos exacto al adjunto (`media_1790336575538.png`): tarjeta integrada con Título, Fila 2 de dos columnas (Slug y Tags con icono `✨` embebido compacto), Fila 3 con Extracto de 3 filas extensible (`resize-y`), barra superior compacta en una fila con Agente de Noticias y Scraper.
   2. Categoría "Oil 101" creada formalmente en selector y auto-mapeada sin importar mayúsculas o guiones.

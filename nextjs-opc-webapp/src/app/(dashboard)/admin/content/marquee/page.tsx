@@ -19,6 +19,10 @@ export default function MarqueePage() {
   const [showLivePrices, setShowLivePrices] = useState(true);
   const [speedSeconds, setSpeedSeconds] = useState(30);
   const [pauseOnHover, setPauseOnHover] = useState(true);
+  const [pricesBadgeText, setPricesBadgeText] = useState('Precios de Energía en Vivo');
+  const [pricesBadgeTextEn, setPricesBadgeTextEn] = useState('Live Energy Prices');
+  const [newsBadgeText, setNewsBadgeText] = useState('Actualidad & Operaciones');
+  const [newsBadgeTextEn, setNewsBadgeTextEn] = useState('Market News & Ops');
   const [customItems, setCustomItems] = useState<string[]>([
     'TERMINALES ACTIVAS: HOUSTON · ROTTERDAM · FUJAIRAH · JURONG SINGAPUR',
     'INSPECCIÓN Y CONTROL DE CALIDAD: SGS · INTERTEK · SAYBOLT CERTIFIED',
@@ -43,6 +47,10 @@ export default function MarqueePage() {
           setShowLivePrices(cfg.showLivePrices ?? true);
           setSpeedSeconds(cfg.speedSeconds ?? 30);
           setPauseOnHover(cfg.pauseOnHover ?? true);
+          if (cfg.pricesBadgeText) setPricesBadgeText(cfg.pricesBadgeText);
+          if (cfg.pricesBadgeTextEn) setPricesBadgeTextEn(cfg.pricesBadgeTextEn);
+          if (cfg.newsBadgeText) setNewsBadgeText(cfg.newsBadgeText);
+          if (cfg.newsBadgeTextEn) setNewsBadgeTextEn(cfg.newsBadgeTextEn);
           if (Array.isArray(cfg.customItems)) {
             setCustomItems(cfg.customItems);
           }
@@ -82,6 +90,10 @@ export default function MarqueePage() {
       showLivePrices,
       speedSeconds: Number(speedSeconds),
       pauseOnHover,
+      pricesBadgeText,
+      pricesBadgeTextEn,
+      newsBadgeText,
+      newsBadgeTextEn,
       customItems,
     };
 
@@ -206,6 +218,77 @@ export default function MarqueePage() {
                 />
                 <span className="text-xs text-text font-semibold">Pausar animación al posar el cursor</span>
               </label>
+            </div>
+          </div>
+        </div>
+
+        {/* Títulos Señalados de las Marquesinas (Bilingüe) */}
+        <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-4">
+          <div>
+            <h2 className="text-sm font-bold text-text flex items-center gap-2">
+              <span className="text-amber-400">🏷️</span>
+              <span>Títulos Señalados de los Badges del Cintillo</span>
+            </h2>
+            <p className="text-[11px] text-text-muted mt-0.5">
+              Personaliza los textos que encabezan la Fila 1 (Cotizaciones de Energía) y la Fila 2 (Titulares de Actualidad & Operaciones).
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+            {/* Fila 1 */}
+            <div className="p-4 rounded-lg border border-border bg-card/60 space-y-3">
+              <div className="flex items-center gap-2 text-xs font-mono font-bold text-amber-400">
+                <TrendingUp className="w-4 h-4 text-emerald-400" />
+                <span>FILA 1: Título Precios de Energía</span>
+              </div>
+              <div>
+                <label className={LABEL}>Título en Español</label>
+                <input
+                  type="text"
+                  value={pricesBadgeText}
+                  onChange={(e) => setPricesBadgeText(e.target.value)}
+                  placeholder="Precios de Energía en Vivo"
+                  className={INPUT}
+                />
+              </div>
+              <div>
+                <label className={LABEL}>Título en Inglés (EN)</label>
+                <input
+                  type="text"
+                  value={pricesBadgeTextEn}
+                  onChange={(e) => setPricesBadgeTextEn(e.target.value)}
+                  placeholder="Live Energy Prices"
+                  className={INPUT}
+                />
+              </div>
+            </div>
+
+            {/* Fila 2 */}
+            <div className="p-4 rounded-lg border border-border bg-card/60 space-y-3">
+              <div className="flex items-center gap-2 text-xs font-mono font-bold text-teal-400">
+                <span className="text-sm">📰</span>
+                <span>FILA 2: Título Actualidad & Operaciones</span>
+              </div>
+              <div>
+                <label className={LABEL}>Título en Español</label>
+                <input
+                  type="text"
+                  value={newsBadgeText}
+                  onChange={(e) => setNewsBadgeText(e.target.value)}
+                  placeholder="Actualidad & Operaciones"
+                  className={INPUT}
+                />
+              </div>
+              <div>
+                <label className={LABEL}>Título en Inglés (EN)</label>
+                <input
+                  type="text"
+                  value={newsBadgeTextEn}
+                  onChange={(e) => setNewsBadgeTextEn(e.target.value)}
+                  placeholder="Market News & Ops"
+                  className={INPUT}
+                />
+              </div>
             </div>
           </div>
         </div>

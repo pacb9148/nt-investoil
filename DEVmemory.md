@@ -10,6 +10,27 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 
 ## 2. Hitos y Funcionalidades Desarrolladas
 
+### Fase 12: Hero Definitivo, Badges de Marquesina y Editor de Identidad Legal Delaware USA (SEO & Schema.org)
+1. **Hero sin Colapsos y Fondos Petroleros Reales**:
+   - Discriminación estricta de `bgType` en `hero-section.tsx` ('video', 'image', 'gradient', 'none') eliminando cualquier estado que dejara la pantalla en negro al seleccionar gradiente o liso.
+   - En `hero-form.tsx`, el Bloque 3 mantiene previsualización permanente en vivo.
+   - Sustituidas las imágenes falsas (dron y casa con piscina) por fotos petroleras 100% reales (refinería petroquímica, buque petrolero de gran calado y terminal de tanques de almacenamiento).
+   - Retirado el video 4K roto inexistente y añadidos botones de "✕ Quitar fondo".
+   - Sustituido el panel gigante de especificaciones por un icono interactivo `ⓘ` con tooltip.
+2. **Edición Bilingüe de Badges de Marquesina**:
+   - Soporte para personalizar los títulos de los badges en `src/data/marquee.json`: `pricesBadgeText`, `pricesBadgeTextEn`, `newsBadgeText` y `newsBadgeTextEn`.
+   - Interfaz de edición bilingüe en `/admin/content/marquee`.
+3. **Módulo de Identidad Corporativa Delaware USA & SEO (`/admin/content/seo`)**:
+   - Diseñado para corregir y desambiguar ante Google Search y Google AI Overview la personería jurídica de Invest Oil LLC (Delaware LLC), eliminando confusiones con empresas inmobiliarias o entidades locales extintas de Valencia (España).
+   - Parámetros configurables: Razón social oficial (`Invest Oil LLC`), Jurisdicción legal (`Delaware, United States`), Industria de trading petrolero, Sedes y hubs operativos internacionales (Delaware, Houston, Madrid, Bogotá) y Nota formal anti-homónimo.
+   - Metadatos bilingües de búsqueda (ES/EN) con semáforo y contador de longitud recomendada (Title, Description, Keywords, Canónica, Geotags `geo.region: US-DE`).
+   - Tarjeta social Open Graph con selector de imágenes de marca y vista previa interactiva.
+   - Generación dinámica de Schema.org JSON-LD de grado institucional (`@type: ["Corporation", "Organization"]`) inyectado en `src/app/layout.tsx` a través de `generateMetadata()` y `<script type="application/ld+json">`.
+4. **Validaciones**:
+   - `npm run type-check`: 0 errores.
+   - `npm run build`: 53 rutas compiladas con éxito.
+   - `npm run test:security`: Aprobado al 100%.
+
 ### Fase 11: Editor Compacto, Radar de Noticias, Proveedores Multi-IA, Orbe 3D y Persistencia Total
 1. **Editor de Artículos Idéntico a Captura de Referencia**:
    - Tarjeta unificada integrada: Fila 1 con Título del Post; Fila 2 con 2 columnas simétricas para Slug y Tags con iconos compactos `✨` embebidos; Fila 3 con Extracto / Resumen de 3 filas con control de redimensionamiento vertical (`resize-y`).

@@ -161,13 +161,47 @@ export interface LandingSiteSettingsConfig {
   footer_copy_en?: string;
 }
 
+export interface CorporateOperatingHub {
+  city: string;
+  state?: string;
+  country: string;
+  role: string;
+  address: string;
+}
+
 export interface LandingSeoConfig {
+  // Identidad Corporativa y Jurisdicción Legal (Desambiguación Google / IA / Motores de Búsqueda)
+  legal_name: string;
+  brand_name: string;
+  jurisdiction: string;
+  company_type: string;
+  industry: string;
+  legal_address: {
+    region: string;
+    country: string;
+    country_code: string;
+  };
+  operating_hubs: CorporateOperatingHub[];
+  disambiguation_note: string;
+
+  // Metadatos Web & SEO Tradicional (Bilingüe ES / EN)
   meta_title: string;
   meta_title_en?: string;
   meta_description: string;
   meta_description_en?: string;
-  og_image_url?: string;
   keywords: string;
+  keywords_en?: string;
+  canonical_url: string;
+  og_image: string;
+
+  // Contacto & Canales Oficiales
+  contact_email: string;
+  telephone?: string;
+  linkedin_url?: string;
+
+  // Geotags
+  geo_region?: string;
+  geo_placename?: string;
 }
 
 export interface ContentActionResponse {

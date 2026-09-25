@@ -3,6 +3,7 @@ import {
   getLandingSections,
   getLandingHero,
   getLandingAppearance,
+  getSectionContent,
 } from '@/lib/services/content-service';
 import { HeroSection } from '@/components/sections/hero-section';
 import { ServicesSection } from '@/components/sections/services-section';
@@ -13,16 +14,26 @@ import { TestimonialsSection } from '@/components/sections/testimonials-section'
 import { ProblemSection } from '@/components/sections/problem-section';
 import { FaqSection } from '@/components/sections/faq-section';
 import { ContactSection } from '@/components/sections/contact-section';
-import { MarqueeTicker } from '@/components/layout/marquee-ticker';
+import { MarqueeTicker, MarqueeConfig } from '@/components/layout/marquee-ticker';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; // Contenido dinámico con soporte de revalidación inmediata
 
 export default async function HomePage() {
-  const [sections, heroConfig, appearance] = await Promise.all([
+  const [sections, heroConfig, appearance, marqueeConfig] = await Promise.all([
     getLandingSections(),
     getLandingHero(),
     getLandingAppearance(),
+    getSectionContent<MarqueeConfig>('marquee', {
+      enabled: true,
+      showLivePrices: true,
+      speedSeconds: 120,
+      pauseOnHover: true,
+      pricesBadgeText: 'Precios de Energía en Vivo',
+      pricesBadgeTextEn: 'Live Energy Prices',
+      newsBadgeText: 'Actualidad & Operaciones',
+      newsBadgeTextEn: 'Market News & Ops',
+    }),
   ]);
 
   const secBg = appearance.section_bg_colors || {};
@@ -41,7 +52,9 @@ export default async function HomePage() {
       )}
 
       {/* 2. Marquee de Commodities & Precios en Vivo (Dual Bidireccional) */}
-      {isVisible('marquee') && <MarqueeTicker customBg={secBg.marquee} />}
+      {isVisible('marquee') && (
+        <MarqueeTicker config={marqueeConfig} customBg={secBg.marquee} />
+      )}
 
       {/* 3. Retos del Sector (El Problema) */}
       {isVisible('problema') && <ProblemSection customBg={secBg.problema} />}

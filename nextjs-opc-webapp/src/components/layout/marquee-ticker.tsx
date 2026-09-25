@@ -46,14 +46,54 @@ const HEADLINES_EN = [
   'Sustainability pledge: progressive adoption of cryogenic LNG and low-carbon marine fuels',
 ];
 
-export function MarqueeTicker({ customBg }: { customBg?: string }) {
+export interface MarqueeConfig {
+  enabled?: boolean;
+  showLivePrices?: boolean;
+  speedSeconds?: number;
+  pauseOnHover?: boolean;
+  pricesBadgeText?: string;
+  pricesBadgeTextEn?: string;
+  newsBadgeText?: string;
+  newsBadgeTextEn?: string;
+  customItems?: string[];
+}
+
+export function MarqueeTicker({
+  customBg,
+  config,
+}: {
+  customBg?: string;
+  config?: MarqueeConfig;
+}) {
   const { language } = useLanguage();
   const isEn = language === 'en';
 
   const [prices, setPrices] = useState<CommodityPrice[]>(DEFAULT_COMMODITIES);
+  const [marqueeConfig, setMarqueeConfig] = useState<MarqueeConfig | undefined>(config);
 
   useEffect(() => {
     let isMounted = true;
+
+    const fetchConfig = async () => {
+      try {
+        const res = await fetch('/api/content/marquee');
+        if (res.ok && isMounted) {
+          const data = await res.json();
+          setMarqueeConfig(data);
+        }
+      } catch {}
+    };
+
+    if (!config) {
+      fetchConfig();
+    }
+
+    const handleUpdate = () => {
+      fetchConfig();
+    };
+
+    window.addEventListener('investoil_marquee_updated', handleUpdate);
+
     const fetchPrices = async () => {
       try {
         const res = await fetch('/api/market-prices');
@@ -74,8 +114,9 @@ export function MarqueeTicker({ customBg }: { customBg?: string }) {
     return () => {
       isMounted = false;
       clearInterval(interval);
+      window.removeEventListener('investoil_marquee_updated', handleUpdate);
     };
-  }, []);
+  }, [config]);
 
   const headlines = isEn ? HEADLINES_EN : HEADLINES_ES;
 
@@ -133,7 +174,11 @@ export function MarqueeTicker({ customBg }: { customBg?: string }) {
         {/* Badge Indicador de Fila 1 */}
         <div className="shrink-0 z-10 flex items-center gap-1.5 px-3.5 py-1 bg-card/95 border-r border-border text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400 shadow-md">
           <TrendingUp className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-          <span>{isEn ? 'Live Energy Prices' : 'Precios de Energía en Vivo'}</span>
+          <span>
+            {isEn
+              ? (marqueeConfig?.pricesBadgeTextEn || 'Live Energy Prices')
+              : (marqueeConfig?.pricesBadgeText || 'Precios de Energía en Vivo')}
+          </span>
           <a
             href="https://www.oilpriceapi.com/es/precio-petroleo-hoy"
             target="_blank"
@@ -159,7 +204,11 @@ export function MarqueeTicker({ customBg }: { customBg?: string }) {
         {/* Badge Indicador de Fila 2 */}
         <div className="shrink-0 z-10 flex items-center gap-1.5 px-3.5 py-1 bg-card/95 border-r border-border text-[10px] font-mono font-bold uppercase tracking-wider text-teal-400 shadow-md">
           <Newspaper className="w-3.5 h-3.5 text-teal-400" />
-          <span>{isEn ? 'Market News & Ops' : 'Actualidad & Operaciones'}</span>
+          <span>
+            {isEn
+              ? (marqueeConfig?.newsBadgeTextEn || 'Market News & Ops')
+              : (marqueeConfig?.newsBadgeText || 'Actualidad & Operaciones')}
+          </span>
         </div>
 
         {/* Marquesina animada: Derecha a Izquierda (marquee clásico) */}

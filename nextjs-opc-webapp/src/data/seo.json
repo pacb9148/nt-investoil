@@ -1,6 +1,54 @@
 {
+  "legal_name": "Invest Oil LLC",
+  "brand_name": "Invest Oil",
+  "jurisdiction": "Delaware, United States",
+  "company_type": "Limited Liability Company (LLC) / Corporation",
+  "industry": "Petroleum, Crude Oil, Refined Products Trading & Maritime Logistics",
+  "legal_address": {
+    "region": "Delaware",
+    "country": "United States",
+    "country_code": "US"
+  },
+  "operating_hubs": [
+    {
+      "city": "Delaware",
+      "state": "DE",
+      "country": "United States",
+      "role": "Sede Corporativa Legal (Registered Headquarters)",
+      "address": "State of Delaware, United States"
+    },
+    {
+      "city": "Houston",
+      "state": "Texas",
+      "country": "United States",
+      "role": "Commercial Operations & Energy Desk",
+      "address": "1000 Louisiana St, Suite 4000, Houston, TX 77002"
+    },
+    {
+      "city": "Madrid",
+      "country": "España",
+      "role": "European Operations Desk",
+      "address": "Paseo de la Castellana 95, Planta 15, 28046 Madrid"
+    },
+    {
+      "city": "Bogotá",
+      "country": "Colombia",
+      "role": "Latin America Operations Desk",
+      "address": "Carrera 7 # 71-21, Torre B, Bogotá D.C."
+    }
+  ],
+  "disambiguation_note": "Invest Oil LLC es una corporación legalmente constituida y registrada en el Estado de Delaware, Estados Unidos de América, especializada exclusivamente en el comercio internacional de petróleo, crudo y derivados energéticos. No tiene ninguna relación societaria ni patrimonial con empresas inmobiliarias o firmas locales extintas de Valencia (España) ni de otras jurisdicciones homónimas.",
   "meta_title": "Invest Oil LLC — Soluciones Globales en Comercio y Logística de Petróleo",
-  "meta_description": "Conexiones estratégicas en el mercado petrolero global. Comercialización de crudo, Jet Fuel A1, EN590, almacenamiento y financiamiento estructurado.",
-  "keywords": "trading de petroleo, brent, wti, jet fuel a1, diesel en590, fletamento maritimo, houston oil, pet coke",
-  "og_image": "/images/branding/corporate-card-logo.jpeg"
+  "meta_title_en": "Invest Oil LLC — Global Energy Trading & Petroleum Logistics (Delaware, USA)",
+  "meta_description": "Invest Oil LLC es una firma energética con sede corporativa en Delaware, EE. UU., especializada en comercialización de crudo, Jet Fuel A1, EN590, almacenamiento y financiamiento estructurado.",
+  "meta_description_en": "Invest Oil LLC is a Delaware, USA incorporated energy company specializing in crude oil trading, Jet Fuel A1, EN590, maritime logistics and structured energy facilitation.",
+  "keywords": "Invest Oil LLC, trading de petroleo Delaware, brent blend, merey 16, pet coke, jet fuel a1, diesel en590, fletamento maritimo, houston oil desk, crude oil trading Delaware",
+  "keywords_en": "Invest Oil LLC, Delaware USA energy corporation, crude oil trading, brent, merey 16, jet fuel a1, en590 diesel, maritime logistics, houston petroleum desk",
+  "canonical_url": "https://investoil.es",
+  "og_image": "/images/branding/corporate-card-logo.jpeg",
+  "contact_email": "contacto@investoil.es",
+  "telephone": "+1 (713) 555-0190",
+  "linkedin_url": "https://www.linkedin.com/company/invest-oil-llc",
+  "geo_region": "US-DE",
+  "geo_placename": "Delaware, United States"
 }

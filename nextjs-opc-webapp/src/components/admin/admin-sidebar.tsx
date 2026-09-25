@@ -407,7 +407,7 @@ export function AdminSidebar() {
                   )}
                 >
                   <Search className={cn('w-3.5 h-3.5 shrink-0', pathname === '/admin/content/seo' ? 'text-accent' : 'text-text-subtle')} />
-                  <span className="truncate">SEO & Redes Sociales</span>
+                  <span className="truncate">Identidad Legal, SEO & Delaware</span>
                 </Link>
               </nav>
             )}

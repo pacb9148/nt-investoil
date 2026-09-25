@@ -114,15 +114,11 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
       className="relative min-h-[92vh] flex items-center justify-center pt-28 pb-16 overflow-hidden transition-colors duration-300"
       style={{ backgroundColor: customBg || 'transparent' }}
     >
-      {/* 1. Fondo Multimedia Dinámico (Video / Imagen / Gradiente) */}
+      {/* 1. Fondo Multimedia Dinámico (Video / Imagen / Gradiente / Liso) */}
       {(() => {
         const hasUrl = Boolean(bgUrl && bgUrl.trim().length > 0);
-        const isVideo =
-          bgType === 'video' ||
-          (bgType !== 'image' && hasUrl && /\.(mp4|webm|mov|ogg)(\?|$)/i.test(bgUrl.trim()));
-        const isImage = bgType === 'image' || (!isVideo && hasUrl);
 
-        if (isVideo) {
+        if (bgType === 'video') {
           const videoSrc = hasUrl ? bgUrl.trim() : '/videos/hero-background.mp4';
           return (
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" style={{ opacity: bgOpacity }}>
@@ -144,7 +140,7 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
           );
         }
 
-        if (isImage) {
+        if (bgType === 'image') {
           const imageSrc = hasUrl
             ? bgUrl.trim()
             : 'https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1920&q=80';
@@ -172,11 +168,14 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
 
         if (bgType === 'gradient') {
           return (
-            <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(14,165,233,0.15),rgba(255,255,255,0))] pointer-events-none" />
+            <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(245,158,11,0.12),rgba(14,30,61,0.4)_50%,transparent_100%)] pointer-events-none" />
           );
         }
 
-        return null;
+        // bgType === 'none' u otro
+        return (
+          <div className="absolute inset-0 z-0 bg-gradient-to-b from-surface/20 to-transparent pointer-events-none" />
+        );
       })()}
 
       {/* Grid Pattern Obsidian */}

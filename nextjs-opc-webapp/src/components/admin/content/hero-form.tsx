@@ -17,6 +17,8 @@ import {
   FileVideo,
   FileImage,
   RefreshCw,
+  Info,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -34,6 +36,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   const [isPending, startTransition] = useTransition();
   const [bgType, setBgType] = useState<string>(defaultValues.hero_bg_type || 'gradient');
   const [bgUrl, setBgUrl] = useState<string>(defaultValues.hero_bg_url || '');
+  const [showMediaInfo, setShowMediaInfo] = useState<boolean>(false);
   const [previewMediaType, setPreviewMediaType] = useState<'video' | 'image' | null>(() => {
     if (defaultValues.hero_bg_type === 'video') return 'video';
     if (defaultValues.hero_bg_type === 'image') return 'image';
@@ -619,9 +622,68 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
 
       {/* Bloque 3: Fondo Multimedia y Aspecto Visual */}
       <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-5">
-        <h3 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
-          <span>03.</span> Fondo Multimedia (Imagen / Video / Gradiente)
-        </h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+              <span>03.</span> Fondo Multimedia (Imagen / Video / Gradiente)
+            </h3>
+            {/* Icono de Información interactivo */}
+            <div className="relative inline-block">
+              <button
+                type="button"
+                onClick={() => setShowMediaInfo(!showMediaInfo)}
+                className={cn(
+                  'p-1 rounded-full transition-colors',
+                  showMediaInfo
+                    ? 'bg-accent/20 text-accent'
+                    : 'text-text-subtle hover:text-accent hover:bg-card'
+                )}
+                title="Ver especificaciones técnicas y formatos"
+              >
+                <Info className="w-3.5 h-3.5" />
+              </button>
+
+              {showMediaInfo && (
+                <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-72 sm:w-80 p-3.5 rounded-xl bg-card border border-border shadow-2xl z-30 space-y-2 animate-in fade-in zoom-in-95">
+                  <div className="flex items-center justify-between border-b border-border/70 pb-2">
+                    <span className="text-[11px] font-bold text-text flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-accent" />
+                      <span>Especificaciones y Límites</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowMediaInfo(false)}
+                      className="text-text-subtle hover:text-text p-0.5"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <ul className="list-disc list-inside space-y-1 text-[10px] text-text-muted font-mono">
+                    <li><strong className="text-text">Videos de fondo:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">100 MB</span>)</li>
+                    <li><strong className="text-text">Imágenes de fondo:</strong> JPG, JPEG, PNG, WebP, SVG, AVIF (Máx. <span className="text-amber-400">2 MB</span>)</li>
+                    <li className="font-sans text-text-subtle pt-1">Los archivos locales subidos se almacenan en base de datos PostgreSQL para persistir entre despliegues.</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {bgUrl && (
+            <button
+              type="button"
+              onClick={() => {
+                setBgUrl('');
+                setLocalPreviewUrl(null);
+                setPreviewMediaType(null);
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-mono border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors"
+              title="Quitar fondo actual"
+            >
+              <X className="w-3 h-3" />
+              <span>Quitar fondo</span>
+            </button>
+          )}
+        </div>
 
         <div className="space-y-4">
           <div>
@@ -636,326 +698,439 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                 const Icon = opt.icon;
                 const isSelected = bgType === opt.id;
                 return (
-                  <label
+                  <button
                     key={opt.id}
+                    type="button"
+                    onClick={() => {
+                      setBgType(opt.id);
+                      if (opt.id === 'image') setPreviewMediaType('image');
+                      else if (opt.id === 'video') setPreviewMediaType('video');
+                      else setPreviewMediaType(null);
+                    }}
                     className={cn(
-                      'flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition-all',
+                      'flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition-all text-left w-full',
                       isSelected
                         ? 'border-accent bg-accent/15 text-accent font-semibold shadow-sm'
                         : 'border-border/70 bg-card/40 text-text-muted hover:text-text'
                     )}
                   >
-                    <input
-                      type="radio"
-                      name="hero_bg_type"
-                      value={opt.id}
-                      checked={isSelected}
-                      onChange={() => {
-                        setBgType(opt.id);
-                        if (opt.id === 'image') setPreviewMediaType('image');
-                        else if (opt.id === 'video') setPreviewMediaType('video');
-                        else setPreviewMediaType(null);
-                      }}
-                      className="sr-only"
-                    />
                     <Icon className="w-4 h-4 shrink-0" />
                     <span className="text-xs">{opt.label}</span>
-                  </label>
+                  </button>
                 );
               })}
             </div>
+            {/* Input oculto para formData */}
+            <input type="hidden" name="hero_bg_type" value={bgType} />
           </div>
 
-          {(bgType === 'video' || bgType === 'image') && (
+          {/* Panel Condicional según Tipo de Fondo */}
+          {bgType === 'video' && (
             <div className="p-4 rounded-lg bg-card/60 border border-border space-y-4">
-              <div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1.5">
-                  <label className={LABEL_STYLE}>
-                    {bgType === 'video' ? 'Archivo o URL del Video (MP4 / WebM)' : 'Archivo o URL de la Imagen de Fondo'}
-                  </label>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <label className={LABEL_STYLE}>Archivo o URL del Video (MP4 / WebM / MOV)</label>
 
-                  {/* Input de archivo nativo oculto */}
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileSelect}
-                    accept="video/mp4,video/webm,image/*"
-                    className="hidden"
-                  />
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileSelect}
+                  accept="video/mp4,video/webm,video/quicktime"
+                  className="hidden"
+                />
 
-                  {/* Botón para examinar y subir archivo local */}
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
-                  >
-                    {uploading ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Subiendo archivo...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-3.5 h-3.5" />
-                        <span>Seleccionar archivo ({bgType === 'video' ? 'Video' : 'Imagen'})...</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    name="hero_bg_url"
-                    value={bgUrl}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setBgUrl(val);
-                      // Auto-detectar si termina en extensión de video o imagen
-                      if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(val.trim())) {
-                        setBgType('video');
-                        setPreviewMediaType('video');
-                      } else if (/\.(jpg|jpeg|png|webp|svg|gif|avif)(\?|$)/i.test(val.trim())) {
-                        setBgType('image');
-                        setPreviewMediaType('image');
-                      }
-                    }}
-                    className={INPUT_STYLE}
-                    placeholder="https://... o /uploads/... o seleccione un archivo local"
-                  />
-
-                  {/* Si el usuario pegó una ruta de disco local de Windows (C:\...), mostrar botón de importar */}
-                  {isLocalDiskPath && (
-                    <button
-                      type="button"
-                      onClick={handleImportLocalPath}
-                      disabled={uploading}
-                      className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/30 text-xs font-semibold transition-all"
-                      title="Copiar este archivo local al servidor web"
-                    >
-                      <FolderOpen className="w-3.5 h-3.5" />
-                      <span>Importar</span>
-                    </button>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Subiendo video...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Seleccionar archivo (Video)...</span>
+                    </>
                   )}
-                </div>
+                </button>
+              </div>
 
-                {/* Accesos rápidos a videos e imágenes predeterminadas */}
-                <div className="flex flex-wrap items-center gap-2 pt-2">
-                  <span className="text-[10px] font-mono text-text-subtle">Fondos disponibles:</span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  name="hero_bg_url"
+                  value={bgUrl}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setBgUrl(val);
+                    setPreviewMediaType('video');
+                  }}
+                  className={INPUT_STYLE}
+                  placeholder="https://... o /videos/hero-background.mp4 o /uploads/..."
+                />
+                {bgUrl && (
                   <button
                     type="button"
                     onClick={() => {
-                      setBgType('video');
-                      setPreviewMediaType('video');
+                      setBgUrl('');
                       setLocalPreviewUrl(null);
-                      setBgUrl('/uploads/1790266996976-14529100_3840_2160_30fps.mp4');
                     }}
-                    className={cn(
-                      'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
-                      bgUrl.includes('14529100')
-                        ? 'bg-amber-500/20 border-amber-500 text-amber-400 font-semibold shadow-sm'
-                        : 'bg-card border-border hover:border-amber-500/50 text-text-muted hover:text-text'
-                    )}
+                    className="p-2.5 rounded-lg border border-border bg-card text-text-subtle hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0"
+                    title="Limpiar URL"
                   >
-                    <FileVideo className="w-3 h-3 text-amber-400" />
-                    <span>Video 4K Atardecer (Subido)</span>
+                    <X className="w-4 h-4" />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBgType('video');
-                      setPreviewMediaType('video');
-                      setLocalPreviewUrl(null);
-                      setBgUrl('/videos/hero-background.mp4');
-                    }}
-                    className={cn(
-                      'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
-                      bgUrl === '/videos/hero-background.mp4'
-                        ? 'bg-accent/20 border-accent text-accent font-semibold'
-                        : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
-                    )}
-                  >
-                    <FileVideo className="w-3 h-3" />
-                    <span>Video Refinería (Oficial)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBgType('video');
-                      setPreviewMediaType('video');
-                      setLocalPreviewUrl(null);
-                      setBgUrl('/uploads/1790117420791-307348_large.mp4');
-                    }}
-                    className={cn(
-                      'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
-                      bgUrl === '/uploads/1790117420791-307348_large.mp4'
-                        ? 'bg-accent/20 border-accent text-accent font-semibold'
-                        : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
-                    )}
-                  >
-                    <FileVideo className="w-3 h-3" />
-                    <span>Video Operaciones</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBgType('image');
-                      setPreviewMediaType('image');
-                      setLocalPreviewUrl(null);
-                      setBgUrl('https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1920&q=80');
-                    }}
-                    className={cn(
-                      'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
-                      bgUrl.includes('photo-1544984243')
-                        ? 'bg-accent/20 border-accent text-accent font-semibold'
-                        : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
-                    )}
-                  >
-                    <FileImage className="w-3 h-3 text-sky-400" />
-                    <span>Buque Petrolero</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setBgType('image');
-                      setPreviewMediaType('image');
-                      setLocalPreviewUrl(null);
-                      setBgUrl('https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1920&q=80');
-                    }}
-                    className={cn(
-                      'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
-                      bgUrl.includes('photo-1508614589')
-                        ? 'bg-accent/20 border-accent text-accent font-semibold'
-                        : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
-                    )}
-                  >
-                    <FileImage className="w-3 h-3 text-sky-400" />
-                    <span>Complejo Refinería</span>
-                  </button>
-                </div>
-
-                {/* Leyenda obligatoria de especificaciones y límites */}
-                <div className="mt-3 p-3 rounded-lg border border-border/70 bg-surf/60 space-y-1 text-[11px] text-text-muted">
-                  <div className="flex items-center gap-1.5 font-semibold text-text">
-                    <Sparkles className="w-3.5 h-3.5 text-accent shrink-0" />
-                    <span>Formatos permitidos y límites de almacenamiento del fondo:</span>
-                  </div>
-                  <ul className="list-disc list-inside space-y-0.5 pl-1 text-[10px] text-text-subtle font-mono">
-                    <li>
-                      <strong className="text-text">Videos de fondo:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">100 MB</span>)
-                    </li>
-                    <li>
-                      <strong className="text-text">Imágenes de fondo:</strong> JPG, JPEG, PNG, WebP, SVG, AVIF (Máx. <span className="text-amber-400">2 MB</span>)
-                    </li>
-                    <li className="text-[10px] text-text-muted font-sans pt-0.5">
-                      Los archivos locales subidos se almacenan en la <span className="text-accent font-semibold">base de datos</span> para persistir entre despliegues. Si usas una URL directa de internet (HTTPS), se guardará el enlace al recurso.
-                    </li>
-                  </ul>
-                </div>
-
-                {uploadMessage && (
-                  <div className="mt-2 flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
-                    <span>{uploadMessage}</span>
-                  </div>
                 )}
-
-                {uploadError && (
-                  <div className="mt-2 flex items-center gap-2 p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{uploadError}</span>
-                  </div>
-                )}
-
-                {/* Previsualización en Vivo de Imagen o Video */}
-                {(localPreviewUrl || (bgUrl && !isLocalDiskPath)) && (
-                  <div className="mt-4 p-3.5 rounded-xl border border-border/80 bg-card/70 space-y-2">
-                    {(() => {
-                      const previewSrc = (localPreviewUrl || bgUrl).trim();
-                      const isRealVideo =
-                        previewMediaType === 'video' ||
-                        (previewMediaType !== 'image' && (
-                          bgType === 'video'
-                            ? !/\.(jpg|jpeg|png|webp|svg|gif|avif)(\?|$)/i.test(previewSrc)
-                            : /\.(mp4|webm|mov|ogg)(\?|$)/i.test(previewSrc)
-                        ));
-
-                      return (
-                        <>
-                          <div className="flex items-center justify-between text-[11px] font-mono text-text-muted">
-                            <span className="flex items-center gap-1.5 text-accent font-semibold">
-                              {isRealVideo ? <FileVideo className="w-3.5 h-3.5 text-amber-400" /> : <FileImage className="w-3.5 h-3.5 text-sky-400" />}
-                              <span>Vista previa en vivo ({isRealVideo ? 'Video' : 'Imagen'}):</span>
-                            </span>
-                            <span className="text-[10px] text-text-subtle truncate max-w-xs">{previewSrc}</span>
-                          </div>
-
-                          <div className="relative w-full h-64 max-h-64 rounded-lg overflow-hidden border border-border/70 bg-[#070b14] flex items-center justify-center">
-                            {isRealVideo ? (
-                              <video
-                                key={previewSrc}
-                                src={previewSrc}
-                                controls
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                preload="auto"
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                key={previewSrc}
-                                src={previewSrc}
-                                alt="Previsualización de fondo"
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  console.warn('Error al cargar imagen en vista previa:', previewSrc);
-                                }}
-                              />
-                            )}
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
+                {isLocalDiskPath && (
+                  <button
+                    type="button"
+                    onClick={handleImportLocalPath}
+                    disabled={uploading}
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/30 text-xs font-semibold transition-all"
+                    title="Copiar archivo local al servidor web"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5" />
+                    <span>Importar</span>
+                  </button>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className={LABEL_STYLE}>Opacidad del Fondo</label>
-                    <span className="text-xs font-mono font-bold text-accent">{opacity}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    name="hero_bg_opacity"
-                    min={0}
-                    max={100}
-                    value={opacity}
-                    onChange={(e) => setOpacity(Number(e.target.value))}
-                    className="w-full accent-amber-500 cursor-pointer"
-                  />
-                </div>
-
-                <div>
-                  <label className={LABEL_STYLE}>Ajuste de Medios</label>
-                  <select
-                    name="hero_bg_fit"
-                    defaultValue={defaultValues.hero_bg_fit || 'cover'}
-                    className={INPUT_STYLE}
-                  >
-                    <option value="cover">Cubrir Todo el Hero (Cover - Recomendado)</option>
-                    <option value="contain">Contener Proporción (Contain)</option>
-                    <option value="fill">Rellenar (Fill)</option>
-                  </select>
-                </div>
+              {/* Videos Rápidos Disponibles y Funcionando */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-[10px] font-mono text-text-subtle">Videos verificados:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBgType('video');
+                    setPreviewMediaType('video');
+                    setLocalPreviewUrl(null);
+                    setBgUrl('/videos/hero-background.mp4');
+                  }}
+                  className={cn(
+                    'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
+                    bgUrl === '/videos/hero-background.mp4'
+                      ? 'bg-accent/20 border-accent text-accent font-semibold shadow-sm'
+                      : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
+                  )}
+                >
+                  <FileVideo className="w-3 h-3 text-amber-400" />
+                  <span>Video Refinería (Oficial)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBgType('video');
+                    setPreviewMediaType('video');
+                    setLocalPreviewUrl(null);
+                    setBgUrl('/uploads/1790117420791-307348_large.mp4');
+                  }}
+                  className={cn(
+                    'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
+                    bgUrl === '/uploads/1790117420791-307348_large.mp4'
+                      ? 'bg-accent/20 border-accent text-accent font-semibold shadow-sm'
+                      : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
+                  )}
+                >
+                  <FileVideo className="w-3 h-3 text-teal-400" />
+                  <span>Video Operaciones Industriales</span>
+                </button>
               </div>
             </div>
           )}
+
+          {bgType === 'image' && (
+            <div className="p-4 rounded-lg bg-card/60 border border-border space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <label className={LABEL_STYLE}>Archivo o URL de la Imagen de Fondo</label>
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileSelect}
+                  accept="image/*"
+                  className="hidden"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Subiendo imagen...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Seleccionar archivo (Imagen)...</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  name="hero_bg_url"
+                  value={bgUrl}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setBgUrl(val);
+                    setPreviewMediaType('image');
+                  }}
+                  className={INPUT_STYLE}
+                  placeholder="https://... o /uploads/... o seleccione un archivo local"
+                />
+                {bgUrl && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBgUrl('');
+                      setLocalPreviewUrl(null);
+                    }}
+                    className="p-2.5 rounded-lg border border-border bg-card text-text-subtle hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0"
+                    title="Limpiar URL"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+                {isLocalDiskPath && (
+                  <button
+                    type="button"
+                    onClick={handleImportLocalPath}
+                    disabled={uploading}
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/30 text-xs font-semibold transition-all"
+                    title="Copiar archivo local al servidor web"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5" />
+                    <span>Importar</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Imágenes Reales de la Industria Petrolera */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-[10px] font-mono text-text-subtle">Fondos petroleros reales:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBgType('image');
+                    setPreviewMediaType('image');
+                    setLocalPreviewUrl(null);
+                    setBgUrl('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80');
+                  }}
+                  className={cn(
+                    'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
+                    bgUrl.includes('photo-1518709268805')
+                      ? 'bg-accent/20 border-accent text-accent font-semibold shadow-sm'
+                      : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
+                  )}
+                >
+                  <FileImage className="w-3 h-3 text-amber-400" />
+                  <span>Refinería Atardecer</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBgType('image');
+                    setPreviewMediaType('image');
+                    setLocalPreviewUrl(null);
+                    setBgUrl('https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=1920&q=80');
+                  }}
+                  className={cn(
+                    'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
+                    bgUrl.includes('photo-1559136555')
+                      ? 'bg-accent/20 border-accent text-accent font-semibold shadow-sm'
+                      : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
+                  )}
+                >
+                  <FileImage className="w-3 h-3 text-sky-400" />
+                  <span>Buque Petrolero Marítimo</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBgType('image');
+                    setPreviewMediaType('image');
+                    setLocalPreviewUrl(null);
+                    setBgUrl('https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&w=1920&q=80');
+                  }}
+                  className={cn(
+                    'px-2.5 py-1 rounded text-[10px] font-mono border transition-all flex items-center gap-1',
+                    bgUrl.includes('photo-1581094288')
+                      ? 'bg-accent/20 border-accent text-accent font-semibold shadow-sm'
+                      : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
+                  )}
+                >
+                  <FileImage className="w-3 h-3 text-emerald-400" />
+                  <span>Terminal de Almacenamiento & Tanques</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {bgType === 'gradient' && (
+            <div className="p-4 rounded-lg bg-card/60 border border-border/80 text-xs text-text-muted space-y-1">
+              <div className="font-semibold text-text flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-accent" />
+                <span>Modo Gradiente Dark Obsidian Activo</span>
+              </div>
+              <p className="text-[11px] text-text-subtle">
+                El fondo del Hero exhibe un degradado radial oscuro con resplandores ámbar y petróleo de alto contraste, ideal para lectura nítida de métricas y titulares.
+              </p>
+            </div>
+          )}
+
+          {bgType === 'none' && (
+            <div className="p-4 rounded-lg bg-card/60 border border-border/80 text-xs text-text-muted space-y-1">
+              <div className="font-semibold text-text flex items-center gap-1.5">
+                <AlertCircle className="w-4 h-4 text-amber-400" />
+                <span>Modo Sin Fondo (Liso) Activo</span>
+              </div>
+              <p className="text-[11px] text-text-subtle">
+                El Hero se presentará sobre el color de lienzo base (#020617) sin imágenes ni videos de fondo.
+              </p>
+            </div>
+          )}
+
+          {uploadMessage && (
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{uploadMessage}</span>
+            </div>
+          )}
+
+          {uploadError && (
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{uploadError}</span>
+            </div>
+          )}
+
+          {/* Previsualización en Vivo Permanente y Estable */}
+          <div className="p-4 rounded-xl border border-border/80 bg-card/70 space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-mono text-text-muted">
+              <span className="flex items-center gap-1.5 text-accent font-semibold">
+                {bgType === 'video' ? (
+                  <FileVideo className="w-3.5 h-3.5 text-amber-400" />
+                ) : bgType === 'image' ? (
+                  <FileImage className="w-3.5 h-3.5 text-sky-400" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 text-accent" />
+                )}
+                <span>
+                  Vista previa en vivo (
+                  {bgType === 'video'
+                    ? 'Video de Fondo'
+                    : bgType === 'image'
+                    ? 'Imagen de Fondo'
+                    : bgType === 'gradient'
+                    ? 'Gradiente Dark'
+                    : 'Fondo Liso'}
+                  ):
+                </span>
+              </span>
+              {(localPreviewUrl || bgUrl) && (
+                <span className="text-[10px] text-text-subtle truncate max-w-xs">
+                  {localPreviewUrl || bgUrl}
+                </span>
+              )}
+            </div>
+
+            <div className="relative w-full h-64 max-h-64 rounded-lg overflow-hidden border border-border/70 bg-[#070b14] flex items-center justify-center">
+              {bgType === 'video' && (localPreviewUrl || bgUrl) ? (
+                <video
+                  key={localPreviewUrl || bgUrl}
+                  src={localPreviewUrl || bgUrl}
+                  controls
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  className={cn(
+                    'w-full h-full',
+                    defaultValues.hero_bg_fit === 'contain' ? 'object-contain' : 'object-cover'
+                  )}
+                  style={{ opacity: opacity / 100 }}
+                />
+              ) : bgType === 'image' && (localPreviewUrl || bgUrl) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={localPreviewUrl || bgUrl}
+                  src={localPreviewUrl || bgUrl}
+                  alt="Previsualización de fondo"
+                  className={cn(
+                    'w-full h-full',
+                    defaultValues.hero_bg_fit === 'contain' ? 'object-contain' : 'object-cover'
+                  )}
+                  style={{ opacity: opacity / 100 }}
+                  onError={() => {
+                    console.warn('Error al cargar imagen en vista previa');
+                  }}
+                />
+              ) : bgType === 'gradient' ? (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_100%_80%_at_50%_0%,rgba(245,158,11,0.18),rgba(14,165,233,0.12),rgba(2,6,23,0.98))]">
+                  <span className="text-xs font-mono font-bold text-accent tracking-wider mb-1">
+                    INVEST OIL LLC
+                  </span>
+                  <span className="text-sm font-bold text-text text-center max-w-sm">
+                    {defaultValues.heading_line_1 || 'Soluciones Estratégicas en el Mercado Global'}
+                  </span>
+                </div>
+              ) : bgType === 'none' ? (
+                <div className="w-full h-full flex items-center justify-center p-6 bg-[#020617] text-text-subtle text-xs font-mono">
+                  Fondo Obsidian Liso (#020617)
+                </div>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center text-text-subtle text-xs space-y-1">
+                  <ImageIcon className="w-8 h-8 text-text-subtle/50 mb-1" />
+                  <span className="font-semibold text-text-muted">Sin archivo multimedia asignado</span>
+                  <span className="text-[11px]">
+                    Selecciona un archivo local o escoge uno de los fondos recomendados arriba.
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Controles de Opacidad y Ajuste */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className={LABEL_STYLE}>Opacidad del Fondo</label>
+                <span className="text-xs font-mono font-bold text-accent">{opacity}%</span>
+              </div>
+              <input
+                type="range"
+                name="hero_bg_opacity"
+                min={0}
+                max={100}
+                value={opacity}
+                onChange={(e) => setOpacity(Number(e.target.value))}
+                className="w-full accent-amber-500 cursor-pointer"
+              />
+            </div>
+
+            <div>
+              <label className={LABEL_STYLE}>Ajuste de Medios</label>
+              <select
+                name="hero_bg_fit"
+                defaultValue={defaultValues.hero_bg_fit || 'cover'}
+                className={INPUT_STYLE}
+              >
+                <option value="cover">Cubrir Todo el Hero (Cover - Recomendado)</option>
+                <option value="contain">Contener Proporción (Contain)</option>
+                <option value="fill">Rellenar (Fill)</option>
+              </select>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
