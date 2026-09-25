@@ -575,5 +575,23 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - Eliminación absoluta de términos como "Mesa de Trading" y "Mesa de Operaciones" en toda la plataforma (usuarios, blog, contacto, traducciones i18n, pie de página y metadatos).
 - **Verificación Rigurosa con Evidencia Real**:
   - `npm run build`: 53/53 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
-  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.
 
+### Fase 17: Cascada de Salto Automático entre Modelos de IA y Red de Contingencia Institucional
+- **Arquitectura de Conmutación por Fallo en Cascada (`ai-client.ts`)**:
+  - Implementación del mecanismo de salto automático e ininterrumpido entre proveedores de IA: si el modelo en curso falla (timeout, error de conexión, límite de tasa 429 o error HTTP), el sistema salta al siguiente modelo configurado disponible.
+  - Priorización del motor activo: el modelo marcado como activo (`isActiveEngine` o `activeModelId`) encabeza la cola de ejecución; los demás modelos activos con credenciales válidas forman la secuencia de relevo.
+- **Resolución Flexible de Credenciales (`resolveApiKey`)**:
+  - Soporte transparente para claves almacenadas en el panel (`/admin/settings/ai`) y variables de entorno del servidor (`OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `NVIDIA_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`).
+  - Descarte automático de modelos inactivos o sin clave configurada para evitar latencias innecesarias.
+- **Control de Timeout Estricto por Proveedor**:
+  - Cada solicitud cuenta con un límite de tiempo de 12 segundos gestionado por `AbortSignal.timeout(12000)` / `AbortController`.
+  - Ante un retraso o bloqueo del proveedor, se interrumpe de forma controlada y se delega de inmediato al siguiente modelo disponible.
+- **Compatibilidad Multi-Arquitectura**:
+  - Integración nativa para Anthropic Claude, Google Gemini y motores compatibles con la API de OpenAI (OpenRouter, DeepSeek, NVIDIA NIM, Groq, Mistral, Together AI, Ollama y endpoints personalizados).
+- **Contingencia Cero-Fallas (Base de Conocimiento Calibrada)**:
+  - Si todos los modelos externos sufren interrupciones o no disponen de claves activas, el sistema conmuta instantáneamente al motor institucional de contingencia (`generateKnowledgeBaseResponse`).
+  - Proporciona respuestas precisas y oficiales sobre la sede en Delaware USA, directivos, especificaciones técnicas (ASTM D1655, EN590, Pet Coke), procedimientos KYC/ICPO y canalización hacia contacto humano (`trading@investoil.es`).
+- **Verificación Rigurosa con Evidencia Real**:
+  - `npm run type-check`: 0 errores de TypeScript.
+  - `npm run build`: 53/53 páginas compiladas y optimizadas con éxito.
+  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada (0 secretos, 0 vulnerabilidades npm).

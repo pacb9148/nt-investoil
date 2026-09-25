@@ -6,13 +6,139 @@ export interface ChatMessage {
   content: string;
 }
 
+function resolveApiKey(model: ConfiguredModelItem): string {
+  if (model.apiKey && model.apiKey.trim().length > 0) {
+    return model.apiKey.trim();
+  }
+  const pid = (model.providerId || '').toLowerCase();
+  if (pid === 'openrouter') return process.env.OPENROUTER_API_KEY || '';
+  if (pid === 'anthropic') return process.env.ANTHROPIC_API_KEY || '';
+  if (pid === 'openai') return process.env.OPENAI_API_KEY || '';
+  if (pid === 'deepseek') return process.env.DEEPSEEK_API_KEY || '';
+  if (pid === 'nvidia') return process.env.NVIDIA_API_KEY || '';
+  if (pid === 'google-ai-studio' || pid === 'gemini') return process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
+  if (pid === 'groq') return process.env.GROQ_API_KEY || '';
+  if (pid === 'mistral') return process.env.MISTRAL_API_KEY || '';
+  if (pid === 'together') return process.env.TOGETHER_API_KEY || '';
+  return '';
+}
+
+async function callSingleModel(
+  model: ConfiguredModelItem & { effectiveApiKey: string },
+  messages: ChatMessage[],
+  fullSystemPrompt: string
+): Promise<string> {
+  const timeoutMs = 12000; // 12s de espera máxima por proveedor
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    if (model.apiStyle === 'anthropic') {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'x-api-key': model.effectiveApiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: model.modelName || 'claude-3-5-sonnet-20241022',
+          max_tokens: 1024,
+          system: fullSystemPrompt,
+          messages: messages.filter((m) => m.role !== 'system').map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status}: ${errText.slice(0, 150)}`);
+      }
+
+      const data = await res.json();
+      if (data.content && data.content[0]?.text) {
+        return data.content[0].text;
+      }
+      throw new Error('Respuesta vacía de Anthropic');
+    }
+
+    if (model.apiStyle === 'gemini') {
+      const modelName = model.modelName || 'gemini-1.5-flash';
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${model.effectiveApiKey}`;
+      
+      const userText = messages
+        .filter((m) => m.role !== 'system')
+        .map((m) => `${m.role === 'user' ? 'Usuario' : 'Asistente'}: ${m.content}`)
+        .join('\n\n');
+
+      const res = await fetch(url, {
+        method: 'POST',
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: fullSystemPrompt }] },
+          contents: [{ parts: [{ text: userText }] }],
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status}: ${errText.slice(0, 150)}`);
+      }
+
+      const data = await res.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) return text;
+      throw new Error('Respuesta vacía de Gemini');
+    }
+
+    // OpenAI-compatible (OpenRouter, OpenAI, DeepSeek, Nvidia, Groq, Mistral, Together, Ollama, etc.)
+    const baseUrl = model.baseUrl || 'https://api.openai.com/v1';
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${model.effectiveApiKey}`,
+    };
+    if (model.providerId === 'openrouter') {
+      headers['HTTP-Referer'] = 'https://investoil.es';
+      headers['X-Title'] = 'Invest Oil LLC Assistant';
+    }
+
+    const res = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      signal: controller.signal,
+      headers,
+      body: JSON.stringify({
+        model: model.modelName,
+        messages: [
+          { role: 'system', content: fullSystemPrompt },
+          ...messages.filter((m) => m.role !== 'system'),
+        ],
+        temperature: 0.3,
+        max_tokens: 1000,
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status}: ${errText.slice(0, 150)}`);
+    }
+
+    const data = await res.json();
+    if (data.choices && data.choices[0]?.message?.content) {
+      return data.choices[0].message.content;
+    }
+    throw new Error('Respuesta vacía de proveedor compatible con OpenAI');
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export async function executeAiChat(messages: ChatMessage[]): Promise<string> {
   const settings = await getAiSettings();
   const models = settings.models || [];
-  const activeModel: ConfiguredModelItem | undefined =
-    models.find((m) => m.isActiveEngine) ||
-    models.find((m) => m.id === settings.activeModelId) ||
-    models[0];
 
   // Construir el prompt de sistema enriquecido con la Base de Conocimiento y FAQs de entrenamiento
   const systemPromptChunks: string[] = [settings.systemPrompt || ''];
@@ -37,72 +163,47 @@ export async function executeAiChat(messages: ChatMessage[]): Promise<string> {
 
   const fullSystemPrompt = systemPromptChunks.filter(Boolean).join('\n\n');
 
-  // Si tiene API Key configurada, ejecutamos la llamada externa
-  if (activeModel && activeModel.apiKey && activeModel.apiKey.trim() !== '') {
-    try {
-      if (activeModel.apiStyle === 'anthropic') {
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'x-api-key': activeModel.apiKey,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: activeModel.modelName || 'claude-3-5-sonnet-20241022',
-            max_tokens: 1024,
-            system: fullSystemPrompt,
-            messages: messages.filter((m) => m.role !== 'system').map((m) => ({
-              role: m.role,
-              content: m.content,
-            })),
-          }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.content && data.content[0]?.text) {
-            return cleanMarkdownResponse(data.content[0].text);
-          }
-        }
-      } else {
-        // OpenAI / OpenRouter / DeepSeek / NVIDIA / Groq (OpenAI-compatible)
-        const baseUrl = activeModel.baseUrl || 'https://api.openai.com/v1';
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${activeModel.apiKey}`,
-        };
-        if (activeModel.providerId === 'openrouter') {
-          headers['HTTP-Referer'] = 'https://investoil.es';
-          headers['X-Title'] = 'Invest Oil LLC Assistant';
-        }
+  // Ordenar los modelos para la cascada:
+  // El modelo activo (isActiveEngine o activeModelId) tiene prioridad 1; luego el resto de los disponibles
+  const candidateModels = [...models];
+  const primaryIndex = candidateModels.findIndex(
+    (m) => m.isActiveEngine || m.id === settings.activeModelId
+  );
+  let orderedModels: ConfiguredModelItem[] = [];
+  if (primaryIndex !== -1) {
+    const [primary] = candidateModels.splice(primaryIndex, 1);
+    orderedModels = [primary, ...candidateModels];
+  } else {
+    orderedModels = candidateModels;
+  }
 
-        const res = await fetch(`${baseUrl}/chat/completions`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            model: activeModel.modelName,
-            messages: [
-              { role: 'system', content: fullSystemPrompt },
-              ...messages.filter((m) => m.role !== 'system'),
-            ],
-            temperature: 0.3,
-            max_tokens: 1000,
-          }),
-        });
+  // Filtrar modelos que tengan clave de API configurada (en el modelo o en variables de entorno)
+  const availableModels = orderedModels
+    .map((m) => ({ ...m, effectiveApiKey: resolveApiKey(m) }))
+    .filter((m) => m.effectiveApiKey.length > 0 && m.status !== 'inactive');
 
-        if (res.ok) {
-          const data = await res.json();
-          if (data.choices && data.choices[0]?.message?.content) {
-            return cleanMarkdownResponse(data.choices[0].message.content);
-          }
+  // CASCADA DE SALTO ENTRE MODELOS DISPONIBLES:
+  // Si un modelo falla, salta de inmediato al siguiente modelo disponible hasta obtener respuesta
+  if (availableModels.length > 0) {
+    for (let i = 0; i < availableModels.length; i++) {
+      const model = availableModels[i];
+      try {
+        console.log(`[AI Failover] Probando modelo [${i + 1}/${availableModels.length}]: ${model.providerName} (${model.modelName})`);
+        const reply = await callSingleModel(model, messages, fullSystemPrompt);
+        if (reply && reply.trim().length > 0) {
+          console.log(`[AI Failover] Éxito con proveedor: ${model.providerName} (${model.modelName})`);
+          return cleanMarkdownResponse(reply);
         }
+      } catch (err: any) {
+        console.warn(
+          `[AI Failover] Falló modelo "${model.providerName} (${model.modelName})": ${err.message}. Saltando al siguiente modelo disponible...`
+        );
       }
-    } catch (err) {
-      console.warn('Fallo en proveedor de IA externo, usando Knowledge Base corporativa:', err);
     }
   }
 
-  // Fallback de Inteligencia Corporativa de Invest Oil LLC calibrado con FAQs y Knowledge Base
+  // Última línea de defensa infalible: Base de Conocimiento oficial calibrada (nunca falla)
+  console.log('[AI Failover] Activando contingencia de Base de Conocimiento Corporativa...');
   const lastUserMessage = messages[messages.length - 1]?.content || '';
   const rawReply = generateKnowledgeBaseResponse(lastUserMessage, settings);
   return cleanMarkdownResponse(rawReply);

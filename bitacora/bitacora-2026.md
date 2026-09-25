@@ -526,6 +526,27 @@
      - `npm run build`: 54/54 rutas compiladas exitosamente.
      - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada.
 
+## [2026-09-25 23:13] - Fase 19: Sistema de Cascada y Salto Automático entre Modelos de IA Disponibles con Fallback a Base de Conocimiento
+- **Solicitud del Usuario**:
+  "Al agente debe poder usar cualquiera de los modelos disponibles para responder, es decir en caso de fallar un modelo, salta al siguiente disponible y sigue así entre todos para responder siempre. Verifica, planifica y aplica salto a modelo disponible"
+- **Acciones Realizadas**:
+  1. **Arquitectura de Salto Automático en Cascada (`src/lib/ai/ai-client.ts`)**:
+     - Implementado ciclo de failover secuencial en `executeAiChat()`.
+     - Prioriza el modelo configurado como activo (`isActiveEngine` o `activeModelId`) y encola todos los demás modelos activos que cuenten con API Key válida.
+     - Si un proveedor arroja error HTTP, límite de tasa (429), cuota agotada o fallo de conexión, se captura la excepción, se emite log de advertencia y se salta inmediatamente al siguiente modelo disponible de la lista.
+  2. **Resolución Híbrida de Credenciales (`resolveApiKey()`)**:
+     - Resuelve claves tanto desde la configuración almacenada en el backoffice (`/admin/settings/ai`) como desde las variables de entorno del servidor (`OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `NVIDIA_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`).
+  3. **Control de Latencia y Timeout Estricto**:
+     - Timeout de 12 segundos por modelo (`AbortSignal.timeout(12000)` / `AbortController`) para evitar demoras excesivas ante endpoints no responsivos y pasar con agilidad al siguiente modelo.
+  4. **Soporte Multi-Arquitectura en `callSingleModel()`**:
+     - Soporte para llamadas nativas a Anthropic Claude (`/v1/messages`), Google Gemini (`/v1beta/models/...:generateContent`) y proveedores compatibles con OpenAI (OpenRouter, DeepSeek, NVIDIA NIM, Groq, Mistral, Together AI, Ollama y endpoints personalizados).
+  5. **Contingencia Cero-Fallas Garantizada**:
+     - Si todos los modelos externos fallan o carecen de saldo/claves, el agente conmuta de forma transparente al motor de contingencia institucional (`generateKnowledgeBaseResponse`), garantizando el 100% de disponibilidad de respuesta con la información oficial de Invest Oil LLC.
+- **Verificación Técnica**:
+  - `npm run type-check`: 0 errores de TypeScript.
+  - `npm run build`: 53/53 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
+  - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada sin secretos ni dependencias vulnerables.
+
 
 
 
