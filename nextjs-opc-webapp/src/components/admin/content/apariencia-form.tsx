@@ -15,6 +15,7 @@ import {
   Sliders,
   RotateCcw,
   Upload,
+  Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -133,6 +134,7 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
 
   // Estados para subida de la imagen corporativa / sello
   const [uploadingLogo, setUploadingLogo] = useState<boolean>(false);
+  const [deletingLogo, setDeletingLogo] = useState<boolean>(false);
   const [logoMessage, setLogoMessage] = useState<string | null>(null);
   const [logoError, setLogoError] = useState<string | null>(null);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
@@ -166,6 +168,33 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
       setLogoError(err instanceof Error ? err.message : 'Error al subir imagen corporativa');
     } finally {
       setUploadingLogo(false);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoUrl('');
+    setLogoMessage('Imagen corporativa quitada.');
+    setTimeout(() => setLogoMessage(null), 3500);
+  };
+
+  const handleDeleteLogoFile = async () => {
+    if (!logoUrl) return;
+    if (!window.confirm('¿Deseas eliminar permanentemente este archivo del servidor y la base de datos?')) return;
+    setDeletingLogo(true);
+    try {
+      const res = await fetch(`/api/upload?url=${encodeURIComponent(logoUrl)}`, { method: 'DELETE' });
+      const resData = await res.json();
+      if (res.ok) {
+        setLogoUrl('');
+        setLogoMessage('✓ Archivo eliminado del almacén con éxito.');
+        setTimeout(() => setLogoMessage(null), 4000);
+      } else {
+        setLogoError(resData.error || 'Error al eliminar archivo');
+      }
+    } catch {
+      setLogoError('Error al comunicar con el servidor para eliminar el archivo');
+    } finally {
+      setDeletingLogo(false);
     }
   };
 
@@ -625,7 +654,7 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
                 />
               </div>
 
-              {/* Botones de selección rápida de logos corporativos */}
+              {/* Botones de selección rápida de logos corporativos y gestión */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <span className="text-[10px] font-mono text-text-subtle">Plantillas:</span>
                 <button
@@ -649,6 +678,31 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
                 >
                   Logotipo Corporativo
                 </button>
+
+                {logoUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveLogo}
+                    disabled={uploadingLogo || deletingLogo}
+                    className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
+                    title="Quitar la imagen corporativa"
+                  >
+                    ✕ Quitar Sello
+                  </button>
+                )}
+
+                {logoUrl && logoUrl.startsWith('/uploads/') && (
+                  <button
+                    type="button"
+                    onClick={handleDeleteLogoFile}
+                    disabled={uploadingLogo || deletingLogo}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-mono bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 font-semibold transition-all disabled:opacity-50"
+                    title="Eliminar archivo del servidor y la base de datos"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>{deletingLogo ? 'Eliminando...' : 'Eliminar Archivo'}</span>
+                  </button>
+                )}
               </div>
 
               {logoMessage && (

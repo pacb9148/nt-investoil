@@ -738,28 +738,55 @@ export async function saveMediaItem(item: Partial<MediaItem>): Promise<MediaItem
   return newItem;
 }
 
-export async function deleteMediaItem(id: string): Promise<boolean> {
+export async function deleteMediaItem(idOrIdentifier: string): Promise<boolean> {
   const media = readJsonFile<MediaItem[]>('media.json', DEFAULT_MEDIA);
-  const itemToDelete = media.find((m) => m.id === id);
+  const cleanId = decodeURIComponent(idOrIdentifier).trim();
+  
+  // Encontrar el item por ID, por URL exacta o por nombre de archivo
+  const itemToDelete = media.find(
+    (m) => m.id === cleanId || m.url === cleanId || m.filename === cleanId || m.url.endsWith(`/${cleanId}`)
+  );
 
-  if (itemToDelete && itemToDelete.url.startsWith('/uploads/')) {
-    try {
-      const filePath = path.join(process.cwd(), 'public', itemToDelete.url);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+  // Extraer el nombre del archivo para borrarlo físicamente del disco
+  const targetFilename = itemToDelete
+    ? (itemToDelete.filename || path.basename(itemToDelete.url))
+    : path.basename(cleanId.split('?')[0]);
+
+  if (targetFilename && !targetFilename.includes('..') && targetFilename !== '.' && targetFilename !== '/') {
+    const candidates = [
+      path.join(process.cwd(), 'public', 'uploads', targetFilename),
+      path.join(process.cwd(), 'nextjs-opc-webapp', 'public', 'uploads', targetFilename),
+      path.join(process.cwd(), 'public', targetFilename.startsWith('/') ? targetFilename.slice(1) : targetFilename),
+      path.join(process.cwd(), 'nextjs-opc-webapp', 'public', targetFilename.startsWith('/') ? targetFilename.slice(1) : targetFilename),
+    ];
+    for (const filePath of candidates) {
+      try {
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+          fs.unlinkSync(filePath);
+        }
+      } catch (err) {
+        console.warn(`[db-service] No se pudo borrar archivo en ${filePath}:`, err);
       }
-    } catch {}
+    }
   }
 
-  const filtered = media.filter((m) => m.id !== id);
+  // Filtrar en media.json
+  const targetId = itemToDelete ? itemToDelete.id : cleanId;
+  const filtered = media.filter(
+    (m) => m.id !== targetId && m.url !== cleanId && m.filename !== targetFilename
+  );
   writeJsonFile('media.json', filtered);
 
   if (hasPostgresDb()) {
     try {
-      await queryPg('DELETE FROM public.media WHERE id = $1', [id]);
-      if (itemToDelete) {
-        await queryPg('DELETE FROM public.media_files WHERE id = $1 OR filename = $2', [id, itemToDelete.filename]);
-      }
+      await queryPg(
+        'DELETE FROM public.media WHERE id = $1 OR url = $1 OR filename = $2',
+        [targetId, targetFilename]
+      );
+      await queryPg(
+        'DELETE FROM public.media_files WHERE id = $1 OR filename = $2',
+        [targetId, targetFilename]
+      );
     } catch (pgErr) {
       console.warn('[db-service] PostgreSQL deleteMediaItem error:', pgErr);
     }
@@ -769,7 +796,7 @@ export async function deleteMediaItem(id: string): Promise<boolean> {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
       const supabase = createAdminClient();
-      await supabase.from('media').delete().eq('id', id);
+      await supabase.from('media').delete().or(`id.eq.${targetId},filename.eq.${targetFilename}`);
     } catch {}
   }
 

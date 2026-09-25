@@ -40,8 +40,10 @@ export default function SettingsContentPage() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Logo file upload state
+  // Logo file upload & delete state
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [deletingLogo, setDeletingLogo] = useState(false);
+  const [logoSuccess, setLogoSuccess] = useState<string | null>(null);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -63,29 +65,76 @@ export default function SettingsContentPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!file.type.startsWith('image/')) {
+      setError('Por favor selecciona un archivo de imagen válido (PNG, JPEG, WebP, SVG).');
+      return;
+    }
+
     setUploadingLogo(true);
     setError(null);
+    setLogoSuccess(null);
 
     try {
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('/api/media', {
+      const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
 
-      const resData = await res.json();
+      let resData: any = {};
+      try {
+        resData = await res.json();
+      } catch {
+        throw new Error('Respuesta no válida del servidor al subir la imagen');
+      }
+
       if (res.ok && resData.url) {
         setSettings((prev) => ({ ...prev, footerLogoUrl: resData.url }));
+        setLogoSuccess(`✓ Logotipo "${file.name}" cargado y asignado correctamente al pie.`);
+        setTimeout(() => setLogoSuccess(null), 4000);
       } else {
         setError(resData.error || 'Error al subir el logotipo del pie de página.');
       }
-    } catch {
-      setError('Error de conexión al subir el logotipo.');
+    } catch (err: any) {
+      setError(err?.message || 'Error de conexión al subir el logotipo.');
     } finally {
       setUploadingLogo(false);
       if (logoFileInputRef.current) logoFileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveFooterLogo = () => {
+    setSettings((prev) => ({ ...prev, footerLogoUrl: '' }));
+    setLogoSuccess('Logotipo del pie de página quitado.');
+    setTimeout(() => setLogoSuccess(null), 3500);
+  };
+
+  const handleDeleteFooterLogoFile = async () => {
+    if (!settings.footerLogoUrl) return;
+    if (!window.confirm('¿Deseas eliminar permanentemente este archivo del servidor y la base de datos?')) {
+      return;
+    }
+
+    setDeletingLogo(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/upload?url=${encodeURIComponent(settings.footerLogoUrl)}`, {
+        method: 'DELETE',
+      });
+      const resData = await res.json();
+      if (res.ok) {
+        setSettings((prev) => ({ ...prev, footerLogoUrl: '' }));
+        setLogoSuccess('✓ Archivo eliminado del almacén y desvinculado del pie.');
+        setTimeout(() => setLogoSuccess(null), 4000);
+      } else {
+        setError(resData.error || 'Error al eliminar archivo del servidor');
+      }
+    } catch {
+      setError('Error al comunicar con el servidor para eliminar el archivo');
+    } finally {
+      setDeletingLogo(false);
     }
   };
 
@@ -212,7 +261,7 @@ export default function SettingsContentPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
             {/* Imagen del Footer */}
-            <div className="md:col-span-4 flex flex-col items-center justify-center p-4 rounded-xl border border-border bg-card/60 text-center space-y-3">
+            <div className="md:col-span-5 flex flex-col items-center justify-center p-4 rounded-xl border border-border bg-card/60 text-center space-y-3">
               <input
                 type="file"
                 ref={logoFileInputRef}
@@ -220,51 +269,153 @@ export default function SettingsContentPage() {
                 accept="image/png,image/jpeg,image/webp,image/svg+xml"
                 className="hidden"
               />
-              <div className="w-20 h-20 rounded-xl border border-border/80 bg-black/40 flex items-center justify-center p-2 overflow-hidden shadow-inner">
-                <img
-                  src={settings.footerLogoUrl || '/images/branding/corporate-card-logo.jpeg'}
-                  alt="Logo Footer"
-                  className="w-full h-full object-contain filter drop-shadow"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => logoFileInputRef.current?.click()}
-                disabled={uploadingLogo}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
-              >
-                {uploadingLogo ? (
+              <div className="relative w-28 h-28 rounded-xl border border-border/80 bg-black/40 flex flex-col items-center justify-center p-2 overflow-hidden shadow-inner group">
+                {settings.footerLogoUrl ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Subiendo...</span>
+                    <img
+                      src={settings.footerLogoUrl}
+                      alt="Logo Footer"
+                      className="w-full h-full object-contain filter drop-shadow"
+                    />
+                    <div className="absolute top-1 right-1 flex items-center gap-1">
+                      {settings.footerLogoUrl.startsWith('/uploads/') && (
+                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/80 text-white font-semibold shadow">
+                          Subido
+                        </span>
+                      )}
+                    </div>
                   </>
                 ) : (
-                  <>
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Subir Sello / Logo...</span>
-                  </>
+                  <div className="flex flex-col items-center justify-center text-text-subtle p-2">
+                    <span className="text-[10px] font-mono uppercase font-semibold text-text-muted">Sin Logo</span>
+                    <span className="text-[9px] text-text-subtle leading-tight mt-1">Solo texto en pie</span>
+                  </div>
                 )}
-              </button>
-              <div className="flex flex-wrap gap-1.5 justify-center pt-1">
-                <button
-                  type="button"
-                  onClick={() => setSettings((p) => ({ ...p, footerLogoUrl: '/images/branding/corporate-card-logo.jpeg' }))}
-                  className="text-[10px] font-mono px-2 py-0.5 rounded bg-card border border-border hover:border-accent/50 text-text-muted"
-                >
-                  Gota Ámbar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSettings((p) => ({ ...p, footerLogoUrl: '/images/branding/logo.png' }))}
-                  className="text-[10px] font-mono px-2 py-0.5 rounded bg-card border border-border hover:border-accent/50 text-text-muted"
-                >
-                  Logo Rectangular
-                </button>
               </div>
+
+              {/* Botones de acción principales */}
+              <div className="flex flex-wrap items-center justify-center gap-2 w-full pt-1">
+                <button
+                  type="button"
+                  onClick={() => logoFileInputRef.current?.click()}
+                  disabled={uploadingLogo || deletingLogo}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/20 border border-accent/40 text-accent hover:bg-accent/30 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+                >
+                  {uploadingLogo ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Subiendo...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Subir Sello / Logo...</span>
+                    </>
+                  )}
+                </button>
+
+                {settings.footerLogoUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveFooterLogo}
+                    disabled={uploadingLogo || deletingLogo}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-card border border-border hover:border-accent/40 text-text-muted hover:text-text text-xs font-medium transition-colors"
+                    title="Quitar la imagen de logo del pie"
+                  >
+                    <span>✕ Quitar Logo</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Botón para eliminar archivo físico si es un upload */}
+              {settings.footerLogoUrl && settings.footerLogoUrl.startsWith('/uploads/') && (
+                <button
+                  type="button"
+                  onClick={handleDeleteFooterLogoFile}
+                  disabled={uploadingLogo || deletingLogo}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 text-[11px] font-semibold transition-all disabled:opacity-50"
+                  title="Elimina el archivo del almacenamiento y de la base de datos"
+                >
+                  {deletingLogo ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Eliminando archivo...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3 h-3" />
+                      <span>Eliminar Archivo del Servidor</span>
+                    </>
+                  )}
+                </button>
+              )}
+
+              {/* Selección rápida de logos oficiales */}
+              <div className="w-full pt-2 border-t border-border/50">
+                <span className="block text-[10px] font-mono text-text-subtle mb-1.5 text-center">Logos Disponibles:</span>
+                <div className="flex flex-wrap gap-1.5 justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setSettings((p) => ({ ...p, footerLogoUrl: '/images/branding/corporate-card-logo.jpeg' }))}
+                    className="text-[10px] font-mono px-2 py-0.5 rounded bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
+                  >
+                    Gota Ámbar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSettings((p) => ({ ...p, footerLogoUrl: '/images/branding/logo.png' }))}
+                    className="text-[10px] font-mono px-2 py-0.5 rounded bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
+                  >
+                    Logo Rectangular
+                  </button>
+                </div>
+              </div>
+
+              {logoSuccess && (
+                <div className="w-full flex items-center justify-center gap-1.5 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[11px] animate-fade-in">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>{logoSuccess}</span>
+                </div>
+              )}
             </div>
 
             {/* Campos de texto */}
-            <div className="md:col-span-8 space-y-4">
+            <div className="md:col-span-7 space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-[11px] font-mono uppercase tracking-wider text-text-muted">
+                    Ruta o URL del Logotipo
+                  </label>
+                  {settings.footerLogoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setSettings((p) => ({ ...p, footerLogoUrl: '' }))}
+                      className="text-[10px] font-mono text-text-subtle hover:text-rose-400 transition-colors"
+                    >
+                      Limpiar campo
+                    </button>
+                  )}
+                </div>
+                <div className="relative flex items-center">
+                  <input
+                    type="text"
+                    value={settings.footerLogoUrl}
+                    onChange={(e) => setSettings({ ...settings, footerLogoUrl: e.target.value })}
+                    className={INPUT_STYLE}
+                    placeholder="Ej: /images/branding/corporate-card-logo.jpeg o dejar vacío"
+                  />
+                  {settings.footerLogoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setSettings((p) => ({ ...p, footerLogoUrl: '' }))}
+                      className="absolute right-2.5 p-1 text-text-subtle hover:text-text rounded"
+                      title="Borrar URL"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={LABEL_STYLE}>Nombre Legal de la Empresa</label>

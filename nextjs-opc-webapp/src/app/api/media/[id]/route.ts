@@ -8,7 +8,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await deleteMediaItem(params.id);
+    const target = decodeURIComponent(params.id);
+    await deleteMediaItem(target);
     return NextResponse.json({ success: true, message: 'Elemento multimedia eliminado' });
   } catch (error: any) {
     return NextResponse.json({ error: error?.message || 'Error al eliminar medio' }, { status: 500 });

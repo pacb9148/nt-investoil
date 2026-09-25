@@ -171,3 +171,29 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    let target = searchParams.get('url') || searchParams.get('filename') || searchParams.get('id');
+
+    if (!target) {
+      try {
+        const body = await request.json();
+        target = body.url || body.filename || body.id;
+      } catch {}
+    }
+
+    if (!target) {
+      return NextResponse.json({ error: 'Se requiere url, filename o id para eliminar' }, { status: 400 });
+    }
+
+    const { deleteMediaItem } = await import('@/lib/db/db-service');
+    await deleteMediaItem(target);
+
+    return NextResponse.json({ success: true, message: 'Archivo eliminado con éxito' });
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message || 'Error al eliminar archivo' }, { status: 500 });
+  }
+}
+

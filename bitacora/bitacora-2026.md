@@ -443,3 +443,29 @@
      - `npm run build`: 53/53 páginas estáticas y dinámicas compiladas exitosamente.
      - `npm run test:security`: Batería Strix 100% aprobada.
 
+## [2026-09-25 20:20] - Corrección: Subida de Logotipos, Eliminación de Archivos y Tolerancia Multipart
+- **Solicitud del Usuario**:
+  "No me deja cambiar los archivos de logo, y no hay boton para eliminarlos, revisa y arregla eso"
+- **Causa Raíz Identificada**:
+  1. *Error JSON en cabecera y pie*: `header-form.tsx` y `settings/page.tsx` realizaban un `fetch('/api/media', { method: 'POST', body: formData })` enviando un `FormData` multipart. `/api/media` llamaba de inmediato a `await request.json()`. Al recibir la cabecera `Content-Type: multipart/form-data; boundary=----------------...`, V8 encontraba un guion `-` sin dígito posterior y arrojaba `SyntaxError: No number after minus sign in JSON at position 1 (line 1 column 2)`.
+  2. *Falta de controles de eliminación*: No existían botones para quitar el logo activo ni para eliminar archivos subidos del servidor/base de datos.
+  3. *Forzado involuntario de logos*: Si el usuario dejaba el logo en blanco (`logo_url: ''`), `BrandLogo` y `Footer` forzaban el logo por defecto con el operador `||`.
+- **Acciones Realizadas**:
+  1. **Frontend (`header-form.tsx`, `settings/page.tsx`, `hero-form.tsx`, `apariencia-form.tsx`)**:
+     - Se redirigió la subida de archivos al endpoint especializado `/api/upload`.
+     - Se añadió botón explícito "✕ Quitar Logo" / "✕ Quitar Sello" para desvincular la imagen y dejar modo solo texto.
+     - Se añadió botón "🗑️ Eliminar Archivo del Servidor" para archivos subidos en `/uploads/...`, que purga físicamente el archivo del disco y de las tablas de PostgreSQL.
+     - Se integró previsualización limpia con estado "Sin Logo (Solo texto corporativo)" y mensajes de confirmación verdes temporizados.
+  2. **Backend (`/api/media`, `/api/upload`, `db-service.ts`)**:
+     - Tolerancia multipart en `/api/media`: Si recibe `multipart/form-data`, delega al procesador de subida en vez de invocar `request.json()`.
+     - Endpoints `DELETE` en `/api/upload` y `/api/media` para eliminar archivos por URL, nombre o ID de forma segura.
+     - En `deleteMediaItem`, purga en todas las carpetas de uploads (`public/uploads` y `nextjs-opc-webapp/public/uploads`), `media.json`, `media` y `media_files` en PostgreSQL.
+  3. **Componentes de Layout (`brand-logo.tsx`, `footer.tsx`)**:
+     - Soporte para `logo_url: ''` (modo sin imagen de logotipo) respetando la elección del usuario.
+     - Marcado `unoptimized` para imágenes locales subidas con `/uploads/`.
+- **Verificación**:
+  - `npm run type-check`: 0 errores de TypeScript.
+  - `npm run build`: 53/53 rutas generadas con éxito al 100%.
+  - `pwsh ./scripts/bateria-seguridad.ps1`: 4/4 verificaciones OK (Batería 100% limpia).
+
+

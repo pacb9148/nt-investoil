@@ -229,7 +229,7 @@ export async function saveLandingHeader(data: any): Promise<any> {
       const db = createAdminClient();
       await db.from('landing_header').upsert({
         id: 1,
-        logo_url: data.logo_url || '/images/branding/corporate-card-logo.jpeg',
+        logo_url: data.logo_url !== undefined ? data.logo_url : '/images/branding/corporate-card-logo.jpeg',
         logo_text: data.logo_text || 'INVEST OIL',
         logo_tagline: data.logo_tagline || 'Trading Company',
         menu_items: data.menu_items || [],

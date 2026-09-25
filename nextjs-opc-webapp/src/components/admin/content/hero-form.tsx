@@ -19,6 +19,7 @@ import {
   RefreshCw,
   Info,
   X,
+  Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -95,6 +96,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
 
   // Estados para subida de la imagen corporativa / sello
   const [uploadingLogo, setUploadingLogo] = useState<boolean>(false);
+  const [deletingLogo, setDeletingLogo] = useState<boolean>(false);
   const [logoMessage, setLogoMessage] = useState<string | null>(null);
   const [logoError, setLogoError] = useState<string | null>(null);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
@@ -214,6 +216,33 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
       if (logoFileInputRef.current) {
         logoFileInputRef.current.value = '';
       }
+    }
+  };
+
+  const handleRemoveHeroLogo = () => {
+    setLogoUrl('');
+    setLogoMessage('Sello corporativo quitado de la tarjeta central.');
+    setTimeout(() => setLogoMessage(null), 3500);
+  };
+
+  const handleDeleteHeroLogoFile = async () => {
+    if (!logoUrl) return;
+    if (!window.confirm('¿Deseas eliminar permanentemente este archivo del servidor y la base de datos?')) return;
+    setDeletingLogo(true);
+    try {
+      const res = await fetch(`/api/upload?url=${encodeURIComponent(logoUrl)}`, { method: 'DELETE' });
+      const resData = await res.json();
+      if (res.ok) {
+        setLogoUrl('');
+        setLogoMessage('✓ Archivo eliminado del almacén y desvinculado del hero.');
+        setTimeout(() => setLogoMessage(null), 4000);
+      } else {
+        setLogoError(resData.error || 'Error al eliminar archivo');
+      }
+    } catch {
+      setLogoError('Error de red al comunicar con el servidor para eliminar el archivo');
+    } finally {
+      setDeletingLogo(false);
     }
   };
 
@@ -1339,7 +1368,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                 />
               </div>
 
-              {/* Botones de selección rápida de logos corporativos */}
+              {/* Botones de selección rápida de logos corporativos y gestión */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <span className="text-[10px] font-mono text-text-subtle">Plantillas:</span>
                 <button
@@ -1368,6 +1397,31 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                 >
                   Logotipo Corporativo
                 </button>
+
+                {logoUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveHeroLogo}
+                    disabled={uploadingLogo || deletingLogo}
+                    className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
+                    title="Quitar la imagen o sello de la tarjeta"
+                  >
+                    ✕ Quitar Sello
+                  </button>
+                )}
+
+                {logoUrl && logoUrl.startsWith('/uploads/') && (
+                  <button
+                    type="button"
+                    onClick={handleDeleteHeroLogoFile}
+                    disabled={uploadingLogo || deletingLogo}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-mono bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 font-semibold transition-all disabled:opacity-50"
+                    title="Eliminar archivo del servidor y la base de datos"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>{deletingLogo ? 'Eliminando...' : 'Eliminar Archivo'}</span>
+                  </button>
+                )}
               </div>
 
               {logoMessage && (

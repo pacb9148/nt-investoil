@@ -14,7 +14,9 @@ export function Footer() {
   const settings = useSiteSettings();
   const isEn = language === 'en';
 
-  const footerLogo = settings.footerLogoUrl || '/images/branding/corporate-card-logo.jpeg';
+  const footerLogo = settings.footerLogoUrl !== undefined
+    ? settings.footerLogoUrl
+    : '/images/branding/corporate-card-logo.jpeg';
   const tagline = isEn
     ? (settings.footerTaglineEn || t.footer.tagline)
     : (settings.footerTagline || t.footer.tagline);

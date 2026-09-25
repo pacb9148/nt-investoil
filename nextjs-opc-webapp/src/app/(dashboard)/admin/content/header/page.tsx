@@ -1,16 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
-import fs from 'fs';
-import path from 'path';
 import { HeaderForm, type HeaderData } from '@/components/admin/content/header-form';
+import { getLandingHeader } from '@/lib/services/content-service';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Cabecera & Menú Principal | Admin Invest Oil LLC',
 };
 
 const DEFAULT_HEADER_DATA: HeaderData = {
-  logo_url: '/images/branding/logo.png',
+  logo_url: '/images/branding/corporate-card-logo.jpeg',
   logo_text: 'INVEST OIL',
   logo_tagline: 'Trading Company',
   menu_items: [
@@ -34,23 +35,15 @@ const DEFAULT_HEADER_DATA: HeaderData = {
   },
 };
 
-function getHeaderData(): HeaderData {
-  try {
-    const candidates = [
-      path.join(process.cwd(), 'src', 'data', 'header.json'),
-      path.join(process.cwd(), 'nextjs-opc-webapp', 'src', 'data', 'header.json'),
-    ];
-    for (const c of candidates) {
-      if (fs.existsSync(c)) {
-        return JSON.parse(fs.readFileSync(c, 'utf-8'));
-      }
-    }
-  } catch {}
-  return DEFAULT_HEADER_DATA;
-}
-
-export default function HeaderAdminPage() {
-  const headerData = getHeaderData();
+export default async function HeaderAdminPage() {
+  const rawData = await getLandingHeader();
+  const headerData: HeaderData = {
+    ...DEFAULT_HEADER_DATA,
+    ...rawData,
+    menu_items: Array.isArray(rawData?.menu_items) && rawData.menu_items.length > 0
+      ? rawData.menu_items
+      : DEFAULT_HEADER_DATA.menu_items,
+  };
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">

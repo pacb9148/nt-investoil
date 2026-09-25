@@ -10,6 +10,21 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 
 ## 2. Hitos y Funcionalidades Desarrolladas
 
+### Fase 14: Corrección de Subida de Logotipos, Eliminación de Archivos y Tolerancia a Fallos Multipart
+1. **Resolución de Error JSON Parse al Subir Logotipo**:
+   - Diagnóstico raíz: El componente de cabecera (`header-form.tsx`) y el editor de pie de página (`settings/page.tsx`) enviaban `FormData` (multipart) a `/api/media`. Al recibir multipart con encabezado de delimitador de boundary (`----------------...`), `/api/media` ejecutaba `request.json()`, haciendo que V8 arrojara el error: `SyntaxError: No number after minus sign in JSON at position 1 (line 1 column 2)`.
+   - Corrección en frontend: Apuntado correcto de ambos formularios a `/api/upload`, que está especialmente diseñado para recibir y procesar archivos multipart, guardarlos en el disco y persistirlos en base de datos.
+   - Corrección en backend (`/api/media`): Tolerancia completa ante peticiones `multipart/form-data`. Si `/api/media` recibe un `FormData`, delega de inmediato al procesador de subida en lugar de llamar a `request.json()`, impidiendo que este fallo vuelva a ocurrir jamás.
+2. **Gestor Completo de Eliminación de Logotipos y Archivos**:
+   - Botón explícito **"✕ Quitar Logo"** en los editores de Cabecera (`/admin/content/header`), Footer (`/admin/content/settings`), Hero (`/admin/content/hero`) y Apariencia (`/admin/content/apariencia`), permitiendo desvincular el logo y activar el modo solo texto.
+   - Botón **"🗑️ Eliminar Archivo del Servidor"**: Si el logo activo es un archivo subido por el usuario (`/uploads/...`), se habilita un botón para borrarlo físicamente del disco y de las tablas `media` y `media_files` de PostgreSQL.
+   - Endpoint de eliminación `DELETE` integrado en `/api/upload` y `/api/media`, con soporte para identificar y purgar archivos por URL, nombre de archivo o ID (`decodeURIComponent`).
+   - Normalización en `BrandLogo` y `Footer` para soportar `logo_url: ''` (modo sin imagen) sin forzar indebidamente el logo por defecto sobre la decisión del usuario.
+3. **Validación Técnica**:
+   - `npm run type-check`: 0 errores.
+   - `npm run build`: 53 rutas generadas con éxito (100% OK).
+   - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada sin vulnerabilidades.
+
 ### Fase 13: Módulo de Entrenamiento del Agente de IA, Base de Conocimiento y Calibración Q&A
 1. **Entrenamiento y Base de Conocimiento en `/admin/settings/ai`**:
    - Pestaña dedicada "🧠 Base de Conocimiento & Entrenamiento" estructurada en 4 bloques:

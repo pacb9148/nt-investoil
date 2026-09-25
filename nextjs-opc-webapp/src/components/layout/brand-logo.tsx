@@ -22,11 +22,12 @@ export function BrandLogo({
   customTitle,
   customSubtitle,
 }: BrandLogoProps) {
-  const imageSrc =
-    src ||
-    (variant === 'seal'
-      ? '/images/branding/corporate-card-logo.jpeg'
-      : '/images/branding/corporate-card-logo.jpeg');
+  const hasNoImage = src === '' || src === 'none';
+  const imageSrc = hasNoImage
+    ? null
+    : (src || (variant === 'seal'
+        ? '/images/branding/corporate-card-logo.jpeg'
+        : '/images/branding/corporate-card-logo.jpeg'));
 
   return (
     <Link
@@ -34,16 +35,19 @@ export function BrandLogo({
       className={cn('inline-flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-lg', className)}
       aria-label="Invest Oil LLC - Inicio"
     >
-      <div className="relative flex items-center justify-center overflow-hidden rounded-lg transition-transform duration-300 group-hover:scale-105">
-        <Image
-          src={imageSrc}
-          alt={customTitle || 'Invest Oil LLC'}
-          width={size}
-          height={size}
-          className="object-contain filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.3)]"
-          priority
-        />
-      </div>
+      {imageSrc && (
+        <div className="relative flex items-center justify-center overflow-hidden rounded-lg transition-transform duration-300 group-hover:scale-105">
+          <Image
+            src={imageSrc}
+            alt={customTitle || 'Invest Oil LLC'}
+            width={size}
+            height={size}
+            unoptimized={Boolean(imageSrc && imageSrc.startsWith('/uploads'))}
+            className="object-contain filter drop-shadow-[0_2px_8px_rgba(245,158,11,0.3)]"
+            priority
+          />
+        </div>
+      )}
 
       {showText && (
         <div className="flex flex-col">
