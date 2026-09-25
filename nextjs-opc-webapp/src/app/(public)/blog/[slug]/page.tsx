@@ -256,11 +256,11 @@ export default async function BlogPostPage({
             ¿Interesado en cotizar este producto o ruta?
           </h3>
           <p className="text-xs text-text-muted">
-            Nuestro equipo de trading estructura contratos a medida según tu volumen, especificaciones e Incoterms.
+            Nuestro equipo estructura contratos a medida como facilitadores entre compradores y vendedores de primer orden según volumen, especificaciones e Incoterms.
           </p>
         </div>
         <Button href="/contact" variant="accent" size="md" className="gap-2 shrink-0">
-          <span>Contactar Trading Desk</span>
+          <span>Contactar Operaciones Comerciales</span>
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>

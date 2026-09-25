@@ -19,6 +19,15 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
   const [activeConfig, setActiveConfig] = useState<LandingHeroConfig | undefined>(initialConfig);
 
   useEffect(() => {
+    // 0. Sincronización inmediata desde localStorage
+    try {
+      const cached = localStorage.getItem('investoil_hero_config');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        setActiveConfig((prev) => ({ ...(prev || {}), ...parsed }));
+      }
+    } catch {}
+
     // Sincronizar desde la API para asegurar persistencia entre navegadores e incógnito
     fetch('/api/content/hero')
       .then((res) => (res.ok ? res.json() : null))
@@ -106,42 +115,49 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
       style={{ backgroundColor: customBg || 'transparent' }}
     >
       {/* 1. Fondo Multimedia Dinámico (Video / Imagen / Gradiente) */}
-      {bgType === 'video' ? (
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" style={{ opacity: bgOpacity }}>
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            src={bgUrl || '/videos/hero-background.mp4'}
-            onError={(e) => {
-              const target = e.currentTarget;
-              if (!target.src.includes('hero-background.mp4')) {
-                target.src = '/videos/hero-background.mp4';
-                target.load();
-                target.play().catch(() => {});
-              }
-            }}
-            className={cn(
-              'w-full h-full object-center',
-              bgFit === 'contain' ? 'object-contain' : 'object-cover'
-            )}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/40 to-transparent" />
-        </div>
-      ) : bgType === 'image' && bgUrl ? (
-        <div
-          className="absolute inset-0 z-0 bg-no-repeat bg-center pointer-events-none"
-          style={{
-            backgroundImage: `url(${bgUrl})`,
-            backgroundSize: bgFit,
-            opacity: bgOpacity,
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/85 to-transparent" />
-        </div>
-      ) : null}
+      {(() => {
+        const isVideo = (bgType === 'video' || /\.(mp4|webm|mov|ogg)$/i.test(bgUrl.trim())) && !/\.(jpg|jpeg|png|webp|svg|gif)$/i.test(bgUrl.trim());
+        const hasUrl = bgUrl && bgUrl.trim().length > 0;
+
+        if (isVideo) {
+          const videoSrc = hasUrl ? bgUrl : '/videos/hero-background.mp4';
+          return (
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" style={{ opacity: bgOpacity }}>
+              <video
+                key={videoSrc}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                src={videoSrc}
+                className={cn(
+                  'w-full h-full object-center',
+                  bgFit === 'contain' ? 'object-contain' : 'object-cover'
+                )}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/40 to-transparent" />
+            </div>
+          );
+        }
+
+        if ((bgType === 'image' || hasUrl) && hasUrl) {
+          return (
+            <div
+              className="absolute inset-0 z-0 bg-no-repeat bg-center pointer-events-none"
+              style={{
+                backgroundImage: `url(${bgUrl})`,
+                backgroundSize: bgFit,
+                opacity: bgOpacity,
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/85 to-transparent" />
+            </div>
+          );
+        }
+
+        return null;
+      })()}
 
       {/* Grid Pattern Obsidian */}
       <div

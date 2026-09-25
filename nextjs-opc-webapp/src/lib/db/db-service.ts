@@ -1050,7 +1050,7 @@ const DEFAULT_USERS: BackofficeUser[] = [
     name: 'Operador Senior de Commodities',
     role: 'operator',
     status: 'active',
-    department: 'Mesa de Trading & Despachos',
+    department: 'Operaciones Comerciales & Despachos',
     phone: '+34 910 000 003',
     passwordPlain: 'InvestOil2026!*',
     passwordAliases: ['InvestOil2026!#', 'InvestOil2026!*'],

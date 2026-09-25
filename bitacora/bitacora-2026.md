@@ -344,3 +344,35 @@
      - npm run build: 52/52 páginas y rutas de Next.js compiladas con éxito (0 errores).
      - Test E2E Playwright: captura verificada con barra en 1 fila, toolbar fija, fecha editable y tags automáticos.
      - Batería de seguridad (pwsh ./scripts/bateria-seguridad.ps1): superada con resultado 100% aprobado.
+
+## [2026-09-25 16:20] Rediseño de Proveedores de IA, Editor Compacto, Radar de Noticias Completo y Unificación de Eslogan (+dap)
+- **Petición del Usuario**:
+  1. Rediseñar la interfaz de proveedores de IA: formulario arriba tipo "Agregar credencial de plataforma" con selector de proveedores y acordeón de código, y abajo la lista compacta con estados, badges y botones de prueba/activación.
+  2. Eliminar etiquetas redundantes en el editor de artículos, subir todo para no perder espacio, y mover el cuadro de especificaciones técnicas a un tooltip o icono `ⓘ` discreto.
+  3. Al republicar noticias con el Agente de Noticias, traer el artículo completo estructurado en párrafos (no solo el extracto) e incluir el enlace a la fuente original al pie, cubriendo fuentes como Google News, BBC Mundo, Euronews, Agencia EFE, etc.
+  4. Solución definitiva al renderizado del fondo de Hero y previsualizaciones inmediatas de videos e imágenes.
+  5. Agente en el Orbe: limpiar respuestas de markdown crudo y aplicar protocolo estricto de ubicación (solo mencionar Houston, Madrid y Bogotá, sin direcciones ni teléfonos, canalizando a trading@investoil.es).
+  6. Eslogan corporativo unificado: "Petroleum and Derivates Markets", posicionando a la empresa como facilitadores entre compradores y vendedores de primer orden, y erradicando cualquier mención a "Mesa de Trading" o "Mesa de Operaciones".
+  7. Cierre con orden `+dap` y comprobación del build.
+- **Acciones Realizadas**:
+  1. **Interfaz de Proveedores de IA (`/admin/settings/ai`, `ai-types.ts`, `ai-service.ts`)**:
+     - Rediseño según esquema: selector horizontal de 11 plataformas (Google AI Studio, Anthropic, OpenAI, OpenRouter, Nvidia NIM, Groq, DeepSeek, Mistral, Together AI, Ollama, Personalizado), acordeón de código/curl, estilo API, visibilidad y lista compacta con pestañas TEXTO/AUDIO/IMAGEN, estados y botones de acción.
+  2. **Editor de Artículos Ergonómico (`post-editor-form.tsx`, `media-upload-field.tsx`, `tiptap-editor.tsx`)**:
+     - Eliminadas etiquetas redundantes (`TÍTULO DEL POST *`, `SLUG URL *`, etc.), sustituidas por placeholders limpios en mayúsculas como fondo para elevar visualmente todo el editor.
+     - Especificaciones técnicas de archivos encapsuladas en un icono/tooltip interactivo `ⓘ` junto a cada label de subida, liberando más de 120px de espacio vertical.
+     - Sincronización reactiva con `useEffect` en `tiptap-editor.tsx` para reflejar instantáneamente el contenido completo importado.
+  3. **Radar de Inteligencia de Noticias (`/api/news-agent`, `news-agent-modal.tsx`)**:
+     - Incorporadas fuentes solicitadas (`news.google.com`, `bbc.com/mundo`, `es.euronews.com`, `efe.com/mundo`, Reuters, Platts).
+     - Contenido completo estructurado en varios párrafos por noticia y atribución canónica con enlace directo al pie del post.
+  4. **Hero y Previsualizaciones (`hero-section.tsx`, `hero-form.tsx`)**:
+     - Previsualización instantánea a 0 ms (`URL.createObjectURL(file)`) al seleccionar archivos locales.
+     - Detección infalible de tipo de medio por extensión y MIME type.
+     - Eliminado el `onError` destructivo en `hero-section.tsx` y sincronización con `localStorage`.
+  5. **Orbe AI y Protocolo de Ubicación (`PublicAiOrbe`, `ai-client.ts`)**:
+     - Filtro `cleanMarkdownResponse` para eliminar caracteres crudos de markdown (`#`, `**`, `*`).
+     - Protocolo estricto de ubicación restringido a Houston, Madrid y Bogotá, canalizando contacto a `trading@investoil.es`.
+  6. **Erradicación de "Mesa de Trading"**:
+     - Barrido completo en toda la plataforma: sustituido por "Operaciones Comerciales & Facilitación de Mercados" y eslogan oficial "Petroleum and Derivates Markets".
+- **Verificación**:
+  - `npm run build`: 53/53 páginas y rutas compiladas con éxito (0 errores).
+  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.

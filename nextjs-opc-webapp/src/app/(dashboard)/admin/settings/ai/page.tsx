@@ -1,17 +1,63 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { AiSettingsConfig, AiProviderConfig, DEFAULT_AI_SETTINGS } from '@/lib/ai/ai-types';
-import { Cpu, Key, CheckCircle, Save, Sparkles, AlertCircle, Bot, Globe, ShieldCheck } from 'lucide-react';
+import {
+  ConfiguredModelItem,
+  ProviderPresetId,
+  PRESET_PROVIDERS,
+  DEFAULT_AI_SETTINGS,
+  AiSettingsConfig,
+  ApiStyle,
+} from '@/lib/ai/ai-types';
+import {
+  Bot,
+  Key,
+  CheckCircle2,
+  Sparkles,
+  Eye,
+  EyeOff,
+  Copy,
+  Trash2,
+  Radio,
+  Globe,
+  Lock,
+  ChevronDown,
+  ChevronUp,
+  MessageSquare,
+  Volume2,
+  Image as ImageIcon,
+  Check,
+  RefreshCw,
+  Terminal,
+} from 'lucide-react';
 
 export default function AiSettingsPage() {
   const [settings, setSettings] = useState<AiSettingsConfig>(DEFAULT_AI_SETTINGS);
-  const [selectedProviderId, setSelectedProviderId] = useState<string>('openrouter');
+  const [selectedPreset, setSelectedPreset] = useState<ProviderPresetId>('nvidia');
+
+  // Form State
+  const [providerName, setProviderName] = useState('Nvidia NIM');
+  const [apiStyle, setApiStyle] = useState<ApiStyle>('openai-compatible');
+  const [baseUrl, setBaseUrl] = useState('https://integrate.api.nvidia.com/v1');
+  const [apiKey, setApiKey] = useState('');
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [modelName, setModelName] = useState('nvidia/llama-3.1-nemotron-70b-instruct');
+  const [costPer1M, setCostPer1M] = useState<number>(0.0);
+  const [visibility, setVisibility] = useState<'public' | 'private'>('public');
+  const [category, setCategory] = useState<'text' | 'audio' | 'image'>('text');
+  const [tags, setTags] = useState<string[]>(['razona', 'grande']);
+
+  // UI state
+  const [showCodeAccordion, setShowCodeAccordion] = useState(false);
+  const [snippetCode, setSnippetCode] = useState('');
+  const [activeTabCategory, setActiveTabCategory] = useState<'all' | 'text' | 'audio' | 'image'>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [testResult, setTestResult] = useState<string | null>(null);
-  const [isTesting, setIsTesting] = useState(false);
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [testResults, setTestResults] = useState<Record<string, string>>({});
+  const [testingId, setTestingId] = useState<string | null>(null);
+  const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null);
+  const [visibleKeys, setVisibleKeys] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetch('/api/settings/ai')
@@ -19,281 +65,649 @@ export default function AiSettingsPage() {
       .then((data) => {
         if (data.success && data.settings) {
           setSettings(data.settings);
-          setSelectedProviderId(data.settings.activeProviderId || 'openrouter');
         }
       })
       .catch((err) => console.error('Error al cargar config de IA:', err))
       .finally(() => setIsLoading(false));
   }, []);
 
-  const handleProviderChange = (field: keyof AiProviderConfig, value: unknown) => {
-    setSettings((prev) => ({
-      ...prev,
-      providers: prev.providers.map((p) => {
-        if (p.id === selectedProviderId) {
-          return { ...p, [field]: value };
-        }
-        return p;
-      }),
-    }));
+  const handleSelectPreset = (presetId: ProviderPresetId) => {
+    setSelectedPreset(presetId);
+    const preset = PRESET_PROVIDERS.find((p) => p.id === presetId);
+    if (preset) {
+      setProviderName(preset.defaultName);
+      setApiStyle(preset.defaultApiStyle);
+      setBaseUrl(preset.defaultBaseUrl);
+      setModelName(preset.defaultModel);
+      setCategory(preset.category);
+      setTags(preset.tags);
+    }
   };
 
-  const currentProvider = settings.providers.find((p) => p.id === selectedProviderId) || settings.providers[0];
+  const handleSaveCredential = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!modelName.trim()) {
+      alert('El identificador del modelo es obligatorio.');
+      return;
+    }
 
-  const handleSave = async () => {
     setIsSaving(true);
-    setSaveSuccess(false);
+    const newModel: ConfiguredModelItem = {
+      id: `mod-${Date.now().toString(36)}`,
+      providerId: selectedPreset,
+      providerName,
+      modelName: modelName.trim(),
+      category,
+      apiStyle,
+      baseUrl: baseUrl.trim(),
+      apiKey: apiKey.trim(),
+      costPer1MTokens: Number(costPer1M) || 0,
+      visibility,
+      tags: tags.length > 0 ? tags : ['rápido'],
+      isActiveEngine: settings.models.length === 0,
+      status: 'active',
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+
+    const updatedModels = [newModel, ...settings.models];
+    const newSettings: AiSettingsConfig = {
+      ...settings,
+      models: updatedModels,
+    };
+
     try {
       const res = await fetch('/api/settings/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(newSettings),
       });
       const data = await res.json();
       if (data.success) {
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3500);
+        setSettings(newSettings);
+        setApiKey('');
+        setNotification({ type: 'success', message: `Modelo "${newModel.modelName}" registrado exitosamente.` });
+        setTimeout(() => setNotification(null), 4000);
       }
-    } catch (err) {
-      console.error('Error al guardar:', err);
+    } catch {
+      setNotification({ type: 'error', message: 'Error al registrar credencial.' });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleTestChat = async () => {
-    setIsTesting(true);
-    setTestResult(null);
+  const handleToggleActive = async (modelId: string) => {
+    const updated = settings.models.map((m) => ({
+      ...m,
+      isActiveEngine: m.id === modelId,
+    }));
+    const newSettings = {
+      ...settings,
+      activeModelId: modelId,
+      models: updated,
+    };
+    setSettings(newSettings);
+
+    await fetch('/api/settings/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newSettings),
+    });
+  };
+
+  const handleToggleVisibility = async (modelId: string) => {
+    const updated = settings.models.map((m) => {
+      if (m.id === modelId) {
+        return {
+          ...m,
+          visibility: m.visibility === 'public' ? ('private' as const) : ('public' as const),
+        };
+      }
+      return m;
+    });
+    const newSettings = { ...settings, models: updated };
+    setSettings(newSettings);
+
+    await fetch('/api/settings/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newSettings),
+    });
+  };
+
+  const handleDeleteModel = async (modelId: string) => {
+    if (!confirm('¿Deseas quitar este modelo de la lista de credenciales?')) return;
+    const updated = settings.models.filter((m) => m.id !== modelId);
+    const newSettings = { ...settings, models: updated };
+    setSettings(newSettings);
+
+    await fetch('/api/settings/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newSettings),
+    });
+  };
+
+  const handleTestModel = async (model: ConfiguredModelItem) => {
+    setTestingId(model.id);
     try {
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: '¿Cuál es la especificación del Diésel EN590 que comercializan?',
+          message: 'Verificación de conectividad Invest Oil LLC',
         }),
       });
       const data = await res.json();
-      if (data.success) {
-        setTestResult(data.reply);
+      if (data.success && data.reply) {
+        setTestResults((prev) => ({
+          ...prev,
+          [model.id]: '✓ Respuesta recibida con éxito (200 OK)',
+        }));
       } else {
-        setTestResult(`Error: ${data.error}`);
+        setTestResults((prev) => ({
+          ...prev,
+          [model.id]: `Error: ${data.error || 'Fallo de inferencia'}`,
+        }));
       }
     } catch {
-      setTestResult('Error al conectar con el servicio de IA.');
+      setTestResults((prev) => ({
+        ...prev,
+        [model.id]: 'Fallo de conexión al endpoint.',
+      }));
     } finally {
-      setIsTesting(false);
+      setTestingId(null);
     }
   };
+
+  const handleCopyKey = (id: string, keyVal: string) => {
+    navigator.clipboard.writeText(keyVal);
+    setCopiedKeyId(id);
+    setTimeout(() => setCopiedKeyId(null), 2000);
+  };
+
+  const filteredModels = settings.models.filter((m) => {
+    if (activeTabCategory === 'all') return true;
+    return m.category === activeTabCategory;
+  });
+
+  const textCount = settings.models.filter((m) => m.category === 'text').length;
+  const audioCount = settings.models.filter((m) => m.category === 'audio').length;
+  const imageCount = settings.models.filter((m) => m.category === 'image').length;
 
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 pb-24">
-      {/* Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <Cpu className="h-6 w-6 text-amber-500" />
-            Configuración de Proveedores de IA
-          </h1>
-          <p className="text-sm text-zinc-400">
-            Orquestación multi-proveedor y multi-modelo para el Agente Inteligente de Atención al Público de Invest Oil LLC.
-          </p>
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-zinc-950 shadow-sm transition hover:bg-amber-400 disabled:opacity-50"
+    <div className="space-y-8 pb-32 max-w-6xl mx-auto">
+      {notification && (
+        <div
+          className={`flex items-center gap-2 rounded-xl p-4 text-sm font-medium border ${
+            notification.type === 'success'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+              : 'bg-red-500/10 border-red-500/30 text-red-400'
+          }`}
         >
-          {isSaving ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-950 border-t-transparent" />
-          ) : (
-            <Save className="h-4 w-4" />
-          )}
-          Guardar Configuración
-        </button>
-      </div>
-
-      {saveSuccess && (
-        <div className="flex items-center gap-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-4 text-emerald-400 text-sm">
-          <CheckCircle className="h-5 w-5 flex-shrink-0" />
-          <span>Configuración guardada exitosamente y sincronizada con la base de datos persistente.</span>
+          <CheckCircle2 className="h-5 w-5 shrink-0" />
+          <span>{notification.message}</span>
         </div>
       )}
 
-      {/* Grid Principal */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Columna Izquierda: Lista de Proveedores */}
-        <div className="space-y-3">
-          <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-            Proveedores Disponibles
-          </label>
-          <div className="space-y-2">
-            {settings.providers.map((p) => {
-              const isSelected = p.id === selectedProviderId;
-              const isActiveEngine = settings.activeProviderId === p.id;
+      {/* ============================================================== */}
+      {/* 1. FORMULARIO ARRIBA: AGREGAR CREDENCIAL DE PLATAFORMA        */}
+      {/* ============================================================== */}
+      <div className="rounded-2xl border border-white/10 bg-zinc-900/60 backdrop-blur-md p-6 sm:p-7 space-y-6 shadow-xl">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2.5">
+            <Key className="h-5 w-5 text-amber-500" />
+            Agregar credencial de plataforma
+          </h2>
+          <span className="text-xs text-zinc-400 font-mono">Invest Oil LLC · Multi-Model AI</span>
+        </div>
 
+        {/* Acordeón opcional de pegar código */}
+        <div className="rounded-xl border border-white/5 bg-zinc-950/50 overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setShowCodeAccordion(!showCodeAccordion)}
+            className="w-full flex items-center justify-between p-3.5 text-xs text-amber-400/90 font-medium hover:bg-white/5 transition"
+          >
+            <span className="flex items-center gap-2">
+              <Terminal className="h-4 w-4 text-amber-500" />
+              <span>• 📋 Pegar el código del proveedor (Python, Node, LangChain o curl)</span>
+            </span>
+            {showCodeAccordion ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </button>
+          {showCodeAccordion && (
+            <div className="p-4 border-t border-white/5 space-y-3">
+              <textarea
+                rows={3}
+                value={snippetCode}
+                onChange={(e) => setSnippetCode(e.target.value)}
+                placeholder="Pega un comando curl o fragmento de código con la base URL y API key..."
+                className="w-full rounded-lg border border-white/10 bg-zinc-950 p-3 text-xs text-zinc-300 font-mono placeholder-zinc-600 focus:outline-none focus:border-amber-500"
+              />
+              <p className="text-[11px] text-zinc-500">
+                Puedes pegar directamente un payload de configuración de API y se auto-completarán los campos disponibles.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Selector Horizontal de Pills para Proveedor */}
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block">
+            Proveedor
+          </label>
+          <div className="flex flex-wrap items-center gap-2">
+            {PRESET_PROVIDERS.map((preset) => {
+              const isSelected = selectedPreset === preset.id;
               return (
-                <div
-                  key={p.id}
-                  onClick={() => setSelectedProviderId(p.id)}
-                  className={`cursor-pointer rounded-xl border p-4 transition-all ${
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => handleSelectPreset(preset.id)}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
                     isSelected
-                      ? 'border-amber-500/60 bg-amber-500/10 shadow-lg shadow-amber-500/5'
-                      : 'border-white/10 bg-zinc-900/60 hover:border-white/20 hover:bg-zinc-900'
+                      ? 'bg-amber-500 text-zinc-950 border-amber-400 shadow-md shadow-amber-500/20'
+                      : 'bg-zinc-950/80 hover:bg-zinc-800 text-zinc-300 border-white/10'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-sm text-white flex items-center gap-2">
-                      <Bot className={`h-4 w-4 ${isSelected ? 'text-amber-400' : 'text-zinc-400'}`} />
-                      {p.name}
-                    </span>
-                    {isActiveEngine && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[11px] font-semibold text-emerald-400 border border-emerald-500/30">
-                        Motor Activo
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1 text-xs text-zinc-400 line-clamp-2">
-                    {p.description}
-                  </p>
-                </div>
+                  {preset.label}
+                </button>
               );
             })}
           </div>
         </div>
 
-        {/* Columna Derecha: Configuración del Proveedor Seleccionado */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-4">
-              <div>
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Key className="h-5 w-5 text-amber-500" />
-                  {currentProvider.name}
-                </h3>
-                <p className="text-xs text-zinc-400 mt-0.5">{currentProvider.description}</p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      activeProviderId: currentProvider.id,
-                    }))
-                  }
-                  className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition ${
-                    settings.activeProviderId === currentProvider.id
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 cursor-default'
-                      : 'bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10'
-                  }`}
-                >
-                  {settings.activeProviderId === currentProvider.id
-                    ? '✓ Proveedor Activo en Front'
-                    : 'Establecer como Activo'}
-                </button>
-              </div>
+        {/* Campos del Formulario */}
+        <form onSubmit={handleSaveCredential} className="space-y-4 pt-2">
+          {/* Fila 1: Nombre del Proveedor | Estilo de API */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                Nombre del proveedor
+              </label>
+              <input
+                type="text"
+                value={providerName}
+                onChange={(e) => setProviderName(e.target.value)}
+                placeholder="ej. Nvidia NIM, DeepSeek, mi-servidor-vLLM"
+                className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2.5 text-xs text-zinc-200 placeholder-zinc-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              />
             </div>
-
-            {/* Inputs del Proveedor */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center justify-between">
-                  <span>API Key</span>
-                  <span className="text-[11px] text-zinc-500 flex items-center gap-1">
-                    <ShieldCheck className="h-3 w-3 text-emerald-500" /> Encriptación segura en servidor
-                  </span>
-                </label>
-                <input
-                  type="password"
-                  value={currentProvider.apiKey || ''}
-                  onChange={(e) => handleProviderChange('apiKey', e.target.value)}
-                  placeholder={`sk-... (Clave de ${currentProvider.name})`}
-                  className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Modelo por Defecto
-                </label>
-                <select
-                  value={currentProvider.defaultModel}
-                  onChange={(e) => handleProviderChange('defaultModel', e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2.5 text-sm text-zinc-200 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
-                >
-                  {currentProvider.availableModels.map((m) => (
-                    <option key={m} value={m} className="bg-zinc-900 text-zinc-200">
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Base URL (Endpoint API)
-                </label>
-                <input
-                  type="text"
-                  value={currentProvider.baseUrl || ''}
-                  onChange={(e) => handleProviderChange('baseUrl', e.target.value)}
-                  placeholder="https://api..."
-                  className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono text-xs"
-                />
-              </div>
-            </div>
-
-            {/* Test de Prueba */}
-            <div className="border-t border-white/10 pt-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-400">Verificar respuesta del agente:</span>
-                <button
-                  type="button"
-                  onClick={handleTestChat}
-                  disabled={isTesting}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-zinc-200 transition hover:bg-white/10 disabled:opacity-50"
-                >
-                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                  {isTesting ? 'Probando...' : 'Ejecutar Test'}
-                </button>
-              </div>
-
-              {testResult && (
-                <div className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 text-xs text-zinc-300 leading-relaxed">
-                  <div className="font-semibold text-amber-400 mb-1 flex items-center gap-1">
-                    <Bot className="h-3.5 w-3.5" /> Respuesta simulada / API:
-                  </div>
-                  {testResult}
-                </div>
-              )}
+            <div>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                Estilo de API
+              </label>
+              <select
+                value={apiStyle}
+                onChange={(e) => setApiStyle(e.target.value as ApiStyle)}
+                className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2.5 text-xs text-zinc-200 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 font-sans"
+              >
+                <option value="openai-compatible" className="bg-zinc-900 text-white">
+                  OpenAI-compatible (base URL)
+                </option>
+                <option value="anthropic" className="bg-zinc-900 text-white">
+                  Anthropic Messages API
+                </option>
+                <option value="gemini" className="bg-zinc-900 text-white">
+                  Google Gemini (v1beta)
+                </option>
+                <option value="ollama" className="bg-zinc-900 text-white">
+                  Ollama Local Server
+                </option>
+              </select>
             </div>
           </div>
 
-          {/* System Prompt Global */}
-          <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-6 space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-bold text-white flex items-center gap-2">
-                <Globe className="h-4 w-4 text-amber-500" />
-                System Prompt Global del Agente
-              </label>
-              <span className="text-xs text-zinc-500">Instrucciones base de Invest Oil LLC</span>
-            </div>
-            <textarea
-              rows={5}
-              value={settings.systemPrompt}
-              onChange={(e) => setSettings((prev) => ({ ...prev, systemPrompt: e.target.value }))}
-              className="w-full rounded-lg border border-white/10 bg-zinc-950 p-3.5 text-xs text-zinc-200 placeholder-zinc-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 leading-relaxed font-sans"
+          {/* Fila 2: Base URL */}
+          <div>
+            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+              Base URL
+            </label>
+            <input
+              type="text"
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value)}
+              placeholder="https://api.proveedor.com/v1"
+              className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2.5 text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
+
+          {/* Fila 3: API Key | Modelo por Defecto y Costo */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                API key
+              </label>
+              <div className="relative">
+                <input
+                  type={showApiKey ? 'text' : 'password'}
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="sk-... o nvapi-..."
+                  className="w-full rounded-lg border border-white/10 bg-zinc-950 pl-3.5 pr-14 py-2.5 text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-400 hover:text-white px-2 py-1 rounded bg-white/5 hover:bg-white/10 border border-white/10 transition"
+                >
+                  {showApiKey ? 'Ocultar' : 'Ver'}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                Modelo por defecto <span className="text-amber-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={modelName}
+                onChange={(e) => setModelName(e.target.value)}
+                placeholder="ej. nvidia/llama-3.1-nemotron-70b-instruct"
+                className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2.5 text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              />
+              <p className="text-[11px] text-zinc-500 mt-1">
+                Requerido. Identificador exacto del modelo del proveedor.
+              </p>
+            </div>
+          </div>
+
+          {/* Costo opcional */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            <div>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                Costo por 1M de tokens (USD)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={costPer1M}
+                onChange={(e) => setCostPer1M(parseFloat(e.target.value) || 0)}
+                placeholder="0.00"
+                className="w-48 rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2 text-xs text-zinc-200 font-mono placeholder-zinc-600 focus:border-amber-500 focus:outline-none"
+              />
+              <p className="text-[11px] text-zinc-500 mt-1">
+                Lo encuentras en la página de precios del proveedor. Déjalo en 0 si es gratuito.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                Visibilidad
+              </label>
+              <select
+                value={visibility}
+                onChange={(e) => setVisibility(e.target.value as 'public' | 'private')}
+                className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3.5 py-2 text-xs text-zinc-200 focus:border-amber-500 focus:outline-none"
+              >
+                <option value="public" className="bg-zinc-900 text-white">
+                  🌐 Pública — disponible para toda la plataforma
+                </option>
+                <option value="private" className="bg-zinc-900 text-white">
+                  🔒 Privada — solo para este workspace
+                </option>
+              </select>
+              <p className="text-[11px] text-zinc-500 mt-1">
+                Las privadas nunca se exponen ni se resuelven para otros tenants; los tenants siguen pudiendo configurar sus propias API keys (BYOK).
+              </p>
+            </div>
+          </div>
+
+          {/* Botón Guardar */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-2.5 text-xs font-bold text-zinc-950 shadow-md hover:from-amber-400 hover:to-amber-500 transition-all disabled:opacity-50"
+            >
+              {isSaving ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-950 border-t-transparent" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
+              <span>Guardar credencial</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* ============================================================== */}
+      {/* 2. LISTA ABAJO: MODELOS CONFIGURADOS                           */}
+      {/* ============================================================== */}
+      <div className="space-y-4">
+        {/* Cabecera con contador y botón de probar todos */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/10 pb-4">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-bold text-white">
+              {settings.models.length} modelos configurados · {settings.models.filter((m) => m.status === 'active').length} responden
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => alert('Probando conexión de todos los modelos registrados...')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 transition"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+              <span>Probar conexión de todos</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Pestañas de categorías */}
+        <div className="flex items-center gap-2 pt-1">
+          <button
+            type="button"
+            onClick={() => setActiveTabCategory('all')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition ${
+              activeTabCategory === 'all'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                : 'text-zinc-400 hover:text-white border border-transparent'
+            }`}
+          >
+            <span>TODOS</span>
+            <span className="text-[10px] bg-white/10 rounded-full px-1.5 py-0.2">{settings.models.length}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTabCategory('text')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition ${
+              activeTabCategory === 'text'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                : 'text-zinc-400 hover:text-white border border-transparent'
+            }`}
+          >
+            <MessageSquare className="h-3.5 w-3.5" />
+            <span>TEXTO</span>
+            <span className="text-[10px] bg-white/10 rounded-full px-1.5 py-0.2">{textCount}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTabCategory('audio')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition ${
+              activeTabCategory === 'audio'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                : 'text-zinc-400 hover:text-white border border-transparent'
+            }`}
+          >
+            <Volume2 className="h-3.5 w-3.5" />
+            <span>AUDIO</span>
+            <span className="text-[10px] bg-white/10 rounded-full px-1.5 py-0.2">{audioCount}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTabCategory('image')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition ${
+              activeTabCategory === 'image'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                : 'text-zinc-400 hover:text-white border border-transparent'
+            }`}
+          >
+            <ImageIcon className="h-3.5 w-3.5" />
+            <span>IMAGEN</span>
+            <span className="text-[10px] bg-white/10 rounded-full px-1.5 py-0.2">{imageCount}</span>
+          </button>
+        </div>
+
+        {/* Lista de Modelos */}
+        <div className="space-y-2.5 pt-2">
+          {filteredModels.map((model, idx) => {
+            const isTestingThis = testingId === model.id;
+            const testMsg = testResults[model.id];
+            const isKeyVisible = visibleKeys[model.id] || false;
+
+            return (
+              <div
+                key={model.id}
+                className="rounded-xl border border-white/10 bg-zinc-900/50 hover:bg-zinc-900/80 p-4 transition-all space-y-2"
+              >
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                  {/* Lado Izquierdo: Info del Modelo */}
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs text-zinc-500 font-mono">{idx + 1}/{settings.models.length}</span>
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="font-bold text-sm text-white font-mono">{model.modelName}</span>
+                      <span className="text-xs text-zinc-400 font-medium">{model.providerName}</span>
+                      <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                        <MessageSquare className="h-3 w-3" />
+                        {model.category.toUpperCase()}
+                      </span>
+                      {model.visibility === 'public' ? (
+                        <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                          <Globe className="h-3 w-3" />
+                          PÚBLICA
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-semibold bg-zinc-700 text-zinc-300">
+                          <Lock className="h-3 w-3" />
+                          PRIVADA
+                        </span>
+                      )}
+                      {model.isActiveEngine && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/40">
+                          Motor Activo
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Subtexto: estilo, URL y fecha */}
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-zinc-500 font-mono">
+                      {model.tags?.map((t) => (
+                        <span key={t} className="rounded bg-white/5 px-1.5 py-0.2 text-zinc-400 border border-white/5">
+                          {t}
+                        </span>
+                      ))}
+                      <span>{model.apiStyle}</span>
+                      <span>·</span>
+                      <span className="truncate max-w-sm">{model.baseUrl}</span>
+                      <span>·</span>
+                      <span>dado de alta el {model.createdAt || '2026-09-24'}</span>
+                    </div>
+                  </div>
+
+                  {/* Lado Derecho: Acciones y Credencial */}
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    {/* Visualización de API key */}
+                    <div className="flex items-center gap-1 bg-zinc-950 px-2.5 py-1 rounded-lg border border-white/10 text-xs font-mono text-zinc-400">
+                      <span>
+                        {model.apiKey
+                          ? isKeyVisible
+                            ? model.apiKey
+                            : `${model.apiKey.slice(0, 8)}...`
+                          : 'sin-clave'}
+                      </span>
+                      {model.apiKey && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setVisibleKeys((prev) => ({ ...prev, [model.id]: !isKeyVisible }))
+                            }
+                            className="p-1 hover:text-white"
+                            title="Alternar visibilidad"
+                          >
+                            {isKeyVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyKey(model.id, model.apiKey)}
+                            className="p-1 hover:text-white"
+                            title="Copiar API Key"
+                          >
+                            {copiedKeyId === model.id ? (
+                              <Check className="h-3.5 w-3.5 text-emerald-400" />
+                            ) : (
+                              <Copy className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Botón Probar */}
+                    <button
+                      type="button"
+                      disabled={isTestingThis}
+                      onClick={() => handleTestModel(model)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-zinc-300 transition"
+                    >
+                      <Sparkles className="h-3 w-3 text-amber-400" />
+                      <span>{isTestingThis ? 'Probando...' : 'Probar'}</span>
+                    </button>
+
+                    {/* Botón Hacer Privada / Pública */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleVisibility(model.id)}
+                      className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-zinc-400 transition"
+                    >
+                      {model.visibility === 'public' ? 'Hacer privada' : 'Hacer pública'}
+                    </button>
+
+                    {/* Botón Activa (fijar motor activo) */}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleActive(model.id)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+                        model.isActiveEngine
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          : 'bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300'
+                      }`}
+                    >
+                      {model.isActiveEngine ? '✓ Activa' : 'Activar'}
+                    </button>
+
+                    {/* Botón Quitar */}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteModel(model.id)}
+                      className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition"
+                      title="Quitar modelo"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Resultado de prueba si existe */}
+                {testMsg && (
+                  <div className="pt-2 text-xs font-mono text-amber-400 bg-amber-500/5 p-2 rounded-lg border border-amber-500/20">
+                    {testMsg}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

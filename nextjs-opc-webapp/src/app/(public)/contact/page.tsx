@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import { ContactSection } from '@/components/sections/contact-section';
 
 export const metadata: Metadata = {
-  title: 'Contacto Comercial & Trading Desk',
-  description: 'Comunícate con el equipo de operaciones de Invest Oil LLC para consultas comerciales, cotizaciones de cargamentos y fletamentos.',
+  title: 'Contacto Comercial & Operaciones',
+  description: 'Comunícate con el equipo directivo y de operaciones de Invest Oil LLC para consultas comerciales, cotizaciones de cargamentos y logística de hidrocarburos.',
 };
 
 export default function ContactPage() {

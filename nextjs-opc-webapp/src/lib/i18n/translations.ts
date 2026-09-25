@@ -231,8 +231,8 @@ export const translations: Record<Language, TranslationDictionary> = {
       topics: 'Categorías & Tags:',
       quotePrompt: '¿Interesado en cotizar este producto o ruta?',
       quotePromptSub:
-        'Nuestro equipo de trading estructura contratos a medida según tu volumen, especificaciones e Incoterms.',
-      contactDesk: 'Contactar Trading Desk',
+        'Nuestro equipo estructura contratos a medida como facilitadores entre compradores y vendedores de primer orden según volumen, especificaciones e Incoterms.',
+      contactDesk: 'Contactar Operaciones Comerciales',
     },
     auth: {
       loginTitle: 'Acceso Backoffice',
@@ -314,7 +314,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     },
     contact: {
       tag: 'COMUNICACIÓN DIRECTA',
-      title: 'Mesa de Trading & Operaciones Comerciales',
+      title: 'Operaciones Comerciales & Facilitación de Mercados',
       subtitle:
         'Póngase en contacto con nuestro equipo directivo para coordinar requerimientos de crudo, refinados o fletamento.',
       fullName: 'Nombre y Apellidos',
@@ -325,7 +325,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       message: 'Detalle de la Operación / Volumen Requerido',
       submit: 'Enviar Solicitud Comercial',
       submitting: 'Transmitiendo datos cifrados...',
-      success: '✓ Su solicitud comercial ha sido recibida por nuestra mesa de trading.',
+      success: '✓ Su solicitud comercial ha sido recibida por nuestro equipo de operaciones comerciales.',
       error: 'Error al procesar la solicitud. Por favor verifique sus datos o contáctenos por email.',
     },
     footer: {
@@ -413,8 +413,8 @@ export const translations: Record<Language, TranslationDictionary> = {
       topics: 'Categories & Tags:',
       quotePrompt: 'Interested in quoting this product or route?',
       quotePromptSub:
-        'Our trading desk structures custom contracts tailored to your volume, specifications, and Incoterms.',
-      contactDesk: 'Contact Trading Desk',
+        'Our team structures custom contracts as facilitators between tier-one buyers and sellers tailored to your volume, specifications, and Incoterms.',
+      contactDesk: 'Contact Commercial Operations',
     },
     auth: {
       loginTitle: 'Login',
@@ -496,7 +496,7 @@ export const translations: Record<Language, TranslationDictionary> = {
     },
     contact: {
       tag: 'DIRECT COMMUNICATION',
-      title: 'Trading Desk & Commercial Operations',
+      title: 'Commercial Operations & Market Facilitation',
       subtitle:
         'Reach our executive team to structure your crude, refined products, or logistics requirements.',
       fullName: 'Full Name',
@@ -507,7 +507,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       message: 'Cargo Volume & Operational Details',
       submit: 'Submit Commercial Inquiry',
       submitting: 'Transmitting encrypted inquiry...',
-      success: '✓ Your commercial request has been received by our trading desk.',
+      success: '✓ Your commercial request has been received by our commercial operations team.',
       error: 'Error processing inquiry. Please verify your details or contact us directly via email.',
     },
     footer: {

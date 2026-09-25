@@ -56,9 +56,9 @@ const ROLE_LABELS: Record<string, { label: string; color: string; desc: string }
     desc: 'Verificación de contrapartes y contratos',
   },
   operator: {
-    label: 'Operador de Trading',
+    label: 'Operador Comercial',
     color: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
-    desc: 'Mesa de operaciones y despachos',
+    desc: 'Operaciones comerciales y despachos',
   },
   editor: {
     label: 'Editor de Contenido',
@@ -651,7 +651,7 @@ export default function UsersAdminPage() {
                   <label className={LABEL_CLASS}>Departamento</label>
                   <input
                     type="text"
-                    placeholder="ej. Mesa de Trading, Legal"
+                    placeholder="ej. Operaciones Comerciales, Legal, Logística"
                     value={formDepartment}
                     onChange={(e) => setFormDepartment(e.target.value)}
                     className={INPUT_CLASS}

@@ -1,129 +1,256 @@
-export interface AiProviderConfig {
-  id: 'openrouter' | 'anthropic' | 'openai' | 'nvidia' | 'alibaba' | 'gemini' | 'deepseek';
-  name: string;
-  enabled: boolean;
+export type ProviderPresetId =
+  | 'google-ai-studio'
+  | 'anthropic'
+  | 'openai'
+  | 'openrouter'
+  | 'nvidia'
+  | 'groq'
+  | 'deepseek'
+  | 'mistral'
+  | 'together'
+  | 'ollama'
+  | 'custom';
+
+export type ApiStyle = 'openai-compatible' | 'anthropic' | 'gemini' | 'ollama';
+
+export interface ConfiguredModelItem {
+  id: string;
+  providerId: ProviderPresetId;
+  providerName: string;
+  modelName: string;
+  category: 'text' | 'audio' | 'image';
+  apiStyle: ApiStyle;
+  baseUrl: string;
   apiKey: string;
-  baseUrl?: string;
-  defaultModel: string;
-  availableModels: string[];
-  description: string;
+  costPer1MTokens?: number;
+  visibility: 'public' | 'private';
+  tags: string[];
+  isActiveEngine?: boolean;
+  status: 'active' | 'inactive' | 'testing';
+  createdAt: string;
 }
 
 export interface AiSettingsConfig {
   activeProviderId: string;
+  activeModelId?: string;
   systemPrompt: string;
-  providers: AiProviderConfig[];
+  models: ConfiguredModelItem[];
 }
+
+export const PRESET_PROVIDERS: {
+  id: ProviderPresetId;
+  label: string;
+  defaultName: string;
+  defaultApiStyle: ApiStyle;
+  defaultBaseUrl: string;
+  defaultModel: string;
+  category: 'text' | 'audio' | 'image';
+  tags: string[];
+}[] = [
+  {
+    id: 'google-ai-studio',
+    label: 'Google AI Studio',
+    defaultName: 'Google AI Studio',
+    defaultApiStyle: 'gemini',
+    defaultBaseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+    defaultModel: 'gemini-1.5-flash',
+    category: 'text',
+    tags: ['multimodal', 'gran-contexto'],
+  },
+  {
+    id: 'anthropic',
+    label: 'Anthropic',
+    defaultName: 'Anthropic Claude',
+    defaultApiStyle: 'anthropic',
+    defaultBaseUrl: 'https://api.anthropic.com/v1',
+    defaultModel: 'claude-3-5-sonnet-20241022',
+    category: 'text',
+    tags: ['razona', 'grande'],
+  },
+  {
+    id: 'openai',
+    label: 'OpenAI',
+    defaultName: 'OpenAI',
+    defaultApiStyle: 'openai-compatible',
+    defaultBaseUrl: 'https://api.openai.com/v1',
+    defaultModel: 'gpt-4o',
+    category: 'text',
+    tags: ['rápido', 'multimodal'],
+  },
+  {
+    id: 'openrouter',
+    label: 'OpenRouter',
+    defaultName: 'OpenRouter (Multi-Modelo)',
+    defaultApiStyle: 'openai-compatible',
+    defaultBaseUrl: 'https://openrouter.ai/api/v1',
+    defaultModel: 'anthropic/claude-3.5-sonnet',
+    category: 'text',
+    tags: ['multi-proveedor', 'unificado'],
+  },
+  {
+    id: 'nvidia',
+    label: 'Nvidia NIM',
+    defaultName: 'Nvidia NIM',
+    defaultApiStyle: 'openai-compatible',
+    defaultBaseUrl: 'https://integrate.api.nvidia.com/v1',
+    defaultModel: 'nvidia/llama-3.1-nemotron-70b-instruct',
+    category: 'text',
+    tags: ['ultra-rápido', 'gpu'],
+  },
+  {
+    id: 'groq',
+    label: 'Groq',
+    defaultName: 'Groq Cloud LPU',
+    defaultApiStyle: 'openai-compatible',
+    defaultBaseUrl: 'https://api.groq.com/openai/v1',
+    defaultModel: 'llama-3.3-70b-versatile',
+    category: 'text',
+    tags: ['lpu', 'tiempo-real'],
+  },
+  {
+    id: 'deepseek',
+    label: 'DeepSeek',
+    defaultName: 'DeepSeek AI',
+    defaultApiStyle: 'openai-compatible',
+    defaultBaseUrl: 'https://api.deepseek.com/v1',
+    defaultModel: 'deepseek-chat',
+    category: 'text',
+    tags: ['razona', 'costo-eficiente'],
+  },
+  {
+    id: 'mistral',
+    label: 'Mistral',
+    defaultName: 'Mistral AI',
+    defaultApiStyle: 'openai-compatible',
+    defaultBaseUrl: 'https://api.mistral.ai/v1',
+    defaultModel: 'mistral-large-latest',
+    category: 'text',
+    tags: ['europeo', 'seguridad'],
+  },
+  {
+    id: 'together',
+    label: 'Together AI',
+    defaultName: 'Together AI',
+    defaultApiStyle: 'openai-compatible',
+    defaultBaseUrl: 'https://api.together.xyz/v1',
+    defaultModel: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+    category: 'text',
+    tags: ['open-source', 'turbo'],
+  },
+  {
+    id: 'ollama',
+    label: 'Ollama (local/self-hosted)',
+    defaultName: 'Ollama Local Server',
+    defaultApiStyle: 'ollama',
+    defaultBaseUrl: 'http://localhost:11434/api',
+    defaultModel: 'llama3:latest',
+    category: 'text',
+    tags: ['local', 'privado'],
+  },
+  {
+    id: 'custom',
+    label: 'Personalizado (cualquier proveedor)',
+    defaultName: 'Servidor Personalizado vLLM / SGLang',
+    defaultApiStyle: 'openai-compatible',
+    defaultBaseUrl: 'https://api.proveedor.com/v1',
+    defaultModel: 'custom-model',
+    category: 'text',
+    tags: ['custom', 'vllm'],
+  },
+];
 
 export const DEFAULT_AI_SETTINGS: AiSettingsConfig = {
   activeProviderId: 'openrouter',
-  systemPrompt: `Eres el Asistente Virtual Oficial de Invest Oil LLC, una compañía multinacional líder en comercialización, trading y logística de hidrocarburos, crudos (Brent, WTI, Merey 16), derivados limpios (Diésel EN590 10ppm, Jet Fuel A-1, Gasoil), commodities sólidos (Pet Coke / Coque de petróleo) y Gas Natural Licuado (GNL criogénico).
-
-Tus oficinas y mesas de operaciones operan en Houston (Headquarters), Madrid (European Desk) y Bogotá (Latin America Desk).
-Todos los despachos se rigen bajo estándares internacionales SGS/ASTM D1655 e Incoterms 2020 (FOB, CIF, STS).
-Responde con tono corporativo de alta finanza y trading energético, con precisión técnica, cortesía ejecutiva y en el idioma en que te consulte el cliente (español o inglés).`,
-  providers: [
+  activeModelId: 'mod-1',
+  systemPrompt: `Eres el Asistente Oficial de Invest Oil LLC.
+Eslogan: "Petroleum and Derivates Markets".
+Facilitadores en el mercado del petróleo y sus derivados entre compradores y vendedores de primer orden (Brent, WTI, Merey 16, Diésel EN590 10ppm, Jet Fuel A-1, Gasoil, Pet Coke y GNL).
+Operamos con oficinas de coordinación en Houston, Madrid y Bogotá.
+IMPORTANTE - PROTOCOLO DE ATENCIÓN:
+- Al ser consultado por ubicación, oficinas o sedes: menciona ÚNICAMENTE las ciudades (Houston, Madrid y Bogotá). NUNCA proporciones dirección física ni números de teléfono.
+- Invita cordialmente al usuario a completar el formulario de contacto en el sitio web para solicitar una reunión ejecutiva o cita con un representante.
+- Señala con claridad que toda comunicación comercial formal se procesa a través de email corporativo: trading@investoil.es.
+- Responde siempre con tono ejecutivo, conciso, limpio y sin formato markdown excesivo ni símbolos raros.`,
+  models: [
     {
-      id: 'openrouter',
-      name: 'OpenRouter (Multi-Modelo Unificado)',
-      enabled: true,
-      apiKey: '',
+      id: 'mod-1',
+      providerId: 'openrouter',
+      providerName: 'OpenRouter (Multi-Modelo)',
+      modelName: 'anthropic/claude-3.5-sonnet',
+      category: 'text',
+      apiStyle: 'openai-compatible',
       baseUrl: 'https://openrouter.ai/api/v1',
-      defaultModel: 'anthropic/claude-3.5-sonnet',
-      availableModels: [
-        'anthropic/claude-3.5-sonnet',
-        'openai/gpt-4o',
-        'meta-llama/llama-3.1-70b-instruct',
-        'deepseek/deepseek-chat',
-        'mistralai/mistral-large-2407',
-        'google/gemini-pro-1.5',
-      ],
-      description: 'Acceso unificado a más de 100 modelos con una sola clave API y facturación centralizada.',
+      apiKey: '',
+      costPer1MTokens: 3.0,
+      visibility: 'public',
+      tags: ['razona', 'grande'],
+      isActiveEngine: true,
+      status: 'active',
+      createdAt: '2026-09-24',
     },
     {
-      id: 'anthropic',
-      name: 'Anthropic Claude',
-      enabled: false,
-      apiKey: '',
-      baseUrl: 'https://api.anthropic.com/v1',
-      defaultModel: 'claude-3-5-sonnet-20241022',
-      availableModels: [
-        'claude-3-5-sonnet-20241022',
-        'claude-3-5-haiku-20241022',
-        'claude-3-opus-20240229',
-      ],
-      description: 'Modelos líderes en razonamiento complejo, análisis de contratos petroleros y redacción ejecutiva.',
-    },
-    {
-      id: 'openai',
-      name: 'OpenAI (ChatGPT & O1)',
-      enabled: false,
-      apiKey: '',
-      baseUrl: 'https://api.openai.com/v1',
-      defaultModel: 'gpt-4o',
-      availableModels: [
-        'gpt-4o',
-        'gpt-4o-mini',
-        'o1-preview',
-        'o1-mini',
-      ],
-      description: 'Modelos multimodales de alta velocidad y capacidades avanzadas de inferencia matemática.',
-    },
-    {
-      id: 'nvidia',
-      name: 'NVIDIA NIM (Inferencia Ultra-Rápida)',
-      enabled: false,
-      apiKey: '',
+      id: 'mod-2',
+      providerId: 'nvidia',
+      providerName: 'Nvidia NIM',
+      modelName: 'nvidia/nemotron-3-ultra-550b-a55b',
+      category: 'text',
+      apiStyle: 'openai-compatible',
       baseUrl: 'https://integrate.api.nvidia.com/v1',
-      defaultModel: 'meta/llama-3.1-70b-instruct',
-      availableModels: [
-        'meta/llama-3.1-70b-instruct',
-        'nvidia/nemotron-4-340b-instruct',
-        'mistralai/mixtral-8x22b-instruct',
-      ],
-      description: 'Microservicios optimizados sobre GPUs NVIDIA para baja latencia en mesas de operaciones.',
+      apiKey: '',
+      costPer1MTokens: 1.5,
+      visibility: 'public',
+      tags: ['razona', 'grande'],
+      isActiveEngine: false,
+      status: 'active',
+      createdAt: '2026-09-24',
     },
     {
-      id: 'alibaba',
-      name: 'Alibaba Cloud (Qwen DashScope)',
-      enabled: false,
-      apiKey: '',
-      baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
-      defaultModel: 'qwen-plus',
-      availableModels: [
-        'qwen-plus',
-        'qwen-turbo',
-        'qwen-max',
-        'qwen2.5-72b-instruct',
-      ],
-      description: 'Especializado en comercio internacional, logística transfronteriza y análisis de mercados asiáticos.',
-    },
-    {
-      id: 'gemini',
-      name: 'Google Gemini',
-      enabled: false,
-      apiKey: '',
-      baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
-      defaultModel: 'gemini-1.5-flash',
-      availableModels: [
-        'gemini-1.5-pro',
-        'gemini-1.5-flash',
-        'gemini-2.0-flash-exp',
-      ],
-      description: 'Gran ventana de contexto para procesar dossieres marítimos y especificaciones de calidad.',
-    },
-    {
-      id: 'deepseek',
-      name: 'DeepSeek AI',
-      enabled: false,
-      apiKey: '',
+      id: 'mod-3',
+      providerId: 'deepseek',
+      providerName: 'DeepSeek AI',
+      modelName: 'deepseek/deepseek-chat',
+      category: 'text',
+      apiStyle: 'openai-compatible',
       baseUrl: 'https://api.deepseek.com/v1',
-      defaultModel: 'deepseek-chat',
-      availableModels: [
-        'deepseek-chat',
-        'deepseek-coder',
-      ],
-      description: 'Alta eficiencia y costo optimizado para procesamiento analítico de datos y cotizaciones.',
+      apiKey: '',
+      costPer1MTokens: 0.27,
+      visibility: 'public',
+      tags: ['rápido', 'costo-eficiente'],
+      isActiveEngine: false,
+      status: 'active',
+      createdAt: '2026-09-24',
+    },
+    {
+      id: 'mod-4',
+      providerId: 'openai',
+      providerName: 'OpenAI',
+      modelName: 'gpt-4o',
+      category: 'text',
+      apiStyle: 'openai-compatible',
+      baseUrl: 'https://api.openai.com/v1',
+      apiKey: '',
+      costPer1MTokens: 5.0,
+      visibility: 'public',
+      tags: ['multimodal', 'global'],
+      isActiveEngine: false,
+      status: 'active',
+      createdAt: '2026-09-24',
+    },
+    {
+      id: 'mod-5',
+      providerId: 'google-ai-studio',
+      providerName: 'Google AI Studio',
+      modelName: 'gemini-1.5-flash',
+      category: 'text',
+      apiStyle: 'gemini',
+      baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+      apiKey: '',
+      costPer1MTokens: 0.15,
+      visibility: 'public',
+      tags: ['rápido', '1M-tokens'],
+      isActiveEngine: false,
+      status: 'active',
+      createdAt: '2026-09-24',
     },
   ],
 };

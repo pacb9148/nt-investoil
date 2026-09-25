@@ -458,3 +458,34 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
     - ✓ Selector de fecha editable verificado con valor histórico `24/09/2026 23:04`.
     - ✓ Galería de posts con todas las imágenes sincronizadas y nítidas.
   - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.
+
+### Fase 16: Rediseño de Proveedores de IA, Editor Compacto, Radar de Noticias Completo y Unificación de Eslogan
+- **Rediseño Integral de Proveedores de IA (`/admin/settings/ai`)**:
+  - Reemplazo del diseño anterior de tarjetas paralelas por la arquitectura unificada vertical solicitada: formulario superior "Agregar credencial de plataforma" y lista inferior compacta.
+  - Formulario superior con selector horizontal tipo pills de 11 proveedores preconfigurados (Google AI Studio, Anthropic, OpenAI, OpenRouter, Nvidia NIM, Groq, DeepSeek, Mistral, Together AI, Ollama, Personalizado), acordeón para pegar código/curl, estilo de API, URL base, API Key con botón para alternar visibilidad ("Ver"), modelo por defecto, costo por 1M tokens y visibilidad (Pública / Privada).
+  - Lista inferior compacta con contador dinámico ("X modelos configurados · X responden"), botón "Probar conexión de todos", selector por pestañas de categoría (TEXTO, AUDIO, IMAGEN) y filas individuales con estado de respuesta, modelo, badges de plataforma/categoría, subtexto y botones de acción rápida (Ver clave, Probar conexión, Privada/Pública, Activar, Quitar).
+- **Editor de Artículos Ergonómico y Compacto (`post-editor-form.tsx`)**:
+  - Eliminación de etiquetas redundantes superiores (`Título del post *`, `Slug URL *`, `Tags`, `Extracto / Resumen`, `Contenido del artículo`), utilizando placeholders en mayúsculas como fondo para elevar visualmente todo el formulario y maximizar el espacio útil de redacción.
+  - Reemplazo del cuadro de texto estático gigante de especificaciones en `MediaUploadField` por iconos de tooltip interactivo `ⓘ` discretos junto al encabezado de los campos de medios, desplegando formatos permitidos (Imágenes JPG/PNG/WebP/GIF máx. 2MB, Videos MP4/WebM/MOV máx. 10MB/100MB) y nota de persistencia en base de datos.
+  - Sincronización reactiva del editor Tiptap (`tiptap-editor.tsx`) mediante `useEffect` con `editor.commands.setContent(content)`, permitiendo cargar instantáneamente el artículo completo al republicar noticias o abrir borradores.
+- **Agente de Noticias AI con Artículos Completos y Fuentes Oficiales (`/api/news-agent`, `news-agent-modal.tsx`)**:
+  - Incorporación de las fuentes internacionales solicitadas: `Google News` (`news.google.com`), `BBC Mundo` (`bbc.com/mundo`), `Euronews en Español` (`es.euronews.com`), `Agencia EFE` (`efe.com/mundo`), `Reuters Energy` y `S&P Global Platts`.
+  - Artículos completos y estructurados con múltiples párrafos de análisis comercial, técnico y regulatorio sobre crudos (Brent, WTI, Merey 16), refinados (EN590, Jet A-1, GNL, Pet Coke) y logística marítima (VLCC).
+  - Enlace canónico de la fuente original inyectado automáticamente al pie del post (`<p><strong>Fuente original:</strong> <a ...>Nombre Fuente</a></p>`) para máxima transparencia editorial.
+  - Filtros rápidos por fuente en el modal del Agente de Noticias.
+- **Solución Definitiva al Fondo de Hero y Previsualizaciones (`hero-section.tsx`, `hero-form.tsx`)**:
+  - Previsualización inmediata a 0 ms (`URL.createObjectURL(file)`) en el momento en que el usuario selecciona una imagen o video local en el formulario del hero, sin esperar la respuesta de red.
+  - Detección infalible de tipo de medio por extensión (`.mp4`, `.webm`, `.mov`, `.png`, `.jpg`, `.webp`) y MIME type en `HeroSection`, eliminando dependencias de flags desacoplados.
+  - Supresión del handler `onError` destructivo que reemplazaba el video personalizado del usuario por el video por defecto ante latencias de búfer en red.
+  - Sincronización en caliente y fallback persistente en `localStorage` (`investoil_hero_config`) para visualización instantánea entre deploys.
+- **Protocolo de Ubicación y Respuestas en el Orbe AI (`PublicAiOrbe`, `ai-client.ts`)**:
+  - Sanitizador `cleanMarkdownResponse` para eliminar caracteres crudos de markdown (`#`, `**`, `*`, `>`), asegurando respuestas en texto limpio y legible.
+  - Protocolo estricto de ubicación geográfica: mención exclusiva a las ciudades de operación ("Houston, Madrid y Bogotá"), sin divulgar direcciones físicas ni teléfonos en el chat público, invitando al formulario de contacto web para coordinar reuniones directas y canalizando comunicaciones formales a `trading@investoil.es`.
+- **Erradicación de "Mesa de Trading" y Eslogan Oficial**:
+  - Eslogan oficial unificado: **"Petroleum and Derivates Markets"**.
+  - Posicionamiento corporativo: **"mercado del petróleo y sus derivados como facilitadores entre compradores y vendedores de primer orden"**.
+  - Eliminación absoluta de términos como "Mesa de Trading" y "Mesa de Operaciones" en toda la plataforma (usuarios, blog, contacto, traducciones i18n, pie de página y metadatos).
+- **Verificación Rigurosa con Evidencia Real**:
+  - `npm run build`: 53/53 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
+  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.
+

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     const updated: AiSettingsConfig = {
       ...current,
       ...body,
-      providers: body.providers || current.providers,
+      models: body.models || current.models,
     };
 
     await saveAiSettings(updated);

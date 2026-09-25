@@ -171,21 +171,18 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
     setOriginalSourceUrl(meta.canonicalUrl || meta.sourceUrl);
     setOriginalSourceName(meta.sourceName);
 
-    // Seed initial editor content with paragraph from scraped article
-    setContent({
-      type: 'doc',
-      content: [
-        {
-          type: 'paragraph',
-          content: [
-            {
-              type: 'text',
-              text: meta.excerpt,
-            },
-          ],
-        },
-      ],
-    });
+    // Inyectar contenido completo estructurado con link a la fuente original
+    const sourceLink = meta.canonicalUrl || meta.sourceUrl;
+    const bodyHtml = meta.contentHtml || `<p>${meta.excerpt}</p>`;
+    const fullArticleHtml = `
+      ${bodyHtml}
+      <hr />
+      <p style="font-size: 0.85em; color: #94a3b8; font-style: italic;">
+        <strong>Fuente original:</strong> <a href="${sourceLink}" target="_blank" rel="noopener noreferrer">${meta.sourceName || 'Enlace de la noticia'}</a>.
+      </p>
+    `.trim();
+
+    setContent(fullArticleHtml);
   };
 
   const handleSelectNewsAgent = (data: {
@@ -219,20 +216,8 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
       if (match) setCategoryId(match.id);
     }
 
-    setContent({
-      type: 'doc',
-      content: [
-        {
-          type: 'paragraph',
-          content: [
-            {
-              type: 'text',
-              text: data.excerpt,
-            },
-          ],
-        },
-      ],
-    });
+    // Inyectar artículo completo con todos los párrafos y enlace a la fuente original al pie
+    setContent(data.contentHtml || `<p>${data.excerpt}</p>`);
   };
 
   const handleSave = async (targetStatus?: PostStatus) => {
@@ -396,87 +381,68 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
       )}
 
       {/* Grid Principal del Editor: Bloque integrado según diseño */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         {/* Columna Izquierda: Título, Slug, Tags, Extracto y Tiptap */}
-        <div className="lg:col-span-8 space-y-4">
-          <Card className="p-4 bg-card/90 border-border/80 space-y-3">
+        <div className="lg:col-span-8 space-y-3">
+          <Card className="p-3 bg-card/90 border-border/80 space-y-2.5">
             <div>
-              <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1">
-                Título del Post *
-              </label>
               <Input
                 placeholder="TÍTULO DEL POST *"
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
-                className="text-sm font-semibold h-10 bg-surf/80 border-border placeholder:text-text-subtle/60"
+                className="text-sm font-semibold h-10 bg-surf/80 border-border placeholder:text-text-subtle/70"
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1">
-                  Slug URL *
-                </label>
-                <div className="relative flex items-center">
-                  <Input
-                    placeholder="SLUG URL *"
-                    value={slug}
-                    onChange={(e) => setSlug(slugify(e.target.value))}
-                    className="text-xs font-mono h-9 bg-surf/80 border-border placeholder:text-text-subtle/60 pr-8"
-                  />
-                  <button
-                    type="button"
-                    onClick={suggestSlug}
-                    className="absolute right-2 text-accent hover:text-amber-400 transition-colors p-1"
-                    title="Sugerir slug automáticamente"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="relative flex items-center">
+                <Input
+                  placeholder="SLUG URL *"
+                  value={slug}
+                  onChange={(e) => setSlug(slugify(e.target.value))}
+                  className="text-xs font-mono h-9 bg-surf/80 border-border placeholder:text-text-subtle/70 pr-8"
+                />
+                <button
+                  type="button"
+                  onClick={suggestSlug}
+                  className="absolute right-2 text-accent hover:text-amber-400 transition-colors p-1"
+                  title="Sugerir slug automáticamente"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                </button>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1">
-                  Tags (separados por coma)
-                </label>
-                <div className="relative flex items-center">
-                  <Input
-                    placeholder="TAGS (SEPARADOS POR COMA)"
-                    value={tagsInput}
-                    onChange={(e) => setTagsInput(e.target.value)}
-                    className="text-xs h-9 bg-surf/80 border-border placeholder:text-text-subtle/60 pr-8"
-                  />
-                  <button
-                    type="button"
-                    onClick={suggestTags}
-                    className="absolute right-2 text-accent hover:text-amber-400 transition-colors p-1"
-                    title="Sugerir tags automáticamente"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+              <div className="relative flex items-center">
+                <Input
+                  placeholder="TAGS (SEPARADOS POR COMA)"
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  className="text-xs h-9 bg-surf/80 border-border placeholder:text-text-subtle/70 pr-8"
+                />
+                <button
+                  type="button"
+                  onClick={suggestTags}
+                  className="absolute right-2 text-accent hover:text-amber-400 transition-colors p-1"
+                  title="Sugerir tags automáticamente"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1">
-                Extracto / Resumen
-              </label>
               <Textarea
                 rows={3}
                 placeholder="EXTRACTO / RESUMEN"
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
-                className="text-xs bg-surf/80 border-border placeholder:text-text-subtle/60 resize-y"
+                className="text-xs bg-surf/80 border-border placeholder:text-text-subtle/70 resize-y"
               />
             </div>
           </Card>
 
-          {/* Tiptap Rich Editor con Barra Fija y Scroll Vertical */}
-          <div className="space-y-1.5">
-            <label className="block text-[11px] font-mono uppercase tracking-wider text-text-muted">
-              Contenido del Artículo
-            </label>
+          {/* Tiptap Rich Editor con Barra Fija y Scroll Vertical Directo */}
+          <div>
             <TiptapEditor content={content} onChange={setContent} />
           </div>
         </div>

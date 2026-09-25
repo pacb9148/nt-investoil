@@ -151,6 +151,7 @@ export interface NewsRepublishMetadata {
   sourceName: string;
   title: string;
   excerpt: string;
+  contentHtml?: string;
   imageUrl?: string;
   publishedAt?: string;
   canonicalUrl: string;

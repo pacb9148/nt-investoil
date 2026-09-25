@@ -103,8 +103,8 @@ export default function SettingsContentPage() {
       cityCountry: 'Nueva Sede, País',
       cityCountryEn: 'New Office, Country',
       address: 'Dirección o Puerto Operativo',
-      detail: 'Sede Operativa / Trading Desk',
-      detailEn: 'Operations Desk',
+      detail: 'Sede Operativa / Mercados',
+      detailEn: 'Commercial Operations',
     };
     setSettings((prev) => ({
       ...prev,
@@ -329,13 +329,13 @@ export default function SettingsContentPage() {
               />
             </div>
             <div>
-              <label className={LABEL_STYLE}>Horario Operativo de Trading</label>
+              <label className={LABEL_STYLE}>Horario Operativo Comercial</label>
               <input
                 type="text"
                 value={settings.schedule || ''}
                 onChange={(e) => setSettings({ ...settings, schedule: e.target.value })}
                 className={INPUT_STYLE}
-                placeholder="24/7 Trading Desks & Operations"
+                placeholder="24/7 Global Operations & Logistics"
               />
             </div>
           </div>

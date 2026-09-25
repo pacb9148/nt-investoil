@@ -46,6 +46,7 @@ export function MediaUploadField({
   className,
 }: MediaUploadFieldProps) {
   const [uploading, setUploading] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState(false);
@@ -166,7 +167,49 @@ export function MediaUploadField({
   return (
     <div className={cn('space-y-2', className)}>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5">
-        {label && <label className={LABEL_STYLE}>{label}</label>}
+        <div className="flex items-center gap-1.5">
+          {label && <label className={LABEL_STYLE}>{label}</label>}
+          <div className="relative inline-block mb-1.5">
+            <button
+              type="button"
+              onClick={() => setShowInfo(!showInfo)}
+              onMouseEnter={() => setShowInfo(true)}
+              onMouseLeave={() => setShowInfo(false)}
+              className="text-text-subtle hover:text-accent p-0.5 rounded transition-colors"
+              title="Ver especificaciones de formatos y límites"
+            >
+              <Info className="w-3.5 h-3.5" />
+            </button>
+
+            {showInfo && (
+              <div className="absolute left-0 top-full mt-1 z-30 w-72 p-3 rounded-xl border border-border/80 bg-[#0d1627] shadow-2xl text-[11px] text-text-muted space-y-1.5 animate-in fade-in">
+                <div className="flex items-center justify-between text-text font-semibold pb-1 border-b border-border/50">
+                  <span className="flex items-center gap-1 text-accent text-xs">
+                    <Info className="w-3 h-3" /> Especificaciones técnicas
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowInfo(false)}
+                    className="text-text-subtle hover:text-text"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+                <ul className="list-disc list-inside space-y-1 text-[10px] text-text-subtle font-mono pt-0.5">
+                  <li>
+                    <strong className="text-text">Imágenes:</strong> JPG, PNG, WebP, SVG, GIF (Máx. <span className="text-amber-400">2 MB</span>)
+                  </li>
+                  <li>
+                    <strong className="text-text">Videos:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">100 MB</span>)
+                  </li>
+                  <li className="text-[10px] text-text-muted font-sans pt-0.5">
+                    Almacenamiento persistente en base de datos.
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Input file nativo oculto */}
         <input
@@ -240,25 +283,6 @@ export function MediaUploadField({
       </div>
 
       {description && <p className="text-[11px] text-text-subtle">{description}</p>}
-
-      {/* Leyenda obligatoria de especificaciones y límites */}
-      <div className="p-2.5 rounded-lg border border-border/70 bg-surf/60 space-y-1 text-[11px] text-text-muted">
-        <div className="flex items-center gap-1.5 font-semibold text-text">
-          <Info className="w-3.5 h-3.5 text-accent shrink-0" />
-          <span>Formatos permitidos y límites de almacenamiento:</span>
-        </div>
-        <ul className="list-disc list-inside space-y-0.5 pl-1 text-[10px] text-text-subtle font-mono">
-          <li>
-            <strong className="text-text">Imágenes:</strong> JPG, JPEG, PNG, WebP, SVG, GIF (Máx. <span className="text-amber-400">2 MB</span>)
-          </li>
-          <li>
-            <strong className="text-text">Videos:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">100 MB</span>)
-          </li>
-          <li className="text-[10px] text-text-muted font-sans pt-0.5">
-            Los archivos subidos se almacenan en la <span className="text-accent font-semibold">base de datos</span> para persistir entre deploys. Si introduces una URL de internet (HTTPS), se guardará el enlace directo.
-          </li>
-        </ul>
-      </div>
 
       {msg && (
         <div className="flex items-center gap-1.5 p-2 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">

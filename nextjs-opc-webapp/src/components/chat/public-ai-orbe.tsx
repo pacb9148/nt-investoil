@@ -16,7 +16,7 @@ export function PublicAiOrbe() {
     {
       id: 'welcome',
       sender: 'agent',
-      text: 'Bienvenido a la mesa ejecutiva de Invest Oil LLC. ¿En qué especificación de hidrocarburos, procedimiento de carga o consulta de trading podemos asistirle hoy?',
+      text: 'Bienvenido a Invest Oil LLC — Petroleum and Derivates Markets.\nFacilitadores en el mercado del petróleo y sus derivados entre compradores y vendedores de primer orden. ¿En qué podemos asistirle hoy?',
       timestamp: 'Ahora',
     },
   ]);
@@ -28,7 +28,7 @@ export function PublicAiOrbe() {
     'Especificación Diésel EN590',
     'Procedimiento Jet Fuel A-1',
     'Mercado de Pet Coke',
-    'Oficinas y Contacto',
+    'Sedes y Contacto',
   ];
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export function PublicAiOrbe() {
           {
             id: (Date.now() + 1).toString(),
             sender: 'agent',
-            text: 'En este momento estamos redirigiendo su consulta a nuestra mesa de operaciones en Houston (trading@investoil.es). Por favor intente en unos instantes.',
+            text: 'En este momento puede canalizar su consulta directamente a trading@investoil.es o a través de nuestro formulario de contacto en la web.',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           },
         ]);
@@ -117,12 +117,12 @@ export function PublicAiOrbe() {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-white flex items-center gap-1.5">
-                  Invest Oil Assistant
-                  <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded px-1 py-0.2">
-                    AI Orbe
+                  Invest Oil LLC
+                  <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded px-1.5 py-0.2">
+                    AI Assistant
                   </span>
                 </h4>
-                <p className="text-[11px] text-zinc-400">Mesa de Trading & Hidrocarburos</p>
+                <p className="text-[11px] text-zinc-400">Petroleum and Derivates Markets</p>
               </div>
             </div>
             <button
@@ -232,7 +232,7 @@ export function PublicAiOrbe() {
         {!isOpen && (
           <div className="absolute right-16 top-1/2 -translate-y-1/2 bg-zinc-950/90 text-amber-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-amber-500/30 shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            ¿Dudas de trading? Pregúntanos
+            ¿Consultas sobre hidrocarburos? Escríbenos
           </div>
         )}
       </button>

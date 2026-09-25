@@ -80,6 +80,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Estados para subida de la imagen corporativa / sello
@@ -94,7 +95,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
     if (!file) return;
 
     const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
-    const isVid = file.type.startsWith('video/') || ['.mp4', '.webm', '.mov'].includes(ext);
+    const isVid = file.type.startsWith('video/') || ['.mp4', '.webm', '.mov', '.ogg'].includes(ext);
     const isImg = file.type.startsWith('image/') || ['.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif'].includes(ext);
 
     if (!isVid && !isImg) {
@@ -110,6 +111,18 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
     if (isVid && fileSizeMB > 100) {
       setUploadError(`El video pesa ${fileSizeMB.toFixed(1)} MB y supera el tamaño máximo permitido de 100 MB.`);
       return;
+    }
+
+    // Previsualización instantánea local (0ms de latencia)
+    try {
+      const objUrl = URL.createObjectURL(file);
+      setLocalPreviewUrl(objUrl);
+    } catch {}
+
+    if (isVid) {
+      setBgType('video');
+    } else {
+      setBgType('image');
     }
 
     setUploading(true);
@@ -304,6 +317,10 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+
+        try {
+          localStorage.setItem('investoil_hero_config', JSON.stringify(payload));
+        } catch {}
 
         window.dispatchEvent(new CustomEvent('investoil_hero_updated', { detail: payload }));
       } catch (err) {
@@ -781,10 +798,14 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                 )}
 
                 {/* Previsualización en Vivo de Imagen o Video */}
-                {bgUrl && !isLocalDiskPath && (
+                {(localPreviewUrl || (bgUrl && !isLocalDiskPath)) && (
                   <div className="mt-4 p-3 rounded-xl border border-border/80 bg-black/40 space-y-2">
                     {(() => {
-                      const isRealVideo = /\.(mp4|webm|mov)$/i.test(bgUrl.trim()) || (bgType === 'video' && !/\.(jpg|jpeg|png|webp|svg|gif)$/i.test(bgUrl.trim()));
+                      const previewSrc = localPreviewUrl || bgUrl;
+                      const isRealVideo =
+                        /\.(mp4|webm|mov|ogg)$/i.test(previewSrc.trim()) ||
+                        (bgType === 'video' && !/\.(jpg|jpeg|png|webp|svg|gif)$/i.test(previewSrc.trim()));
+
                       return (
                         <>
                           <div className="flex items-center justify-between text-[11px] font-mono text-text-muted">
@@ -792,27 +813,27 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                               {isRealVideo ? <FileVideo className="w-3.5 h-3.5" /> : <FileImage className="w-3.5 h-3.5" />}
                               <span>Vista previa en vivo ({isRealVideo ? 'Video' : 'Imagen'}):</span>
                             </span>
-                            <span className="text-[10px] text-text-subtle truncate max-w-xs">{bgUrl}</span>
+                            <span className="text-[10px] text-text-subtle truncate max-w-xs">{previewSrc}</span>
                           </div>
 
                           <div className="relative w-full h-56 max-h-56 rounded-lg overflow-hidden border border-border/50 bg-[#070b14] flex items-center justify-center">
                             {isRealVideo ? (
                               <video
-                                key={bgUrl}
-                                src={bgUrl}
+                                key={previewSrc}
+                                src={previewSrc}
                                 controls
                                 autoPlay
                                 loop
                                 muted
                                 playsInline
-                                preload="metadata"
+                                preload="auto"
                                 className="w-full h-full object-cover"
                               />
                             ) : (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
-                                key={bgUrl}
-                                src={bgUrl}
+                                key={previewSrc}
+                                src={previewSrc}
                                 alt="Previsualización de fondo"
                                 className="w-full h-full object-cover"
                               />

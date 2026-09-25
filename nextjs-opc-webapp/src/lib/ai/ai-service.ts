@@ -10,12 +10,12 @@ export async function getAiSettings(): Promise<AiSettingsConfig> {
   if (hasPostgresDb()) {
     try {
       const res = await queryPg(
-        "SELECT data FROM public.landing_sections WHERE id = 'ai_settings_config' LIMIT 1"
+        "SELECT content FROM public.landing_sections WHERE id = 'ai_settings_config' LIMIT 1"
       );
-      if (res && res.rows.length > 0 && res.rows[0].data) {
+      if (res && res.rows.length > 0 && res.rows[0].content) {
         return {
           ...DEFAULT_AI_SETTINGS,
-          ...res.rows[0].data,
+          ...res.rows[0].content,
         };
       }
     } catch {
@@ -31,6 +31,7 @@ export async function getAiSettings(): Promise<AiSettingsConfig> {
       return {
         ...DEFAULT_AI_SETTINGS,
         ...parsed,
+        models: parsed.models || DEFAULT_AI_SETTINGS.models,
       };
     }
   } catch {
@@ -56,10 +57,10 @@ export async function saveAiSettings(settings: AiSettingsConfig): Promise<boolea
   if (hasPostgresDb()) {
     try {
       await queryPg(
-        `INSERT INTO public.landing_sections (id, name, is_active, data, updated_at)
-         VALUES ('ai_settings_config', 'Configuración de Inteligencia Artificial', true, $1, NOW())
+        `INSERT INTO public.landing_sections (id, content, updated_at)
+         VALUES ('ai_settings_config', $1, NOW())
          ON CONFLICT (id) DO UPDATE SET
-           data = EXCLUDED.data,
+           content = EXCLUDED.content,
            updated_at = NOW()`,
         [JSON.stringify(settings)]
       );

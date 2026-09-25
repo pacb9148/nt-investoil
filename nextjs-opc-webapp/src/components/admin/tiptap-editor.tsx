@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -114,6 +114,17 @@ export function TiptapEditor({
       },
     },
   });
+
+  // Sincronizar contenido cuando cambie externamente (Agente de noticias, scraper o carga de post)
+  useEffect(() => {
+    if (editor && content) {
+      const currentJson = JSON.stringify(editor.getJSON());
+      const newJson = typeof content === 'string' ? content : JSON.stringify(content);
+      if (currentJson !== newJson) {
+        editor.commands.setContent(content);
+      }
+    }
+  }, [content, editor]);
 
   if (!editor) return null;
 

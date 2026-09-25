@@ -150,15 +150,17 @@ export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModal
             />
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono">
+          <div className="flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono pb-0.5">
             {[
-              { id: 'all', label: 'Todos' },
+              { id: 'all', label: 'Todas las Fuentes' },
+              { id: 'Google News', label: 'Google News' },
+              { id: 'BBC Mundo', label: 'BBC Mundo' },
+              { id: 'Euronews', label: 'Euronews' },
+              { id: 'EFE', label: 'Agencia EFE' },
               { id: 'Brent', label: 'Brent / WTI' },
               { id: 'Pet Coke', label: 'Pet Coke' },
               { id: 'EN590', label: 'Diésel EN590' },
-              { id: 'GNL', label: 'GNL' },
               { id: 'Logística', label: 'Fletes VLCC' },
-              { id: 'Compliance', label: 'Incoterms & SGS' },
             ].map((cat) => (
               <button
                 key={cat.id}
