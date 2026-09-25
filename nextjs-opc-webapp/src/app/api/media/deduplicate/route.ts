@@ -35,7 +35,7 @@ export async function POST() {
     if (hasPostgresDb() && removedIds.length > 0) {
       try {
         await queryPg(
-          `DELETE FROM public.media WHERE id = ANY($1::text[])`,
+          `DELETE FROM media WHERE id = ANY($1::text[])`,
           [removedIds]
         );
       } catch (err) {

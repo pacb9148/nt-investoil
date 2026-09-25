@@ -127,7 +127,7 @@ export async function getPosts(options?: {
 
   if (hasPostgresDb()) {
     try {
-      const res = await queryPg('SELECT * FROM public.posts ORDER BY created_at DESC');
+      const res = await queryPg('SELECT * FROM posts ORDER BY created_at DESC');
       if (res && res.rows.length > 0) {
         posts = res.rows.map((r: any) => ({
           ...r,
@@ -326,7 +326,7 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
   if (hasPostgresDb()) {
     try {
       await queryPg(
-        `INSERT INTO public.posts (id, slug, title, excerpt, content, status, category_id, category, featured_image_url, video_url, tags, reading_time, views, likes, is_republished, original_source_url, original_source_name, published_at, updated_at)
+        `INSERT INTO posts (id, slug, title, excerpt, content, status, category_id, category, featured_image_url, video_url, tags, reading_time, views, likes, is_republished, original_source_url, original_source_name, published_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW())
          ON CONFLICT (id) DO UPDATE SET
            slug = EXCLUDED.slug,
@@ -413,7 +413,7 @@ export async function deletePost(id: string): Promise<boolean> {
 
   if (hasPostgresDb()) {
     try {
-      await queryPg('DELETE FROM public.posts WHERE id = $1', [id]);
+      await queryPg('DELETE FROM posts WHERE id = $1', [id]);
     } catch {}
   }
 
@@ -436,7 +436,7 @@ export async function getCategories(): Promise<Category[]> {
 
   if (hasPostgresDb()) {
     try {
-      const res = await queryPg('SELECT * FROM public.categories ORDER BY name ASC');
+      const res = await queryPg('SELECT * FROM categories ORDER BY name ASC');
       if (res && res.rows.length > 0) {
         const map = new Map<string, Category>();
         for (const c of categories) map.set(c.id, c);
@@ -537,7 +537,7 @@ export async function saveCategory(catData: Partial<Category>): Promise<Category
   if (hasPostgresDb()) {
     try {
       await queryPg(
-        `INSERT INTO public.categories (id, name, slug, description, name_en, description_en, color, updated_at)
+        `INSERT INTO categories (id, name, slug, description, name_en, description_en, color, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
          ON CONFLICT (id) DO UPDATE SET
            name = EXCLUDED.name,
@@ -594,7 +594,7 @@ export async function deleteCategory(id: string): Promise<boolean> {
 
   if (hasPostgresDb()) {
     try {
-      await queryPg('DELETE FROM public.categories WHERE id = $1', [id]);
+      await queryPg('DELETE FROM categories WHERE id = $1', [id]);
     } catch {}
   }
 
@@ -617,7 +617,7 @@ export async function getMediaList(search?: string): Promise<MediaItem[]> {
 
   if (hasPostgresDb()) {
     try {
-      const res = await queryPg('SELECT * FROM public.media ORDER BY created_at DESC');
+      const res = await queryPg('SELECT * FROM media ORDER BY created_at DESC');
       if (res && res.rows.length > 0) {
         const map = new Map<string, MediaItem>();
         for (const m of media) map.set(m.url, m);
@@ -704,7 +704,7 @@ export async function saveMediaItem(item: Partial<MediaItem>): Promise<MediaItem
   if (hasPostgresDb()) {
     try {
       await queryPg(
-        `INSERT INTO public.media (id, filename, url, type, mime_type, size, alt_text, created_at)
+        `INSERT INTO media (id, filename, url, type, mime_type, size, alt_text, created_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
          ON CONFLICT (id) DO UPDATE SET
            filename = EXCLUDED.filename,
@@ -780,11 +780,11 @@ export async function deleteMediaItem(idOrIdentifier: string): Promise<boolean> 
   if (hasPostgresDb()) {
     try {
       await queryPg(
-        'DELETE FROM public.media WHERE id = $1 OR url = $1 OR filename = $2',
+        'DELETE FROM media WHERE id = $1 OR url = $1 OR filename = $2',
         [targetId, targetFilename]
       );
       await queryPg(
-        'DELETE FROM public.media_files WHERE id = $1 OR filename = $2',
+        'DELETE FROM media_files WHERE id = $1 OR filename = $2',
         [targetId, targetFilename]
       );
     } catch (pgErr) {
@@ -811,7 +811,7 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
 
   if (hasPostgresDb()) {
     try {
-      const res = await queryPg('SELECT * FROM public.landing_team ORDER BY sort_order ASC');
+      const res = await queryPg('SELECT * FROM landing_team ORDER BY sort_order ASC');
       if (res && res.rows.length > 0) {
         return res.rows.map((r: any) => ({
           id: r.id,
@@ -859,7 +859,7 @@ export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember
         const m = members[i];
         const memberId = m.id || `tm-${i + 1}`;
         await queryPg(
-          `INSERT INTO public.landing_team (id, number, name, role, role_en, location, image, photo_url, bio, bio_en, linkedin_url, sort_order, is_active, updated_at)
+          `INSERT INTO landing_team (id, number, name, role, role_en, location, image, photo_url, bio, bio_en, linkedin_url, sort_order, is_active, updated_at)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
            ON CONFLICT (id) DO UPDATE SET
              number = EXCLUDED.number,

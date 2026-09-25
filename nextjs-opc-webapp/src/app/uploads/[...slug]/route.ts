@@ -114,7 +114,7 @@ export async function GET(
     if (!filePath && hasPostgresDb()) {
       try {
         const result = await queryPg(
-          `SELECT mime_type, data_base64 FROM public.media_files WHERE filename = $1 OR id = $1 LIMIT 1`,
+          `SELECT mime_type, data_base64 FROM media_files WHERE filename = $1 OR id = $1 LIMIT 1`,
           [filename]
         );
 

@@ -24,7 +24,7 @@ export async function POST(
     if (hasPostgresDb()) {
       try {
         await queryPg(
-          `UPDATE public.posts 
+          `UPDATE posts 
            SET likes = COALESCE(likes, 0) + 1, updated_at = NOW() 
            WHERE id = $1 OR slug = $1 
            RETURNING likes`,

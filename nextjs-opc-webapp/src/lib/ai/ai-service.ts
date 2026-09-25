@@ -19,7 +19,7 @@ export async function getAiSettings(): Promise<AiSettingsConfig> {
   if (hasPostgresDb()) {
     try {
       const res = await queryPg(
-        "SELECT content FROM public.landing_sections WHERE id = 'ai_settings_config' LIMIT 1"
+        "SELECT content FROM landing_sections WHERE id = 'ai_settings_config' LIMIT 1"
       );
       if (res && res.rows.length > 0 && res.rows[0].content) {
         return {
@@ -68,7 +68,7 @@ export async function saveAiSettings(settings: AiSettingsConfig): Promise<boolea
   if (hasPostgresDb()) {
     try {
       await queryPg(
-        `INSERT INTO public.landing_sections (id, content, updated_at)
+        `INSERT INTO landing_sections (id, content, updated_at)
          VALUES ('ai_settings_config', $1, NOW())
          ON CONFLICT (id) DO UPDATE SET
            content = EXCLUDED.content,

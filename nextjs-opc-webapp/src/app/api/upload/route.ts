@@ -102,14 +102,14 @@ export async function POST(request: NextRequest) {
     if (hasPostgresDb()) {
       try {
         await queryPg(
-          `INSERT INTO public.media_files (id, filename, mime_type, size, data_base64, created_at, updated_at)
+          `INSERT INTO media_files (id, filename, mime_type, size, data_base64, created_at, updated_at)
            VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
            ON CONFLICT (id) DO UPDATE SET data_base64 = EXCLUDED.data_base64, updated_at = NOW()`,
           [fileId, filename, mimeType, file.size, dataBase64]
         );
 
         await queryPg(
-          `INSERT INTO public.media (id, filename, url, type, mime_type, size, alt_text, data_base64, created_at)
+          `INSERT INTO media (id, filename, url, type, mime_type, size, alt_text, data_base64, created_at)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
           [fileId, safeName, publicUrl, isVideo ? 'video' : 'image', mimeType, file.size, safeName.split('.')[0], dataBase64]
         );

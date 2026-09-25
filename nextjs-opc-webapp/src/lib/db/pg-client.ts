@@ -54,7 +54,7 @@ export async function ensurePgSchema(): Promise<void> {
 
   const schemaSql = `
     -- 1. Tabla de archivos binarios persistentes (imágenes y videos)
-    CREATE TABLE IF NOT EXISTS public.media_files (
+    CREATE TABLE IF NOT EXISTS media_files (
       id TEXT PRIMARY KEY,
       filename TEXT NOT NULL,
       mime_type TEXT NOT NULL,
@@ -64,10 +64,10 @@ export async function ensurePgSchema(): Promise<void> {
       updated_at TIMESTAMPTZ DEFAULT NOW()
     );
 
-    CREATE INDEX IF NOT EXISTS idx_media_files_filename ON public.media_files(filename);
+    CREATE INDEX IF NOT EXISTS idx_media_files_filename ON media_files(filename);
 
     -- 2. Tabla de catálogo de medios
-    CREATE TABLE IF NOT EXISTS public.media (
+    CREATE TABLE IF NOT EXISTS media (
       id TEXT PRIMARY KEY,
       filename TEXT NOT NULL,
       url TEXT NOT NULL,
@@ -80,7 +80,7 @@ export async function ensurePgSchema(): Promise<void> {
     );
 
     -- 3. Tabla de categorías de blog
-    CREATE TABLE IF NOT EXISTS public.categories (
+    CREATE TABLE IF NOT EXISTS categories (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       slug TEXT NOT NULL UNIQUE,
@@ -93,14 +93,14 @@ export async function ensurePgSchema(): Promise<void> {
     );
 
     -- 4. Tabla de artículos de blog
-    CREATE TABLE IF NOT EXISTS public.posts (
+    CREATE TABLE IF NOT EXISTS posts (
       id TEXT PRIMARY KEY,
       slug TEXT NOT NULL UNIQUE,
       title TEXT NOT NULL,
       excerpt TEXT,
       content JSONB,
       status TEXT DEFAULT 'draft',
-      category_id TEXT REFERENCES public.categories(id) ON DELETE SET NULL,
+      category_id TEXT REFERENCES categories(id) ON DELETE SET NULL,
       category TEXT,
       featured_image_url TEXT,
       video_url TEXT,
@@ -116,10 +116,10 @@ export async function ensurePgSchema(): Promise<void> {
       updated_at TIMESTAMPTZ DEFAULT NOW()
     );
 
-    ALTER TABLE public.posts ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0;
+    ALTER TABLE posts ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0;
 
     -- 5. Tabla de miembros de equipo
-    CREATE TABLE IF NOT EXISTS public.landing_team (
+    CREATE TABLE IF NOT EXISTS landing_team (
       id TEXT PRIMARY KEY,
       number TEXT,
       name TEXT NOT NULL,
@@ -137,7 +137,7 @@ export async function ensurePgSchema(): Promise<void> {
     );
 
     -- 6. Tabla de configuración de secciones (Hero, Header, Footer, etc.)
-    CREATE TABLE IF NOT EXISTS public.landing_sections (
+    CREATE TABLE IF NOT EXISTS landing_sections (
       id TEXT PRIMARY KEY,
       content JSONB NOT NULL,
       updated_at TIMESTAMPTZ DEFAULT NOW()

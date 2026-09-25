@@ -77,7 +77,7 @@ export function writeLocalJson(filename: string, data: any): void {
 async function getSectionFromPg<T>(sectionId: string): Promise<T | null> {
   if (!hasPostgresDb()) return null;
   try {
-    const res = await queryPg('SELECT content FROM public.landing_sections WHERE id = $1', [sectionId]);
+    const res = await queryPg('SELECT content FROM landing_sections WHERE id = $1', [sectionId]);
     if (res && res.rows.length > 0 && res.rows[0].content) {
       return res.rows[0].content as T;
     }
@@ -91,7 +91,7 @@ async function saveSectionToPg(sectionId: string, content: any): Promise<void> {
   if (!hasPostgresDb()) return;
   try {
     await queryPg(
-      `INSERT INTO public.landing_sections (id, content, updated_at)
+      `INSERT INTO landing_sections (id, content, updated_at)
        VALUES ($1, $2, NOW())
        ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content, updated_at = NOW()`,
       [sectionId, JSON.stringify(content)]
