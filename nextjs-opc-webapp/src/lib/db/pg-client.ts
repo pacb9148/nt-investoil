@@ -2,8 +2,16 @@ import { Pool, QueryResult, QueryResultRow } from 'pg';
 
 let pool: Pool | null = null;
 let initialized = false;
+// Solo la creación de tablas (no la migración): la migración usa queryPg, así que si queryPg
+// esperase a la migración se bloquearía a sí misma.
+let initPromise: Promise<void> | null = null;
+// La migración de los JSON se lanza una sola vez por proceso.
+let migrationStarted = false;
 
 export function hasPostgresDb(): boolean {
+  // `next build` renderiza páginas en varios procesos a la vez: durante la compilación no se
+  // toca la base (se usan los JSON); las tablas y la migración se crean al arrancar en producción.
+  if (process.env.NEXT_PHASE === 'phase-production-build') return false;
   const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   return !!(url && url.trim().length > 0 && !url.includes('demo-project'));
 }
@@ -37,10 +45,14 @@ export async function queryPg<T extends QueryResultRow = any>(text: string, para
 
   try {
     // Inicializar tablas automáticamente en la primera consulta
+    // Se marca ANTES de inicializar: antes se marcaba después, y la migración (que llama a
+    // queryPg) volvía a entrar aquí, detectaba la base vacía y lanzaba otra migración, y así en
+    // bucle: cientos de migraciones simultáneas que tumbaban el build y luego la aplicación.
     if (!initialized) {
-      await ensurePgSchema();
       initialized = true;
+      initPromise = ensurePgSchema();
     }
+    await initPromise;
     return await p.query<T>(text, params);
   } catch (err: any) {
     console.error('[PostgreSQL Query Error]:', err.message, 'SQL:', text.slice(0, 100));
@@ -404,11 +416,14 @@ export async function ensurePgSchema(): Promise<void> {
     try {
       const checkRes = await p.query('SELECT COUNT(*) as count FROM landing_sections');
       const count = parseInt(checkRes.rows[0]?.count || '0', 10);
-      if (count === 0) {
-        console.log('[PostgreSQL] Base de datos vacía detectada. Iniciando migración automática de datos JSON...');
-        const { migrateAllJsonToPostgres } = await import('@/lib/db/migration-service');
-        await migrateAllJsonToPostgres();
-        console.log('[PostgreSQL] Migración automática completada con éxito.');
+      if (count === 0 && !migrationStarted) {
+        migrationStarted = true;
+        console.log('[PostgreSQL] Base de datos vacía detectada. Iniciando migración automática de datos JSON (una sola vez, en segundo plano)...');
+        // Sin await: la migración usa queryPg y las peticiones no deben esperar a que termine.
+        import('@/lib/db/migration-service')
+          .then((m) => m.migrateAllJsonToPostgres())
+          .then(() => console.log('[PostgreSQL] Migración automática completada.'))
+          .catch((e: unknown) => console.error('[PostgreSQL] Migración automática fallida:', e instanceof Error ? e.message : e));
       }
     } catch (checkErr) {
       console.warn('[PostgreSQL Data Check Warning]:', checkErr);
