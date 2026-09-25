@@ -502,5 +502,30 @@
   - `npm run build`: 54/54 rutas compiladas exitosamente (100% OK).
   - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada sin secretos ni dependencias vulnerables.
 
+## [2026-09-25 23:05] - Fase 18: Prompt de Entrenamiento Integral del Agente de IA, Detección de Idioma y Escalamiento Humano
+- **Solicitud del Usuario**:
+  "Listo, ahora crea un prompt para entrenar al agente con toda la información explicita del sitio, de tal forma que el agente pueda responder preguntas frecuentes, dar información de las autoridades de la empresa, el procedimiento para iniciar relaciones comerciales con la empresa y todo esto con información confiable, ademas que detecte el idioma en el que recibe la interaccion y responda en el mismo idioma para brindar comodidad y cercania con el usuario que consulta con el agente. Haz que las respuestas sean cortas y al grano, solo si el usario pide extender información de algun punto especifico aportará más información, en caso de ser necesario o para iniciar una negociación, trato, acordar precios, comisiones, regalias, etc, deberá escalar a un humano"
+- **Acciones Realizadas**:
+  1. **Construcción del System Prompt Maestro y Base de Conocimiento Corporativa**:
+     - Estructurado en `src/data/ai-settings.json` y persistido en `landing_sections`.
+     - Inclusión exhaustiva de:
+       * Identidad Delaware USA y sedes operativas en Houston, Madrid y Bogotá.
+       * Desambiguación explícita sobre entidades de Valencia.
+       * Las 6 autoridades oficiales: Rufino Antonio Villalobos (CEO), Dr. Marcus Vance (COO), Elena Rostova (CFO), Carlos Mendoza (VP Maritime Logistics), Sarah Jenkins (Chief Compliance Officer KYC/AML) y Ahmad Al-Mansoor (Senior Advisor MENA).
+       * Portafolio técnico de productos: Diésel EN590 10 ppm, Jet Fuel A-1 (ASTM D1655), Merey 16, Brent, Pet Coke, VLSFO y GNL.
+       * Procedimiento de relacionamiento comercial (6 pasos): ICPO -> KYC/AML -> BCL/POF -> FCO/SPA -> SGS/Saybolt -> Entrega y liquidación.
+  2. **Reglas Operativas Estrictas de Comportamiento del Agente**:
+     - *Detección de Idioma*: Detecta automáticamente el idioma de la consulta (español, inglés, portugués, francés, etc.) y responde en el mismo idioma.
+     - *Concisión y Directo al Grano*: Respuestas de máximo 1 a 2 párrafos ejecutivos sin rodeos.
+     - *Extensión bajo demanda*: Solo amplía detalles técnicos si el usuario lo solicita explícitamente ("extender", "ampliar", "más detalles").
+     - *Escalamiento Obligatorio a Humano*: Ante negociaciones, cotizaciones de precios, acuerdos de comisiones o regalías, el agente se declara sin facultades para cerrar tratos y deriva cortésmente a los directores comerciales mediante `trading@investoil.es` o el formulario web.
+  3. **Calibración Dual (LLM Externo + Motor Local)**:
+     - En `src/lib/ai/ai-client.ts`, el motor de contingencia local fue dotado de soporte bilingüe (ES/EN) con reglas de autoridades, procedimiento y escalamiento a humano ante precios y comisiones.
+  4. **Validaciones**:
+     - `npm run type-check`: 0 errores.
+     - `npm run build`: 54/54 rutas compiladas exitosamente.
+     - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada.
+
+
 
 

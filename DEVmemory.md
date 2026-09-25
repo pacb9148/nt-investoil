@@ -10,6 +10,23 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 
 ## 2. Hitos y Funcionalidades Desarrolladas
 
+### Fase 18: Prompt de Entrenamiento Integral del Agente de IA, Detección de Idioma y Escalamiento Humano
+1. **Prompt de Sistema Maestro & Base de Conocimiento Explícita**:
+   - Integración completa de todos los activos de información del sitio: Razón social oficial (`Invest Oil LLC`), constitución Delaware LLC, sedes en Houston, Madrid y Bogotá, desambiguación legal contra homónimos inmobiliarios de Valencia.
+   - Detalle de las 6 autoridades directivas: Rufino Antonio Villalobos (CEO), Dr. Marcus Vance (COO), Elena Rostova (CFO), Carlos Mendoza (VP Maritime), Sarah Jenkins (CCO KYC/AML) y Ahmad Al-Mansoor (Senior Advisor).
+   - Catálogo técnico de commodities: EN590 10ppm, Jet A-1 ASTM D1655, Merey 16, Brent, Pet Coke, VLSFO IMO 2020 y GNL.
+   - Procedimiento de onboarding y relacionamiento comercial paso a paso: ICPO -> KYC/AML Compliance -> BCL/POF -> FCO/SPA -> Inspección independiente SGS/Saybolt -> Entrega y liquidación.
+2. **Directrices Operativas del Agente**:
+   - Detección automática del idioma del usuario (ES/EN/PT/FR) con respuesta en el mismo idioma.
+   - Estilo conciso y al grano (1-2 párrafos ejecutivos). Extensión y desglose técnico únicamente bajo demanda explícita.
+   - Protocolo estricto de escalamiento a humanos ante negociaciones, fijación de precios, comisiones intermedias o acuerdos contractuales, derivando a `trading@investoil.es` o al formulario web.
+3. **Calibración Dual (LLM Externo + Motor Local)**:
+   - Sincronización en `src/data/ai-settings.json`, en PostgreSQL (`landing_sections`), y en el motor heurístico local de `src/lib/ai/ai-client.ts` para garantizar coherencia incluso ante contingencias de red.
+4. **Validaciones**:
+   - `npm run type-check`: 0 errores.
+   - `npm run build`: 54/54 rutas compiladas exitosamente.
+   - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada.
+
 ### Fase 17: Persistencia Integral en PostgreSQL y Migración Exhaustiva Registro por Registro
 1. **Comprobación y Verificación de Conexión en Base de Datos**:
    - Se verificó contra el entorno en vivo (`https://investoil.es/api/system-status`) que `hasDatabaseUrl: true` está activo y respondiendo a consultas de API con HTTP 200 (`/api/categories`, `/api/posts`, `/api/content/header`, `/api/content/team`, etc.).

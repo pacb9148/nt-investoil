@@ -127,18 +127,16 @@ export function cleanMarkdownResponse(text: string): string {
 
 function generateKnowledgeBaseResponse(query: string, settings?: any): string {
   const q = query.toLowerCase().trim();
+  const isEn = /\b(who|what|where|how|when|why|price|pricing|deal|negotiat|team|director|executive|leadership|buy|purchase|sell|supplier|contact|office|address|commission|fee|royalty|discount|procedure)\b/i.test(query);
 
-  // 1. Evaluar si la consulta coincide con preguntas entrenadas (trainingFaqs)
+  // 1. EVALUAR COINCIDENCIA CON PREGUNTAS ENTRENADAS (trainingFaqs)
   if (settings && Array.isArray(settings.trainingFaqs)) {
     for (const faq of settings.trainingFaqs) {
       if (!faq.question || !faq.answer) continue;
       const faqQ = faq.question.toLowerCase().trim();
-      // Coincidencia exacta o inclusión recíproca
       if (q === faqQ || q.includes(faqQ) || faqQ.includes(q)) {
         return faq.answer;
       }
-
-      // Coincidencia por palabras clave compartidas
       const queryTokens = q.split(/\s+/).filter((w: string) => w.length > 3);
       const faqTokens = faqQ.split(/\s+/).filter((w: string) => w.length > 3);
       if (queryTokens.length > 0 && faqTokens.length > 0) {
@@ -151,18 +149,110 @@ function generateKnowledgeBaseResponse(query: string, settings?: any): string {
     }
   }
 
-  // 2. PROTOCOLO DE IDENTIDAD Y SEDE LEGAL (DELAWARE USA + HUBS)
+  // 2. ESCALAMIENTO OBLIGATORIO A HUMANO: NEGOCIACIÓN, PRECIOS, COMISIONES Y REGALÍAS
+  if (
+    q.includes('negociar') ||
+    q.includes('negociacion') ||
+    q.includes('negociación') ||
+    q.includes('precio') ||
+    q.includes('cotiz') ||
+    q.includes('descuento') ||
+    q.includes('comision') ||
+    q.includes('comisión') ||
+    q.includes('comisiones') ||
+    q.includes('regalia') ||
+    q.includes('regalía') ||
+    q.includes('regalias') ||
+    q.includes('regalías') ||
+    q.includes('ncnda') ||
+    q.includes('imfpa') ||
+    q.includes('cerrar trato') ||
+    q.includes('acuerdo') ||
+    q.includes('price') ||
+    q.includes('pricing') ||
+    q.includes('negotiat') ||
+    q.includes('discount') ||
+    q.includes('commission') ||
+    q.includes('royalt') ||
+    q.includes('deal')
+  ) {
+    if (isEn) {
+      return `Pricing, commercial agreements, commissions, and contractual terms are strictly negotiated and finalized by our executive directors. As an AI assistant, I am not authorized to set prices or commit commercial terms.\n\nPlease submit your corporate profile and formal request to trading@investoil.es or complete our website contact form at https://investoil.es/#contact so an executive officer can assist you directly.`;
+    }
+    return `Como asistente virtual no tengo autorización para fijar precios, pactar comisiones de intermediación, acordar regalías ni cerrar acuerdos comerciales. Dichas materias son gestionadas exclusivamente por nuestros directores comerciales.\n\nLe invitamos a remitir el perfil de su empresa y requerimiento a trading@investoil.es o a través del formulario de contacto oficial en https://investoil.es/#contact para que un ejecutivo comercial le atienda de manera directa.`;
+  }
+
+  // 3. AUTORIDADES Y CONSEJO DIRECTIVO
+  if (
+    q.includes('autoridad') ||
+    q.includes('autoridades') ||
+    q.includes('directiv') ||
+    q.includes('directores') ||
+    q.includes('consejo') ||
+    q.includes('dueño') ||
+    q.includes('dueno') ||
+    q.includes('ceo') ||
+    q.includes('liderazgo') ||
+    q.includes('quienes mandan') ||
+    q.includes('quien dirige') ||
+    q.includes('quién dirige') ||
+    q.includes('quien lidera') ||
+    q.includes('quién lidera') ||
+    q.includes('rufino') ||
+    q.includes('villalobos') ||
+    q.includes('team') ||
+    q.includes('leadership') ||
+    q.includes('executive') ||
+    q.includes('board')
+  ) {
+    if (isEn) {
+      return `Invest Oil LLC is led by an executive board comprising:\n- Rufino Antonio Villalobos: CEO & Managing Director.\n- Dr. Marcus Vance: Chief Operating Officer (COO).\n- Elena Rostova: Chief Financial Officer (CFO).\n- Carlos Mendoza: VP Maritime Logistics.\n- Sarah Jenkins: Chief Compliance Officer (KYC/AML).\n- Ahmad Al-Mansoor: Senior Advisor (MENA Markets).`;
+    }
+    return `Invest Oil LLC cuenta con un consejo directivo encabezado por:\n- Rufino Antonio Villalobos: Director Ejecutivo / CEO & Managing Director.\n- Dr. Marcus Vance: Director de Operaciones Globales (COO).\n- Elena Rostova: Directora de Finanzas & Riesgo (CFO).\n- Carlos Mendoza: Vicepresidente de Logística Marítima.\n- Sarah Jenkins: Directora de Cumplimiento & KYC (CCO).\n- Ahmad Al-Mansoor: Asesor Senior de Mercados MENA.`;
+  }
+
+  // 4. PROCEDIMIENTO PARA INICIAR RELACIONES COMERCIALES / COMPRAS
+  if (
+    q.includes('procedimiento') ||
+    q.includes('como comprar') ||
+    q.includes('cómo comprar') ||
+    q.includes('requisito') ||
+    q.includes('requisitos') ||
+    q.includes('iniciar relacion') ||
+    q.includes('iniciar relación') ||
+    q.includes('empezar a trabajar') ||
+    q.includes('pasos para') ||
+    q.includes('icpo') ||
+    q.includes('onboarding') ||
+    q.includes('procedure') ||
+    q.includes('how to buy') ||
+    q.includes('how to start') ||
+    q.includes('requirements')
+  ) {
+    if (isEn) {
+      return `To establish commercial relations with Invest Oil LLC, the standard procedure is:\n1. Submit an Irrevocable Corporate Purchase Order (ICPO) with banking coordinates.\n2. Pass KYC/AML corporate vetting led by our Compliance Department.\n3. Provide financial verification (Bank Comfort Letter - BCL or Proof of Funds - POF).\n4. Receive Full Corporate Offer (FCO) and draft contract (SPA) with independent inspection (SGS/Saybolt).\n\nFormal inquiries are processed via trading@investoil.es or our contact form.`;
+    }
+    return `El procedimiento oficial para iniciar operaciones comerciales con Invest Oil LLC comprende:\n1. Emisión de una Orden Corporativa Irrevocable (ICPO) membretada con coordenadas bancarias.\n2. Evaluación y debida diligencia de cumplimiento normativo (KYC / AML).\n3. Verificación de solvencia financiera (Bank Comfort Letter - BCL o POF).\n4. Emisión de oferta corporativa (FCO) y contrato de compraventa (SPA) con inspección independiente (SGS o Saybolt).\n\nLas solicitudes se procesan formalmente a través de trading@investoil.es o nuestro formulario web.`;
+  }
+
+  // 5. IDENTIDAD CORPORATIVA Y JURISDICCIÓN (DELAWARE USA)
   if (
     q.includes('delaware') ||
     q.includes('valencia') ||
     q.includes('inmobiliaria') ||
     q.includes('homonimo') ||
-    q.includes('homónimo')
+    q.includes('homónimo') ||
+    q.includes('jurisdiccion') ||
+    q.includes('jurisdicción') ||
+    q.includes('legal')
   ) {
-    return `Invest Oil LLC es una compañía constituida y registrada en el Estado de Delaware, Estados Unidos de América. Operamos exclusivamente en el mercado de petróleo, crudo y derivados energéticos internacionales con coordinación en Houston, Madrid y Bogotá. No tenemos vinculación con entidades inmobiliarias ni sociedades de Valencia (España).`;
+    if (isEn) {
+      return `Invest Oil LLC is an international energy trading and logistics firm incorporated and registered under the laws of the State of Delaware, United States of America. Global operations are coordinated from Houston (USA), Madrid (Spain), and Bogotá (Colombia). The company has no relationship with real estate entities or dissolved local firms in Valencia, Spain.`;
+    }
+    return `Invest Oil LLC es una firma internacional de trading y logística de hidrocarburos constituida y registrada bajo las leyes del Estado de Delaware, Estados Unidos de América. Nuestras operaciones globales se coordinan desde Houston (EE. UU.), Madrid (España) y Bogotá (Colombia). La empresa no posee ningún vínculo con entidades inmobiliarias ni sociedades de Valencia (España).`;
   }
 
-  // 3. PROTOCOLO DE UBICACIÓN Y SEDES
+  // 6. UBICACIÓN, SEDES Y CONTACTO
   if (
     q.includes('ubicacion') ||
     q.includes('ubicación') ||
@@ -180,48 +270,69 @@ function generateKnowledgeBaseResponse(query: string, settings?: any): string {
     q.includes('houston') ||
     q.includes('madrid') ||
     q.includes('bogota') ||
-    q.includes('bogotá')
+    q.includes('bogotá') ||
+    q.includes('location') ||
+    q.includes('where are') ||
+    q.includes('headquarters') ||
+    q.includes('address')
   ) {
-    return `Invest Oil LLC cuenta con sede legal registrada en Delaware (Estados Unidos) y mesas de coordinación operativa en Houston (Texas), Madrid (España) y Bogotá (Colombia).\n\nPara concertar una reunión ejecutiva o solicitar atención directa con un representante, le invitamos a completar el formulario de contacto en nuestro sitio web.\n\nToda comunicación comercial formal o envío de documentos corporativos (ICPO) se canaliza a través de email oficial: trading@investoil.es.`;
+    if (isEn) {
+      return `Invest Oil LLC has its registered legal headquarters in Delaware, USA, and coordinates global commercial operations from Houston (Global HQ), Madrid (European Desk), and Bogotá (Latin America Desk).\n\nFor executive inquiries, please complete our contact form at https://investoil.es/#contact or email trading@investoil.es.`;
+    }
+    return `Invest Oil LLC cuenta con sede legal registrada en Delaware (EE. UU.) y coordina sus operaciones comerciales globales desde Houston (Sede Global), Madrid (European Desk) y Bogotá (Latin America Desk).\n\nPara coordinar reuniones ejecutivas o consultas formales, le invitamos a utilizar el formulario de contacto en https://investoil.es/#contact o escribir a trading@investoil.es.`;
   }
 
-  // 4. DIÉSEL EN590
-  if (q.includes('diésel') || q.includes('diesel') || q.includes('en590') || q.includes('combustible')) {
-    return `En Invest Oil LLC comercializamos Ultra Low Sulfur Diesel (ULSD) EN590 10 ppm con estricto cumplimiento de especificaciones internacionales de refinería (cetano > 51). Facilitamos operaciones Spot y contratos a plazo (LTR) bajo Incoterms FOB y CIF en los principales puertos y terminales internacionales, respaldados por certificación independiente SGS o Saybolt.\n\nPara solicitudes comerciales, remita su ICPO a trading@investoil.es o utilice el formulario de contacto de la web.`;
+  // 7. PRODUCTOS ESPECÍFICOS
+  if (q.includes('diésel') || q.includes('diesel') || q.includes('en590')) {
+    if (isEn) {
+      return `We supply Ultra Low Sulfur Diesel (ULSD) EN590 10 ppm (cetane > 51) for spot deliveries and annual long-term contracts (LTR) under FOB and CIF terms, backed by independent SGS/Saybolt inspection.`;
+    }
+    return `Comercializamos Diésel Ultra Bajo Azufre (ULSD) EN590 10 ppm (cetano > 51) en operaciones Spot y contratos anuales (LTR) bajo términos FOB y CIF, respaldados por certificación SGS o Saybolt.`;
   }
 
-  // 5. JET FUEL A-1
-  if (q.includes('jet') || q.includes('a1') || q.includes('a-1') || q.includes('aviacion') || q.includes('aviación')) {
-    return `Facilitamos asignaciones de Aviation Kerosene Colonial Grade 54 (Jet Fuel A-1) bajo estándar ASTM D1655. Operamos mediante procedimientos seguros en terminales de almacenamiento FOB e itinerarios marítimos CIF. Toda transacción requiere carta de intención corporativa formal (ICPO) y verificación bancaria.`;
+  if (q.includes('jet') || q.includes('a1') || q.includes('a-1') || q.includes('aviation') || q.includes('aviacion') || q.includes('aviación')) {
+    if (isEn) {
+      return `We facilitate Aviation Kerosene Colonial Grade 54 (Jet Fuel A-1) complying with ASTM D1655 international standards for commercial aviation under secure FOB and CIF logistics.`;
+    }
+    return `Facilitamos asignaciones de Aviation Kerosene Colonial Grade 54 (Jet Fuel A-1) bajo estándar internacional ASTM D1655 para aviación comercial en terminales FOB e itinerarios marítimos CIF.`;
   }
 
-  // 6. PET COKE
-  if (q.includes('pet coke') || q.includes('coque') || q.includes('solido') || q.includes('carbon')) {
-    return `Invest Oil LLC actúa como facilitador estratégico en el suministro de Coque de Petróleo Verde (Anode Grade y Fuel Grade) en despachos marítimos para la industria metalúrgica y cementera internacional, garantizando parámetros óptimos de poder calorífico y bajo azufre.`;
+  if (q.includes('pet coke') || q.includes('coque')) {
+    if (isEn) {
+      return `Invest Oil LLC supplies Green Petroleum Coke (Anode Grade for aluminum smelting and Fuel Grade for cement manufacturing) with high calorific value and controlled sulfur parameters.`;
+    }
+    return `Suministramos Coque de Petróleo Verde (Pet Coke) grado ánodo para aluminio y grado combustible para la industria cementera, con alto poder calorífico y bajo contenido de azufre.`;
   }
 
-  // 7. CRUDOS (MEREY 16 / BRENT)
   if (q.includes('merey') || q.includes('crudo') || q.includes('crude') || q.includes('brent') || q.includes('wti')) {
-    return `Facilitamos cargamentos programados de crudo pesado Merey 16 (API 16°, azufre ~2.5%) para refinerías con unidades de conversión profunda, así como mezclas ligeras referenciales Brent y WTI en operaciones spot con liquidación transparente indexada a benchmarks oficiales.`;
+    if (isEn) {
+      return `We manage scheduled shipments of heavy Merey 16 crude (16° API) for deep conversion refineries, as well as reference light crudes (Brent Blend and WTI) with indexation to international benchmarks.`;
+    }
+    return `Gestionamos cargamentos programados de crudo pesado Merey 16 (16° API) para refinerías de conversión profunda, así como crudos ligeros referenciales (Brent Blend y WTI) indexados a marcadores oficiales.`;
   }
 
-  // 8. GAS / GNL / GLP
-  if (q.includes('gnl') || q.includes('gas') || q.includes('lng') || q.includes('glp') || q.includes('metano')) {
-    return `En el segmento de gas, coordinamos operaciones de Gas Natural Licuado (GNL criogénico) y GLP comercial para abastecimiento marítimo e industrial, estructuradas bajo contratos de suministro de primer orden.`;
-  }
-
-  // 9. COTIZACIONES Y PROCEDIMIENTOS
+  // 8. PETICIÓN EXPLÍCITA DE EXTENDER / MÁS INFORMACIÓN
   if (
-    q.includes('precio') ||
-    q.includes('cotiz') ||
-    q.includes('costo') ||
-    q.includes('procedimiento') ||
-    q.includes('fob') ||
-    q.includes('cif') ||
-    q.includes('icpo')
+    q.includes('extender') ||
+    q.includes('ampliar') ||
+    q.includes('mas info') ||
+    q.includes('más info') ||
+    q.includes('detallar') ||
+    q.includes('detalles') ||
+    q.includes('more details') ||
+    q.includes('elaborate') ||
+    q.includes('expand')
   ) {
-    return `Nuestras operaciones se estructuran según cotizaciones indexadas a cotizaciones Platts con descuentos según volumen y vigencia de contrato. Para emitir una oferta formal (FCO o SCO), requerimos la recepción de una ICPO corporativa con perfil de empresa. Puede remitirla a trading@investoil.es o ingresar sus datos en el formulario de contacto.`;
+    if (isEn) {
+      return `Invest Oil LLC specializes in comprehensive physical energy trading and logistics. Key operational capabilities include:\n- Products: ULSD EN590 10 ppm, Jet A-1 (ASTM D1655), Merey 16, Brent, Pet Coke, VLSFO, and LNG.\n- Global Desks: Houston (Texas), Madrid (Spain), and Bogotá (Colombia).\n- Logistics: Ship-to-ship (STS) transfers, chartering of VLCC/Aframax tankers, and bonded port storage in Rotterdam, Houston, and Fujairah.\n- Compliance: Full adherence to IMO 2020 low-sulfur mandates and stringent international AML/OFAC sanctions screenings.`;
+    }
+    return `Invest Oil LLC se especializa en la facilitación integral y logística de commodities energéticos físicos. Nuestras capacidades clave comprenden:\n- Catálogo: Diésel EN590 10 ppm, Jet A-1 (ASTM D1655), Crudo Merey 16, Brent, Pet Coke, VLSFO y GNL.\n- Desks operativos: Houston (Texas), Madrid (España) y Bogotá (Colombia).\n- Logística: Transferencias buque a buque (STS), fletamento de tanqueros VLCC/Aframax y almacenamiento en terminales estratégicas (Rotterdam, Houston, Fujairah).\n- Compliance: Cumplimiento riguroso de la normativa marítima IMO 2020 y protocolos de verificación AML/OFAC.`;
   }
 
-  return `Bienvenido a Invest Oil LLC — Petroleum and Derivates Markets.\n\nSomos una compañía registrada en Delaware, EE. UU., facilitadora en el mercado internacional del petróleo y sus derivados (Diésel EN590, Jet Fuel A-1, Merey 16, Brent, Pet Coke y GNL).\n\n¿En qué especificación o consulta operativa podemos asistirle hoy?`;
+  // DEFAULT CONCISO
+  if (isEn) {
+    return `Welcome to Invest Oil LLC — Petroleum and Derivates Markets.\n\nWe are a Delaware (USA) registered firm facilitating international transactions in crude oil and refined petroleum products (EN590 Diesel, Jet Fuel A-1, Merey 16, Brent, Pet Coke, and LNG).\n\nHow may we assist your commercial or technical inquiries today?`;
+  }
+
+  return `Bienvenido a Invest Oil LLC — Petroleum and Derivates Markets.\n\nSomos una firma registrada en Delaware (EE. UU.) facilitadora en el mercado internacional de crudo y derivados del petróleo (Diésel EN590, Jet Fuel A-1, Merey 16, Brent, Pet Coke y GNL).\n\n¿En qué especificación o consulta operativa podemos asistirle hoy?`;
 }
