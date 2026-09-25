@@ -116,11 +116,14 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
     >
       {/* 1. Fondo Multimedia Dinámico (Video / Imagen / Gradiente) */}
       {(() => {
-        const isVideo = (bgType === 'video' || /\.(mp4|webm|mov|ogg)$/i.test(bgUrl.trim())) && !/\.(jpg|jpeg|png|webp|svg|gif)$/i.test(bgUrl.trim());
-        const hasUrl = bgUrl && bgUrl.trim().length > 0;
+        const hasUrl = Boolean(bgUrl && bgUrl.trim().length > 0);
+        const isVideo =
+          bgType === 'video' ||
+          (bgType !== 'image' && hasUrl && /\.(mp4|webm|mov|ogg)(\?|$)/i.test(bgUrl.trim()));
+        const isImage = bgType === 'image' || (!isVideo && hasUrl);
 
         if (isVideo) {
-          const videoSrc = hasUrl ? bgUrl : '/videos/hero-background.mp4';
+          const videoSrc = hasUrl ? bgUrl.trim() : '/videos/hero-background.mp4';
           return (
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" style={{ opacity: bgOpacity }}>
               <video
@@ -141,18 +144,35 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
           );
         }
 
-        if ((bgType === 'image' || hasUrl) && hasUrl) {
+        if (isImage) {
+          const imageSrc = hasUrl
+            ? bgUrl.trim()
+            : 'https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1920&q=80';
+          const effectiveOpacity = Math.max(bgOpacity, 0.35);
+
           return (
-            <div
-              className="absolute inset-0 z-0 bg-no-repeat bg-center pointer-events-none"
-              style={{
-                backgroundImage: `url(${bgUrl})`,
-                backgroundSize: bgFit,
-                opacity: bgOpacity,
-              }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/85 to-transparent" />
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                key={imageSrc}
+                src={imageSrc}
+                alt="Invest Oil Hero Background"
+                className={cn(
+                  'w-full h-full object-center transition-opacity duration-300',
+                  bgFit === 'contain' ? 'object-contain' : 'object-cover'
+                )}
+                style={{ opacity: effectiveOpacity }}
+              />
+              {/* Gradiente equilibrado para lectura de textos sin anular la imagen */}
+              <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/35 to-transparent" />
+              <div className="absolute inset-0 bg-black/20" />
             </div>
+          );
+        }
+
+        if (bgType === 'gradient') {
+          return (
+            <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(14,165,233,0.15),rgba(255,255,255,0))] pointer-events-none" />
           );
         }
 

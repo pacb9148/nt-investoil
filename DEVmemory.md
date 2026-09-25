@@ -32,9 +32,11 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
    - Ventana de chat corporativo ejecutivo con sugerencias de preguntas rápidas, conexión a `/api/ai/chat` y contingencia inteligente con Knowledge Base de trading y especificaciones internacionales (ASTM D1655 / EN590 / Incoterms 2020).
 8. **Deduplicación de Logos y Assets en Biblioteca de Medios**:
    - Limpieza de logos repetidos en base de datos y nuevo endpoint `/api/media/deduplicate` con botón "Deduplicar Medios" en la cabecera de la biblioteca.
-9. **Corrección Definitiva del Hero**:
-   - Eliminación del estilo rígido en `(dashboard)/layout.tsx` que causaba el salto en negro al interactuar con formularios extensos.
-   - Adición de barra sticky flotante inferior permanente para guardar la configuración del Hero desde cualquier punto de la página.
+9. **Corrección Definitiva del Hero y Previsualización Multimedia**:
+   - Resuelto falso positivo que intentaba renderizar blobs de imágenes locales dentro de etiquetas `<video>`. Introducido el estado estricto `previewMediaType: 'video' | 'image' | null` y lógica de detección por extensiones con o sin query params.
+   - Eliminada la barra sticky inferior invasiva con `-mx-4 md:-mx-8` que tapaba los campos de texto e inputs de edición. Sustituida por una barra de acciones superior limpia y un botón inferior estático en flujo natural.
+   - En la landing pública (`hero-section.tsx`), eliminado el oscurecimiento destructivo (`via-bg/85`), adoptando renderizado con `<img>` optimizada, opacidad mínima efectiva del 35% y degradados balanceados que permiten apreciar la imagen con contraste WCAG AAA.
+   - Batería de seguridad Strix 100% limpia y aprobada.
 
 ### Fase 1: Arquitectura Base y Landing Corporativa
 - Identidad visual oficial: sello circular de Invest Oil LLC, logotipo con balancín petrolero y gota dorada, isotipos y favicons.

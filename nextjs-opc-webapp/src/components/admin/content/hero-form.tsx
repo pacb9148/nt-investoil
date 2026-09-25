@@ -34,6 +34,13 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   const [isPending, startTransition] = useTransition();
   const [bgType, setBgType] = useState<string>(defaultValues.hero_bg_type || 'gradient');
   const [bgUrl, setBgUrl] = useState<string>(defaultValues.hero_bg_url || '');
+  const [previewMediaType, setPreviewMediaType] = useState<'video' | 'image' | null>(() => {
+    if (defaultValues.hero_bg_type === 'video') return 'video';
+    if (defaultValues.hero_bg_type === 'image') return 'image';
+    if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(defaultValues.hero_bg_url || '')) return 'video';
+    if (/\.(jpg|jpeg|png|webp|svg|gif|avif)(\?|$)/i.test(defaultValues.hero_bg_url || '')) return 'image';
+    return null;
+  });
   const [opacity, setOpacity] = useState<number>(defaultValues.hero_bg_opacity ?? 20);
   const [langTab, setLangTab] = useState<'es' | 'en'>('es');
 
@@ -96,10 +103,10 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
 
     const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
     const isVid = file.type.startsWith('video/') || ['.mp4', '.webm', '.mov', '.ogg'].includes(ext);
-    const isImg = file.type.startsWith('image/') || ['.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif'].includes(ext);
+    const isImg = file.type.startsWith('image/') || ['.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif', '.avif'].includes(ext);
 
     if (!isVid && !isImg) {
-      setUploadError(`Formato "${ext}" no permitido. Formatos válidos: Videos (MP4, WebM, MOV) e Imágenes (JPG, PNG, WebP, SVG).`);
+      setUploadError(`Formato "${ext}" no permitido. Formatos válidos: Videos (MP4, WebM, MOV) e Imágenes (JPG, PNG, WebP, SVG, GIF, AVIF).`);
       return;
     }
 
@@ -115,14 +122,19 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
 
     // Previsualización instantánea local (0ms de latencia)
     try {
+      if (localPreviewUrl && localPreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(localPreviewUrl);
+      }
       const objUrl = URL.createObjectURL(file);
       setLocalPreviewUrl(objUrl);
     } catch {}
 
     if (isVid) {
       setBgType('video');
+      setPreviewMediaType('video');
     } else {
       setBgType('image');
+      setPreviewMediaType('image');
     }
 
     setUploading(true);
@@ -147,8 +159,10 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
       setBgUrl(data.url);
       if (data.mediaType === 'video') {
         setBgType('video');
+        setPreviewMediaType('video');
       } else {
         setBgType('image');
+        setPreviewMediaType('image');
       }
 
       setUploadMessage(`✓ Archivo "${file.name}" guardado exitosamente en base de datos como ${data.mediaType === 'video' ? 'video' : 'imagen'}.`);
@@ -369,6 +383,46 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
             English (EN)
           </button>
         </div>
+      </div>
+
+      {/* Barra de Acciones Superior */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-card border border-border shadow-sm">
+        <div className="flex items-center gap-2">
+          {state.success && (
+            <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5 animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{state.message || 'Configuración del Hero guardada con éxito'}</span>
+            </span>
+          )}
+          {state.error && (
+            <span className="text-xs text-red-400 font-semibold flex items-center gap-1.5 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{state.error}</span>
+            </span>
+          )}
+          {!state.success && !state.error && (
+            <span className="text-xs text-text-muted">
+              Personaliza titulares, imagen/video de fondo y visual lateral:
+            </span>
+          )}
+        </div>
+        <button
+          type="submit"
+          disabled={isPending || uploading}
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all duration-200 disabled:opacity-50 shrink-0"
+        >
+          {isPending ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Guardando cambios...</span>
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4" />
+              <span>Guardar Configuración del Hero</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* Bloque 1: Titulares y Textos */}
@@ -596,7 +650,12 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                       name="hero_bg_type"
                       value={opt.id}
                       checked={isSelected}
-                      onChange={() => setBgType(opt.id)}
+                      onChange={() => {
+                        setBgType(opt.id);
+                        if (opt.id === 'image') setPreviewMediaType('image');
+                        else if (opt.id === 'video') setPreviewMediaType('video');
+                        else setPreviewMediaType(null);
+                      }}
                       className="sr-only"
                     />
                     <Icon className="w-4 h-4 shrink-0" />
@@ -639,7 +698,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                     ) : (
                       <>
                         <Upload className="w-3.5 h-3.5" />
-                        <span>Seleccionar archivo (Video / Imagen)...</span>
+                        <span>Seleccionar archivo ({bgType === 'video' ? 'Video' : 'Imagen'})...</span>
                       </>
                     )}
                   </button>
@@ -653,11 +712,13 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                     onChange={(e) => {
                       const val = e.target.value;
                       setBgUrl(val);
-                      // Auto-detectar si termina en extensión de video
-                      if (/\.(mp4|webm|mov)$/i.test(val.trim())) {
+                      // Auto-detectar si termina en extensión de video o imagen
+                      if (/\.(mp4|webm|mov|ogg)(\?|$)/i.test(val.trim())) {
                         setBgType('video');
-                      } else if (/\.(jpg|jpeg|png|webp|svg)$/i.test(val.trim())) {
+                        setPreviewMediaType('video');
+                      } else if (/\.(jpg|jpeg|png|webp|svg|gif|avif)(\?|$)/i.test(val.trim())) {
                         setBgType('image');
+                        setPreviewMediaType('image');
                       }
                     }}
                     className={INPUT_STYLE}
@@ -686,6 +747,8 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                     type="button"
                     onClick={() => {
                       setBgType('video');
+                      setPreviewMediaType('video');
+                      setLocalPreviewUrl(null);
                       setBgUrl('/uploads/1790266996976-14529100_3840_2160_30fps.mp4');
                     }}
                     className={cn(
@@ -702,6 +765,8 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                     type="button"
                     onClick={() => {
                       setBgType('video');
+                      setPreviewMediaType('video');
+                      setLocalPreviewUrl(null);
                       setBgUrl('/videos/hero-background.mp4');
                     }}
                     className={cn(
@@ -718,6 +783,8 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                     type="button"
                     onClick={() => {
                       setBgType('video');
+                      setPreviewMediaType('video');
+                      setLocalPreviewUrl(null);
                       setBgUrl('/uploads/1790117420791-307348_large.mp4');
                     }}
                     className={cn(
@@ -734,6 +801,8 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                     type="button"
                     onClick={() => {
                       setBgType('image');
+                      setPreviewMediaType('image');
+                      setLocalPreviewUrl(null);
                       setBgUrl('https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&w=1920&q=80');
                     }}
                     className={cn(
@@ -743,13 +812,15 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                         : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
                     )}
                   >
-                    <FileImage className="w-3 h-3" />
+                    <FileImage className="w-3 h-3 text-sky-400" />
                     <span>Buque Petrolero</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       setBgType('image');
+                      setPreviewMediaType('image');
+                      setLocalPreviewUrl(null);
                       setBgUrl('https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1920&q=80');
                     }}
                     className={cn(
@@ -759,7 +830,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                         : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
                     )}
                   >
-                    <FileImage className="w-3 h-3" />
+                    <FileImage className="w-3 h-3 text-sky-400" />
                     <span>Complejo Refinería</span>
                   </button>
                 </div>
@@ -775,7 +846,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                       <strong className="text-text">Videos de fondo:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">100 MB</span>)
                     </li>
                     <li>
-                      <strong className="text-text">Imágenes de fondo:</strong> JPG, JPEG, PNG, WebP, SVG (Máx. <span className="text-amber-400">2 MB</span>)
+                      <strong className="text-text">Imágenes de fondo:</strong> JPG, JPEG, PNG, WebP, SVG, AVIF (Máx. <span className="text-amber-400">2 MB</span>)
                     </li>
                     <li className="text-[10px] text-text-muted font-sans pt-0.5">
                       Los archivos locales subidos se almacenan en la <span className="text-accent font-semibold">base de datos</span> para persistir entre despliegues. Si usas una URL directa de internet (HTTPS), se guardará el enlace al recurso.
@@ -799,24 +870,28 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
 
                 {/* Previsualización en Vivo de Imagen o Video */}
                 {(localPreviewUrl || (bgUrl && !isLocalDiskPath)) && (
-                  <div className="mt-4 p-3 rounded-xl border border-border/80 bg-black/40 space-y-2">
+                  <div className="mt-4 p-3.5 rounded-xl border border-border/80 bg-card/70 space-y-2">
                     {(() => {
-                      const previewSrc = localPreviewUrl || bgUrl;
+                      const previewSrc = (localPreviewUrl || bgUrl).trim();
                       const isRealVideo =
-                        /\.(mp4|webm|mov|ogg)$/i.test(previewSrc.trim()) ||
-                        (bgType === 'video' && !/\.(jpg|jpeg|png|webp|svg|gif)$/i.test(previewSrc.trim()));
+                        previewMediaType === 'video' ||
+                        (previewMediaType !== 'image' && (
+                          bgType === 'video'
+                            ? !/\.(jpg|jpeg|png|webp|svg|gif|avif)(\?|$)/i.test(previewSrc)
+                            : /\.(mp4|webm|mov|ogg)(\?|$)/i.test(previewSrc)
+                        ));
 
                       return (
                         <>
                           <div className="flex items-center justify-between text-[11px] font-mono text-text-muted">
                             <span className="flex items-center gap-1.5 text-accent font-semibold">
-                              {isRealVideo ? <FileVideo className="w-3.5 h-3.5" /> : <FileImage className="w-3.5 h-3.5" />}
+                              {isRealVideo ? <FileVideo className="w-3.5 h-3.5 text-amber-400" /> : <FileImage className="w-3.5 h-3.5 text-sky-400" />}
                               <span>Vista previa en vivo ({isRealVideo ? 'Video' : 'Imagen'}):</span>
                             </span>
                             <span className="text-[10px] text-text-subtle truncate max-w-xs">{previewSrc}</span>
                           </div>
 
-                          <div className="relative w-full h-56 max-h-56 rounded-lg overflow-hidden border border-border/50 bg-[#070b14] flex items-center justify-center">
+                          <div className="relative w-full h-64 max-h-64 rounded-lg overflow-hidden border border-border/70 bg-[#070b14] flex items-center justify-center">
                             {isRealVideo ? (
                               <video
                                 key={previewSrc}
@@ -836,6 +911,9 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                                 src={previewSrc}
                                 alt="Previsualización de fondo"
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  console.warn('Error al cargar imagen en vista previa:', previewSrc);
+                                }}
                               />
                             )}
                           </div>
@@ -1339,18 +1417,18 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
         </div>
       )}
 
-      {/* Barra de Guardado Flotante Sticky */}
-      <div className="sticky bottom-0 z-30 -mx-4 md:-mx-8 px-4 md:px-8 py-3.5 bg-card/95 backdrop-blur-md border-t border-border shadow-2xl flex items-center justify-between gap-4 mt-6">
+      {/* Barra de Guardado Inferior en Flujo Normal */}
+      <div className="pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           {state.success && (
             <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5 animate-in fade-in">
-              <CheckCircle2 className="w-4 h-4" />
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{state.message || 'Configuración del Hero guardada con éxito'}</span>
             </span>
           )}
           {state.error && (
             <span className="text-xs text-red-400 font-semibold flex items-center gap-1.5 animate-in fade-in">
-              <AlertCircle className="w-4 h-4" />
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{state.error}</span>
             </span>
           )}
@@ -1358,7 +1436,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
         <button
           type="submit"
           disabled={isPending || uploading}
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all duration-200 disabled:opacity-50 shrink-0"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all duration-200 disabled:opacity-50 shrink-0"
         >
           {isPending ? (
             <>
@@ -1373,7 +1451,6 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
           )}
         </button>
       </div>
-      <div className="h-10" />
     </form>
   );
 }

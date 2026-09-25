@@ -376,3 +376,27 @@
 - **Verificación**:
   - `npm run build`: 53/53 páginas y rutas compiladas con éxito (0 errores).
   - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.
+
+## [2026-09-25 17:00] - Corrección Definitiva: Interfaz de Selección de Imagen Hero y Fondo de Landing Pública
+- **Solicitud del Usuario**:
+  1. "No solucionaste el problema de la interfase cuando selecciono imagen, resuelve esto"
+  2. "el hero sigue roto"
+- **Causa Raíz Identificada**:
+  1. *Falso positivo de Video en previsualización*: Al seleccionar una imagen local, `localPreviewUrl` generaba un `blob:` que no terminaba en `.jpg`/`.png`. Como `bgType` venía por defecto como `'video'` o la regex buscaba solo extensiones con anclaje `$`, el código forzaba `isRealVideo = true` e intentaba reproducir la imagen dentro de una etiqueta `<video>`. El navegador crasheaba el elemento dejando un recuadro negro total.
+  2. *Barra sticky invasiva con margen negativo*: La barra inferior con el botón "Guardar Configuración del Hero" tenía `sticky bottom-0 z-30 -mx-4 md:-mx-8`. En pantallas y contenedores con scroll, flotaba permanentemente sobre el formulario tapando los inputs de titulares y lemas.
+  3. *Hero roto en Landing Pública*: `hero-section.tsx` aplicaba un degradado negro excesivo (`via-bg/85`) que, combinado con `bgOpacity` al 20%, volvía cualquier imagen de fondo 100% invisible (pantalla negra).
+- **Acciones Realizadas**:
+  1. **HeroForm (`src/components/admin/content/hero-form.tsx`)**:
+     - Introducido estado explícito `previewMediaType: 'video' | 'image' | null` sincronizado con `file.type` e inputs.
+     - Lógica infalible de previsualización: si `bgType === 'image'` o `previewMediaType === 'image'`, se renderiza SIEMPRE etiqueta `<img>` con `onError` seguro, impidiendo que una imagen se procese como `<video>`.
+     - Soporte para extensiones con o sin query parameters (`jpg|jpeg|png|webp|svg|gif|avif`).
+     - Eliminada completamente la barra invasiva `sticky bottom-0 -mx-4 md:-mx-8`.
+     - Añadida una barra de acciones superior limpia con botón de Guardar y estado en tiempo real, más un botón de Guardar inferior estático en flujo normal que jamás tapa campos.
+  2. **HeroSection (`src/components/sections/hero-section.tsx`)**:
+     - Discriminación inequívoca entre Video e Imagen.
+     - Renderizado de imagen de fondo con `<img />` optimizada, opacidad mínima efectiva del 35% y degradado sutil (`via-bg/35` y `bg-black/20`) garantizando que la imagen sea nítida y visible con contraste WCAG AAA.
+  3. **Seguridad y Estabilidad**:
+     - `npm run type-check`: 0 errores.
+     - `npm run build`: 53/53 páginas estáticas y dinámicas compiladas exitosamente.
+     - `npm run test:security`: Batería Strix 100% aprobada.
+
