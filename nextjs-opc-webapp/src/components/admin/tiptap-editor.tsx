@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, Extension } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import TextStyle from '@tiptap/extension-text-style';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -18,6 +19,58 @@ import TextAlign from '@tiptap/extension-text-align';
 import Typography from '@tiptap/extension-typography';
 import Underline from '@tiptap/extension-underline';
 import Youtube from '@tiptap/extension-youtube';
+
+const FontSize = Extension.create({
+  name: 'fontSize',
+  addOptions() {
+    return {
+      types: ['textStyle'],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.style?.fontSize || null,
+            renderHTML: (attributes: Record<string, any>) => {
+              if (!attributes.fontSize) return {};
+              return { style: `font-size: ${attributes.fontSize}` };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
+const FontFamily = Extension.create({
+  name: 'fontFamily',
+  addOptions() {
+    return {
+      types: ['textStyle'],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontFamily: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.style?.fontFamily?.replace(/['"]+/g, '') || null,
+            renderHTML: (attributes: Record<string, any>) => {
+              if (!attributes.fontFamily) return {};
+              return { style: `font-family: ${attributes.fontFamily}` };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
 import {
   Bold,
   Italic,
@@ -65,6 +118,9 @@ export function TiptapEditor({
           levels: [1, 2, 3],
         },
       }),
+      TextStyle,
+      FontFamily,
+      FontSize,
       Underline,
       Image.configure({
         inline: true,
@@ -181,6 +237,58 @@ export function TiptapEditor({
         >
           <Redo className="w-4 h-4" />
         </button>
+
+        <div className="w-[1px] h-5 bg-border mx-1" />
+
+        {/* Tipografía & Tamaño de Fuente */}
+        <div className="flex items-center gap-1.5">
+          <select
+            value={editor.getAttributes('textStyle').fontFamily || ''}
+            onChange={(e) => {
+              const font = e.target.value;
+              if (font) {
+                editor.chain().focus().setMark('textStyle', { fontFamily: font }).run();
+              } else {
+                editor.chain().focus().setMark('textStyle', { fontFamily: null }).removeEmptyTextStyle().run();
+              }
+            }}
+            className="h-7 text-xs bg-surf/90 text-text border border-border/80 rounded px-1.5 focus:outline-none focus:ring-1 focus:ring-accent max-w-[125px] font-medium cursor-pointer"
+            title="Seleccionar tipografía"
+          >
+            <option value="">Tipografía...</option>
+            <option value="ui-sans-serif, system-ui, sans-serif">Inter (Sans)</option>
+            <option value="Merriweather, Georgia, serif">Merriweather (Serif)</option>
+            <option value="'Playfair Display', Georgia, serif">Playfair (Editorial)</option>
+            <option value="'JetBrains Mono', monospace">JetBrains (Mono)</option>
+            <option value="Poppins, sans-serif">Poppins</option>
+            <option value="Montserrat, sans-serif">Montserrat</option>
+            <option value="Georgia, serif">Georgia</option>
+          </select>
+
+          <select
+            value={editor.getAttributes('textStyle').fontSize || ''}
+            onChange={(e) => {
+              const size = e.target.value;
+              if (size) {
+                editor.chain().focus().setMark('textStyle', { fontSize: size }).run();
+              } else {
+                editor.chain().focus().setMark('textStyle', { fontSize: null }).removeEmptyTextStyle().run();
+              }
+            }}
+            className="h-7 text-xs bg-surf/90 text-text border border-border/80 rounded px-1.5 focus:outline-none focus:ring-1 focus:ring-accent w-[92px] font-medium cursor-pointer"
+            title="Seleccionar tamaño de texto"
+          >
+            <option value="">Tamaño...</option>
+            <option value="12px">12px (Nota)</option>
+            <option value="14px">14px (Pie)</option>
+            <option value="16px">16px (Normal)</option>
+            <option value="18px">18px (Medio)</option>
+            <option value="20px">20px (Lead)</option>
+            <option value="24px">24px (Subtítulo)</option>
+            <option value="28px">28px (Título)</option>
+            <option value="32px">32px (Grande)</option>
+          </select>
+        </div>
 
         <div className="w-[1px] h-5 bg-border mx-1" />
 

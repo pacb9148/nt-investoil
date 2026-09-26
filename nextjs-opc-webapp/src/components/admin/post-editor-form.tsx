@@ -436,7 +436,7 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
                 placeholder="EXTRACTO / RESUMEN"
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
-                className="text-xs bg-surf/80 border-border placeholder:text-text-subtle/70 resize-y"
+                className="text-xs min-h-[64px] h-[64px] bg-surf/80 border-border placeholder:text-text-subtle/70 resize-y leading-snug py-2"
               />
             </div>
           </Card>

@@ -547,6 +547,30 @@
   - `npm run build`: 53/53 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
   - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada sin secretos ni dependencias vulnerables.
 
-
-
-
+## [2026-09-26 09:10] - Fase 20: Editor Tiptap con Tipografías/Tamaños, Resumen Compacto, Agente Oli (Emoji 3D Expresivo) y Modelo de Aprendizaje Continuo
+- **Solicitud del Usuario**:
+  1. Reducir el placeholder del resumen a 3 filas expandible.
+  2. Agregar a la barra de herramientas de edición selector de tipografía y tamaño.
+  3. Planificar, diseñar e implementar un modelo de aprendizaje continuo para que el agente se nutra de las interacciones y amplíe proactivamente su base de conocimiento con FAQs, conceptos y experiencias.
+  4. Nombrar al agente "Oli" con expresión amigable, sustituir la estrella por dos puntos (ojos) y sonrisa con movimientos laterales/verticales y cambios de expresión.
+- **Acciones Realizadas**:
+  1. **Resumen Compacto (3 filas expandibles)**:
+     - Ajustado `src/components/ui/textarea.tsx` a base de `min-h-[72px]`.
+     - Configurado en `src/components/admin/post-editor-form.tsx` con `min-h-[64px] h-[64px] resize-y` para iniciar exactamente en 3 filas y permitir redimensionamiento libre.
+  2. **Selectores de Tipografía y Tamaño en Tiptap (`tiptap-editor.tsx`)**:
+     - Creadas extensiones `FontFamily` y `FontSize` para Tiptap utilizando la marca `textStyle`.
+     - Integrados dos selectores compactos en la barra de herramientas fija (tras Deshacer/Rehacer antes de H1):
+       - *Tipografías*: Inter, Merriweather, Playfair Display, JetBrains Mono, Poppins, Montserrat y Georgia.
+       - *Tamaños*: 12px, 14px, 16px, 18px, 20px, 24px, 28px y 32px.
+  3. **Personaje "Oli" con Expresión Amigable y Ojos 3D (`oli-face.tsx`, `public-ai-orbe.tsx`)**:
+     - Creado `src/components/chat/oli-face.tsx`: esfera 3D en degradado dorado/ámbar con volumen especular, ojos animados con mirada orgánica multidireccional (centro, izquierda, derecha, arriba, abajo) y parpadeo (*blink*).
+     - Expresiones faciales reactivas: sonrisa feliz en reposo e interacción con rubor (`^ ^`), y mirada pensativa hacia arriba durante la generación (`isTyping`).
+     - Reemplazado `Sparkles` por `OliFace` en botón flotante, cabecera del chat y mensajes asistenciales con bienvenida institucional y badge `Agente Oficial`.
+  4. **Modelo de Aprendizaje Continuo y Memoria de Experiencias (`ai-learning.ts`, `/api/ai/learning`)**:
+     - Detección de idioma e indexación contextual de consultas de trading en segundo plano (`processInteractionForLearning`).
+     - Inyección dinámica de directrices aprendidas en `executeAiChat`.
+     - Nueva pestaña en Backoffice (`/admin/settings/ai`): "2. ⚡ Aprendizaje Continuo (Oli)" con métricas en vivo, interruptor de auto-aprendizaje, bandeja de experiencias con botones de 1 clic ("A FAQ Oficial", "A Base Conocimiento", "Descartar") y formulario de nutrición manual.
+- **Verificación Técnica**:
+  - `npm run type-check`: 0 errores de TypeScript.
+  - `npm run build`: 54/54 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
+  - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada sin secretos ni dependencias vulnerables.

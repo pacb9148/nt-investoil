@@ -37,12 +37,26 @@ export interface TrainingFaqItem {
   category?: string;
 }
 
+export interface LearnedExperienceItem {
+  id: string;
+  createdAt: string;
+  userQuery: string;
+  replySummary: string;
+  topic: string;
+  language: string;
+  insight: string;
+  status: 'pending' | 'approved' | 'archived';
+  source: 'user_interaction' | 'manual_training' | 'operator_note';
+}
+
 export interface AiSettingsConfig {
   activeProviderId: string;
   activeModelId?: string;
   systemPrompt: string;
   knowledgeBase?: string;
   trainingFaqs?: TrainingFaqItem[];
+  enableContinuousLearning?: boolean;
+  learnedExperiences?: LearnedExperienceItem[];
   models: ConfiguredModelItem[];
 }
 
@@ -171,7 +185,7 @@ export const PRESET_PROVIDERS: {
 export const DEFAULT_AI_SETTINGS: AiSettingsConfig = {
   activeProviderId: 'openrouter',
   activeModelId: 'mod-1',
-  systemPrompt: `Eres el Asistente Oficial e Inteligente de Invest Oil LLC.
+  systemPrompt: `Eres Oli, el Asistente Oficial e Inteligente de Invest Oil LLC.
 Eslogan: "Petroleum and Derivates Markets".
 Tu función es atender consultas comerciales, técnicas y corporativas de compradores, vendedores, refinerías, brokers y fondos de inversión internacionales.
 Responde siempre con tono ejecutivo, alta rigurosidad técnica, conciso y profesional, sin markdown excesivo.`,
@@ -223,6 +237,42 @@ PROTOCOLO DE ATENCIÓN Y CONTACTO:
       question: '¿Qué certificaciones de calidad respaldan sus cargamentos?',
       answer: 'Todas las operaciones cuentan con certificación independiente de cantidad y calidad emitida en puerto de carga o terminal de almacenamiento por inspectores reconocidos como SGS, Saybolt o Intertek.',
       category: 'Calidad',
+    },
+  ],
+  enableContinuousLearning: true,
+  learnedExperiences: [
+    {
+      id: 'exp-1',
+      createdAt: '2026-09-25T14:20:00Z',
+      userQuery: '¿Realizan transferencias Ship-to-Ship en aguas internacionales o solo en terminales portuarias?',
+      replySummary: 'Se aclaró la capacidad de coordinación de operaciones STS bajo protocolos MARPOL con inspección de SGS/Saybolt.',
+      topic: 'Logística Marítima / STS',
+      language: 'es',
+      insight: 'Compradores internacionales valoran saber que Invest Oil coordina transferencias STS autorizadas con inspectores independientes en puertos y aguas reguladas.',
+      status: 'approved',
+      source: 'user_interaction',
+    },
+    {
+      id: 'exp-2',
+      createdAt: '2026-09-25T16:45:00Z',
+      userQuery: 'Can we request CIF delivery to Fujairah or Jurong port for ULSD EN590?',
+      replySummary: 'Confirmed CIF delivery to major bunkering hubs subject to ICPO and laycan scheduling.',
+      topic: 'Incoterms CIF / Rutas',
+      language: 'en',
+      insight: 'Brokers from MENA and Asia frequently check CIF logistics to Fujairah and Singapore. Oli confirms operational capability without promising fixed laycan before contract.',
+      status: 'approved',
+      source: 'user_interaction',
+    },
+    {
+      id: 'exp-3',
+      createdAt: '2026-09-25T19:10:00Z',
+      userQuery: 'Somos un grupo intermediario con mandato y queremos acordar un margen de comisión por barril de Merey 16.',
+      replySummary: 'El asistente aplicó el protocolo de escalamiento estricto derivando a la directiva comercial en trading@investoil.es.',
+      topic: 'Escalamiento Comercial',
+      language: 'es',
+      insight: 'Intermediarios con mandato solicitan acuerdos de comisiones/NCNDA. Oli nunca pacta cifras y canaliza formalmente al equipo ejecutivo.',
+      status: 'approved',
+      source: 'user_interaction',
     },
   ],
   models: [

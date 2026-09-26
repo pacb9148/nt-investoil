@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, X, Send, Sparkles, MessageSquare, ChevronDown, Check, ArrowRight } from 'lucide-react';
+import { X, Send, ChevronDown, Check, ArrowRight } from 'lucide-react';
+import { OliFace } from './oli-face';
 
 interface ChatMessage {
   id: string;
@@ -12,11 +13,12 @@ interface ChatMessage {
 
 export function PublicAiOrbe() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
       sender: 'agent',
-      text: 'Bienvenido a Invest Oil LLC — Petroleum and Derivates Markets.\nFacilitadores en el mercado del petróleo y sus derivados entre compradores y vendedores de primer orden. ¿En qué podemos asistirle hoy?',
+      text: '¡Hola! Soy Oli, el agente oficial de Invest Oil LLC (Petroleum and Derivates Markets).\nFacilitadores entre compradores y vendedores de primer orden en el mercado del petróleo y sus derivados. ¿En qué puedo orientarle hoy?',
       timestamp: 'Ahora',
     },
   ]);
@@ -110,19 +112,17 @@ export function PublicAiOrbe() {
           <div className="bg-gradient-to-r from-zinc-900 via-amber-950/40 to-zinc-900 border-b border-amber-500/20 p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                  <Bot className="h-5 w-5 text-zinc-950" />
-                </div>
-                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-zinc-950" />
+                <OliFace size="md" isOpen={isOpen} isTyping={isTyping} />
+                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-zinc-950 shadow" />
               </div>
               <div>
                 <h4 className="text-sm font-bold text-white flex items-center gap-1.5">
-                  Invest Oil LLC
-                  <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded px-1.5 py-0.2">
-                    AI Assistant
+                  Oli
+                  <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded px-1.5 py-0.5 font-medium">
+                    Agente Oficial
                   </span>
                 </h4>
-                <p className="text-[11px] text-zinc-400">Petroleum and Derivates Markets</p>
+                <p className="text-[11px] text-zinc-400">Invest Oil LLC · Petroleum & Derivates</p>
               </div>
             </div>
             <button
@@ -139,28 +139,42 @@ export function PublicAiOrbe() {
             {messages.map((m) => (
               <div
                 key={m.id}
-                className={`flex flex-col ${
-                  m.sender === 'user' ? 'items-end' : 'items-start'
+                className={`flex gap-2 ${
+                  m.sender === 'user' ? 'justify-end' : 'justify-start items-start'
                 }`}
               >
+                {m.sender === 'agent' && (
+                  <div className="shrink-0 mt-0.5">
+                    <OliFace size="sm" isHappy={true} />
+                  </div>
+                )}
                 <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed ${
-                    m.sender === 'user'
-                      ? 'bg-amber-500 text-zinc-950 font-medium rounded-br-xs shadow-md'
-                      : 'bg-zinc-900/90 text-zinc-200 border border-white/10 rounded-bl-xs'
+                  className={`flex flex-col ${
+                    m.sender === 'user' ? 'items-end' : 'items-start'
                   }`}
                 >
-                  <p className="whitespace-pre-line">{m.text}</p>
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs leading-relaxed ${
+                      m.sender === 'user'
+                        ? 'bg-amber-500 text-zinc-950 font-medium rounded-br-xs shadow-md'
+                        : 'bg-zinc-900/90 text-zinc-200 border border-white/10 rounded-bl-xs shadow-sm'
+                    }`}
+                  >
+                    <p className="whitespace-pre-line">{m.text}</p>
+                  </div>
+                  <span className="text-[10px] text-zinc-500 mt-1 px-1">{m.timestamp}</span>
                 </div>
-                <span className="text-[10px] text-zinc-500 mt-1 px-1">{m.timestamp}</span>
               </div>
             ))}
 
             {isTyping && (
-              <div className="flex items-center gap-1.5 bg-zinc-900/80 border border-white/10 rounded-full px-3 py-1.5 w-fit">
-                <div className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-bounce" />
-                <div className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-bounce [animation-delay:0.2s]" />
-                <div className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-bounce [animation-delay:0.4s]" />
+              <div className="flex items-center gap-2">
+                <OliFace size="sm" isTyping={true} />
+                <div className="flex items-center gap-1.5 bg-zinc-900/80 border border-white/10 rounded-full px-3 py-1.5 w-fit">
+                  <div className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-bounce" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-bounce [animation-delay:0.2s]" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-bounce [animation-delay:0.4s]" />
+                </div>
               </div>
             )}
             <div ref={messagesEndRef} />
@@ -191,7 +205,7 @@ export function PublicAiOrbe() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Consulte sobre crudos, diésel, FOB, CIF..."
+              placeholder="Pregúntale a Oli sobre diésel, crudos, ICPO, sedes..."
               className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
             />
             <button
@@ -205,26 +219,27 @@ export function PublicAiOrbe() {
         </div>
       )}
 
-      {/* Orbe 3D Pulsante Flotante */}
+      {/* Orbe 3D Animado de Oli */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="group relative flex items-center justify-center focus:outline-none"
-        aria-label="Abrir asistente de IA Invest Oil"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="group relative flex items-center justify-center focus:outline-none transition-transform duration-300 hover:scale-105 active:scale-95"
+        aria-label="Abrir asistente Oli de Invest Oil"
       >
-        {/* Pulsos concéntricos animados */}
+        {/* Pulsos concéntricos animados de energía */}
         <span className="absolute -inset-2 rounded-full bg-amber-500/20 animate-ping opacity-75 duration-1000" />
         <span className="absolute -inset-1 rounded-full bg-amber-500/30 blur-sm group-hover:bg-amber-400/40 transition duration-300" />
 
-        {/* Cuerpo del Orbe Esférico */}
-        <div className="relative h-14 w-14 rounded-full bg-gradient-to-br from-amber-400 via-amber-600 to-yellow-700 shadow-xl shadow-amber-500/30 border-2 border-amber-300/60 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105">
-          {/* Brillo interno simulando esfera de vidrio/energía líquida */}
-          <div className="absolute top-1 left-2 h-4 w-6 rounded-full bg-white/40 blur-[1px] rotate-[-25deg]" />
-          <div className="absolute bottom-1 right-2 h-3 w-5 rounded-full bg-zinc-950/40 blur-[1px]" />
-          
-          {isOpen ? (
-            <ChevronDown className="h-6 w-6 text-zinc-950 font-bold relative z-10 transition-transform" />
-          ) : (
-            <Sparkles className="h-6 w-6 text-zinc-950 fill-zinc-950/20 relative z-10 animate-pulse" />
+        {/* Rostro 3D Expresivo de Oli */}
+        <div className="relative">
+          <OliFace size="lg" isOpen={isOpen} isTyping={isTyping} isHovered={isHovered} />
+
+          {/* Indicador de minimizar cuando el chat está desplegado */}
+          {isOpen && (
+            <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-zinc-950/90 border border-amber-500/50 flex items-center justify-center shadow">
+              <ChevronDown className="h-3 w-3 text-amber-300" />
+            </div>
           )}
         </div>
 
@@ -232,7 +247,7 @@ export function PublicAiOrbe() {
         {!isOpen && (
           <div className="absolute right-16 top-1/2 -translate-y-1/2 bg-zinc-950/90 text-amber-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-amber-500/30 shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            ¿Consultas sobre hidrocarburos? Escríbenos
+            👋 ¡Hola! Soy Oli. ¿Puedo ayudarte?
           </div>
         )}
       </button>

@@ -9,6 +9,7 @@ import {
   AiSettingsConfig,
   ApiStyle,
   TrainingFaqItem,
+  LearnedExperienceItem,
 } from '@/lib/ai/ai-types';
 import {
   Bot,
@@ -45,8 +46,20 @@ import { cn } from '@/lib/utils';
 
 export default function AiSettingsPage() {
   const [settings, setSettings] = useState<AiSettingsConfig>(DEFAULT_AI_SETTINGS);
-  const [activeMainTab, setActiveMainTab] = useState<'training' | 'credentials'>('training');
+  const [activeMainTab, setActiveMainTab] = useState<'training' | 'learning' | 'credentials'>('training');
   const [selectedPreset, setSelectedPreset] = useState<ProviderPresetId>('nvidia');
+
+  // Estado del Modelo de Aprendizaje Continuo (Oli)
+  const [enableContinuousLearning, setEnableContinuousLearning] = useState(true);
+  const [learnedExperiencesList, setLearnedExperiencesList] = useState<LearnedExperienceItem[]>(
+    DEFAULT_AI_SETTINGS.learnedExperiences || []
+  );
+  const [manualTopic, setManualTopic] = useState('Diésel EN590 / ULSD');
+  const [manualQuery, setManualQuery] = useState('');
+  const [manualReply, setManualReply] = useState('');
+  const [manualInsight, setManualInsight] = useState('');
+  const [manualLang, setManualLang] = useState<'es' | 'en' | 'pt'>('es');
+  const [isAddingManual, setIsAddingManual] = useState(false);
 
   // Estado del Formulario de Credenciales
   const [providerName, setProviderName] = useState('Nvidia NIM');
@@ -96,6 +109,8 @@ export default function AiSettingsPage() {
           setSystemPromptInput(data.settings.systemPrompt || DEFAULT_AI_SETTINGS.systemPrompt);
           setKnowledgeBaseInput(data.settings.knowledgeBase || DEFAULT_AI_SETTINGS.knowledgeBase || '');
           setTrainingFaqsList(data.settings.trainingFaqs || DEFAULT_AI_SETTINGS.trainingFaqs || []);
+          setEnableContinuousLearning(data.settings.enableContinuousLearning !== false);
+          setLearnedExperiencesList(data.settings.learnedExperiences || DEFAULT_AI_SETTINGS.learnedExperiences || []);
         }
       })
       .catch((err) => console.error('Error al cargar config de IA:', err))
@@ -196,6 +211,122 @@ export default function AiSettingsPage() {
       setTestChatReply('Fallo al conectar con el endpoint de IA.');
     } finally {
       setIsTestChatting(false);
+    }
+  };
+
+  // Manejadores del Modelo de Aprendizaje Continuo (Oli)
+  const handleToggleLearning = async () => {
+    const next = !enableContinuousLearning;
+    setEnableContinuousLearning(next);
+    try {
+      await fetch('/api/ai/learning', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_learning', enable: next }),
+      });
+      setNotification({
+        type: 'success',
+        message: next
+          ? '✓ Modelo de auto-aprendizaje continuo activado para Oli.'
+          : 'Auto-aprendizaje pausado temporalmente.',
+      });
+      setTimeout(() => setNotification(null), 3000);
+    } catch {
+      setNotification({ type: 'error', message: 'Error al cambiar estado de aprendizaje.' });
+    }
+  };
+
+  const handlePromoteToFaq = async (exp: LearnedExperienceItem) => {
+    try {
+      const res = await fetch('/api/ai/learning', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'promote_faq', experienceId: exp.id }),
+      });
+      const data = await res.json();
+      if (data.success && data.newFaq) {
+        setTrainingFaqsList((prev) => [data.newFaq, ...prev]);
+        setNotification({
+          type: 'success',
+          message: `✓ Experiencia promovida exitosamente a FAQ Oficial: "${data.newFaq.question}"`,
+        });
+        setTimeout(() => setNotification(null), 4000);
+      }
+    } catch {
+      setNotification({ type: 'error', message: 'Error al promover experiencia a FAQ' });
+    }
+  };
+
+  const handlePromoteToKb = async (exp: LearnedExperienceItem) => {
+    try {
+      const res = await fetch('/api/ai/learning', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'promote_kb', experienceId: exp.id }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const addedText = `\n- [${exp.topic}]: ${exp.insight}`;
+        setKnowledgeBaseInput((prev) => prev + addedText);
+        setNotification({
+          type: 'success',
+          message: '✓ Concepto anexado permanentemente a la Base de Conocimiento de Oli.',
+        });
+        setTimeout(() => setNotification(null), 4000);
+      }
+    } catch {
+      setNotification({ type: 'error', message: 'Error al anexar a Base de Conocimiento' });
+    }
+  };
+
+  const handleDeleteExperience = async (id: string) => {
+    try {
+      await fetch(`/api/ai/learning?id=${id}`, { method: 'DELETE' });
+      setLearnedExperiencesList((prev) => prev.filter((e) => e.id !== id));
+      setNotification({ type: 'success', message: 'Experiencia descartada de la memoria activa.' });
+      setTimeout(() => setNotification(null), 3000);
+    } catch {
+      setNotification({ type: 'error', message: 'Error al eliminar experiencia' });
+    }
+  };
+
+  const handleAddManualExperience = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualQuery.trim() || !manualInsight.trim()) {
+      alert('Por favor ingresa la consulta y el insight o aprendizaje clave.');
+      return;
+    }
+
+    setIsAddingManual(true);
+    try {
+      const res = await fetch('/api/ai/learning', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'add_manual',
+          userQuery: manualQuery.trim(),
+          replySummary: manualReply.trim() || manualInsight.trim(),
+          topic: manualTopic,
+          language: manualLang,
+          insight: manualInsight.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.item) {
+        setLearnedExperiencesList((prev) => [data.item, ...prev]);
+        setManualQuery('');
+        setManualReply('');
+        setManualInsight('');
+        setNotification({
+          type: 'success',
+          message: '✓ Nueva experiencia incorporada con éxito a la memoria activa de Oli.',
+        });
+        setTimeout(() => setNotification(null), 4000);
+      }
+    } catch {
+      setNotification({ type: 'error', message: 'Error al guardar la experiencia manual.' });
+    } finally {
+      setIsAddingManual(false);
     }
   };
 
@@ -397,33 +528,50 @@ export default function AiSettingsPage() {
       )}
 
       {/* Selector de Pestaña Principal */}
-      <div className="flex items-center gap-2 border-b border-border/70 pb-2">
+      <div className="flex items-center gap-2 border-b border-border/70 pb-2 overflow-x-auto no-scrollbar">
         <button
           type="button"
           onClick={() => setActiveMainTab('training')}
           className={cn(
-            'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-mono font-medium transition-all',
+            'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-mono font-medium transition-all shrink-0',
             activeMainTab === 'training'
               ? 'bg-accent text-bg font-bold shadow-sm'
               : 'bg-card/70 border border-border text-text-muted hover:text-text hover:border-accent/40'
           )}
         >
           <Brain className="w-4 h-4" />
-          <span>1. 🧠 Base de Conocimiento & Entrenamiento</span>
+          <span>1. 🧠 Base de Conocimiento & Prompt</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveMainTab('learning')}
+          className={cn(
+            'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-mono font-medium transition-all shrink-0',
+            activeMainTab === 'learning'
+              ? 'bg-accent text-bg font-bold shadow-sm'
+              : 'bg-card/70 border border-border text-text-muted hover:text-text hover:border-accent/40'
+          )}
+        >
+          <Sparkles className="w-4 h-4 text-amber-400" />
+          <span>2. ⚡ Aprendizaje Continuo (Oli)</span>
+          <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+            {learnedExperiencesList.length}
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveMainTab('credentials')}
           className={cn(
-            'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-mono font-medium transition-all',
+            'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-mono font-medium transition-all shrink-0',
             activeMainTab === 'credentials'
               ? 'bg-accent text-bg font-bold shadow-sm'
               : 'bg-card/70 border border-border text-text-muted hover:text-text hover:border-accent/40'
           )}
         >
           <Key className="w-4 h-4" />
-          <span>2. 🔑 Proveedores de IA & Modelos</span>
+          <span>3. 🔑 Proveedores de IA & Modelos</span>
           <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/10 font-bold">
             {settings.models.length}
           </span>
@@ -692,7 +840,261 @@ export default function AiSettingsPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* VISTA 2: PROVEEDORES DE IA & CREDENCIALES (MODO TRADICIONAL)               */}
+      {/* VISTA 2: APRENDIZAJE CONTINUO DE OLI (CONTINUOUS LEARNING & EXPERIENCES)   */}
+      {/* ========================================================================= */}
+      {activeMainTab === 'learning' && (
+        <div className="space-y-6 animate-in fade-in duration-300">
+          {/* Banner de Control y Métricas de Aprendizaje */}
+          <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-r from-zinc-900/90 via-amber-950/20 to-zinc-900/90 p-5 sm:p-6 backdrop-blur-md shadow-xl">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="relative shrink-0 mt-0.5">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-amber-600 to-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                    <Sparkles className="h-6 w-6 text-zinc-950" />
+                  </div>
+                  <div
+                    className={cn(
+                      'absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-zinc-950',
+                      enableContinuousLearning ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-500'
+                    )}
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-base font-bold text-white tracking-tight">
+                      Modelo de Aprendizaje Continuo e Inteligencia Adaptativa
+                    </h2>
+                    <span
+                      className={cn(
+                        'text-[10px] font-mono px-2 py-0.5 rounded-full border font-bold uppercase',
+                        enableContinuousLearning
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                          : 'bg-zinc-800 text-zinc-400 border-zinc-700'
+                      )}
+                    >
+                      {enableContinuousLearning ? '● Auto-Nutrición Activa' : '○ Pausado'}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-zinc-400 leading-relaxed max-w-2xl">
+                    Oli asimila las consultas recibidas en el chat público, detecta el idioma, infiere el tema petrolero y extrae conceptos de mercado no catalogados para enriquecer su criterio de respuesta.
+                  </p>
+                </div>
+              </div>
+
+              {/* Interruptor de Auto-Aprendizaje */}
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleToggleLearning}
+                  className={cn(
+                    'inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm',
+                    enableContinuousLearning
+                      ? 'bg-amber-500 text-zinc-950 hover:bg-amber-400'
+                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 border border-white/10'
+                  )}
+                >
+                  <RefreshCw className={cn('w-3.5 h-3.5', enableContinuousLearning && 'animate-spin [animation-duration:6s]')} />
+                  <span>{enableContinuousLearning ? 'Pausar Auto-Aprendizaje' : 'Activar Auto-Aprendizaje'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Fila de Métricas */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5 mt-5 border-t border-white/10">
+              <div className="bg-zinc-950/60 rounded-xl p-3 border border-white/5">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Experiencias Asimiladas</p>
+                <p className="text-xl font-bold text-amber-400 mt-0.5">{learnedExperiencesList.length}</p>
+              </div>
+              <div className="bg-zinc-950/60 rounded-xl p-3 border border-white/5">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">FAQs Promovidas</p>
+                <p className="text-xl font-bold text-emerald-400 mt-0.5">{trainingFaqsList.length}</p>
+              </div>
+              <div className="bg-zinc-950/60 rounded-xl p-3 border border-white/5">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Idiomas Detectados</p>
+                <p className="text-sm font-bold text-white mt-1">Español · Inglés · Portugués</p>
+              </div>
+              <div className="bg-zinc-950/60 rounded-xl p-3 border border-white/5">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Inyección en Prompt</p>
+                <p className="text-sm font-bold text-amber-300 mt-1">En Vivo (Runtime)</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Formulario Manual de Nutrición */}
+          <div className="rounded-2xl border border-white/10 bg-zinc-900/60 backdrop-blur-md p-5 sm:p-6 shadow-xl space-y-4">
+            <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+              <Plus className="h-4 w-4 text-accent" />
+              <span>Nutrir a Oli con un Nuevo Concepto o Experiencia de Trading</span>
+            </h3>
+            <p className="text-xs text-zinc-400">
+              Registra un caso real o aprendizaje operativo para que Oli lo integre inmediatamente a su memoria contextual.
+            </p>
+
+            <form onSubmit={handleAddManualExperience} className="space-y-3 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="text-[11px] font-mono text-zinc-400 block mb-1">Tema / Producto</label>
+                  <select
+                    value={manualTopic}
+                    onChange={(e) => setManualTopic(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 font-medium"
+                  >
+                    <option value="Diésel EN590 / ULSD">Diésel EN590 / ULSD</option>
+                    <option value="Jet Fuel A-1 (Aviation)">Jet Fuel A-1 (Aviation)</option>
+                    <option value="Crudos (Merey / Brent)">Crudos (Merey / Brent)</option>
+                    <option value="Pet Coke (Coque)">Pet Coke (Coque)</option>
+                    <option value="Procedimiento Comercial / ICPO">Procedimiento Comercial / ICPO</option>
+                    <option value="Logística Marítima / STS">Logística Marítima / STS</option>
+                    <option value="Escalamiento Comercial / Precios">Escalamiento Comercial / Precios</option>
+                    <option value="Identidad & Sedes Corporativas">Identidad & Sedes Corporativas</option>
+                    <option value="Trading General">Trading General</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-mono text-zinc-400 block mb-1">Idioma de la Experiencia</label>
+                  <select
+                    value={manualLang}
+                    onChange={(e) => setManualLang(e.target.value as 'es' | 'en' | 'pt')}
+                    className="w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500 font-medium"
+                  >
+                    <option value="es">Español (ES)</option>
+                    <option value="en">Inglés (EN)</option>
+                    <option value="pt">Portugués (PT)</option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-1 flex items-end">
+                  <button
+                    type="submit"
+                    disabled={isAddingManual || !manualQuery.trim() || !manualInsight.trim()}
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition disabled:opacity-50"
+                  >
+                    {isAddingManual ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                    <span>Guardar en Memoria</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-mono text-zinc-400 block mb-1">Consulta o Situación planteada por el Cliente</label>
+                <input
+                  type="text"
+                  value={manualQuery}
+                  onChange={(e) => setManualQuery(e.target.value)}
+                  placeholder="ej. ¿Es posible programar despachos de Jet A-1 con certificado ASTM D1655 vía tanqueros Aframax?"
+                  className="w-full rounded-xl border border-white/10 bg-zinc-950 px-3.5 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-mono text-zinc-400 block mb-1">Concepto o Aprendizaje Clave (Insight que Oli debe recordar)</label>
+                <textarea
+                  rows={2}
+                  value={manualInsight}
+                  onChange={(e) => setManualInsight(e.target.value)}
+                  placeholder="ej. Compradores internacionales de combustible de aviación verifican tanto la norma ASTM D1655 como el calado máximo admisible en puerto de descarga."
+                  className="w-full rounded-xl border border-white/10 bg-zinc-950 p-3 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500 leading-relaxed"
+                />
+              </div>
+            </form>
+          </div>
+
+          {/* Bandeja de Experiencias Aprendidas */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+                <Brain className="h-4 w-4 text-accent" />
+                <span>Bandeja de Experiencias y Conceptos Activos ({learnedExperiencesList.length})</span>
+              </h3>
+              <span className="text-xs text-zinc-400">Nutrición activa en tiempo real</span>
+            </div>
+
+            {learnedExperiencesList.length === 0 ? (
+              <div className="p-8 text-center border border-white/10 rounded-2xl bg-zinc-900/30 text-zinc-400 text-xs">
+                Aún no hay experiencias registradas. Cada interacción en el chat público alimentará automáticamente esta memoria.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {learnedExperiencesList.map((exp) => (
+                  <div
+                    key={exp.id}
+                    className="rounded-2xl border border-white/10 bg-zinc-900/60 p-4 space-y-3 shadow-md hover:border-amber-500/40 transition flex flex-col justify-between"
+                  >
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-mono uppercase bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold">
+                          {exp.topic}
+                        </span>
+                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 font-mono">
+                          <span className="uppercase px-1.5 py-0.2 rounded bg-white/5 border border-white/10">
+                            {exp.language}
+                          </span>
+                          <span>{new Date(exp.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+
+                      {/* Consulta */}
+                      <div>
+                        <p className="text-[11px] text-zinc-400 font-mono">Consulta analizada:</p>
+                        <p className="text-xs font-semibold text-white mt-0.5 leading-snug">
+                          &ldquo;{exp.userQuery}&rdquo;
+                        </p>
+                      </div>
+
+                      {/* Caja de Insight Aprendido */}
+                      <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-200/90 leading-relaxed">
+                        <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          <span>Aprendizaje Asimilado por Oli</span>
+                        </p>
+                        <p className="text-xs text-zinc-300">{exp.insight}</p>
+                      </div>
+                    </div>
+
+                    {/* Acciones de Promoción */}
+                    <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={() => handlePromoteToFaq(exp)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-medium transition"
+                          title="Convertir esta consulta en una Pregunta Frecuente Oficial"
+                        >
+                          <Check className="w-3 h-3" />
+                          <span>A FAQ Oficial</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handlePromoteToKb(exp)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-medium transition"
+                          title="Anexar este concepto a la Base de Conocimiento institucional"
+                        >
+                          <BookOpen className="w-3 h-3" />
+                          <span>A Base Conocimiento</span>
+                        </button>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteExperience(exp.id)}
+                        className="text-zinc-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-white/5 transition"
+                        title="Descartar experiencia"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* VISTA 3: PROVEEDORES DE IA & CREDENCIALES (MODO TRADICIONAL)               */}
       {/* ========================================================================= */}
       {activeMainTab === 'credentials' && (
         <div className="space-y-8">

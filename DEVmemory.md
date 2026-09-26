@@ -595,3 +595,30 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - `npm run type-check`: 0 errores de TypeScript.
   - `npm run build`: 53/53 páginas compiladas y optimizadas con éxito.
   - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada (0 secretos, 0 vulnerabilidades npm).
+
+### Fase 20: Editor Tiptap con Tipografías/Tamaños, Resumen Compacto, Agente Oli (Emoji 3D Expresivo) y Modelo de Aprendizaje Continuo
+- **Placeholder y Campo de Resumen Compacto (3 filas expandibles)**:
+  - Ajuste en `src/components/ui/textarea.tsx` y `src/components/admin/post-editor-form.tsx` para reducir la altura inicial del extracto/resumen a 3 filas (`min-h-[64px] h-[64px]`), manteniendo la capacidad de expansión vertical (`resize-y`) y optimizando el espacio visual en la redacción de noticias.
+- **Selectores de Tipografía y Tamaño en la Barra de Herramientas de Tiptap (`tiptap-editor.tsx`)**:
+  - Implementación de extensiones de estilo de texto `FontFamily` y `FontSize` para Tiptap utilizando la marca estándar `textStyle`.
+  - Integración de dos selectores desplegables compactos y estilizados en la barra de herramientas fija (ubicados exactamente tras Deshacer/Rehacer antes de H1):
+    - *Tipografías*: Inter (Sans), Merriweather (Serif), Playfair Display (Editorial), JetBrains (Mono), Poppins, Montserrat y Georgia.
+    - *Tamaños de Fuente*: 12px (Nota), 14px (Pie), 16px (Normal), 18px (Medio), 20px (Lead), 24px (Subtítulo), 28px (Título) y 32px (Grande).
+- **Personalización del Agente "Oli" con Expresión Facial Amigable y Ojos 3D (`oli-face.tsx`, `public-ai-orbe.tsx`)**:
+  - Sustitución definitiva del icono estático de destello (`Sparkles`) por el personaje esférico 3D de **Oli**.
+  - Ojos y mirada dinámica: ciclo orgánico que mira al centro, izquierda, derecha, arriba y abajo con parpadeo periódico natural (*blink*), simulando conciencia y espera activa.
+  - Expresión facial contextual reactiva:
+    - En hover o apertura del chat: expresión alegre radiante con ojos en arco feliz (`^ ^`) y sonrisa abierta con rubor sutil.
+    - Durante la generación de respuesta (`isTyping`): expresión concentrada pensativa con ojos hacia arriba.
+  - Presencia integral de Oli en la cabecera del chat, mensajes asistenciales y orbe flotante con badge `Agente Oficial` y bienvenida institucional personalizada.
+- **Sistema de Aprendizaje Continuo y Memoria de Experiencias de Trading (`ai-learning.ts`, `/api/ai/learning`)**:
+  - Detección automática e indexación en segundo plano de cada consulta: idioma (ES, EN, PT, FR), tema petrolero (EN590, Jet A-1, Merey 16, Pet Coke, ICPO, STS, Precios) y extracción sintética del aprendizaje (*insight*).
+  - Inyección en tiempo de ejecución: `executeAiChat` enriquece el System Prompt con las experiencias clave aprobadas para adaptar el criterio de Oli proactivamente ante nuevas dudas del mercado.
+  - Nueva pestaña en Backoffice (`/admin/settings/ai`): **"2. ⚡ Aprendizaje Continuo (Oli)"**:
+    - Métricas en tiempo real e interruptor de activación/pausa de auto-nutrición.
+    - Bandeja de experiencias aprendidas con botones de 1 clic: **"A FAQ Oficial"** (promueve a pregunta frecuente permanente) y **"A Base Conocimiento"** (anexa el concepto a las directrices de Invest Oil).
+    - Formulario interactivo para nutrir manualmente a Oli con casos operativos o directrices comerciales.
+- **Verificación Rigurosa con Evidencia Real**:
+  - `npm run type-check`: 0 errores de TypeScript.
+  - `npm run build`: 54/54 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
+  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { executeAiChat, ChatMessage } from '@/lib/ai/ai-client';
+import { processInteractionForLearning } from '@/lib/ai/ai-learning';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +29,11 @@ export async function POST(req: Request) {
     messages.push({ role: 'user', content: message });
 
     const reply = await executeAiChat(messages);
+
+    // Alimentar en segundo plano el modelo de aprendizaje continuo de Oli
+    processInteractionForLearning(message, reply).catch((err) =>
+      console.error('[AI Chat] Error en pipeline de aprendizaje continuo:', err)
+    );
 
     return NextResponse.json({ success: true, reply });
   } catch (err: unknown) {

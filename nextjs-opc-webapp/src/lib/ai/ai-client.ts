@@ -161,6 +161,26 @@ export async function executeAiChat(messages: ChatMessage[]): Promise<string> {
     }
   }
 
+  // Inyectar experiencias y conceptos aprendidos activamente (aprendizaje continuo de Oli)
+  if (
+    settings.enableContinuousLearning !== false &&
+    Array.isArray(settings.learnedExperiences) &&
+    settings.learnedExperiences.length > 0
+  ) {
+    const activeExperiences = settings.learnedExperiences
+      .filter((e) => e.status === 'approved' && e.insight)
+      .slice(0, 12);
+
+    if (activeExperiences.length > 0) {
+      const expText = activeExperiences
+        .map((e, i) => `[Experiencia #${i + 1} - ${e.topic}]: ${e.insight}`)
+        .join('\n');
+      systemPromptChunks.push(
+        `--- MEMORIA DE EXPERIENCIAS Y CONCEPTOS APRENDIDOS DE OLI (NUTRICIÓN PROACTIVA) ---\n${expText}`
+      );
+    }
+  }
+
   const fullSystemPrompt = systemPromptChunks.filter(Boolean).join('\n\n');
 
   // Ordenar los modelos para la cascada:
