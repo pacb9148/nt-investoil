@@ -46,7 +46,26 @@ export interface LearnedExperienceItem {
   language: string;
   insight: string;
   status: 'pending' | 'approved' | 'archived';
-  source: 'user_interaction' | 'manual_training' | 'operator_note';
+  source: 'user_interaction' | 'manual_training' | 'operator_note' | 'consolidated';
+  /** Sesión del chat público; con nombre, empresa o email la experiencia es historial particular. */
+  sessionId?: string;
+  userName?: string;
+  userCompany?: string;
+  userEmail?: string;
+  /** Veces que se repitió esta consulta (incluye las fusionadas en una consolidada). */
+  occurrences?: number;
+  /** Otras formulaciones fusionadas en una experiencia consolidada. */
+  variants?: string[];
+  lastSeenAt?: string;
+}
+
+/** Resultado de la última auto-revisión de la memoria de Oli. */
+export interface LearningReviewState {
+  lastRunAt: string;
+  lastMergedCount: number;
+  lastConceptsCount: number;
+  lastKbAdded: number;
+  totalRuns: number;
 }
 
 export interface AiSettingsConfig {
@@ -57,6 +76,7 @@ export interface AiSettingsConfig {
   trainingFaqs?: TrainingFaqItem[];
   enableContinuousLearning?: boolean;
   learnedExperiences?: LearnedExperienceItem[];
+  learningReview?: LearningReviewState;
   models: ConfiguredModelItem[];
 }
 

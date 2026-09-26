@@ -5,6 +5,8 @@ import {
   addExperienceToKnowledgeBase,
   addManualExperience,
   deleteLearnedExperience,
+  deleteLearnedExperiences,
+  runExperienceReview,
 } from '@/lib/ai/ai-learning';
 
 export const dynamic = 'force-dynamic';
@@ -16,6 +18,7 @@ export async function GET() {
       success: true,
       enableContinuousLearning: settings.enableContinuousLearning !== false,
       learnedExperiences: settings.learnedExperiences || [],
+      learningReview: settings.learningReview || null,
       trainingFaqsCount: (settings.trainingFaqs || []).length,
     });
   } catch (err: any) {
@@ -53,6 +56,21 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: false, error: 'experienceId requerido' }, { status: 400 });
       }
       const res = await addExperienceToKnowledgeBase(experienceId);
+      return NextResponse.json(res);
+    }
+
+    if (action === 'review') {
+      // Con dryRun solo se calcula qué se fusionaría; sin él se aplica.
+      const res = await runExperienceReview({ dryRun: body.dryRun !== false });
+      return NextResponse.json({ success: true, ...res });
+    }
+
+    if (action === 'delete_many') {
+      const ids: unknown = body.ids;
+      if (!Array.isArray(ids) || ids.length === 0 || ids.length > 500 || !ids.every((i) => typeof i === 'string')) {
+        return NextResponse.json({ success: false, error: 'ids inválidos' }, { status: 400 });
+      }
+      const res = await deleteLearnedExperiences(ids as string[]);
       return NextResponse.json(res);
     }
 

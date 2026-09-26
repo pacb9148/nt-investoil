@@ -39,7 +39,12 @@ export async function POST(req: Request) {
     const reply = await executeAiChat(messages, userProfile);
 
     // 3. Alimentar en segundo plano el modelo de aprendizaje continuo de Oli
-    processInteractionForLearning(message, reply).catch((err) =>
+    processInteractionForLearning(message, reply, {
+      sessionId: sid,
+      name: userProfile.name,
+      company: userProfile.company,
+      email: userProfile.email,
+    }).catch((err) =>
       console.error('[AI Chat] Error en pipeline de aprendizaje continuo:', err)
     );
 

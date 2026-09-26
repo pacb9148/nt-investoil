@@ -29,3 +29,7 @@ Haz que el agente de atención al cliente, proceda según la siguiente instrucci
 <status>failed</status>
 <summary>Background command "Crear un clúster PostgreSQL temporal y aislado para pruebas" failed with exit code 2</summary>
 </task-notification>
+
+## 2026-09-26 21:46:24
+
+El aprendizaje del agente, se guarda en tarjetas que después de un tiempo va a ser inviable darles mantenimiento, rediseña la interfase para que sea una lista en una tabla y que se pueda filtrar por tema, tipo, fecha, usuario, etc y para los botones funcionales usa iconos con tooltips. También implementa una rutina de auto revisión del agente que identifique las que sean redundantes y haga un fundido de lo importante para su base de conocimiento, y mantenga las de usuarios identificados como historial particular

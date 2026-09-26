@@ -10,6 +10,7 @@ import {
   ApiStyle,
   TrainingFaqItem,
   LearnedExperienceItem,
+  LearningReviewState,
 } from '@/lib/ai/ai-types';
 import {
   Bot,
@@ -42,6 +43,7 @@ import {
   Building2,
   ShieldCheck,
 } from 'lucide-react';
+import { AiLearningTable } from '@/components/admin/ai-learning-table';
 import { cn } from '@/lib/utils';
 
 export default function AiSettingsPage() {
@@ -51,6 +53,8 @@ export default function AiSettingsPage() {
 
   // Estado del Modelo de Aprendizaje Continuo (Oli)
   const [enableContinuousLearning, setEnableContinuousLearning] = useState(true);
+  const [learningReview, setLearningReview] = useState<LearningReviewState | null>(null);
+  const [isReviewing, setIsReviewing] = useState(false);
   const [learnedExperiencesList, setLearnedExperiencesList] = useState<LearnedExperienceItem[]>(
     DEFAULT_AI_SETTINGS.learnedExperiences || []
   );
@@ -111,6 +115,7 @@ export default function AiSettingsPage() {
           setTrainingFaqsList(data.settings.trainingFaqs || DEFAULT_AI_SETTINGS.trainingFaqs || []);
           setEnableContinuousLearning(data.settings.enableContinuousLearning !== false);
           setLearnedExperiencesList(data.settings.learnedExperiences || DEFAULT_AI_SETTINGS.learnedExperiences || []);
+          setLearningReview(data.settings.learningReview || null);
         }
       })
       .catch((err) => console.error('Error al cargar config de IA:', err))
@@ -287,6 +292,71 @@ export default function AiSettingsPage() {
       setTimeout(() => setNotification(null), 3000);
     } catch {
       setNotification({ type: 'error', message: 'Error al eliminar experiencia' });
+    }
+  };
+
+  const handleDeleteManyExperiences = async (ids: string[]) => {
+    try {
+      const res = await fetch('/api/ai/learning', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete_many', ids }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'No se pudo descartar');
+      const gone = new Set(ids);
+      setLearnedExperiencesList((prev) => prev.filter((e) => !gone.has(e.id)));
+      setNotification({ type: 'success', message: `${data.deleted ?? ids.length} experiencia(s) descartadas.` });
+      setTimeout(() => setNotification(null), 3000);
+    } catch (err) {
+      setNotification({ type: 'error', message: err instanceof Error ? err.message : 'Error al descartar' });
+    }
+  };
+
+  // Auto-revisión: primero se calcula (sin cambiar nada), se confirma y solo entonces se aplica.
+  const handleReviewMemory = async () => {
+    setIsReviewing(true);
+    try {
+      const post = (dryRun: boolean) =>
+        fetch('/api/ai/learning', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'review', dryRun }),
+        }).then((r) => r.json());
+
+      const preview = await post(true);
+      if (!preview.success) throw new Error(preview.error || 'No se pudo revisar la memoria');
+      if (preview.conceptsCount === 0) {
+        setNotification({ type: 'success', message: 'Memoria revisada: no hay consultas redundantes que fusionar.' });
+        setTimeout(() => setNotification(null), 4000);
+        return;
+      }
+      const ok = window.confirm(
+        `Se fusionarán ${preview.mergedCount} consultas redundantes en ${preview.conceptsCount} conceptos y se añadirán ${preview.kbAdded} líneas a la base de conocimiento.
+
+Se conservan tal cual: historial de usuarios identificados, notas manuales y consultas únicas (${preview.untouched}).
+
+¿Aplicar?`
+      );
+      if (!ok) return;
+
+      const applied = await post(false);
+      if (!applied.success) throw new Error(applied.error || 'No se pudo aplicar la revisión');
+      const fresh = await fetch('/api/ai/learning').then((r) => r.json());
+      if (fresh.success) {
+        setLearnedExperiencesList(fresh.learnedExperiences || []);
+        setLearningReview(fresh.learningReview || null);
+      }
+      if (typeof applied.knowledgeBase === 'string') setKnowledgeBaseInput(applied.knowledgeBase);
+      setNotification({
+        type: 'success',
+        message: `✓ ${applied.mergedCount} consultas fusionadas en ${applied.conceptsCount} conceptos; ${applied.kbAdded} añadidos a la base de conocimiento.`,
+      });
+      setTimeout(() => setNotification(null), 5000);
+    } catch (err) {
+      setNotification({ type: 'error', message: err instanceof Error ? err.message : 'Error en la auto-revisión' });
+    } finally {
+      setIsReviewing(false);
     }
   };
 
@@ -1000,96 +1070,17 @@ export default function AiSettingsPage() {
             </form>
           </div>
 
-          {/* Bandeja de Experiencias Aprendidas */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
-                <Brain className="h-4 w-4 text-accent" />
-                <span>Bandeja de Experiencias y Conceptos Activos ({learnedExperiencesList.length})</span>
-              </h3>
-              <span className="text-xs text-zinc-400">Nutrición activa en tiempo real</span>
-            </div>
-
-            {learnedExperiencesList.length === 0 ? (
-              <div className="p-8 text-center border border-white/10 rounded-2xl bg-zinc-900/30 text-zinc-400 text-xs">
-                Aún no hay experiencias registradas. Cada interacción en el chat público alimentará automáticamente esta memoria.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {learnedExperiencesList.map((exp) => (
-                  <div
-                    key={exp.id}
-                    className="rounded-2xl border border-white/10 bg-zinc-900/60 p-4 space-y-3 shadow-md hover:border-amber-500/40 transition flex flex-col justify-between"
-                  >
-                    <div className="space-y-2.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-mono uppercase bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold">
-                          {exp.topic}
-                        </span>
-                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 font-mono">
-                          <span className="uppercase px-1.5 py-0.2 rounded bg-white/5 border border-white/10">
-                            {exp.language}
-                          </span>
-                          <span>{new Date(exp.createdAt).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-
-                      {/* Consulta */}
-                      <div>
-                        <p className="text-[11px] text-zinc-400 font-mono">Consulta analizada:</p>
-                        <p className="text-xs font-semibold text-white mt-0.5 leading-snug">
-                          &ldquo;{exp.userQuery}&rdquo;
-                        </p>
-                      </div>
-
-                      {/* Caja de Insight Aprendido */}
-                      <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-200/90 leading-relaxed">
-                        <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" />
-                          <span>Aprendizaje Asimilado por Oli</span>
-                        </p>
-                        <p className="text-xs text-zinc-300">{exp.insight}</p>
-                      </div>
-                    </div>
-
-                    {/* Acciones de Promoción */}
-                    <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <button
-                          type="button"
-                          onClick={() => handlePromoteToFaq(exp)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-medium transition"
-                          title="Convertir esta consulta en una Pregunta Frecuente Oficial"
-                        >
-                          <Check className="w-3 h-3" />
-                          <span>A FAQ Oficial</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handlePromoteToKb(exp)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-medium transition"
-                          title="Anexar este concepto a la Base de Conocimiento institucional"
-                        >
-                          <BookOpen className="w-3 h-3" />
-                          <span>A Base Conocimiento</span>
-                        </button>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteExperience(exp.id)}
-                        className="text-zinc-500 hover:text-red-400 p-1.5 rounded-lg hover:bg-white/5 transition"
-                        title="Descartar experiencia"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Memoria de Oli: tabla filtrable + auto-revisión */}
+          <AiLearningTable
+            experiences={learnedExperiencesList}
+            review={learningReview}
+            reviewing={isReviewing}
+            onPromoteFaq={handlePromoteToFaq}
+            onPromoteKb={handlePromoteToKb}
+            onDelete={handleDeleteExperience}
+            onDeleteMany={handleDeleteManyExperiences}
+            onReview={handleReviewMemory}
+          />
         </div>
       )}
 
