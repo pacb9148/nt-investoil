@@ -20,8 +20,10 @@ import {
   ExternalLink,
   Globe,
   Sliders,
+  FolderOpen,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { MediaPickerModal } from '@/components/admin/media-picker-modal';
 import {
   DEFAULT_SITE_SETTINGS,
   getClientSiteSettings,
@@ -42,6 +44,7 @@ export default function SettingsContentPage() {
 
   // Logo file upload & delete state
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [openFooterLogoPicker, setOpenFooterLogoPicker] = useState(false);
   const [deletingLogo, setDeletingLogo] = useState(false);
   const [logoSuccess, setLogoSuccess] = useState<string | null>(null);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
@@ -297,6 +300,17 @@ export default function SettingsContentPage() {
               <div className="flex flex-wrap items-center justify-center gap-2 w-full pt-1">
                 <button
                   type="button"
+                  onClick={() => setOpenFooterLogoPicker(true)}
+                  disabled={uploadingLogo || deletingLogo}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-border hover:border-accent text-text-muted hover:text-accent text-xs font-semibold transition-all shadow-sm"
+                  title="Seleccionar un logotipo existente de la biblioteca de medios"
+                >
+                  <FolderOpen className="w-3.5 h-3.5 text-accent" />
+                  <span>Elegir de Biblioteca...</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => logoFileInputRef.current?.click()}
                   disabled={uploadingLogo || deletingLogo}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/20 border border-accent/40 text-accent hover:bg-accent/30 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
@@ -326,6 +340,20 @@ export default function SettingsContentPage() {
                   </button>
                 )}
               </div>
+
+              {/* Modal Selector de Biblioteca para el Footer Logo */}
+              <MediaPickerModal
+                open={openFooterLogoPicker}
+                onOpenChange={setOpenFooterLogoPicker}
+                onSelect={(item) => {
+                  setSettings((prev) => ({ ...prev, footerLogoUrl: item.url }));
+                  setLogoSuccess(`✓ Logotipo "${item.filename}" asignado al pie desde la biblioteca.`);
+                  setTimeout(() => setLogoSuccess(null), 4000);
+                }}
+                accept="image"
+                title="Biblioteca de Medios — Seleccionar Logotipo de Pie de Página"
+                initialSearch="logo"
+              />
 
               {/* Botón para eliminar archivo físico si es un upload */}
               {settings.footerLogoUrl && settings.footerLogoUrl.startsWith('/uploads/') && (

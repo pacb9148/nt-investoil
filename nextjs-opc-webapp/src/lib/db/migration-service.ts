@@ -154,47 +154,53 @@ export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
   // 3. MIEMBROS DE EQUIPO (team.json -> landing_team)
   // ---------------------------------------------------------------------------
   try {
-    const team = readJson<any[]>('team.json') || [];
-    let count = 0;
-    for (let i = 0; i < team.length; i++) {
-      const m = team[i];
-      const memberId = m.id || `tm-${i + 1}`;
-      await queryPg(
-        `INSERT INTO landing_team (id, number, name, role, role_en, location, image, photo_url, bio, bio_en, linkedin_url, sort_order, is_active, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
-         ON CONFLICT (id) DO UPDATE SET
-           number = EXCLUDED.number,
-           name = EXCLUDED.name,
-           role = EXCLUDED.role,
-           role_en = EXCLUDED.role_en,
-           location = EXCLUDED.location,
-           image = EXCLUDED.image,
-           photo_url = EXCLUDED.photo_url,
-           bio = EXCLUDED.bio,
-           bio_en = EXCLUDED.bio_en,
-           linkedin_url = EXCLUDED.linkedin_url,
-           sort_order = EXCLUDED.sort_order,
-           is_active = EXCLUDED.is_active,
-           updated_at = NOW()`,
-        [
-          memberId,
-          m.number || `#0${i + 1}`,
-          m.name,
-          m.role,
-          m.role_en || null,
-          m.location || null,
-          m.image || m.photo_url || null,
-          m.photo_url || m.image || null,
-          m.bio || null,
-          m.bio_en || null,
-          m.linkedin_url || null,
-          m.sort_order !== undefined ? m.sort_order : i,
-          m.is_active !== undefined ? m.is_active : true,
-        ]
-      );
-      count++;
+    const checkTeam = await queryPg('SELECT COUNT(*) as count FROM landing_team');
+    const existingTeamCount = checkTeam ? parseInt(checkTeam.rows[0]?.count || '0', 10) : 0;
+    if (existingTeamCount > 0) {
+      recordTable('landing_team', existingTeamCount, 'migrated');
+    } else {
+      const team = readJson<any[]>('team.json') || [];
+      let count = 0;
+      for (let i = 0; i < team.length; i++) {
+        const m = team[i];
+        const memberId = m.id || `tm-${i + 1}`;
+        await queryPg(
+          `INSERT INTO landing_team (id, number, name, role, role_en, location, image, photo_url, bio, bio_en, linkedin_url, sort_order, is_active, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
+           ON CONFLICT (id) DO UPDATE SET
+             number = EXCLUDED.number,
+             name = EXCLUDED.name,
+             role = EXCLUDED.role,
+             role_en = EXCLUDED.role_en,
+             location = EXCLUDED.location,
+             image = EXCLUDED.image,
+             photo_url = EXCLUDED.photo_url,
+             bio = EXCLUDED.bio,
+             bio_en = EXCLUDED.bio_en,
+             linkedin_url = EXCLUDED.linkedin_url,
+             sort_order = EXCLUDED.sort_order,
+             is_active = EXCLUDED.is_active,
+             updated_at = NOW()`,
+          [
+            memberId,
+            m.number || `#0${i + 1}`,
+            m.name,
+            m.role,
+            m.role_en || null,
+            m.location || null,
+            m.image || m.photo_url || null,
+            m.photo_url || m.image || null,
+            m.bio || null,
+            m.bio_en || null,
+            m.linkedin_url || null,
+            m.sort_order !== undefined ? m.sort_order : i,
+            m.is_active !== undefined ? m.is_active : true,
+          ]
+        );
+        count++;
+      }
+      recordTable('landing_team', count, 'migrated');
     }
-    recordTable('landing_team', count, 'migrated');
   } catch (err: any) {
     recordTable('landing_team', 0, 'error', err.message);
   }
@@ -397,34 +403,40 @@ export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
   // 8. CATÁLOGO MULTIMEDIA (media.json -> media)
   // ---------------------------------------------------------------------------
   try {
-    const media = readJson<any[]>('media.json') || [];
-    let count = 0;
-    for (const m of media) {
-      await queryPg(
-        `INSERT INTO media (id, filename, url, type, mime_type, size, alt_text, data_base64, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-         ON CONFLICT (id) DO UPDATE SET
-           filename = EXCLUDED.filename,
-           url = EXCLUDED.url,
-           type = EXCLUDED.type,
-           mime_type = EXCLUDED.mime_type,
-           size = EXCLUDED.size,
-           alt_text = EXCLUDED.alt_text,
-           data_base64 = COALESCE(EXCLUDED.data_base64, media.data_base64)`,
-        [
-          m.id,
-          m.filename,
-          m.url,
-          m.type || 'image',
-          m.mime_type || null,
-          m.size || 0,
-          m.alt_text || null,
-          m.data_base64 || null,
-        ]
-      );
-      count++;
+    const checkMedia = await queryPg('SELECT COUNT(*) as count FROM media');
+    const existingMediaCount = checkMedia ? parseInt(checkMedia.rows[0]?.count || '0', 10) : 0;
+    if (existingMediaCount > 0) {
+      recordTable('media', existingMediaCount, 'migrated');
+    } else {
+      const media = readJson<any[]>('media.json') || [];
+      let count = 0;
+      for (const m of media) {
+        await queryPg(
+          `INSERT INTO media (id, filename, url, type, mime_type, size, alt_text, data_base64, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+           ON CONFLICT (id) DO UPDATE SET
+             filename = EXCLUDED.filename,
+             url = EXCLUDED.url,
+             type = EXCLUDED.type,
+             mime_type = EXCLUDED.mime_type,
+             size = EXCLUDED.size,
+             alt_text = EXCLUDED.alt_text,
+             data_base64 = COALESCE(EXCLUDED.data_base64, media.data_base64)`,
+          [
+            m.id,
+            m.filename,
+            m.url,
+            m.type || 'image',
+            m.mime_type || null,
+            m.size || 0,
+            m.alt_text || null,
+            m.data_base64 || null,
+          ]
+        );
+        count++;
+      }
+      recordTable('media', count, 'migrated');
     }
-    recordTable('media', count, 'migrated');
   } catch (err: any) {
     recordTable('media', 0, 'error', err.message);
   }

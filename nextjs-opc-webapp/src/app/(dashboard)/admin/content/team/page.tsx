@@ -21,34 +21,31 @@ const INPUT =
 const LABEL = 'block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1';
 
 export default function TeamEditorPage() {
-  const [team, setTeam] = useState<TeamMember[]>(TEAM_MEMBERS);
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    // 1. Cargar desde localStorage
-    try {
-      const local = localStorage.getItem('investoil_team_members');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setTeam(parsed);
-        }
-      }
-    } catch {}
-
-    // 2. Cargar desde API
+    // Cargar directamente desde la API (Base de datos real)
     fetch('/api/content/team')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setTeam(data);
-          try {
-            localStorage.setItem('investoil_team_members', JSON.stringify(data));
-          } catch {}
+        } else {
+          setTeam(TEAM_MEMBERS);
         }
+        try {
+          localStorage.removeItem('investoil_team_members');
+        } catch {}
       })
-      .catch(() => {});
+      .catch(() => {
+        setTeam(TEAM_MEMBERS);
+      })
+      .finally(() => {
+        setFetching(false);
+      });
   }, []);
 
   const updateMember = (id: string, field: keyof TeamMember, val: string) => {
@@ -91,24 +88,18 @@ export default function TeamEditorPage() {
 
       if (res.ok) {
         const data = await res.json();
-        if (data.members) {
-          setTeam(data.members);
-        }
+        const updated = Array.isArray(data.members) ? data.members : team;
+        setTeam(updated);
+        try {
+          localStorage.removeItem('investoil_team_members');
+          window.dispatchEvent(new CustomEvent('investoil_team_updated', { detail: updated }));
+        } catch {}
       }
-
-      try {
-        localStorage.setItem('investoil_team_members', JSON.stringify(team));
-        window.dispatchEvent(new CustomEvent('investoil_team_updated', { detail: team }));
-      } catch {}
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3500);
     } catch (err) {
       console.error(err);
-      try {
-        localStorage.setItem('investoil_team_members', JSON.stringify(team));
-        window.dispatchEvent(new CustomEvent('investoil_team_updated', { detail: team }));
-      } catch {}
       setSaved(true);
       setTimeout(() => setSaved(false), 3500);
     } finally {

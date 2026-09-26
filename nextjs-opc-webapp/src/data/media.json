@@ -1,55 +1,5 @@
 [
   {
-    "id": "mf-1790290693430-amcyq",
-    "filename": "test-ok.jpg",
-    "url": "/uploads/1790290693428-test-ok.jpg",
-    "type": "image",
-    "mime_type": "image/jpeg",
-    "size": 512000,
-    "alt_text": "test-ok",
-    "created_at": "2026-09-24T22:58:13.453Z"
-  },
-  {
-    "id": "m-1790285470749",
-    "filename": "images__1_.jpg",
-    "url": "/uploads/1790285470748-images__1_.jpg",
-    "type": "image",
-    "mime_type": "image/jpeg",
-    "size": 27925,
-    "alt_text": "images__1_",
-    "created_at": "2026-09-24T21:31:10.749Z"
-  },
-  {
-    "id": "m-1790285453101",
-    "filename": "1790279740.png",
-    "url": "/uploads/1790285453093-1790279740.png",
-    "type": "image",
-    "mime_type": "image/png",
-    "size": 2163961,
-    "alt_text": "1790279740",
-    "created_at": "2026-09-24T21:30:53.101Z"
-  },
-  {
-    "id": "m-1790285420613",
-    "filename": "11158993.png",
-    "url": "/uploads/1790285420613-11158993.png",
-    "type": "image",
-    "mime_type": "image/png",
-    "size": 99839,
-    "alt_text": "11158993",
-    "created_at": "2026-09-24T21:30:20.613Z"
-  },
-  {
-    "id": "m-1790285401021",
-    "filename": "diesel-engine-efficiency.webp",
-    "url": "/uploads/1790285401021-diesel-engine-efficiency.webp",
-    "type": "image",
-    "mime_type": "image/webp",
-    "size": 88452,
-    "alt_text": "diesel-engine-efficiency",
-    "created_at": "2026-09-24T21:30:01.021Z"
-  },
-  {
     "id": "m-1790285378037",
     "filename": "logo-investoil-transparente.png",
     "url": "/uploads/1790285378036-C5OJNJFIZZD.png",
@@ -58,116 +8,6 @@
     "size": 26689,
     "alt_text": "Logotipo Oficial Invest Oil LLC (Transparente)",
     "created_at": "2026-09-24T21:29:38.037Z"
-  },
-  {
-    "id": "m-1790285350807",
-    "filename": "images.jpg",
-    "url": "/uploads/1790285350806-images.jpg",
-    "type": "image",
-    "mime_type": "image/jpeg",
-    "size": 39766,
-    "alt_text": "images",
-    "created_at": "2026-09-24T21:29:10.807Z"
-  },
-  {
-    "id": "m-1790284144044",
-    "filename": "2026-09-24_230839.png",
-    "url": "/uploads/1790284144043-2026-09-24_230839.png",
-    "type": "image",
-    "mime_type": "image/png",
-    "size": 342959,
-    "alt_text": "2026-09-24_230839",
-    "created_at": "2026-09-24T21:09:04.044Z"
-  },
-  {
-    "id": "m-1790284086934",
-    "filename": "2026-09-23_215301.png",
-    "url": "/uploads/1790284086933-2026-09-23_215301.png",
-    "type": "image",
-    "mime_type": "image/png",
-    "size": 503681,
-    "alt_text": "2026-09-23_215301",
-    "created_at": "2026-09-24T21:08:06.934Z"
-  },
-  {
-    "id": "m-1790284024559",
-    "filename": "descarga__37_.jpg",
-    "url": "/uploads/1790284024558-descarga__37_.jpg",
-    "type": "image",
-    "mime_type": "image/jpeg",
-    "size": 217362,
-    "alt_text": "descarga__37_",
-    "created_at": "2026-09-24T21:07:04.559Z"
-  },
-  {
-    "id": "m-1790283986850",
-    "filename": "descarga__8_.jpg",
-    "url": "/uploads/1790283986850-descarga__8_.jpg",
-    "type": "image",
-    "mime_type": "image/jpeg",
-    "size": 200773,
-    "alt_text": "descarga__8_",
-    "created_at": "2026-09-24T21:06:26.85Z"
-  },
-  {
-    "id": "m-1790283958078",
-    "filename": "descarga__10_.jpg",
-    "url": "/uploads/1790283958077-descarga__10_.jpg",
-    "type": "image",
-    "mime_type": "image/jpeg",
-    "size": 207270,
-    "alt_text": "descarga__10_",
-    "created_at": "2026-09-24T21:05:58.078Z"
-  },
-  {
-    "id": "m-1790283395125",
-    "filename": "15070876_3840_2160_30fps.mp4",
-    "url": "/uploads/1790283395040-15070876_3840_2160_30fps.mp4",
-    "type": "video",
-    "mime_type": "video/mp4",
-    "size": 205475467,
-    "alt_text": "15070876_3840_2160_30fps",
-    "created_at": "2026-09-24T20:56:35.125Z"
-  },
-  {
-    "id": "m-1790283046166",
-    "filename": "oleoducto.jpg",
-    "url": "/uploads/1790283046164-oleoducto.jpg",
-    "type": "image",
-    "mime_type": "image/jpeg",
-    "size": 30185,
-    "alt_text": "oleoducto",
-    "created_at": "2026-09-24T20:50:46.166Z"
-  },
-  {
-    "id": "m-1790283001868",
-    "filename": "petcoke.png.png",
-    "url": "/uploads/1790283001867-petcoke.png.png",
-    "type": "image",
-    "mime_type": "image/png",
-    "size": 183570,
-    "alt_text": "petcoke",
-    "created_at": "2026-09-24T20:50:01.868Z"
-  },
-  {
-    "id": "m-video-hero-1",
-    "filename": "hero-background.mp4",
-    "url": "/videos/hero-background.mp4",
-    "type": "video",
-    "mime_type": "video/mp4",
-    "size": 15535534,
-    "alt_text": "Fondo Oficial Refinería & Buque Petrolero",
-    "created_at": "2026-09-24T17:36:00Z"
-  },
-  {
-    "id": "m-logo-card-1",
-    "filename": "1790262200243-2026-09-24_at_17.02.08.jpeg",
-    "url": "/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg",
-    "type": "image",
-    "mime_type": "image/jpeg",
-    "size": 167738,
-    "alt_text": "Sello Oficial Gota de Petróleo Invest Oil LLC",
-    "created_at": "2026-09-24T17:02:08Z"
   },
   {
     "id": "m-1",
@@ -188,5 +28,55 @@
     "size": 210000,
     "alt_text": "Logotipo Principal Invest Oil LLC",
     "created_at": "2026-09-24T08:56:23.139Z"
+  },
+  {
+    "id": "m-logo-card-1",
+    "filename": "1790262200243-2026-09-24_at_17.02.08.jpeg",
+    "url": "/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg",
+    "type": "image",
+    "mime_type": "image/jpeg",
+    "size": 167738,
+    "alt_text": "Sello Oficial Gota de Petróleo Invest Oil LLC",
+    "created_at": "2026-09-24T17:02:08Z"
+  },
+  {
+    "id": "m-video-hero-1",
+    "filename": "hero-background.mp4",
+    "url": "/videos/hero-background.mp4",
+    "type": "video",
+    "mime_type": "video/mp4",
+    "size": 15535534,
+    "alt_text": "Fondo Oficial Refinería & Buque Petrolero",
+    "created_at": "2026-09-24T17:36:00Z"
+  },
+  {
+    "id": "m-1790285401021",
+    "filename": "diesel-engine-efficiency.webp",
+    "url": "/uploads/1790285401021-diesel-engine-efficiency.webp",
+    "type": "image",
+    "mime_type": "image/webp",
+    "size": 88452,
+    "alt_text": "diesel-engine-efficiency",
+    "created_at": "2026-09-24T21:30:01.021Z"
+  },
+  {
+    "id": "m-1790283046166",
+    "filename": "oleoducto.jpg",
+    "url": "/uploads/1790283046164-oleoducto.jpg",
+    "type": "image",
+    "mime_type": "image/jpeg",
+    "size": 30185,
+    "alt_text": "oleoducto",
+    "created_at": "2026-09-24T20:50:46.166Z"
+  },
+  {
+    "id": "m-1790283001868",
+    "filename": "petcoke.png.png",
+    "url": "/uploads/1790283001867-petcoke.png.png",
+    "type": "image",
+    "mime_type": "image/png",
+    "size": 183570,
+    "alt_text": "petcoke",
+    "created_at": "2026-09-24T20:50:01.868Z"
   }
 ]

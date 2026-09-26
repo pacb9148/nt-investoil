@@ -8,32 +8,30 @@ import { Badge } from '@/components/ui/badge';
 import { TEAM_MEMBERS } from '@/lib/constants/investoil';
 import type { TeamMember } from '@/types';
 
-export function TeamSection({ customBg }: { customBg?: string }) {
-  const [team, setTeam] = useState<TeamMember[]>(TEAM_MEMBERS);
+export function TeamSection({
+  customBg,
+  initialMembers,
+}: {
+  customBg?: string;
+  initialMembers?: TeamMember[];
+}) {
+  const [team, setTeam] = useState<TeamMember[]>(
+    initialMembers && initialMembers.length > 0 ? initialMembers : TEAM_MEMBERS
+  );
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    try {
-      const local = localStorage.getItem('investoil_team_members');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setTeam(parsed);
-        }
-      }
-    } catch {}
-
-    fetch('/api/content/team')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setTeam(data);
-          try {
-            localStorage.setItem('investoil_team_members', JSON.stringify(data));
-          } catch {}
-        }
-      })
-      .catch(() => {});
+    // Si no vinieron initialMembers del servidor, cargar desde API
+    if (!initialMembers || initialMembers.length === 0) {
+      fetch('/api/content/team')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) {
+            setTeam(data);
+          }
+        })
+        .catch(() => {});
+    }
 
     const handleUpdate = (e: Event) => {
       const customEvent = e as CustomEvent<TeamMember[]>;
@@ -44,7 +42,7 @@ export function TeamSection({ customBg }: { customBg?: string }) {
 
     window.addEventListener('investoil_team_updated', handleUpdate);
     return () => window.removeEventListener('investoil_team_updated', handleUpdate);
-  }, []);
+  }, [initialMembers]);
 
   return (
     <section

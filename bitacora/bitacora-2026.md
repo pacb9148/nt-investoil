@@ -574,3 +574,29 @@
   - `npm run type-check`: 0 errores de TypeScript.
   - `npm run build`: 54/54 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
   - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada sin secretos ni dependencias vulnerables.
+
+## [2026-09-26 11:20] - Fase 21: Selector de Biblioteca de Medios, Persistencia de Eliminaciones de Equipo y Erradicación de Resurrección de Medios tras Deploy
+- **Solicitud del Usuario**:
+  1. Al agregar y reordenar miembros del team, al actualizar vuelven a aparecer los que ya borré como si no leyera de la BD. Corregir para que la BD sea la única fuente de verdad.
+  2. En la opción de buscar imagen o video, permitir seleccionar directamente de la biblioteca existente para reutilizar recursos (logos, sellos, videos) sin tener que subirlos repetidamente.
+  3. Revisar y solucionar por qué vuelven a aparecer archivos borrados de la biblioteca después de cada deploy.
+  4. Finalizar con orden `+dap`.
+- **Acciones Realizadas**:
+  1. **Persistencia Definitiva de Miembros de Equipo**:
+     - `saveTeamMembers` en `src/lib/db/db-service.ts` ejecuta `DELETE FROM landing_team WHERE id NOT IN (...)` en PostgreSQL y Supabase, eliminando físicamente de la base de datos a los directivos quitados.
+     - Preservado el orden exacto mediante `sort_order = index`.
+     - Retirada la dependencia de `localStorage` en `TeamEditorPage` y `TeamSection`, eliminando la re-inyección de directivos borrados que permanecían cacheados en los navegadores.
+     - En `src/app/(public)/page.tsx`, `HomePage` obtiene los directivos con `getTeamMembers()` en SSR y los inyecta como `initialMembers` a `<TeamSection>`, garantizando sincronización inmediata sin parpadeos.
+  2. **Selector Reutilizable de Medios desde Biblioteca (`MediaPickerModal`)**:
+     - Creado `src/components/admin/media-picker-modal.tsx`: modal con búsqueda en vivo, filtros por categoría (*Todos, Logos & Identidad, Solo Imágenes, Solo Videos*), selección por clic o doble clic y subida ágil en el mismo diálogo.
+     - Integrado botón "Elegir de Biblioteca..." en `MediaUploadField` (Blog, Productos, Testimonios, Equipo) y en `HeaderForm`, `HeroForm` (video de fondo, imagen de respaldo y tarjeta de sello) y `SettingsFooterForm`.
+  3. **Erradicación de Resurrección de Archivos tras Deploy**:
+     - `getMediaList` en `db-service.ts` se desacopló de `media.json`, retornando estrictamente registros reales de PostgreSQL (`media` y `media_files`).
+     - `deleteMediaItem` ahora borra exhaustivamente por ID, filename y URL en ambas tablas de la base de datos y sincroniza en disco.
+     - En `src/lib/db/migration-service.ts`, las tablas `landing_team` y `media` comprueban previamente `COUNT > 0`; si ya existen registros en PostgreSQL, la migración omite la importación y no resucita datos borrados.
+     - Saneamiento del archivo espejo `src/data/media.json` en git.
+- **Verificación Técnica**:
+  - `npm run type-check`: 0 errores de TypeScript.
+  - `npm run build`: 53/53 rutas generadas con éxito (100% OK).
+  - `pwsh ./scripts/bateria-seguridad.ps1`: Aprobada al 100% (cero secretos ni vulnerabilidades).
+

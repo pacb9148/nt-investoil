@@ -5,6 +5,7 @@ import {
   getLandingAppearance,
   getSectionContent,
 } from '@/lib/services/content-service';
+import { getTeamMembers } from '@/lib/db/db-service';
 import { HeroSection } from '@/components/sections/hero-section';
 import { ServicesSection } from '@/components/sections/services-section';
 import { ProductsSection } from '@/components/sections/products-section';
@@ -20,7 +21,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0; // Contenido dinámico con soporte de revalidación inmediata
 
 export default async function HomePage() {
-  const [sections, heroConfig, appearance, marqueeConfig] = await Promise.all([
+  const [sections, heroConfig, appearance, marqueeConfig, teamMembers] = await Promise.all([
     getLandingSections(),
     getLandingHero(),
     getLandingAppearance(),
@@ -34,6 +35,7 @@ export default async function HomePage() {
       newsBadgeText: 'Actualidad & Operaciones',
       newsBadgeTextEn: 'Market News & Ops',
     }),
+    getTeamMembers(),
   ]);
 
   const secBg = appearance.section_bg_colors || {};
@@ -69,7 +71,7 @@ export default async function HomePage() {
       {isVisible('plataforma') && <ProjectsSection customBg={secBg.plataforma} />}
 
       {/* 7. Consejo Directivo */}
-      {isVisible('team') && <TeamSection customBg={secBg.team} />}
+      {isVisible('team') && <TeamSection customBg={secBg.team} initialMembers={teamMembers} />}
 
       {/* 8. Testimonios */}
       {isVisible('testimonials') && <TestimonialsSection customBg={secBg.testimonials} />}

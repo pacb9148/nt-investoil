@@ -613,16 +613,13 @@ export async function deleteCategory(id: string): Promise<boolean> {
 // 3. MEDIA (Imágenes, Videos y Archivos)
 // ==========================================
 export async function getMediaList(search?: string): Promise<MediaItem[]> {
-  let media = readJsonFile<MediaItem[]>('media.json', DEFAULT_MEDIA);
-
   if (hasPostgresDb()) {
     try {
       const res = await queryPg('SELECT * FROM media ORDER BY created_at DESC');
-      if (res && res.rows.length > 0) {
-        const map = new Map<string, MediaItem>();
-        for (const m of media) map.set(m.url, m);
-        for (const item of res.rows) {
-          map.set(item.url, {
+      if (res && res.rows) {
+        // La base de datos es la única fuente de verdad: no mezclar datos viejos de media.json
+        if (res.rows.length > 0) {
+          let list: MediaItem[] = res.rows.map((item: any) => ({
             id: item.id || `m-${Date.now()}`,
             filename: item.filename,
             url: item.url,
@@ -631,9 +628,17 @@ export async function getMediaList(search?: string): Promise<MediaItem[]> {
             size: item.size ? Number(item.size) : null,
             alt_text: item.alt_text,
             created_at: item.created_at,
-          });
+          }));
+          if (search) {
+            const q = search.toLowerCase();
+            list = list.filter(
+              (m) =>
+                m.filename.toLowerCase().includes(q) ||
+                (m.alt_text && m.alt_text.toLowerCase().includes(q))
+            );
+          }
+          return list;
         }
-        media = Array.from(map.values());
       }
     } catch (pgErr) {
       console.warn('[db-service] PostgreSQL getMediaList error:', pgErr);
@@ -646,25 +651,31 @@ export async function getMediaList(search?: string): Promise<MediaItem[]> {
       const supabase = createAdminClient();
       const { data, error } = await supabase.from('media').select('*').order('created_at', { ascending: false });
       if (!error && data && data.length > 0) {
-        const map = new Map<string, MediaItem>();
-        for (const m of media) map.set(m.url, m);
-        for (const item of data) {
-          map.set(item.url, {
-            id: item.id || `m-${Date.now()}`,
-            filename: item.filename,
-            url: item.url,
-            type: item.type,
-            mime_type: item.mime_type,
-            size: item.size,
-            alt_text: item.alt_text,
-            created_at: item.created_at,
-          });
+        let list: MediaItem[] = data.map((item: any) => ({
+          id: item.id || `m-${Date.now()}`,
+          filename: item.filename,
+          url: item.url,
+          type: item.type,
+          mime_type: item.mime_type,
+          size: item.size ? Number(item.size) : null,
+          alt_text: item.alt_text,
+          created_at: item.created_at,
+        }));
+        if (search) {
+          const q = search.toLowerCase();
+          list = list.filter(
+            (m) =>
+              m.filename.toLowerCase().includes(q) ||
+              (m.alt_text && m.alt_text.toLowerCase().includes(q))
+          );
         }
-        media = Array.from(map.values());
+        return list;
       }
     } catch {}
   }
 
+  // Fallback a JSON solo si la base de datos no está disponible
+  let media = readJsonFile<MediaItem[]>('media.json', DEFAULT_MEDIA);
   if (search) {
     const q = search.toLowerCase();
     media = media.filter(
@@ -773,18 +784,22 @@ export async function deleteMediaItem(idOrIdentifier: string): Promise<boolean> 
   // Filtrar en media.json
   const targetId = itemToDelete ? itemToDelete.id : cleanId;
   const filtered = media.filter(
-    (m) => m.id !== targetId && m.url !== cleanId && m.filename !== targetFilename
+    (m) =>
+      m.id !== targetId &&
+      m.url !== cleanId &&
+      m.filename !== targetFilename &&
+      !m.url.endsWith(`/${targetFilename}`)
   );
   writeJsonFile('media.json', filtered);
 
   if (hasPostgresDb()) {
     try {
       await queryPg(
-        'DELETE FROM media WHERE id = $1 OR url = $1 OR filename = $2',
+        'DELETE FROM media WHERE id = $1 OR url = $1 OR filename = $1 OR url = $2 OR filename = $2 OR id = $2',
         [targetId, targetFilename]
       );
       await queryPg(
-        'DELETE FROM media_files WHERE id = $1 OR filename = $2',
+        'DELETE FROM media_files WHERE id = $1 OR filename = $1 OR id = $2 OR filename = $2',
         [targetId, targetFilename]
       );
     } catch (pgErr) {
@@ -807,27 +822,35 @@ export async function deleteMediaItem(idOrIdentifier: string): Promise<boolean> 
 // 4. EQUIPO DIRECTIVO (Consejo & Management)
 // ==========================================
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  const local = readJsonFile<TeamMember[]>('team.json', TEAM_MEMBERS);
-
   if (hasPostgresDb()) {
     try {
       const res = await queryPg('SELECT * FROM landing_team ORDER BY sort_order ASC');
-      if (res && res.rows.length > 0) {
-        return res.rows.map((r: any) => ({
-          id: r.id,
-          number: r.number || undefined,
-          name: r.name,
-          role: r.role,
-          role_en: r.role_en || r.role,
-          location: r.location || undefined,
-          image: r.image || r.photo_url || undefined,
-          photo_url: r.photo_url || r.image || undefined,
-          bio: r.bio || '',
-          bio_en: r.bio_en || r.bio || '',
-          linkedin_url: r.linkedin_url || undefined,
-          sort_order: r.sort_order || 0,
-          is_active: r.is_active !== false,
-        }));
+      if (res && res.rows) {
+        if (res.rows.length > 0) {
+          return res.rows.map((r: any) => ({
+            id: r.id,
+            number: r.number || undefined,
+            name: r.name,
+            role: r.role,
+            role_en: r.role_en || r.role,
+            location: r.location || undefined,
+            image: r.image || r.photo_url || undefined,
+            photo_url: r.photo_url || r.image || undefined,
+            bio: r.bio || '',
+            bio_en: r.bio_en || r.bio || '',
+            linkedin_url: r.linkedin_url || undefined,
+            sort_order: r.sort_order || 0,
+            is_active: r.is_active !== false,
+          }));
+        }
+
+        // Si la tabla existe pero está vacía, verificar si el sitio ya fue inicializado
+        const checkInit = await queryPg('SELECT COUNT(*) as count FROM landing_sections');
+        const isInit = parseInt(checkInit?.rows[0]?.count || '0', 10) > 0;
+        if (isInit) {
+          // La base de datos es la única fuente de verdad: devolver array vacío real sin revivir el JSON
+          return [];
+        }
       }
     } catch (pgErr) {
       console.warn('[db-service] PostgreSQL getTeamMembers error:', pgErr);
@@ -847,17 +870,37 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
       }
     } catch {}
   }
-  return local;
+
+  // Fallback a JSON solo si la base de datos no está disponible
+  return readJsonFile<TeamMember[]>('team.json', TEAM_MEMBERS);
 }
 
 export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember[]> {
-  writeJsonFile('team.json', members);
+  const sanitizedMembers: TeamMember[] = members.map((m, i) => ({
+    ...m,
+    id: m.id || `tm-${i + 1}`,
+    sort_order: i,
+    is_active: m.is_active !== false,
+  }));
+
+  // Sincronizar archivo JSON local de respaldo con exactamente la misma lista depurada
+  writeJsonFile('team.json', sanitizedMembers);
 
   if (hasPostgresDb()) {
     try {
-      for (let i = 0; i < members.length; i++) {
-        const m = members[i];
-        const memberId = m.id || `tm-${i + 1}`;
+      const currentIds = sanitizedMembers.map((m) => m.id);
+
+      // 1. Eliminar de la base de datos todos los directivos que fueron removidos en la interfaz
+      if (currentIds.length > 0) {
+        const placeholders = currentIds.map((_, i) => `$${i + 1}`).join(', ');
+        await queryPg(`DELETE FROM landing_team WHERE id NOT IN (${placeholders})`, currentIds);
+      } else {
+        await queryPg('DELETE FROM landing_team');
+      }
+
+      // 2. Insertar o actualizar los miembros vigentes preservando su nuevo orden exacto (sort_order)
+      for (let i = 0; i < sanitizedMembers.length; i++) {
+        const m = sanitizedMembers[i];
         await queryPg(
           `INSERT INTO landing_team (id, number, name, role, role_en, location, image, photo_url, bio, bio_en, linkedin_url, sort_order, is_active, updated_at)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
@@ -876,7 +919,7 @@ export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember
              is_active = EXCLUDED.is_active,
              updated_at = NOW()`,
           [
-            memberId,
+            m.id,
             m.number || null,
             m.name,
             m.role,
@@ -901,10 +944,18 @@ export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
       const supabase = createAdminClient();
-      for (let i = 0; i < members.length; i++) {
-        const m = members[i];
+      const currentIds = sanitizedMembers.map((m) => m.id);
+
+      if (currentIds.length > 0) {
+        await supabase.from('landing_team').delete().not('id', 'in', `(${currentIds.join(',')})`);
+      } else {
+        await supabase.from('landing_team').delete().neq('id', 'all_empty');
+      }
+
+      for (let i = 0; i < sanitizedMembers.length; i++) {
+        const m = sanitizedMembers[i];
         await supabase.from('landing_team').upsert({
-          id: m.id || `tm-${i + 1}`,
+          id: m.id,
           name: m.name,
           role: m.role,
           role_en: m.role_en || m.role,
@@ -922,7 +973,7 @@ export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember
     }
   }
 
-  return members;
+  return sanitizedMembers;
 }
 
 // ==========================================

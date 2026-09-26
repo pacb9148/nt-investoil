@@ -22,6 +22,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MediaPickerModal } from '@/components/admin/media-picker-modal';
 
 const INITIAL_STATE: ContentActionResponse = {
   success: false,
@@ -100,6 +101,11 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   const [logoMessage, setLogoMessage] = useState<string | null>(null);
   const [logoError, setLogoError] = useState<string | null>(null);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Estados para selector de biblioteca de medios
+  const [openHeroPicker, setOpenHeroPicker] = useState(false);
+  const [heroPickerAccept, setHeroPickerAccept] = useState<'image' | 'video'>('video');
+  const [heroPickerTarget, setHeroPickerTarget] = useState<'bg' | 'logo'>('bg');
 
   // Manejador de subida de archivo de fondo
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -767,24 +773,41 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                   className="hidden"
                 />
 
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
-                >
-                  {uploading ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Subiendo video...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>Seleccionar archivo (Video)...</span>
-                    </>
-                  )}
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHeroPickerAccept('video');
+                      setHeroPickerTarget('bg');
+                      setOpenHeroPicker(true);
+                    }}
+                    disabled={uploading}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-border hover:border-accent text-text-muted hover:text-accent text-xs font-semibold transition-all shadow-sm"
+                    title="Seleccionar video existente de la biblioteca"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5 text-accent" />
+                    <span>Elegir de Biblioteca...</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Subiendo video...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Seleccionar archivo (Video)...</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -883,24 +906,41 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                   className="hidden"
                 />
 
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
-                >
-                  {uploading ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Subiendo imagen...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>Seleccionar archivo (Imagen)...</span>
-                    </>
-                  )}
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHeroPickerAccept('image');
+                      setHeroPickerTarget('bg');
+                      setOpenHeroPicker(true);
+                    }}
+                    disabled={uploading}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-border hover:border-accent text-text-muted hover:text-accent text-xs font-semibold transition-all shadow-sm"
+                    title="Seleccionar imagen existente de la biblioteca"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5 text-accent" />
+                    <span>Elegir de Biblioteca...</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Subiendo imagen...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Seleccionar archivo (Imagen)...</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -1336,25 +1376,41 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                   className="hidden"
                 />
 
-                {/* Botón para examinar y subir archivo local de imagen */}
-                <button
-                  type="button"
-                  onClick={() => logoFileInputRef.current?.click()}
-                  disabled={uploadingLogo}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
-                >
-                  {uploadingLogo ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Subiendo imagen...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>Buscar y Seleccionar Archivo...</span>
-                    </>
-                  )}
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHeroPickerAccept('image');
+                      setHeroPickerTarget('logo');
+                      setOpenHeroPicker(true);
+                    }}
+                    disabled={uploadingLogo}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-border hover:border-accent text-text-muted hover:text-accent text-xs font-semibold transition-all shadow-sm"
+                    title="Seleccionar un logotipo o sello existente de la biblioteca"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5 text-accent" />
+                    <span>Elegir de Biblioteca...</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => logoFileInputRef.current?.click()}
+                    disabled={uploadingLogo}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+                  >
+                    {uploadingLogo ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Subiendo imagen...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Subir Archivo...</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -1680,6 +1736,36 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
           )}
         </button>
       </div>
+
+      {/* Modal Selector de Biblioteca de Medios para Hero */}
+      <MediaPickerModal
+        open={openHeroPicker}
+        onOpenChange={setOpenHeroPicker}
+        onSelect={(item) => {
+          if (heroPickerTarget === 'logo') {
+            setLogoUrl(item.url);
+          } else {
+            setLocalPreviewUrl(null);
+            setBgUrl(item.url);
+            if (heroPickerAccept === 'video' || item.type === 'video') {
+              setBgType('video');
+              setPreviewMediaType('video');
+            } else {
+              setBgType('image');
+              setPreviewMediaType('image');
+            }
+          }
+        }}
+        accept={heroPickerAccept}
+        title={
+          heroPickerTarget === 'logo'
+            ? 'Biblioteca de Medios — Seleccionar Logotipo / Sello Central'
+            : heroPickerAccept === 'video'
+            ? 'Biblioteca de Medios — Seleccionar Video de Fondo'
+            : 'Biblioteca de Medios — Seleccionar Imagen de Fondo'
+        }
+        initialSearch={heroPickerTarget === 'logo' ? 'logo' : ''}
+      />
     </form>
   );
 }

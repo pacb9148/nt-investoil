@@ -23,11 +23,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Formato inválido. Se espera un array de miembros.' }, { status: 400 });
     }
 
-    await saveTeamMembers(members);
+    const saved = await saveTeamMembers(members);
     revalidatePath('/', 'layout');
     revalidatePath('/admin/content/team');
 
-    return NextResponse.json({ success: true, members });
+    return NextResponse.json({ success: true, members: saved });
   } catch (error) {
     console.error('Error al guardar equipo:', error);
     return NextResponse.json(

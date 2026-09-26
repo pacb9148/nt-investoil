@@ -10,6 +10,25 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 
 ## 2. Hitos y Funcionalidades Desarrolladas
 
+### Fase 20: Selector de Biblioteca de Medios, Persistencia de Eliminaciones de Equipo y Protección contra Resurrección de Archivos tras Deploy
+1. **Persistencia y Eliminación Definitiva en Consejo Directivo (`team`)**:
+   - `saveTeamMembers` en `src/lib/db/db-service.ts` implementa `DELETE FROM landing_team WHERE id NOT IN (...)` para PostgreSQL y Supabase, purgando definitivamente de la base de datos a los directivos que el usuario ha borrado.
+   - Preservación del orden visual mediante `sort_order = index`.
+   - Eliminación de la sobreescritura de `localStorage` en `TeamEditorPage` (`src/app/(dashboard)/admin/content/team/page.tsx`) y `TeamSection` (`src/components/sections/team-section.tsx`), impidiendo que el navegador re-inyecte miembros eliminados.
+   - En `src/app/(public)/page.tsx`, `HomePage` obtiene los miembros directamente en el servidor con `getTeamMembers()` y los inyecta como `initialMembers` a `<TeamSection>`, eliminando parpadeos y desincronizaciones cliente/servidor.
+2. **Selector de Medios Reutilizable desde Biblioteca (`MediaPickerModal`)**:
+   - Creación del componente `src/components/admin/media-picker-modal.tsx` con búsqueda instantánea, pestañas de filtro (*Todos, Logos & Identidad, Solo Imágenes, Solo Videos*), subida ágil directa y confirmación por selección/doble clic.
+   - Integración del botón "Elegir de Biblioteca..." (`FolderOpen`) en `MediaUploadField` (Blog, Productos, Testimonios, Equipo) y en los formularios de `HeaderForm`, `HeroForm` (video de fondo, imagen de respaldo y tarjeta de sello) y `SettingsFooterForm`.
+3. **Erradicación de Resurrección de Archivos tras Deploy**:
+   - `getMediaList` en `db-service.ts` se desacopló por completo de `media.json`, retornando estrictamente los registros de PostgreSQL (`media` y `media_files`) sin mezclar archivos eliminados.
+   - `deleteMediaItem` ahora borra exhaustivamente por ID, filename y URL en ambas tablas de la base de datos y sincroniza en disco.
+   - En `src/lib/db/migration-service.ts`, tanto `landing_team` como `media` verifican previamente si la tabla ya tiene filas (`COUNT > 0`). Si ya existen registros, la migración no sobreescribe ni reinyecta archivos o directivos borrados.
+   - Saneamiento de `src/data/media.json` para eliminar registros de prueba y assets obsoletos.
+4. **Validaciones**:
+   - `npm run type-check`: 0 errores de tipado.
+   - `npm run build`: 53/53 rutas generadas con éxito (100% OK).
+   - `pwsh ./scripts/bateria-seguridad.ps1`: 100% Aprobada (batería limpia sin secretos ni vulnerabilidades).
+
 ### Fase 18: Prompt de Entrenamiento Integral del Agente de IA, Detección de Idioma y Escalamiento Humano
 1. **Prompt de Sistema Maestro & Base de Conocimiento Explícita**:
    - Integración completa de todos los activos de información del sitio: Razón social oficial (`Invest Oil LLC`), constitución Delaware LLC, sedes en Houston, Madrid y Bogotá, desambiguación legal contra homónimos inmobiliarios de Valencia.

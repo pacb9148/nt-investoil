@@ -14,6 +14,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MediaPickerModal } from '@/components/admin/media-picker-modal';
 
 export interface MediaUploadFieldProps {
   label?: string;
@@ -46,6 +47,7 @@ export function MediaUploadField({
   className,
 }: MediaUploadFieldProps) {
   const [uploading, setUploading] = useState(false);
+  const [openLibrary, setOpenLibrary] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -220,25 +222,39 @@ export function MediaUploadField({
           className="hidden"
         />
 
-        {/* Botón Seleccionar Archivo Local */}
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-[11px] font-semibold transition-all disabled:opacity-50"
-        >
-          {uploading ? (
-            <>
-              <Loader2 className="w-3 h-3 animate-spin" />
-              <span>Guardando en BD...</span>
-            </>
-          ) : (
-            <>
-              <Upload className="w-3 h-3" />
-              <span>Examinar archivo local...</span>
-            </>
-          )}
-        </button>
+        <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-auto">
+          {/* Botón Elegir de la Biblioteca */}
+          <button
+            type="button"
+            onClick={() => setOpenLibrary(true)}
+            disabled={uploading}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-card border border-border hover:border-accent text-text-muted hover:text-accent text-[11px] font-semibold transition-all shadow-sm"
+            title="Seleccionar un archivo existente de la biblioteca multimedia"
+          >
+            <FolderOpen className="w-3.5 h-3.5 text-accent" />
+            <span>Biblioteca...</span>
+          </button>
+
+          {/* Botón Seleccionar Archivo Local */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-[11px] font-semibold transition-all disabled:opacity-50"
+          >
+            {uploading ? (
+              <>
+                <Loader2 className="w-3 h-3 animate-spin" />
+                <span>Guardando en BD...</span>
+              </>
+            ) : (
+              <>
+                <Upload className="w-3 h-3" />
+                <span>Examinar archivo local...</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
@@ -387,6 +403,20 @@ export function MediaUploadField({
           </div>
         </div>
       )}
+
+      {/* Modal Selector de Biblioteca de Medios */}
+      <MediaPickerModal
+        open={openLibrary}
+        onOpenChange={setOpenLibrary}
+        onSelect={(item) => {
+          setPreviewError(false);
+          onChange(item.url, item.type === 'video' ? 'video' : item.type === 'image' ? 'image' : undefined);
+          setMsg(`✓ Archivo seleccionado de la biblioteca: ${item.filename}`);
+          setTimeout(() => setMsg(null), 4000);
+        }}
+        accept={accept}
+        title={label ? `Biblioteca de Medios — ${label}` : 'Biblioteca de Medios'}
+      />
     </div>
   );
 }
