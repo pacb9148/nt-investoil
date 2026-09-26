@@ -54,7 +54,7 @@ const SECTIONS_NAV: NavItem[] = [
   { href: '/admin/content/hero', label: '01. Hero Principal & Tarjeta', icon: Sparkles },
   { href: '/admin/content/marquee', label: '02. Marquesina Doble (Precios)', icon: Sliders },
   { href: '/admin/content/problema', label: '03. Retos del Sector (Problema)', icon: Flame },
-  { href: '/admin/content/services', label: '04. Servicios Petroleros', icon: Zap },
+  { href: '/admin/content/services', label: '04. Actualidad (Blog)', icon: Zap },
   { href: '/admin/content/products', label: '05. Portafolio Hidrocarburos', icon: DollarSign },
   { href: '/admin/content/plataforma', label: '06. Operaciones & Infraestructura', icon: Building2 },
   { href: '/admin/content/team', label: '07. Consejo Directivo (Equipo)', icon: Users },

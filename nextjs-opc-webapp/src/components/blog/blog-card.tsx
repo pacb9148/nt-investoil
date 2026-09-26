@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, Calendar, ArrowRight, Video, Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { LABELS_EN } from '@/lib/i18n/content-en';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/lib/utils';
 import { useLanguage } from '@/lib/i18n/language-context';
@@ -27,7 +28,7 @@ export function BlogCard({ post }: { post: Post & { categories?: any[] } }) {
         : post.category
       : null;
   const categoryLabel = category
-    ? (isEn && category.name_en ? category.name_en : category.name)
+    ? (isEn ? (category.name_en && category.name_en !== category.name ? category.name_en : LABELS_EN[category.name] || category.name) : category.name)
     : null;
 
   return (
@@ -121,7 +122,7 @@ export function BlogCard({ post }: { post: Post & { categories?: any[] } }) {
           href={`/blog/${post.slug}`}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:text-neon transition-colors"
         >
-          <span>{isEn ? 'Read article' : 'Leer artículo'}</span>
+          <span>{isEn ? 'Read article (in Spanish)' : 'Leer artículo'}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
 

@@ -10,9 +10,12 @@ import { Button } from '@/components/ui/button';
 import { PRODUCTS_LIST } from '@/lib/constants/investoil';
 import { useLanguage } from '@/lib/i18n/language-context';
 import type { ProductItem } from '@/types';
+import { PRODUCTS_EN, localized } from '@/lib/i18n/content-en';
 
 export function ProductsSection({ customBg }: { customBg?: string }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
+  const L = (item: ProductItem, field: string) => localized(item, field, isEn, PRODUCTS_EN, item.sku);
   const [products, setProducts] = useState<ProductItem[]>(PRODUCTS_LIST);
 
   useEffect(() => {
@@ -66,7 +69,7 @@ export function ProductsSection({ customBg }: { customBg?: string }) {
                 <div className="relative w-full h-44 bg-black/40 overflow-hidden border-b border-border/60">
                   <Image
                     src={product.imageUrl}
-                    alt={product.title}
+                    alt={L(product, 'title')}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     unoptimized
@@ -80,17 +83,17 @@ export function ProductsSection({ customBg }: { customBg?: string }) {
                     {product.sku}
                   </span>
                   <span className="text-[11px] font-medium text-text-subtle">
-                    {product.category || 'Hidrocarburos'}
+                    {L(product, 'category') || (isEn ? 'Hydrocarbons' : 'Hidrocarburos')}
                   </span>
                 </div>
                 <CardTitle className="text-lg group-hover:text-warm transition-colors">
-                  {product.title}
+                  {L(product, 'title')}
                 </CardTitle>
               </CardHeader>
 
               <CardContent className="space-y-4 flex-1">
                 <p className="text-xs text-text-muted leading-relaxed line-clamp-3">
-                  {product.description}
+                  {L(product, 'description')}
                 </p>
 
                 {/* Specs Box */}
@@ -98,17 +101,17 @@ export function ProductsSection({ customBg }: { customBg?: string }) {
                   <div className="text-[10px] text-text-subtle uppercase tracking-wider font-sans font-semibold">
                     {t.products.specsTitle}
                   </div>
-                  <div>{product.specs}</div>
+                  <div>{L(product, 'specs')}</div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-[11px] text-text-subtle pt-2 border-t border-border">
                   <div className="flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-accent shrink-0" />
-                    <span className="truncate">{product.market}</span>
+                    <span className="truncate">{L(product, 'market')}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-warm shrink-0" />
-                    <span className="truncate">{product.availability}</span>
+                    <span className="truncate">{L(product, 'availability')}</span>
                   </div>
                 </div>
               </CardContent>
@@ -118,7 +121,7 @@ export function ProductsSection({ customBg }: { customBg?: string }) {
                   href="#contact"
                   className="w-full flex items-center justify-between text-xs font-semibold text-text-muted group-hover:text-warm transition-colors py-2 px-3 rounded-lg hover:bg-surf/70"
                 >
-                  <span>{t.products.quoteTitle || 'Solicitar Cotización'}</span>
+                  <span>{t.products.quoteTitle || (isEn ? 'Request a Quote' : 'Solicitar Cotización')}</span>
                   <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </CardFooter>

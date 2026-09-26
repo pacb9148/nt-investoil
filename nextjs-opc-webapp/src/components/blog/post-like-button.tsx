@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface PostLikeButtonProps {
   postId: string;
@@ -9,6 +10,8 @@ interface PostLikeButtonProps {
 }
 
 export function PostLikeButton({ postId, initialLikes = 0 }: PostLikeButtonProps) {
+  const { language } = useLanguage();
+  const isEn = language === 'en';
   const [likes, setLikes] = useState<number>(initialLikes);
   const [hasLiked, setHasLiked] = useState<boolean>(false);
   const [isLiking, setIsLiking] = useState<boolean>(false);
@@ -55,7 +58,7 @@ export function PostLikeButton({ postId, initialLikes = 0 }: PostLikeButtonProps
           ? 'bg-rose-500/20 border-rose-500 text-rose-400 font-bold shadow-sm'
           : 'bg-card/70 border-border/70 text-text-muted hover:text-rose-400 hover:border-rose-500/40 hover:bg-rose-500/10 cursor-pointer'
       }`}
-      title={hasLiked ? 'Ya recomendaste este artículo' : 'Dar like / Recomendar análisis'}
+      title={hasLiked ? (isEn ? 'You already recommended this article' : 'Ya recomendaste este artículo') : isEn ? 'Like / Recommend this analysis' : 'Dar like / Recomendar análisis'}
     >
       <Heart className={`w-3.5 h-3.5 transition-transform ${hasLiked ? 'fill-rose-500 text-rose-500 scale-110' : ''}`} />
       <span>{likes} {likes === 1 ? 'like' : 'likes'}</span>

@@ -7,8 +7,12 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CLIENT_TESTIMONIALS } from '@/lib/constants/investoil';
 import type { ClientTestimonial } from '@/types';
+import { useLanguage } from '@/lib/i18n/language-context';
+import { TESTIMONIALS_EN, localized } from '@/lib/i18n/content-en';
 
 export function TestimonialsSection({ customBg }: { customBg?: string }) {
+  const { language } = useLanguage();
+  const isEn = language === 'en';
   const [items, setItems] = useState<ClientTestimonial[]>(CLIENT_TESTIMONIALS);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
@@ -56,12 +60,14 @@ export function TestimonialsSection({ customBg }: { customBg?: string }) {
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <Badge variant="warm">CONFIANZA DEL SECTOR</Badge>
+          <Badge variant="warm">{isEn ? 'INDUSTRY TRUST' : 'CONFIANZA DEL SECTOR'}</Badge>
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
-            Lo que Dicen Nuestros Clientes
+            {isEn ? 'What Our Clients Say' : 'Lo que Dicen Nuestros Clientes'}
           </h2>
           <p className="text-base text-text-muted leading-relaxed">
-            Testimonios de refinerías, fondos energéticos y distribuidores que confían en nuestra intermediación y gestión de riesgos.
+            {isEn
+              ? 'Testimonials from refineries, energy funds and distributors who trust our intermediation and risk management.'
+              : 'Testimonios de refinerías, fondos energéticos y distribuidores que confían en nuestra intermediación y gestión de riesgos.'}
           </p>
         </div>
 
@@ -89,7 +95,7 @@ export function TestimonialsSection({ customBg }: { customBg?: string }) {
                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/15 border border-accent/30 text-accent text-xs font-semibold hover:bg-accent/25 transition-colors"
                   >
                     <Video className="w-3.5 h-3.5" />
-                    <span>{showVideo ? 'Ocultar Video' : 'Ver Video Testimonial'}</span>
+                    <span>{showVideo ? (isEn ? 'Hide Video' : 'Ocultar Video') : isEn ? 'Watch Video Testimonial' : 'Ver Video Testimonial'}</span>
                   </button>
                 )}
               </div>
@@ -107,7 +113,7 @@ export function TestimonialsSection({ customBg }: { customBg?: string }) {
               ) : (
                 /* Quote text */
                 <p className="font-heading text-lg sm:text-2xl text-text leading-relaxed font-medium">
-                  "{current.text}"
+                  "{localized(current, 'text', isEn, TESTIMONIALS_EN, current.id)}"
                 </p>
               )}
 
@@ -129,10 +135,10 @@ export function TestimonialsSection({ customBg }: { customBg?: string }) {
                   </div>
                   <div>
                     <h3 className="font-heading font-bold text-base text-accent">
-                      {current.name}
+                      {localized(current, 'name', isEn, TESTIMONIALS_EN, current.id)}
                     </h3>
                     <p className="text-xs text-text-muted">
-                      {current.role}
+                      {localized(current, 'role', isEn, TESTIMONIALS_EN, current.id)}
                     </p>
                   </div>
                 </div>

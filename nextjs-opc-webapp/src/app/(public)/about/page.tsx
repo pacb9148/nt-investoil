@@ -5,21 +5,37 @@ import { ShieldCheck, Globe, Target, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import fs from 'fs';
-import path from 'path';
 
 import { getLandingAbout } from '@/lib/services/content-service';
+import { getServerLanguage } from '@/lib/i18n/server-language';
+import { ABOUT_EN, ABOUT_ES_SEED } from '@/lib/i18n/about-en';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export const metadata: Metadata = {
-  title: 'Acerca de Invest Oil LLC — Conexiones Globales en Trading Petrolero',
-  description: 'Conoce más sobre Invest Oil LLC, nuestra trayectoria en intermediación de hidrocarburos, logística naviera y estándares éticos.',
-};
+export function generateMetadata(): Metadata {
+  return getServerLanguage() === 'en'
+    ? {
+        title: 'About Invest Oil LLC — Global Connections in Oil Trading',
+        description: 'Learn more about Invest Oil LLC: our track record in hydrocarbon intermediation, maritime logistics and ethical standards.',
+      }
+    : {
+        title: 'Acerca de Invest Oil LLC — Conexiones Globales en Trading Petrolero',
+        description: 'Conoce más sobre Invest Oil LLC, nuestra trayectoria en intermediación de hidrocarburos, logística naviera y estándares éticos.',
+      };
+}
 
 export default async function AboutPage() {
   const data = await getLandingAbout();
+  const isEn = getServerLanguage() === 'en';
+  // En inglés: campo `_en` del panel; si falta y el español es el texto original, la traducción incorporada.
+  const pick = (field: 'badge_text' | 'title' | 'slogan' | 'mission' | 'cta_text'): string => {
+    const es = String(data?.[field] ?? '');
+    if (!isEn) return es;
+    const own = data?.[`${field}_en`];
+    if (typeof own === 'string' && own.trim()) return own;
+    return es.startsWith(ABOUT_ES_SEED[field]) ? ABOUT_EN[field] : es;
+  };
   const featuredImage = (data?.featured_image || '').trim();
 
   return (
@@ -28,19 +44,19 @@ export default async function AboutPage() {
       <section className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className={featuredImage ? 'lg:col-span-7 space-y-6' : 'lg:col-span-12 max-w-3xl space-y-6'}>
-            <Badge variant="accent">{data?.badge_text || 'IDENTIDAD & VALORES'}</Badge>
+            <Badge variant="accent">{pick('badge_text') || (isEn ? 'IDENTITY & VALUES' : 'IDENTIDAD & VALORES')}</Badge>
             <h1 className="font-heading font-extrabold text-4xl sm:text-5xl text-text leading-tight">
-              {data?.title || 'Invest Oil LLC'}
+              {pick('title') || 'Invest Oil LLC'}
             </h1>
             <p className="text-base text-text-muted leading-relaxed">
-              {data?.slogan || ''}
+              {pick('slogan')}
             </p>
             <p className="text-sm text-text-muted leading-relaxed">
-              {data?.mission || ''}
+              {pick('mission')}
             </p>
             <div className="pt-2">
               <Button href={data?.cta_url || '/#contact'} variant="accent" size="lg" className="gap-2">
-                <span>{data?.cta_text || 'Contactar con la dirección'}</span>
+                <span>{pick('cta_text') || (isEn ? 'Contact management' : 'Contactar con la dirección')}</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
@@ -52,7 +68,7 @@ export default async function AboutPage() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 via-transparent to-transparent pointer-events-none" />
                 <img
                   src={featuredImage}
-                  alt="Identidad Corporativa Invest Oil LLC"
+                  alt={isEn ? "Invest Oil LLC corporate identity" : "Identidad Corporativa Invest Oil LLC"}
                   className="w-full h-full object-contain filter drop-shadow-[0_4px_24px_rgba(245,158,11,0.35)] transition-transform duration-300 hover:scale-105"
                 />
               </div>
@@ -73,9 +89,9 @@ export default async function AboutPage() {
                 <div className={`w-12 h-12 rounded-xl border flex items-center justify-center ${iconColorClass}`}>
                   <Icon className="w-6 h-6" />
                 </div>
-                <h3 className="font-heading font-bold text-xl text-text">{pillar.title}</h3>
+                <h3 className="font-heading font-bold text-xl text-text">{isEn ? pillar.title_en || pillar.title : pillar.title}</h3>
                 <p className="text-sm text-text-muted leading-relaxed">
-                  {pillar.desc}
+                  {isEn ? pillar.desc_en || pillar.desc : pillar.desc}
                 </p>
               </Card>
             );

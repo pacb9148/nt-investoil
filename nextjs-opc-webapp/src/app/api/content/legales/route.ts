@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 import fs from 'fs';
 import path from 'path';
 import { hasPostgresDb } from '@/lib/db/pg-client';
+import { getLegalPages } from '@/lib/services/server-legal-service';
 
 export interface LegalSection {
   title: string;
@@ -32,7 +33,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const slug = searchParams.get('slug');
 
-    const data = await getSectionContent<Record<string, LegalPageData>>('legal-pages', {});
+    const data = await getLegalPages();
 
     if (slug) {
       if (data[slug]) {

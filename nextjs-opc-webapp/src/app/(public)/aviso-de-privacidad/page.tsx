@@ -1,38 +1,16 @@
-import React from 'react';
-import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { getLegalPage } from '@/lib/services/server-legal-service';
 import { LegalPageView } from '@/components/legal/legal-page-view';
+import { legalMetadata } from '@/lib/legal/legal-meta';
 
-export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Aviso de Privacidad',
-  description: 'Política y aviso de privacidad de Invest Oil LLC.',
-};
+export function generateMetadata() {
+  return legalMetadata('aviso-de-privacidad');
+}
 
-export default async function PrivacyPage() {
+export default async function LegalPage() {
   const pageData = await getLegalPage('aviso-de-privacidad');
-
-  const fallback = {
-    badge: 'PROTECCIÓN DE DATOS',
-    title: 'Aviso de Privacidad',
-    lastUpdated: '2026-03-15',
-    intro: 'En Invest Oil LLC tratamos la información que nos facilitas con la finalidad exclusiva de prestarte el servicio solicitado.',
-    sections: [
-      {
-        title: 'Responsable del Tratamiento',
-        content: 'Invest Oil LLC · Dirección de Cumplimiento · Contacto: info@investoil.es',
-      },
-      {
-        title: 'Legitimación y Conservación',
-        content: 'La base legal para el tratamiento de tus datos es el consentimiento explícito manifestado al remitir el formulario.',
-      },
-      {
-        title: 'Tus Derechos (RGPD)',
-        content: 'Puedes ejercer en cualquier momento tus derechos de acceso, rectificación, supresión y limitación escribiendo a info@investoil.es.',
-      },
-    ],
-  };
-
-  return <LegalPageView slug="aviso-de-privacidad" initialData={pageData || fallback} />;
+  if (!pageData) notFound();
+  return <LegalPageView slug="aviso-de-privacidad" initialData={pageData} />;
 }

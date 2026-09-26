@@ -17,11 +17,23 @@ const LanguageContext = createContext<LanguageContextType>({
 
 const STORAGE_KEY = 'investoil_locale';
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('es');
+export function LanguageProvider({
+  children,
+  initialLanguage,
+}: {
+  children: React.ReactNode;
+  initialLanguage?: Language;
+}) {
+  // El servidor conoce el idioma por la cookie: la primera pintura ya sale en él (sin saltar de ES a EN).
+  const [language, setLanguageState] = useState<Language>(initialLanguage ?? 'es');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Con cookie del servidor esa elección manda; solo sin ella se recurre a localStorage y al navegador.
+    if (initialLanguage) {
+      setMounted(true);
+      return;
+    }
     try {
       const saved = localStorage.getItem(STORAGE_KEY) as Language;
       if (saved && (saved === 'es' || saved === 'en')) {
@@ -41,6 +53,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, lang);
       document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000; SameSite=Lax`;
+      document.documentElement.lang = lang;
     } catch {
       // Ignorar fallo
     }

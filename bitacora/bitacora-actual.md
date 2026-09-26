@@ -33,3 +33,13 @@ Haz que el agente de atención al cliente, proceda según la siguiente instrucci
 ## 2026-09-26 21:46:24
 
 El aprendizaje del agente, se guarda en tarjetas que después de un tiempo va a ser inviable darles mantenimiento, rediseña la interfase para que sea una lista en una tabla y que se pueda filtrar por tema, tipo, fecha, usuario, etc y para los botones funcionales usa iconos con tooltips. También implementa una rutina de auto revisión del agente que identifique las que sean redundantes y haga un fundido de lo importante para su base de conocimiento, y mantenga las de usuarios identificados como historial particular
+
+## 2026-09-26 22:44:07
+
+1. No están los artículos que tenia publicados. Se suponía que los recuperarías, ¿Dónde están?
+2. Por que el agente de noticias no trae la noticia que está publicada, la idea es parafrasear la noticia como un analisis de invest oil llc y traer por lo menos la imagen destacada, y dejar el link (clicable) para ir al sito (no solo el portal) fuente de la noticia en cuestión, sino al articulo específico, el agente debe hacer el trabajo completo y un humano hará la revisión para posteriormente hacer la publicación.
+3. el placeholder del agente debe ser multilínea, al menos 3 para poder leer y escribir cómodamente, con scroll si se excede y la posibilidad de extender a 3 filas de ser necesario.
+4. Extiende los contenidos de las paginas legales de acuerdo a las de [https://www.chevron.com](https://www.chevron.com/) Accessibility, Terms of use, Privacy, Cookie settings (do not sell/share information), Cookie statement según lo correspondiente y adecuado para nosotros, nuestro nicho de mercado y compatible a nuestro perfil de negocio y guárdalas en ambas versiones español e inglés.
+5. La sección "4 servicios petroleros" de la landing, ahora es la sección de "Actualidad" donde se deben mostrar las ultimas 6 publicaciones del blog, así modifícala para que sea adecuada a su función y lo mismo con el botón del hero que lleva a esta sección.
+6. Dale un repaso integral a la landing en su totalidad y verifica la internacionalización (i18n), que todo tenga su correcta traducción español/ingles al momento de clicar el selector de idioma que la pagina se muestre por completo en el idioma seleccionado. Revisa cada sección de forma exhaustiva Home, Services, Products, About Us, Market News, Contact y todas las secciones no listadas en el menú.
+7. al finalizar +dap

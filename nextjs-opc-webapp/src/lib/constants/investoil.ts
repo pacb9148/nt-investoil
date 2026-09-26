@@ -285,7 +285,7 @@ export const CLIENT_TESTIMONIALS: ClientTestimonial[] = [
 ];
 
 export const NAV_LINKS = [
-  { href: '/#services', label: 'Servicios' },
+  { href: '/#actualidad', label: 'Actualidad' },
   { href: '/#products', label: 'Productos' },
   { href: '/#projects', label: 'Operaciones' },
   { href: '/#team', label: 'Equipo' },
@@ -294,11 +294,12 @@ export const NAV_LINKS = [
 ];
 
 export const LEGAL_LINKS = [
-  { href: '/aviso-de-privacidad', label: 'Aviso de privacidad' },
-  { href: '/terminos-y-condiciones', label: 'Términos y condiciones' },
-  { href: '/politica-de-cookies', label: 'Política de cookies' },
-  { href: '/alerta-de-fraude-y-estafas', label: 'Alerta de fraude y estafas' },
-  { href: '/accesibilidad', label: 'Accesibilidad' },
+  { href: '/aviso-de-privacidad', label: 'Aviso de privacidad', labelEn: 'Privacy statement' },
+  { href: '/terminos-y-condiciones', label: 'Términos de uso', labelEn: 'Terms of use' },
+  { href: '/politica-de-cookies', label: 'Aviso de cookies', labelEn: 'Cookie statement' },
+  { href: '/opciones-de-privacidad', label: 'Tus opciones de privacidad', labelEn: 'Your privacy choices' },
+  { href: '/alerta-de-fraude-y-estafas', label: 'Alerta de fraude y estafas', labelEn: 'Fraud & scam alert' },
+  { href: '/accesibilidad', label: 'Accesibilidad', labelEn: 'Accessibility' },
 ];
 
 export interface OfficeLocation {

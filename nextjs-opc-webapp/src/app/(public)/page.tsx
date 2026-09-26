@@ -7,7 +7,7 @@ import {
 } from '@/lib/services/content-service';
 import { getTeamMembers } from '@/lib/db/db-service';
 import { HeroSection } from '@/components/sections/hero-section';
-import { ServicesSection } from '@/components/sections/services-section';
+import { NewsSection } from '@/components/sections/news-section';
 import { ProductsSection } from '@/components/sections/products-section';
 import { ProjectsSection } from '@/components/sections/projects-section';
 import { TeamSection } from '@/components/sections/team-section';
@@ -61,8 +61,8 @@ export default async function HomePage() {
       {/* 3. Retos del Sector (El Problema) */}
       {isVisible('problema') && <ProblemSection customBg={secBg.problema} />}
 
-      {/* 4. Servicios Petroleros */}
-      {isVisible('services') && <ServicesSection customBg={secBg.services} />}
+      {/* 4. Actualidad: últimas 6 publicaciones del blog */}
+      {isVisible('services') && <NewsSection customBg={secBg.services} />}
 
       {/* 5. Portafolio de Hidrocarburos */}
       {isVisible('products') && <ProductsSection customBg={secBg.products} />}

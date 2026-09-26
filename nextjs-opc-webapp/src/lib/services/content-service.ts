@@ -124,7 +124,20 @@ let memoryAppearance = readLocalJson<LandingAppearanceConfig>('appearance.json',
 // ==============================================================================
 // 1. SECCIONES GENERALES
 // ==============================================================================
+// La sección «Servicios Petroleros» pasó a ser «Actualidad»: se corrige lo que ya estaba guardado en la base.
+function normalizeLegacySections(list: LandingSectionConfig[]): LandingSectionConfig[] {
+  return list.map((sec) =>
+    sec.id === 'services' && /servicios/i.test(sec.title)
+      ? { ...sec, title: 'Actualidad', description: 'Últimas 6 publicaciones del blog y análisis de mercado' }
+      : sec
+  );
+}
+
 export async function getLandingSections(): Promise<LandingSectionConfig[]> {
+  return normalizeLegacySections(await readLandingSections());
+}
+
+async function readLandingSections(): Promise<LandingSectionConfig[]> {
   const pgData = await getSectionFromPg<LandingSectionConfig[]>('sections');
   if (pgData && Array.isArray(pgData) && pgData.length > 0) {
     return pgData;
@@ -144,7 +157,19 @@ export async function getLandingSections(): Promise<LandingSectionConfig[]> {
 // ==============================================================================
 // 2. HERO PRINCIPAL & TARJETA
 // ==============================================================================
+function normalizeLegacyHero(h: LandingHeroConfig): LandingHeroConfig {
+  const out = { ...h };
+  if (out.cta_primary_url === '#services') out.cta_primary_url = '#actualidad';
+  if (out.cta_primary_text === 'Explorar Servicios Petroleros') out.cta_primary_text = 'Ver Actualidad y Análisis';
+  if (out.cta_primary_text_en === 'Explore Petroleum Services') out.cta_primary_text_en = 'Latest News & Analysis';
+  return out;
+}
+
 export async function getLandingHero(): Promise<LandingHeroConfig> {
+  return normalizeLegacyHero(await readLandingHero());
+}
+
+async function readLandingHero(): Promise<LandingHeroConfig> {
   const pgData = await getSectionFromPg<LandingHeroConfig>('hero');
   if (pgData) {
     return { ...DEFAULT_HERO_CONFIG, ...pgData };
@@ -208,7 +233,24 @@ export async function getLandingAppearance(): Promise<LandingAppearanceConfig> {
 // ==============================================================================
 // 4. CABECERA & MENÚ (landing_header)
 // ==============================================================================
+// El menú guardado puede traer el enlace antiguo «Servicios» (#services): ahora es «Actualidad» (#actualidad).
+function normalizeLegacyHeader(h: any): any {
+  if (!h || !Array.isArray(h.menu_items)) return h;
+  return {
+    ...h,
+    menu_items: h.menu_items.map((m: any) =>
+      m && m.href === '/#services'
+        ? { ...m, href: '/#actualidad', label: m.label === 'Servicios' ? 'Actualidad' : m.label, label_en: m.label_en === 'Services' ? 'News' : m.label_en }
+        : m
+    ),
+  };
+}
+
 export async function getLandingHeader(): Promise<any> {
+  return normalizeLegacyHeader(await readLandingHeader());
+}
+
+async function readLandingHeader(): Promise<any> {
   const defaultHeader = {
     logo_url: '/images/branding/oil-drop-logo.png',
     logo_text: 'INVEST OIL',

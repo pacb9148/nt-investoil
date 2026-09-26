@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { HelpCircle, ChevronDown } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/lib/i18n/language-context';
+import { FAQ_EN, localized } from '@/lib/i18n/content-en';
 
 interface FaqItem {
   id: string;
@@ -35,6 +37,8 @@ const DEFAULT_FAQS: FaqItem[] = [
 ];
 
 export function FaqSection({ customBg }: { customBg?: string }) {
+  const { language } = useLanguage();
+  const isEn = language === 'en';
   const [faqs, setFaqs] = useState<FaqItem[]>(DEFAULT_FAQS);
   const [openId, setOpenId] = useState<string | null>('faq-01');
 
@@ -70,12 +74,14 @@ export function FaqSection({ customBg }: { customBg?: string }) {
     >
       <div className="max-w-4xl mx-auto px-4 md:px-8 space-y-12">
         <div className="text-center space-y-3">
-          <Badge variant="accent">RESOLUCIÓN DE DUDAS</Badge>
+          <Badge variant="accent">{isEn ? 'QUESTIONS ANSWERED' : 'RESOLUCIÓN DE DUDAS'}</Badge>
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
-            Preguntas Frecuentes
+            {isEn ? 'Frequently Asked Questions' : 'Preguntas Frecuentes'}
           </h2>
           <p className="text-base text-text-muted leading-relaxed">
-            Respuestas operativas sobre procedimientos de compra, certificación de calidad, logística y contratación.
+            {isEn
+              ? 'Operational answers on purchasing procedures, quality certification, logistics and contracting.'
+              : 'Respuestas operativas sobre procedimientos de compra, certificación de calidad, logística y contratación.'}
           </p>
         </div>
 
@@ -94,7 +100,7 @@ export function FaqSection({ customBg }: { customBg?: string }) {
                 >
                   <span className="flex items-center gap-2.5">
                     <HelpCircle className="w-4 h-4 text-accent shrink-0" />
-                    <span>{faq.question}</span>
+                    <span>{localized(faq, 'question', isEn, FAQ_EN, faq.id)}</span>
                   </span>
                   <ChevronDown
                     className={`w-4 h-4 text-text-subtle shrink-0 transition-transform duration-200 ${
@@ -105,7 +111,7 @@ export function FaqSection({ customBg }: { customBg?: string }) {
 
                 {isOpen && (
                   <div className="px-5 pb-5 pt-1 text-xs text-text-muted leading-relaxed border-t border-border/40 font-sans">
-                    {faq.answer}
+                    {localized(faq, 'answer', isEn, FAQ_EN, faq.id)}
                   </div>
                 )}
               </Card>

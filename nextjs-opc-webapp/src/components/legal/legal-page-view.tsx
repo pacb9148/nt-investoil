@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { AlertTriangle, Calendar, ShieldCheck, Globe, Mail } from 'lucide-react';
+import { AlertTriangle, Calendar, ShieldCheck, Mail } from 'lucide-react';
 import { LegalPageData } from '@/app/api/content/legales/route';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface LegalPageViewProps {
   slug: string;
@@ -13,7 +14,8 @@ interface LegalPageViewProps {
 
 export function LegalPageView({ slug, initialData }: LegalPageViewProps) {
   const [data, setData] = useState<LegalPageData>(initialData);
-  const [lang, setLang] = useState<'es' | 'en'>('es');
+  // Sigue el selector de idioma global de la web (antes tenía uno propio que no se sincronizaba).
+  const { language: lang } = useLanguage();
 
   useEffect(() => {
     async function refreshData() {
@@ -71,34 +73,6 @@ export function LegalPageView({ slug, initialData }: LegalPageViewProps) {
           )}
         </div>
 
-        {/* Selector de Idioma Bilingüe ES / EN */}
-        <div className="inline-flex items-center rounded-lg border border-amber-500/30 bg-zinc-900/90 p-1 text-xs font-mono shadow-sm">
-          <Globe className="w-3.5 h-3.5 text-amber-400 ml-1.5 mr-2" />
-          <button
-            type="button"
-            onClick={() => setLang('es')}
-            className={`px-2.5 py-1 rounded transition-colors font-semibold ${
-              lang === 'es'
-                ? 'bg-amber-500 text-zinc-950 shadow'
-                : 'text-slate-300 hover:text-white'
-            }`}
-            aria-pressed={lang === 'es'}
-          >
-            ES (Español)
-          </button>
-          <button
-            type="button"
-            onClick={() => setLang('en')}
-            className={`px-2.5 py-1 rounded transition-colors font-semibold ${
-              lang === 'en'
-                ? 'bg-amber-500 text-zinc-950 shadow'
-                : 'text-slate-300 hover:text-white'
-            }`}
-            aria-pressed={lang === 'en'}
-          >
-            EN (English)
-          </button>
-        </div>
       </div>
 
       <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-slate-100 dark:text-slate-100 tracking-tight leading-tight">

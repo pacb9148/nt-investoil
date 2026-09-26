@@ -28,8 +28,9 @@ const LABEL = 'block text-[11px] font-mono uppercase tracking-wider text-text-mu
 
 const LEGAL_PAGES = [
   { slug: 'aviso-de-privacidad', label: 'Aviso de Privacidad', icon: Shield },
-  { slug: 'terminos-y-condiciones', label: 'Términos y Condiciones', icon: Scale },
-  { slug: 'politica-de-cookies', label: 'Política de Cookies', icon: Cookie },
+  { slug: 'terminos-y-condiciones', label: 'Términos de Uso', icon: Scale },
+  { slug: 'politica-de-cookies', label: 'Aviso de Cookies', icon: Cookie },
+  { slug: 'opciones-de-privacidad', label: 'Tus Opciones de Privacidad', icon: Shield },
   { slug: 'alerta-de-fraude-y-estafas', label: 'Alerta de Fraude y Estafas', icon: AlertTriangle },
   { slug: 'accesibilidad', label: 'Declaración de Accesibilidad', icon: Eye },
 ];

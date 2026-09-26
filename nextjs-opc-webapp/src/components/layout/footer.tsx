@@ -6,12 +6,12 @@ import { Mail, Clock, Linkedin, ArrowUpRight, ShieldCheck, MapPin, Building2 } f
 import { BrandLogo } from './brand-logo';
 import { LanguageSelector } from './language-selector';
 import { useLanguage } from '@/lib/i18n/language-context';
-import { useSiteSettings } from '@/lib/services/site-settings';
+import { useSiteSettings, type SiteSettingsData } from '@/lib/services/site-settings';
 import { COMPANY_INFO, LEGAL_LINKS } from '@/lib/constants/investoil';
 
-export function Footer() {
+export function Footer({ initialSettings }: { initialSettings?: SiteSettingsData }) {
   const { t, language } = useLanguage();
-  const settings = useSiteSettings();
+  const settings = useSiteSettings(initialSettings);
   const isEn = language === 'en';
 
   const footerLogo = settings.footerLogoUrl !== undefined
@@ -38,7 +38,7 @@ export function Footer() {
               size={56}
               src={footerLogo}
               customTitle={settings.companyName || 'INVEST OIL'}
-              customSubtitle={settings.footerTagline || 'Petroleum and Derivates Markets'}
+              customSubtitle="Petroleum and Derivates Markets"
             />
             <p className="text-xs text-text-muted leading-relaxed max-w-sm">
               {tagline}
@@ -84,7 +84,7 @@ export function Footer() {
                     href={link.href}
                     className="text-text-muted hover:text-accent hover:translate-x-0.5 inline-flex items-center transition-all duration-150"
                   >
-                    <span>{link.label}</span>
+                    <span>{isEn ? link.labelEn : link.label}</span>
                   </Link>
                 </li>
               ))}

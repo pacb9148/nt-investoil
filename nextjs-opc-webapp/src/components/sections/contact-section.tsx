@@ -13,7 +13,18 @@ import { COMPANY_INFO } from '@/lib/constants/investoil';
 import { useLanguage } from '@/lib/i18n/language-context';
 
 export function ContactSection({ customBg }: { customBg?: string }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEn = language === 'en';
+  // Mensajes de validación (definidos en español en el esquema) mostrados en el idioma elegido.
+  const ERRORS_EN: Record<string, string> = {
+    'El nombre debe tener al menos 2 caracteres': 'Name must be at least 2 characters long',
+    'Por favor ingresa un correo electrónico válido': 'Please enter a valid email address',
+    'El mensaje debe tener al menos 10 caracteres': 'Message must be at least 10 characters long',
+    'Máximo 120 caracteres': 'Maximum 120 characters',
+    'Máximo 150 caracteres': 'Maximum 150 characters',
+    'Máximo 2000 caracteres': 'Maximum 2000 characters',
+  };
+  const em = (m?: string) => (m && isEn ? ERRORS_EN[m] ?? m : m);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -131,7 +142,7 @@ export function ContactSection({ customBg }: { customBg?: string }) {
                     onClick={() => setIsSubmitted(false)}
                     className="mt-2 text-xs"
                   >
-                    Enviar otra consulta
+                    {isEn ? 'Send another enquiry' : 'Enviar otra consulta'}
                   </Button>
                 </div>
               ) : (
@@ -156,18 +167,18 @@ export function ContactSection({ customBg }: { customBg?: string }) {
                     <div className="space-y-1">
                       <Input
                         label={t.contact.fullName}
-                        placeholder="ej. Robert Vance"
+                        placeholder={isEn ? 'e.g. Robert Vance' : 'ej. Robert Vance'}
                         {...register('name')}
-                        error={errors.name?.message}
+                        error={em(errors.name?.message)}
                       />
                     </div>
                     <div className="space-y-1">
                       <Input
                         label={t.contact.email}
                         type="email"
-                        placeholder="nombre@empresa.com"
+                        placeholder={isEn ? 'name@company.com' : 'nombre@empresa.com'}
                         {...register('email')}
-                        error={errors.email?.message}
+                        error={em(errors.email?.message)}
                       />
                     </div>
                   </div>
@@ -175,19 +186,19 @@ export function ContactSection({ customBg }: { customBg?: string }) {
                   <div className="space-y-1">
                     <Input
                       label={t.contact.interest}
-                      placeholder="ej. Suministro Jet Fuel A1 / FOB Houston"
+                      placeholder={isEn ? 'e.g. Jet Fuel A1 supply / FOB Houston' : 'ej. Suministro Jet Fuel A1 / FOB Houston'}
                       {...register('subject')}
-                      error={errors.subject?.message}
+                      error={em(errors.subject?.message)}
                     />
                   </div>
 
                   <div className="space-y-1">
                     <Textarea
                       label={t.contact.message}
-                      placeholder="Detalla los volúmenes requeridos (bbls o MT), especificaciones técnicas y puerto de entrega..."
+                      placeholder={isEn ? 'Describe the volumes required (bbls or MT), technical specifications and delivery port...' : 'Detalla los volúmenes requeridos (bbls o MT), especificaciones técnicas y puerto de entrega...'}
                       rows={4}
                       {...register('message')}
-                      error={errors.message?.message}
+                      error={em(errors.message?.message)}
                     />
                   </div>
 

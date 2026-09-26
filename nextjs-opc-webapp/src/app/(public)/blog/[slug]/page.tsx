@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { NewsRepublishBadge } from '@/components/blog/news-republish-badge';
 import { PostLikeButton } from '@/components/blog/post-like-button';
 import { formatDate } from '@/lib/utils';
+import { LABELS_EN } from '@/lib/i18n/content-en';
+import { getServerLanguage } from '@/lib/i18n/server-language';
 import { type Post } from '@/types';
 
 export async function generateMetadata({
@@ -21,7 +23,7 @@ export async function generateMetadata({
 
   if (!post) {
     return {
-      title: 'Artículo de Blog | Invest Oil LLC',
+      title: getServerLanguage() === 'en' ? 'Blog Article | Invest Oil LLC' : 'Artículo de Blog | Invest Oil LLC',
     };
   }
 
@@ -97,6 +99,7 @@ export default async function BlogPostPage({
     notFound();
   }
 
+  const isEn = getServerLanguage() === 'en';
   const category =
     post.categories && post.categories.length > 0 ? post.categories[0] : null;
 
@@ -115,7 +118,7 @@ export default async function BlogPostPage({
           className="inline-flex items-center gap-2 text-xs font-mono text-text-subtle hover:text-accent transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Volver al Blog de Inteligencia Energética</span>
+          <span>{isEn ? 'Back to the Energy Intelligence Blog' : 'Volver al Blog de Inteligencia Energética'}</span>
         </Link>
       </div>
 
@@ -131,7 +134,7 @@ export default async function BlogPostPage({
                 color: category.color || '#f59e0b',
               }}
             >
-              {category.name}
+              {isEn ? (category.name_en && category.name_en !== category.name ? category.name_en : LABELS_EN[category.name] || category.name) : category.name}
             </span>
           )}
           {post.is_republished && (
@@ -154,7 +157,7 @@ export default async function BlogPostPage({
           <span>•</span>
           <span className="flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-warm" />
-            <span>{post.reading_time || 3} min de lectura</span>
+            <span>{post.reading_time || 3} {isEn ? 'min read' : 'min de lectura'}</span>
           </span>
           <span>•</span>
           <span className="flex items-center gap-1.5">
@@ -184,7 +187,7 @@ export default async function BlogPostPage({
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-cyan-400">
             <Video className="w-4 h-4" />
-            <span>Video Relacionado del Análisis</span>
+            <span>{isEn ? 'Related Analysis Video' : 'Video Relacionado del Análisis'}</span>
           </div>
           <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-cyan-500/30 shadow-2xl bg-black">
             {post.video_url.includes('youtube.com') || post.video_url.includes('youtu.be') ? (
@@ -223,6 +226,12 @@ export default async function BlogPostPage({
         </p>
       )}
 
+      {isEn && (
+        <p className="text-xs font-mono text-text-subtle border-l-2 border-accent/40 pl-3">
+          This article is published in Spanish, its original language.
+        </p>
+      )}
+
       {/* Post Content */}
       <div className="prose prose-invert max-w-none pt-4">
         {post.content?.content ? (
@@ -231,7 +240,9 @@ export default async function BlogPostPage({
           <div dangerouslySetInnerHTML={{ __html: post.content }} />
         ) : (
           <p className="text-text-muted leading-relaxed">
-            Contenido técnico y análisis de trading estructurado por el equipo de Invest Oil LLC.
+            {isEn
+              ? 'Technical content and trading analysis prepared by the Invest Oil LLC team.'
+              : 'Contenido técnico y análisis de trading estructurado por el equipo de Invest Oil LLC.'}
           </p>
         )}
       </div>
@@ -241,12 +252,14 @@ export default async function BlogPostPage({
         <div className="p-4 sm:p-5 rounded-xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-950/20 text-slate-200 space-y-3">
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">
             <Share2 className="w-4 h-4 text-amber-400" />
-            <span>Atribución y Consulta de Fuente Original</span>
+            <span>{isEn ? 'Attribution and Original Source' : 'Atribución y Consulta de Fuente Original'}</span>
           </div>
           <p className="text-xs sm:text-sm text-slate-300 dark:text-slate-300 leading-relaxed">
-            Este artículo reproduce o referencia información publicada por{' '}
-            <strong className="text-amber-300">{post.original_source_name || 'la fuente emisora'}</strong>.
-            Si desea corroborar datos, contrastar la información o consultar el artículo íntegro en su plataforma original, puede acceder directamente a través del siguiente enlace:
+            {isEn ? 'This article reproduces or references information published by' : 'Este artículo reproduce o referencia información publicada por'}{' '}
+            <strong className="text-amber-300">{post.original_source_name || (isEn ? 'the original outlet' : 'la fuente emisora')}</strong>.{' '}
+            {isEn
+              ? 'To verify the data, cross-check the information or read the full article on its original platform, use the link below:'
+              : 'Si desea corroborar datos, contrastar la información o consultar el artículo íntegro en su plataforma original, puede acceder directamente a través del siguiente enlace:'}
           </p>
           <div>
             <a
@@ -255,7 +268,7 @@ export default async function BlogPostPage({
               rel="noopener noreferrer nofollow"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs font-sans transition-colors shadow-md"
             >
-              <span>Leer artículo original completo en {post.original_source_name || 'la fuente'}</span>
+              <span>{isEn ? 'Read the full original article at' : 'Leer artículo original completo en'} {post.original_source_name || (isEn ? 'the source' : 'la fuente')}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -267,7 +280,7 @@ export default async function BlogPostPage({
         <div className="pt-8 border-t border-border flex flex-wrap items-center gap-2">
           <span className="text-xs text-text-subtle flex items-center gap-1 font-mono">
             <Tag className="w-3.5 h-3.5" />
-            <span>Categorías & Tags:</span>
+            <span>{isEn ? 'Categories & Tags:' : 'Categorías & Tags:'}</span>
           </span>
           {post.tags.map((t) => (
             <Badge key={t} variant="default">
@@ -281,14 +294,16 @@ export default async function BlogPostPage({
       <div className="p-8 rounded-2xl border border-accent/40 bg-card/90 shadow-glow-accent/20 flex flex-col sm:flex-row items-center justify-between gap-6 mt-12">
         <div className="space-y-1 text-center sm:text-left">
           <h3 className="font-heading font-bold text-lg text-text">
-            ¿Interesado en cotizar este producto o ruta?
+            {isEn ? 'Interested in a quote for this product or route?' : '¿Interesado en cotizar este producto o ruta?'}
           </h3>
           <p className="text-xs text-text-muted">
-            Nuestro equipo estructura contratos a medida como facilitadores entre compradores y vendedores de primer orden según volumen, especificaciones e Incoterms.
+            {isEn
+              ? 'Our team structures tailor-made contracts as facilitators between first-tier buyers and sellers according to volume, specifications and Incoterms.'
+              : 'Nuestro equipo estructura contratos a medida como facilitadores entre compradores y vendedores de primer orden según volumen, especificaciones e Incoterms.'}
           </p>
         </div>
         <Button href="/contact" variant="accent" size="md" className="gap-2 shrink-0">
-          <span>Contactar Operaciones Comerciales</span>
+          <span>{isEn ? 'Contact Commercial Operations' : 'Contactar Operaciones Comerciales'}</span>
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
@@ -297,7 +312,7 @@ export default async function BlogPostPage({
       {relatedPosts.length > 0 && (
         <div className="pt-12 border-t border-border/80 space-y-6">
           <h3 className="font-heading font-bold text-xl text-text">
-            Artículos Recomendados de Mercado
+            {isEn ? 'Recommended Market Articles' : 'Artículos Recomendados de Mercado'}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {relatedPosts.map((rel) => (

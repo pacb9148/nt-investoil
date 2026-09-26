@@ -7,6 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TEAM_MEMBERS } from '@/lib/constants/investoil';
 import type { TeamMember } from '@/types';
+import { useLanguage } from '@/lib/i18n/language-context';
+
 
 export function TeamSection({
   customBg,
@@ -17,6 +19,8 @@ export function TeamSection({
 }) {
   // Si el servidor entregó la lista (aunque esté vacía) es la de la base de datos: no se sustituye por el demo.
   const [team, setTeam] = useState<TeamMember[]>(initialMembers ?? TEAM_MEMBERS);
+  const { language } = useLanguage();
+  const isEn = language === 'en';
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -51,12 +55,14 @@ export function TeamSection({
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <Badge variant="accent">LIDERAZGO & EXPERIENCIA</Badge>
+          <Badge variant="accent">{isEn ? 'LEADERSHIP & EXPERIENCE' : 'LIDERAZGO & EXPERIENCIA'}</Badge>
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
-            Nuestro Equipo
+            {isEn ? 'Our Team' : 'Nuestro Equipo'}
           </h2>
           <p className="text-base text-text-muted leading-relaxed">
-            Un equipo multidisciplinar con amplia trayectoria en trading energético, mitigación de riesgos, logística marítima y cumplimiento normativo internacional.
+            {isEn
+              ? 'A multidisciplinary team with extensive experience in energy trading, risk mitigation, maritime logistics and international regulatory compliance.'
+              : 'Un equipo multidisciplinar con amplia trayectoria en trading energético, mitigación de riesgos, logística marítima y cumplimiento normativo internacional.'}
           </p>
         </div>
 
@@ -98,7 +104,7 @@ export function TeamSection({
                       {member.name}
                     </h3>
                     <p className="text-xs text-text-muted font-medium mt-0.5">
-                      {member.role}
+                      {isEn ? member.role_en || member.role : member.role}
                     </p>
                   </div>
                 </div>

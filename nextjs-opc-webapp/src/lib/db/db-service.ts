@@ -115,6 +115,35 @@ const DEFAULT_MEDIA: MediaItem[] = [
 // ==========================================
 // 1. POSTS (Artículos del Blog & Análisis)
 // ==========================================
+// La migración a PostgreSQL nunca llegó a ejecutarse sola y la de `posts` falló en el primer arranque:
+// el blog vivía del JSON. Una vez por proceso se comprueba si los artículos de partida se sembraron
+// (marca `posts_seed_v1`); si no, se siembran. Con la marca puesta, vaciar el blog a propósito se respeta.
+let postsSeedChecked = false;
+async function ensurePostsSeededOnce(): Promise<void> {
+  if (postsSeedChecked || !hasPostgresDb()) return;
+  postsSeedChecked = true;
+  try {
+    const flag = await queryPg("SELECT 1 FROM landing_sections WHERE id = 'posts_seed_v1'");
+    if (!flag || flag.rows.length > 0) return;
+
+    const count = await queryPg('SELECT COUNT(*)::int AS c FROM posts');
+    if (!count) return;
+    if (count.rows[0].c === 0) {
+      const { seedPostsFromJson } = await import('@/lib/db/migration-service');
+      const { count: seeded, failed } = await seedPostsFromJson();
+      console.log(`[db-service] Artículos sembrados desde posts.json: ${seeded}${failed.length ? `, fallidos: ${failed.join(', ')}` : ''}`);
+      if (seeded === 0 && failed.length > 0) return; // sin marca: se reintentará en el próximo arranque
+    }
+    await queryPg(
+      `INSERT INTO landing_sections (id, content, updated_at) VALUES ('posts_seed_v1', '{"done":true}'::jsonb, NOW())
+       ON CONFLICT (id) DO NOTHING`
+    );
+  } catch (err) {
+    postsSeedChecked = false;
+    console.error('[db-service] Error comprobando la siembra de artículos:', err);
+  }
+}
+
 export async function getPosts(options?: {
   status?: string;
   search?: string;
@@ -125,6 +154,7 @@ export async function getPosts(options?: {
 
   if (hasPostgresDb()) {
     try {
+      await ensurePostsSeededOnce();
       const res = await queryPg('SELECT * FROM posts ORDER BY created_at DESC');
       if (res && res.rows) {
         posts = res.rows.map((r: any) => ({

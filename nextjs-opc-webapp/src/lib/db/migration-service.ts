@@ -36,6 +36,56 @@ function readJson<T>(filename: string): T | null {
   return null;
 }
 
+/**
+ * Inserta en `posts` los artículos de posts.json. Cada artículo va por separado y, si su categoría
+ * no existe (fue borrada o renombrada), se busca una equivalente por nombre y, si no, queda sin categoría.
+ */
+export async function seedPostsFromJson(): Promise<{ count: number; failed: string[] }> {
+  const posts = readJson<any[]>('posts.json') || [];
+  let count = 0;
+  const failed: string[] = [];
+  for (const p of posts) {
+    try {
+      const inserted = await queryPg(
+        `INSERT INTO posts (id, slug, title, excerpt, content, status, category_id, category, featured_image_url, video_url, tags, reading_time, views, likes, is_republished, original_source_url, original_source_name, published_at, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6,
+           COALESCE(
+             (SELECT id FROM categories WHERE id = $7),
+             (SELECT id FROM categories WHERE regexp_replace(lower(name), '[^a-z0-9]', '', 'g') = regexp_replace(lower($8::text), '[^a-z0-9]', '', 'g') LIMIT 1)
+           ),
+           $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW())
+         ON CONFLICT (id) DO NOTHING`,
+        [
+          p.id,
+          p.slug,
+          p.title,
+          p.excerpt || '',
+          p.content ? JSON.stringify(p.content) : null,
+          p.status || 'draft',
+          p.category_id || null,
+          typeof p.category === 'string' ? p.category : p.category?.name || null,
+          p.featured_image_url || null,
+          p.video_url || null,
+          p.tags || [],
+          p.reading_time || 3,
+          p.views || 0,
+          p.likes || 0,
+          p.is_republished || false,
+          p.original_source_url || null,
+          p.original_source_name || null,
+          p.published_at || null,
+          p.created_at || p.published_at || new Date().toISOString(),
+        ]
+      );
+      if (inserted) count++;
+      else failed.push(String(p.slug || p.id));
+    } catch {
+      failed.push(String(p.slug || p.id));
+    }
+  }
+  return { count, failed };
+}
+
 export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
   const summary: MigrationSummary = {
     success: true,
@@ -102,45 +152,7 @@ export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
     if (existingPostsCount > 0) {
       recordTable('posts', existingPostsCount, 'migrated');
     } else {
-      const posts = readJson<any[]>('posts.json') || [];
-      let count = 0;
-      const failed: string[] = [];
-      for (const p of posts) {
-        // Un artículo con problemas no debe impedir que se recuperen los demás (antes el primero
-        // que fallaba abortaba el bucle y el blog quedaba vacío).
-        try {
-          const inserted = await queryPg(
-            `INSERT INTO posts (id, slug, title, excerpt, content, status, category_id, category, featured_image_url, video_url, tags, reading_time, views, likes, is_republished, original_source_url, original_source_name, published_at, created_at, updated_at)
-             VALUES ($1, $2, $3, $4, $5, $6, (SELECT id FROM categories WHERE id = $7), $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW())
-             ON CONFLICT (id) DO NOTHING`,
-            [
-              p.id,
-              p.slug,
-              p.title,
-              p.excerpt || '',
-              p.content ? JSON.stringify(p.content) : null,
-              p.status || 'draft',
-              p.category_id || null,
-              p.category || null,
-              p.featured_image_url || null,
-              p.video_url || null,
-              p.tags || [],
-              p.reading_time || 3,
-              p.views || 0,
-              p.likes || 0,
-              p.is_republished || false,
-              p.original_source_url || null,
-              p.original_source_name || null,
-              p.published_at || null,
-              p.created_at || p.published_at || new Date().toISOString(),
-            ]
-          );
-          if (inserted) count++;
-          else failed.push(String(p.slug || p.id));
-        } catch {
-          failed.push(String(p.slug || p.id));
-        }
-      }
+      const { count, failed } = await seedPostsFromJson();
       if (failed.length > 0) {
         recordTable('posts', count, 'error', `No se pudieron migrar: ${failed.join(', ')}`);
       } else {

@@ -52,7 +52,7 @@ const SECTIONS_METADATA = [
   { id: 'hero', name: 'Hero Principal', defaultColor: '#07090e' },
   { id: 'marquee', name: 'Marquesina Doble (Precios & Titulares)', defaultColor: '#0b0f19' },
   { id: 'problema', name: 'Retos del Sector (El Problema)', defaultColor: '#07090e' },
-  { id: 'services', name: 'Servicios Petroleros', defaultColor: '#0a0d14' },
+  { id: 'services', name: 'Actualidad (últimas publicaciones)', defaultColor: '#0a0d14' },
   { id: 'products', name: 'Portafolio de Hidrocarburos', defaultColor: '#07090e' },
   { id: 'plataforma', name: 'Operaciones & Infraestructura', defaultColor: '#0a0d14' },
   { id: 'team', name: 'Consejo Directivo & Liderazgo', defaultColor: '#07090e' },

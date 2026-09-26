@@ -18,7 +18,7 @@ const TEXTOS_CATALOGO: TextItem[] = [
   // Portada & Navegación
   { key: 'nav_cta', section: 'Navegación', label: 'Botón Portal Clientes', defaultEs: 'Portal Clientes', defaultEn: 'Client Portal' },
   { key: 'hero_eyebrow', section: 'Portada', label: 'Eyebrow / Kicker', defaultEs: 'INFRAESTRUCTURA Y TRADING ENERGÉTICO GLOBAL', defaultEn: 'GLOBAL ENERGY TRADING & INFRASTRUCTURE' },
-  { key: 'hero_cta_1', section: 'Portada', label: 'Botón Primario', defaultEs: 'Explorar Servicios Petroleros', defaultEn: 'Explore Petroleum Services' },
+  { key: 'hero_cta_1', section: 'Portada', label: 'Botón Primario', defaultEs: 'Ver Actualidad y Análisis', defaultEn: 'Latest News & Analysis' },
   { key: 'hero_cta_2', section: 'Portada', label: 'Botón Secundario', defaultEs: 'Ver Catálogo de Productos', defaultEn: 'View Products Catalog' },
 
   // Secciones

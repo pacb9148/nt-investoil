@@ -58,7 +58,7 @@ export function Header({ initialConfig }: { initialConfig?: HeaderData }) {
 
     window.addEventListener('hashchange', handleHashChange);
 
-    const sections = ['contact', 'faq', 'testimonials', 'team', 'plataforma', 'products', 'services', 'problema', 'hero'];
+    const sections = ['contact', 'faq', 'testimonials', 'team', 'plataforma', 'products', 'actualidad', 'problema', 'hero'];
 
     const handleScrollSpy = () => {
       if (window.scrollY < 180) {

@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { AlertCircle, ShieldAlert, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/lib/i18n/language-context';
+import { PROBLEMS_EN, localized } from '@/lib/i18n/content-en';
 
 interface ProblemItem {
   id: string;
@@ -38,6 +40,8 @@ const DEFAULT_PROBLEMS: ProblemItem[] = [
 ];
 
 export function ProblemSection({ customBg }: { customBg?: string }) {
+  const { language } = useLanguage();
+  const isEn = language === 'en';
   const [problems, setProblems] = useState<ProblemItem[]>(DEFAULT_PROBLEMS);
 
   useEffect(() => {
@@ -68,12 +72,14 @@ export function ProblemSection({ customBg }: { customBg?: string }) {
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <Badge variant="danger">DESAFÍOS OPERATIVOS</Badge>
+          <Badge variant="danger">{isEn ? 'OPERATIONAL CHALLENGES' : 'DESAFÍOS OPERATIVOS'}</Badge>
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
-            Retos del Mercado Energético
+            {isEn ? 'Energy Market Challenges' : 'Retos del Mercado Energético'}
           </h2>
           <p className="text-base text-text-muted leading-relaxed">
-            Navegar el comercio petrolero global exige solvencia, rigor normativo y mitigación activa de los cuellos de botella habituales del sector.
+            {isEn
+              ? "Navigating global oil trading demands solvency, regulatory rigor and active mitigation of the sector's usual bottlenecks."
+              : 'Navegar el comercio petrolero global exige solvencia, rigor normativo y mitigación activa de los cuellos de botella habituales del sector.'}
           </p>
         </div>
 
@@ -86,17 +92,17 @@ export function ProblemSection({ customBg }: { customBg?: string }) {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs font-bold text-accent px-2 py-0.5 rounded bg-accent/10 border border-accent/20">
-                    DESAFÍO #{item.num}
+                    {isEn ? 'CHALLENGE' : 'DESAFÍO'} #{item.num}
                   </span>
                   <AlertCircle className="w-4 h-4 text-warm" />
                 </div>
 
                 <h3 className="font-heading font-bold text-lg text-text group-hover:text-accent transition-colors">
-                  {item.title}
+                  {localized(item, 'title', isEn, PROBLEMS_EN, item.id)}
                 </h3>
 
                 <p className="text-xs text-text-muted leading-relaxed">
-                  {item.desc}
+                  {localized(item, 'desc', isEn, PROBLEMS_EN, item.id)}
                 </p>
               </div>
 
@@ -104,10 +110,10 @@ export function ProblemSection({ customBg }: { customBg?: string }) {
                 <div className="mt-6 pt-4 border-t border-border/60 space-y-1">
                   <span className="text-[10px] font-mono uppercase text-accent font-semibold flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                    <span>Solución Invest Oil:</span>
+                    <span>{isEn ? 'The Invest Oil solution:' : 'Solución Invest Oil:'}</span>
                   </span>
                   <p className="text-[11px] text-text-subtle font-sans leading-relaxed">
-                    {item.solution}
+                    {localized(item, 'solution', isEn, PROBLEMS_EN, item.id)}
                   </p>
                 </div>
               )}

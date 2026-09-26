@@ -1,5 +1,6 @@
 'use client';
 
+import { LABELS_EN } from '@/lib/i18n/content-en';
 import React, { useState } from 'react';
 import { Search, Filter, X } from 'lucide-react';
 import { BlogCard } from './blog-card';
@@ -112,7 +113,7 @@ export function BlogGrid({
             </button>
             {categories.map((cat) => {
               const count = countByCategory(cat.slug);
-              const label = isEn && cat.name_en ? cat.name_en : cat.name;
+              const label = isEn ? (cat.name_en && cat.name_en !== cat.name ? cat.name_en : LABELS_EN[cat.name] || cat.name) : cat.name;
               const isSelected = selectedCategory === cat.slug;
 
               return (

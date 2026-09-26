@@ -68,7 +68,7 @@ const SECTIONS_MODULES: ContentCardItem[] = [
   },
   {
     href: '/admin/content/services',
-    label: '04. Servicios Petroleros',
+    label: '04. Actualidad (Blog)',
     badge: 'Sección 04',
     icon: Zap,
     desc: '10 soluciones integrales: comercialización, fletamento marítimo, blending, almacenamiento y derivados.',

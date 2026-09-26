@@ -6,7 +6,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     '',
     '/about',
-    '/services',
     '/products',
     '/blog',
     '/contact',
@@ -14,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/terminos-y-condiciones',
     '/aviso-de-privacidad',
     '/politica-de-cookies',
+    '/opciones-de-privacidad',
     '/alerta-de-fraude-y-estafas',
   ].map((route) => ({
     url: `${baseUrl}${route}`,

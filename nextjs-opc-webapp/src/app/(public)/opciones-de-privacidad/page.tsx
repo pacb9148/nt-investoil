@@ -6,11 +6,11 @@ import { legalMetadata } from '@/lib/legal/legal-meta';
 export const dynamic = 'force-dynamic';
 
 export function generateMetadata() {
-  return legalMetadata('terminos-y-condiciones');
+  return legalMetadata('opciones-de-privacidad');
 }
 
 export default async function LegalPage() {
-  const pageData = await getLegalPage('terminos-y-condiciones');
+  const pageData = await getLegalPage('opciones-de-privacidad');
   if (!pageData) notFound();
-  return <LegalPageView slug="terminos-y-condiciones" initialData={pageData} />;
+  return <LegalPageView slug="opciones-de-privacidad" initialData={pageData} />;
 }

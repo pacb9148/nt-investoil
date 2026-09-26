@@ -140,7 +140,7 @@ export default function ServicesEditorPage() {
 
       <SectionDesignBar
         sectionId="services"
-        sectionName="Servicios Petroleros"
+        sectionName="Actualidad"
         defaultBgColor="#0a0d14"
       />
 

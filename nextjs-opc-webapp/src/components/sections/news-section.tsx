@@ -9,7 +9,7 @@ import { BlogCard } from '@/components/blog/blog-card';
 import { useLanguage } from '@/lib/i18n/language-context';
 import type { Post } from '@/types';
 
-export function ServicesSection({ customBg }: { customBg?: string }) {
+export function NewsSection({ customBg }: { customBg?: string }) {
   const { language } = useLanguage();
   const isEn = language === 'en';
   const [posts, setPosts] = useState<Post[]>([]);
@@ -29,26 +29,27 @@ export function ServicesSection({ customBg }: { customBg?: string }) {
           setPosts(sorted.slice(0, 6));
         }
       })
-      .catch((err) => console.error('Error cargando posts para servicios:', err))
+      .catch((err) => console.error('Error cargando publicaciones de Actualidad:', err))
       .finally(() => setLoading(false));
   }, []);
 
   return (
     <section
-      id="services"
+      id="actualidad"
       className="py-24 border-t border-border/80 relative transition-colors duration-300"
       style={{ backgroundColor: customBg || undefined }}
     >
+      <span id="services" aria-hidden="true" className="absolute -top-20" />
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Encabezado de la sección */}
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
           <Badge variant="accent">
-            {isEn ? 'MARKET INTELLIGENCE & RESEARCH' : 'INTELIGENCIA DE MERCADO & TRADING'}
+            {isEn ? 'NEWS & MARKET INTELLIGENCE' : 'ACTUALIDAD & INTELIGENCIA DE MERCADO'}
           </Badge>
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
             {isEn
-              ? 'Latest Strategic Oil & Energy Publications'
-              : 'Publicaciones & Análisis Estratégicos del Petróleo'}
+              ? 'Latest News & Analysis'
+              : 'Actualidad y Últimos Análisis'}
           </h2>
           <p className="text-sm sm:text-base text-text-muted leading-relaxed">
             {isEn

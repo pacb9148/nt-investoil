@@ -92,7 +92,7 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
     ? config?.cta_primary_text_en || t.hero.ctaPrimary
     : config?.cta_primary_text || t.hero.ctaPrimary;
 
-  const ctaPrimaryUrl = config?.cta_primary_url || '#services';
+  const ctaPrimaryUrl = config?.cta_primary_url || '#actualidad';
 
   const ctaSecondaryText = isEn
     ? config?.cta_secondary_text_en || t.hero.ctaSecondary

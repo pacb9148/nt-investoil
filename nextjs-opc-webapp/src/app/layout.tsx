@@ -4,12 +4,16 @@ import { COMPANY_INFO } from '@/lib/constants/investoil';
 import { LanguageProvider } from '@/lib/i18n/language-context';
 import { AppearanceProvider } from '@/components/layout/appearance-provider';
 import { getLandingAppearance, getLandingSeo } from '@/lib/services/content-service';
+import { getServerLanguage } from '@/lib/i18n/server-language';
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getLandingSeo();
+  const isEn = getServerLanguage() === 'en';
 
-  const title = seo.meta_title || `${COMPANY_INFO.name} — ${COMPANY_INFO.tagline}`;
-  const description = seo.meta_description || `${COMPANY_INFO.tagline}. ${COMPANY_INFO.heroSubtitle}`;
+  // Con el idioma en inglés se usan los campos `_en` del panel SEO cuando existen.
+  const title = (isEn && seo.meta_title_en) || seo.meta_title || `${COMPANY_INFO.name} — ${COMPANY_INFO.tagline}`;
+  const description =
+    (isEn && seo.meta_description_en) || seo.meta_description || `${COMPANY_INFO.tagline}. ${COMPANY_INFO.heroSubtitle}`;
   const canonicalUrl = seo.canonical_url || process.env.NEXT_PUBLIC_APP_URL || 'https://investoil.es';
   const ogImageUrl = seo.og_image || '/images/branding/oil-drop-logo.png';
   const keywords = typeof seo.keywords === 'string'
@@ -38,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(canonicalUrl),
     openGraph: {
       type: 'website',
-      locale: 'es_ES',
+      locale: isEn ? 'en_US' : 'es_ES',
       url: canonicalUrl,
       title,
       description,
@@ -86,6 +90,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const lang = getServerLanguage();
   const [appearance, seo] = await Promise.all([
     getLandingAppearance(),
     getLandingSeo(),
@@ -162,7 +167,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="es" className="dark scroll-smooth">
+    <html lang={lang} className="dark scroll-smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -181,7 +186,7 @@ export default async function RootLayout({
         )}
       </head>
       <body className="min-h-screen bg-bg text-text antialiased selection:bg-accent/30 selection:text-neon">
-        <LanguageProvider>
+        <LanguageProvider initialLanguage={lang}>
           <AppearanceProvider initialAppearance={appearance}>
             {children}
           </AppearanceProvider>

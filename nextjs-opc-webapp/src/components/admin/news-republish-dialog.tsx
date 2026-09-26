@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { type NewsRepublishMetadata } from '@/types';
 
-async function compressAndOptimizeImage(imageUrl: string): Promise<string> {
+export async function compressAndOptimizeImage(imageUrl: string): Promise<string> {
   return new Promise((resolve) => {
     try {
       const img = new (window as any).Image();

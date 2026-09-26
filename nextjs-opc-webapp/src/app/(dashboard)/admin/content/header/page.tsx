@@ -16,7 +16,7 @@ const DEFAULT_HEADER_DATA: HeaderData = {
   logo_tagline: 'Petroleum and Derivates Markets',
   menu_items: [
     { id: 'm-1', href: '/', label: 'Inicio', label_en: 'Home', is_active: true },
-    { id: 'm-2', href: '/#services', label: 'Servicios', label_en: 'Services', is_active: true },
+    { id: 'm-2', href: '/#actualidad', label: 'Actualidad', label_en: 'News', is_active: true },
     { id: 'm-3', href: '/#products', label: 'Productos', label_en: 'Products', is_active: true },
     { id: 'm-4', href: '/about', label: 'Nosotros', label_en: 'About Us', is_active: true },
     { id: 'm-5', href: '/blog', label: 'Blog & Mercado', label_en: 'Market News', is_active: true },

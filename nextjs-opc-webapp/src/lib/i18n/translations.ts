@@ -176,7 +176,7 @@ export const translations: Record<Language, TranslationDictionary> = {
   es: {
     nav: {
       home: 'Inicio',
-      services: 'Servicios',
+      services: 'Actualidad',
       products: 'Productos',
       about: 'Nosotros',
       contact: 'Contacto',
@@ -191,7 +191,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       accent: 'el Mercado Global',
       subtitle:
         'Conectamos productores, refinerías y distribuidores en los principales centros energéticos mundiales con máxima solidez operativa, gestión de riesgo y cumplimiento normativo internacional.',
-      ctaPrimary: 'Explorar Servicios Petroleros',
+      ctaPrimary: 'Ver Actualidad y Análisis',
       ctaSecondary: 'Ver Catálogo de Productos',
       marketTicker: 'BRENT: $82.40/bbl (+1.2%) | WTI: $78.15/bbl (+0.9%)',
       activeContracts: '150M+ Barriles',
@@ -358,7 +358,7 @@ export const translations: Record<Language, TranslationDictionary> = {
   en: {
     nav: {
       home: 'Home',
-      services: 'Services',
+      services: 'News',
       products: 'Products',
       about: 'About Us',
       contact: 'Contact',
@@ -373,7 +373,7 @@ export const translations: Record<Language, TranslationDictionary> = {
       accent: 'the Global Market',
       subtitle:
         'Connecting producers, refineries, and distributors across world energy hubs with premier operational strength, risk mitigation, and strict international compliance.',
-      ctaPrimary: 'Explore Petroleum Services',
+      ctaPrimary: 'Latest News & Analysis',
       ctaSecondary: 'View Products Catalog',
       marketTicker: 'BRENT: $82.40/bbl (+1.2%) | WTI: $78.15/bbl (+0.9%)',
       activeContracts: '150M+ Barrels',

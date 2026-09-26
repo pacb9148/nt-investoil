@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, ChevronDown, Check, ArrowRight } from 'lucide-react';
 import { OliFace } from './oli-face';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface ChatMessage {
   id: string;
@@ -12,13 +13,15 @@ interface ChatMessage {
 }
 
 export function PublicAiOrbe() {
+  const { language } = useLanguage();
+  const isEn = language === 'en';
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
       sender: 'agent',
-      text: '¡Hola! Soy Oli, el agente oficial de Invest Oil LLC, ¿En qué puedo ayudarte hoy?',
+      text: '',
       timestamp: 'Ahora',
     },
   ]);
@@ -26,12 +29,13 @@ export function PublicAiOrbe() {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const quickQuestions = [
-    'Especificación Diésel EN590',
-    'Procedimiento Jet Fuel A-1',
-    'Mercado de Pet Coke',
-    'Sedes y Contacto',
-  ];
+  const welcomeText = isEn
+    ? "Hi! I'm Oli, the official agent of Invest Oil LLC. How can I help you today?"
+    : '¡Hola! Soy Oli, el agente oficial de Invest Oil LLC, ¿En qué puedo ayudarte hoy?';
+
+  const quickQuestions = isEn
+    ? ['EN590 Diesel specification', 'Jet Fuel A-1 procedure', 'Pet Coke market', 'Offices & Contact']
+    : ['Especificación Diésel EN590', 'Procedimiento Jet Fuel A-1', 'Mercado de Pet Coke', 'Sedes y Contacto'];
 
   useEffect(() => {
     if (isOpen) {
@@ -57,7 +61,7 @@ export function PublicAiOrbe() {
     try {
       const history = messages.map((m) => ({
         role: m.sender === 'user' ? 'user' : 'assistant',
-        content: m.text,
+        content: m.id === 'welcome' ? welcomeText : m.text,
       }));
 
       // Sesión persistente del interlocutor para reconocimiento en futuras visitas
@@ -97,7 +101,9 @@ export function PublicAiOrbe() {
           {
             id: (Date.now() + 1).toString(),
             sender: 'agent',
-            text: 'En este momento puede canalizar su consulta directamente a info@investoil.es o para operaciones y contratos a business@investoil.es.',
+            text: isEn
+              ? 'You can send your enquiry directly to info@investoil.es, or to business@investoil.es for operations and contracts.'
+              : 'En este momento puede canalizar su consulta directamente a info@investoil.es o para operaciones y contratos a business@investoil.es.',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           },
         ]);
@@ -108,8 +114,10 @@ export function PublicAiOrbe() {
         {
           id: (Date.now() + 1).toString(),
           sender: 'agent',
-          text: 'Conexión temporalmente interrumpida. Puede contactar a nuestro equipo vía info@investoil.es o para acuerdos comerciales en business@investoil.es.',
-          timestamp: 'Ahora',
+          text: isEn
+            ? 'Connection temporarily interrupted. You can reach our team at info@investoil.es, or at business@investoil.es for commercial agreements.'
+            : 'Conexión temporalmente interrumpida. Puede contactar a nuestro equipo vía info@investoil.es o para acuerdos comerciales en business@investoil.es.',
+          timestamp: isEn ? 'Now' : 'Ahora',
         },
       ]);
     } finally {
@@ -133,7 +141,7 @@ export function PublicAiOrbe() {
                 <h4 className="text-sm font-bold text-white flex items-center gap-1.5">
                   Oli
                   <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded px-1.5 py-0.5 font-medium">
-                    Agente Oficial
+                    {isEn ? 'Official Agent' : 'Agente Oficial'}
                   </span>
                 </h4>
                 <p className="text-[11px] text-zinc-400">Invest Oil LLC · Petroleum & Derivates</p>
@@ -142,7 +150,7 @@ export function PublicAiOrbe() {
             <button
               onClick={() => setIsOpen(false)}
               className="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition"
-              title="Minimizar chat"
+              title={isEn ? 'Minimize chat' : 'Minimizar chat'}
             >
               <X className="h-5 w-5" />
             </button>
@@ -174,7 +182,7 @@ export function PublicAiOrbe() {
                         : 'bg-zinc-900/90 text-zinc-200 border border-white/10 rounded-bl-xs shadow-sm'
                     }`}
                   >
-                    <p className="whitespace-pre-line">{m.text}</p>
+                    <p className="whitespace-pre-line">{m.id === 'welcome' ? welcomeText : m.text}</p>
                   </div>
                   <span className="text-[10px] text-zinc-500 mt-1 px-1">{m.timestamp}</span>
                 </div>
@@ -213,14 +221,25 @@ export function PublicAiOrbe() {
               e.preventDefault();
               handleSend();
             }}
-            className="p-3 border-t border-white/10 bg-zinc-900/70 flex items-center gap-2"
+            className="p-3 border-t border-white/10 bg-zinc-900/70 flex items-end gap-2"
           >
-            <input
-              type="text"
+            <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Pregúntale a Oli sobre diésel, crudos, ICPO, sedes..."
-              className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              rows={3}
+              aria-label={isEn ? 'Message to Oli' : 'Mensaje para Oli'}
+              placeholder={
+                isEn
+                  ? 'Ask Oli about diesel, crude, ICPO, offices... (Shift+Enter for a new line)'
+                  : 'Pregúntale a Oli sobre diésel, crudos, ICPO, sedes... (Mayús+Enter para nueva línea)'
+              }
+              className="flex-1 min-h-[4.5rem] max-h-40 resize-y overflow-y-auto bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-2 text-xs leading-relaxed text-white placeholder-zinc-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
             />
             <button
               type="submit"
@@ -239,7 +258,7 @@ export function PublicAiOrbe() {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className="group relative flex items-center justify-center focus:outline-none transition-transform duration-300 hover:scale-105 active:scale-95"
-        aria-label="Abrir asistente Oli de Invest Oil"
+        aria-label={isEn ? 'Open the Invest Oil assistant Oli' : 'Abrir asistente Oli de Invest Oil'}
       >
         {/* Pulsos concéntricos animados de energía */}
         <span className="absolute -inset-2 rounded-full bg-amber-500/20 animate-ping opacity-75 duration-1000" />
@@ -261,7 +280,7 @@ export function PublicAiOrbe() {
         {!isOpen && (
           <div className="absolute right-16 top-1/2 -translate-y-1/2 bg-zinc-950/90 text-amber-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-amber-500/30 shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            👋 ¡Hola! Soy Oli. ¿Puedo ayudarte?
+            {isEn ? '👋 Hi! I\'m Oli. Can I help?' : '👋 ¡Hola! Soy Oli. ¿Puedo ayudarte?'}
           </div>
         )}
       </button>

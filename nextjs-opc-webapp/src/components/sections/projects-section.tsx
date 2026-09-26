@@ -6,8 +6,12 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FEATURED_OPERATIONS } from '@/lib/constants/investoil';
 import type { FeaturedOperation } from '@/types';
+import { useLanguage } from '@/lib/i18n/language-context';
+import { OPERATIONS_EN, localized } from '@/lib/i18n/content-en';
 
 export function ProjectsSection({ customBg }: { customBg?: string }) {
+  const { language } = useLanguage();
+  const isEn = language === 'en';
   const [ops, setOps] = useState<FeaturedOperation[]>(FEATURED_OPERATIONS);
 
   useEffect(() => {
@@ -40,12 +44,14 @@ export function ProjectsSection({ customBg }: { customBg?: string }) {
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <Badge variant="accent">HISTORIAL COMPROBADO</Badge>
+          <Badge variant="accent">{isEn ? 'PROVEN TRACK RECORD' : 'HISTORIAL COMPROBADO'}</Badge>
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
-            Operaciones Destacadas
+            {isEn ? 'Featured Operations' : 'Operaciones Destacadas'}
           </h2>
           <p className="text-base text-text-muted leading-relaxed">
-            Una muestra de transacciones recientes que demuestran nuestra capacidad de ejecución logística, solidez financiera y cumplimiento estricto.
+            {isEn
+              ? 'A sample of recent transactions that show our logistics execution capacity, financial strength and strict compliance.'
+              : 'Una muestra de transacciones recientes que demuestran nuestra capacidad de ejecución logística, solidez financiera y cumplimiento estricto.'}
           </p>
         </div>
 
@@ -61,31 +67,31 @@ export function ProjectsSection({ customBg }: { customBg?: string }) {
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs text-text-muted flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-accent" />
-                    <span>Año {op.year}</span>
+                    <span>{isEn ? 'Year' : 'Año'} {op.year}</span>
                   </span>
                   <span className="font-mono text-xs text-text-muted flex items-center gap-1.5">
                     <Building2 className="w-3.5 h-3.5 text-warm" />
-                    <span>{op.client}</span>
+                    <span>{localized(op, 'client', isEn, OPERATIONS_EN, (op as { id?: string }).id)}</span>
                   </span>
                 </div>
                 <CardTitle className="text-xl group-hover:text-accent transition-colors">
-                  {op.title}
+                  {localized(op, 'title', isEn, OPERATIONS_EN, (op as { id?: string }).id)}
                 </CardTitle>
               </CardHeader>
 
               <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
                 <p className="text-sm text-text-muted leading-relaxed">
-                  {op.description}
+                  {localized(op, 'description', isEn, OPERATIONS_EN, (op as { id?: string }).id)}
                 </p>
 
                 <div className="p-3 rounded-lg bg-surf/80 border border-border/80 flex items-center gap-3 mt-4">
                   <Award className="w-5 h-5 text-accent shrink-0" />
                   <div>
                     <div className="text-[11px] uppercase tracking-wider text-text-subtle font-mono">
-                      Resultado verificado
+                      {isEn ? 'Verified result' : 'Resultado verificado'}
                     </div>
                     <div className="text-sm font-semibold text-text">
-                      {op.result}
+                      {localized(op, 'result', isEn, OPERATIONS_EN, (op as { id?: string }).id)}
                     </div>
                   </div>
                 </div>

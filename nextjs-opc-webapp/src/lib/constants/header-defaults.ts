@@ -15,9 +15,9 @@ export const DEFAULT_HEADER_DATA = {
     },
     {
       "id": "m-2",
-      "href": "/#services",
-      "label": "Servicios",
-      "label_en": "Services",
+      "href": "/#actualidad",
+      "label": "Actualidad",
+      "label_en": "News",
       "is_active": true
     },
     {

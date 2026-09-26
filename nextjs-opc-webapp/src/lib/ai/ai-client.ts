@@ -26,9 +26,10 @@ function resolveApiKey(model: ConfiguredModelItem): string {
 async function callSingleModel(
   model: ConfiguredModelItem & { effectiveApiKey: string },
   messages: ChatMessage[],
-  fullSystemPrompt: string
+  fullSystemPrompt: string,
+  opts: { timeoutMs?: number; maxTokens?: number } = {}
 ): Promise<string> {
-  const timeoutMs = 12000; // 12s de espera máxima por proveedor
+  const timeoutMs = opts.timeoutMs ?? 12000; // 12s de espera máxima por proveedor (chat)
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -44,7 +45,7 @@ async function callSingleModel(
         },
         body: JSON.stringify({
           model: model.modelName || 'claude-3-5-sonnet-20241022',
-          max_tokens: 1024,
+          max_tokens: opts.maxTokens ?? 1024,
           system: fullSystemPrompt,
           messages: messages.filter((m) => m.role !== 'system').map((m) => ({
             role: m.role,
@@ -81,6 +82,7 @@ async function callSingleModel(
         body: JSON.stringify({
           system_instruction: { parts: [{ text: fullSystemPrompt }] },
           contents: [{ parts: [{ text: userText }] }],
+          generationConfig: { maxOutputTokens: opts.maxTokens ?? 1024 },
         }),
       });
 
@@ -117,7 +119,7 @@ async function callSingleModel(
           ...messages.filter((m) => m.role !== 'system'),
         ],
         temperature: 0.3,
-        max_tokens: 1000,
+        max_tokens: opts.maxTokens ?? 1000,
       }),
     });
 
@@ -134,6 +136,48 @@ async function callSingleModel(
   } finally {
     clearTimeout(timeoutId);
   }
+}
+
+type AvailableModel = ConfiguredModelItem & { effectiveApiKey: string };
+
+/** Modelos con clave configurada, con el activo primero (cascada de respaldo para el resto). */
+async function getAvailableModels(settings?: Awaited<ReturnType<typeof getAiSettings>>): Promise<AvailableModel[]> {
+  const cfg = settings ?? (await getAiSettings());
+  const candidateModels = [...(cfg.models || [])];
+  const primaryIndex = candidateModels.findIndex((m) => m.isActiveEngine || m.id === cfg.activeModelId);
+  let ordered: ConfiguredModelItem[] = candidateModels;
+  if (primaryIndex !== -1) {
+    const [primary] = candidateModels.splice(primaryIndex, 1);
+    ordered = [primary, ...candidateModels];
+  }
+  return ordered
+    .map((m) => ({ ...m, effectiveApiKey: resolveApiKey(m) }))
+    .filter((m) => m.effectiveApiKey.length > 0 && m.status !== 'inactive');
+}
+
+/**
+ * Tarea de redacción puntual (sin persona de Oli ni base de conocimiento): devuelve el texto del
+ * primer modelo que responda, o null si no hay proveedor con clave o todos fallan. Nunca inventa
+ * una respuesta de contingencia: quien llama decide qué hacer sin IA.
+ */
+export async function executeAiTask(
+  systemPrompt: string,
+  userPrompt: string,
+  opts: { timeoutMs?: number; maxTokens?: number } = {}
+): Promise<string | null> {
+  const models = await getAvailableModels();
+  for (const model of models) {
+    try {
+      const reply = await callSingleModel(model, [{ role: 'user', content: userPrompt }], systemPrompt, {
+        timeoutMs: opts.timeoutMs ?? 45000,
+        maxTokens: opts.maxTokens ?? 3000,
+      });
+      if (reply && reply.trim()) return reply.trim();
+    } catch (err) {
+      console.warn(`[AI Task] Falló ${model.providerName} (${model.modelName}):`, err instanceof Error ? err.message : err);
+    }
+  }
+  return null;
 }
 
 import { buildSetterInstructionPrompt, UserProfileMemory } from './ai-user-memory';
@@ -192,24 +236,7 @@ export async function executeAiChat(
 
   const fullSystemPrompt = systemPromptChunks.filter(Boolean).join('\n\n');
 
-  // Ordenar los modelos para la cascada:
-  // El modelo activo (isActiveEngine o activeModelId) tiene prioridad 1; luego el resto de los disponibles
-  const candidateModels = [...models];
-  const primaryIndex = candidateModels.findIndex(
-    (m) => m.isActiveEngine || m.id === settings.activeModelId
-  );
-  let orderedModels: ConfiguredModelItem[] = [];
-  if (primaryIndex !== -1) {
-    const [primary] = candidateModels.splice(primaryIndex, 1);
-    orderedModels = [primary, ...candidateModels];
-  } else {
-    orderedModels = candidateModels;
-  }
-
-  // Filtrar modelos que tengan clave de API configurada (en el modelo o en variables de entorno)
-  const availableModels = orderedModels
-    .map((m) => ({ ...m, effectiveApiKey: resolveApiKey(m) }))
-    .filter((m) => m.effectiveApiKey.length > 0 && m.status !== 'inactive');
+  const availableModels = await getAvailableModels(settings);
 
   // CASCADA DE SALTO ENTRE MODELOS DISPONIBLES:
   // Si un modelo falla, salta de inmediato al siguiente modelo disponible hasta obtener respuesta
