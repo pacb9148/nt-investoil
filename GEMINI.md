@@ -325,6 +325,44 @@ medir el ratio WCAG; y al corregirlo aparecieron tres textos más con el mismo f
 
 ---
 
+**Añadir una dependencia sin subir el lockfile rompe el despliegue.** Con `pnpm install --frozen-lockfile`, `npm ci` o `yarn --frozen-lockfile` el build aborta si `package.json` y el lockfile no coinciden (`ERR_PNPM_OUTDATED_LOCKFILE`). Commit del lockfile junto a `package.json`; si un despliegue empieza a fallar de golpe, comparar `git log` de ambos ficheros antes de mirar nada más.
+
+**Un explorador de base de datos que solo mira el schema aprovisionado parece vacío** si el proyecto crea sus tablas con `CREATE TABLE public.x` desde su propio código. Listar también `public` (filtrando por privilegios del rol) y abrir el schema que tenga las tablas.
+
+**Los modales grandes de gestión se convierten en páginas con ruta en el hash** (`#/proyecto/<id>/<pestaña>`): se puede enlazar, recargar y volver atrás sin duplicar menú, sesión ni tema. En móvil el menú lateral pasa a solo iconos.
+
+**Para probar una interfaz que toca producción, arnés temporal con la base y el proveedor simulados** (pg y API en memoria), arrancado desde `.claude/launch.json` y retirado al acabar; el SQL real queda sin verificar y se dice.
+
+---
+
+**Un campo que una API acepta al escribir puede no devolverse al leer.** Comprobar en el esquema de RESPUESTA del `openapi.json` (no solo en el de la petición) que el campo existe; si falta, guardar el valor propio en nuestra base. Un interruptor que "se vuelve a poner solo" tras recargar suele ser esto.
+
+---
+
+**Un cliente de base de datos que traga los errores de creación de tablas oculta que no existen.** Si un rol multi-tenant no puede crear en `public` (`REVOKE` + PG15), un `CREATE TABLE public.x` falla en silencio y la app cae a ficheros: no usar el prefijo `public.` en el SQL de proyectos que van a bases con schema por cliente, y registrar/propagar el error de `ensureSchema` en vez de devolver `null`.
+
+**Todo estado que se muestra como «en curso» necesita sondeo hasta que termine**, también el log y la cabecera; si no, parece atascado.
+
+---
+
+**Coolify: `real_value` de una variable literal viene envuelto en comillas simples; `value` no.** Mostrar y reeditar `value`; si no, «Editar → Guardar» acumula comillas y una `DATABASE_URL` deja de ser una URL. Mirar siempre los DOS campos de la respuesta y quitar comillas envolventes al guardar.
+
+---
+
+**En `pg`, la URL manda sobre la opción `ssl` del código.** `new Pool({ connectionString, ssl: {…} })` fusiona con `Object.assign(config, parse(url))`, así que `?sslmode=disable` en la URL desactiva un SSL forzado por la app (lo mismo en Prisma, postgres.js y libpq). Para una red privada sin SSL, ponerlo en la URL que se entrega al cliente en vez de pedirle que cambie su código.
+
+**Un botón de diagnóstico (probar la conexión y explicar el motivo) vale más que pedir logs al cliente.** Debe conectar solo a la infraestructura propia y con credenciales del propio tenant (si no, es un SSRF/fuerza bruta), y no devolver secretos.
+
+---
+
+**Una inicialización que se marca como hecha DESPUÉS de ejecutarse entra en bucle si lo que ejecuta la vuelve a llamar.** `queryPg` → `ensureSchema` → migración → `queryPg` con `initialized=true` al final lanzó cientos de migraciones a la vez (build fallido y web caída). Marcar el flag ANTES, un solo vuelo por proceso, y la migración en segundo plano sin bloquear las consultas.
+
+**Durante `next build` la app no debe tocar la base de datos de producción**: el build renderiza páginas en paralelo y ejecuta lo que haya a nivel de módulo. La URL de la base va como variable solo de ejecución (Coolify: Build time → Not available during build) y el código comprueba `NEXT_PHASE === 'phase-production-build'`.
+
+**Si un despliegue deja la web sin responder, primero restaurar el servicio y luego investigar**; los logs de ejecución (no los de build) dicen por qué.
+
+---
+
 ## Datos personales en capturas y documentación
 
 Aprendido publicando el manual de un SaaS con usuarios reales.

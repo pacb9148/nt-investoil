@@ -14,24 +14,12 @@ export function TestimonialsSection({ customBg }: { customBg?: string }) {
   const [showVideo, setShowVideo] = useState(false);
 
   useEffect(() => {
-    try {
-      const local = localStorage.getItem('investoil_testimonials');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setItems(parsed);
-        }
-      }
-    } catch {}
 
     fetch('/api/content/testimonials')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setItems(data);
-          try {
-            localStorage.setItem('investoil_testimonials', JSON.stringify(data));
-          } catch {}
         }
       })
       .catch(() => {});

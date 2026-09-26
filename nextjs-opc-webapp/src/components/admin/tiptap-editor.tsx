@@ -95,6 +95,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { MediaPickerModal } from '@/components/admin/media-picker-modal';
 
 export interface TiptapEditorProps {
   content: any;
@@ -110,6 +111,7 @@ export function TiptapEditor({
   className,
 }: TiptapEditorProps) {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [openImagePicker, setOpenImagePicker] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -184,7 +186,7 @@ export function TiptapEditor({
 
   if (!editor) return null;
 
-  const addImage = () => {
+  const addImageByUrl = () => {
     const url = window.prompt('Introduce la URL de la imagen:');
     if (url) {
       editor.chain().focus().setImage({ src: url }).run();
@@ -476,11 +478,19 @@ export function TiptapEditor({
         </button>
         <button
           type="button"
-          onClick={addImage}
+          onClick={() => setOpenImagePicker(true)}
           className="p-1.5 rounded hover:bg-surf hover:text-text"
-          title="Insertar imagen"
+          title="Insertar imagen desde la biblioteca (reutiliza archivos ya subidos)"
         >
           <ImageIcon className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          onClick={addImageByUrl}
+          className="px-1.5 py-1 rounded hover:bg-surf hover:text-text text-[10px] font-mono"
+          title="Insertar imagen por URL externa"
+        >
+          URL
         </button>
         <button
           type="button"
@@ -510,6 +520,16 @@ export function TiptapEditor({
       <div className="max-h-[500px] min-h-[350px] overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(245,158,11,0.3)_transparent]">
         <EditorContent editor={editor} />
       </div>
+
+      <MediaPickerModal
+        open={openImagePicker}
+        onOpenChange={setOpenImagePicker}
+        onSelect={(item) => {
+          editor.chain().focus().setImage({ src: item.url, alt: item.alt_text || item.filename }).run();
+        }}
+        accept="image"
+        title="Biblioteca de Medios — Insertar imagen en el artículo"
+      />
 
       {/* Footer stats: Character & Word Count */}
       <div className="flex items-center justify-between px-4 py-2 border-t border-border bg-card/40 text-[11px] font-mono text-text-subtle">

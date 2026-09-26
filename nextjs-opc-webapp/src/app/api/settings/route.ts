@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { revalidatePath } from 'next/cache';
 import { DEFAULT_SITE_SETTINGS, type SiteSettingsData } from '@/lib/services/site-settings';
+import { hasPostgresDb } from '@/lib/db/pg-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,9 +28,9 @@ export async function GET() {
       return NextResponse.json({ ...DEFAULT_SITE_SETTINGS, ...pgData });
     }
 
-    // 2. Fallback a archivo JSON local si no está en BD
+    // 2. Fallback a archivo JSON local solo sin base de datos (desarrollo)
     const filePath = getSettingsFilePath();
-    if (fs.existsSync(filePath)) {
+    if (!hasPostgresDb() && fs.existsSync(filePath)) {
       const raw = fs.readFileSync(filePath, 'utf-8');
       const data = JSON.parse(raw);
       return NextResponse.json({ ...DEFAULT_SITE_SETTINGS, ...data });
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
       const pgData = await getSectionFromPg<SiteSettingsData>('site_settings');
       if (pgData) {
         current = { ...current, ...pgData };
-      } else {
+      } else if (!hasPostgresDb()) {
         const filePath = getSettingsFilePath();
         if (fs.existsSync(filePath)) {
           const raw = fs.readFileSync(filePath, 'utf-8');
@@ -89,8 +90,9 @@ export async function POST(request: NextRequest) {
       legal_notice: updated.certificationsText,
     });
 
-    // 3. Escribir en archivo local de respaldo si el entorno lo permite
+    // 3. Respaldo en archivo local solo sin base de datos (con ella sería una segunda fuente de verdad)
     try {
+      if (hasPostgresDb()) throw new Error('omitido'); // con base de datos no hay respaldo en disco
       const filePath = getSettingsFilePath();
       fs.mkdirSync(path.dirname(filePath), { recursive: true });
       fs.writeFileSync(filePath, JSON.stringify(updated, null, 2), 'utf-8');

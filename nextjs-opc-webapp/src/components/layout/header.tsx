@@ -10,12 +10,14 @@ import { LanguageSelector } from './language-selector';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { cn } from '@/lib/utils';
 import type { HeaderData } from '@/components/admin/content/header-form';
-import defaultHeaderData from '@/data/header.json';
+import { DEFAULT_HEADER_DATA } from '@/lib/constants/header-defaults';
 
-export function Header() {
+// `initialConfig` llega de la base de datos desde el layout del servidor: sin él la cabecera pintaba
+// primero un menú por defecto y saltaba al real tras la petición.
+export function Header({ initialConfig }: { initialConfig?: HeaderData }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [headerConfig, setHeaderConfig] = useState<HeaderData>(defaultHeaderData as HeaderData);
+  const [headerConfig, setHeaderConfig] = useState<HeaderData>(initialConfig ?? DEFAULT_HEADER_DATA);
   const pathname = usePathname();
   const { t, language } = useLanguage();
   const isEn = language === 'en';

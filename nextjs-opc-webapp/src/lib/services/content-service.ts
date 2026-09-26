@@ -44,8 +44,9 @@ function resolveDataDir(): string {
   return fallback;
 }
 
+// Con PostgreSQL la base es la única fuente: no se lee ningún JSON local (ver db-service.readJsonFile).
 export function readLocalJson<T>(filename: string, fallback: T): T {
-  if (typeof window !== 'undefined') return fallback;
+  if (typeof window !== 'undefined' || hasPostgresDb()) return fallback;
   try {
     const fs = require('fs');
     const path = require('path');
@@ -61,7 +62,7 @@ export function readLocalJson<T>(filename: string, fallback: T): T {
 }
 
 export function writeLocalJson(filename: string, data: any): void {
-  if (typeof window !== 'undefined') return;
+  if (typeof window !== 'undefined' || hasPostgresDb()) return;
   try {
     const fs = require('fs');
     const path = require('path');

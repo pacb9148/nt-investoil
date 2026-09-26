@@ -7,6 +7,7 @@ import {
   Save,
   CheckCircle2,
   Upload,
+  FolderOpen,
   Loader2,
   AlertCircle,
   Share2,
@@ -23,6 +24,8 @@ import {
   Info,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MediaPickerModal } from '@/components/admin/media-picker-modal';
+import { DeleteMediaFileButton } from '@/components/admin/delete-media-file-button';
 import type { LandingSeoConfig, CorporateOperatingHub } from '@/types/content';
 
 const INPUT =
@@ -94,6 +97,7 @@ export default function SeoEditorPage() {
   const [activeTab, setActiveTab] = useState<'corporate' | 'metadata' | 'social' | 'schema'>('corporate');
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [openOgPicker, setOpenOgPicker] = useState(false);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -821,6 +825,16 @@ export default function SeoEditorPage() {
                     />
                     <button
                       type="button"
+                      onClick={() => setOpenOgPicker(true)}
+                      disabled={uploading}
+                      className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-card border border-border hover:border-accent text-text-muted hover:text-accent text-xs font-semibold transition-all shadow-sm"
+                      title="Reutilizar una imagen ya subida a la biblioteca"
+                    >
+                      <FolderOpen className="w-3.5 h-3.5 text-accent" />
+                      <span>Biblioteca...</span>
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
                       className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-accent text-bg hover:bg-accent-400 text-xs font-bold transition-all shadow-sm disabled:opacity-50"
@@ -829,6 +843,27 @@ export default function SeoEditorPage() {
                       <span>{uploading ? 'Subiendo...' : 'Subir Imagen...'}</span>
                     </button>
                   </div>
+                  <div className="mt-2">
+                    <DeleteMediaFileButton
+                      url={formData.og_image}
+                      onDeleted={() => {
+                        setFormData((prev) => ({ ...prev, og_image: '/images/branding/oil-drop-logo.png' }));
+                        setStatusMessage('✓ Archivo eliminado de la biblioteca y de la base de datos.');
+                        setTimeout(() => setStatusMessage(null), 4000);
+                      }}
+                    />
+                  </div>
+                  <MediaPickerModal
+                    open={openOgPicker}
+                    onOpenChange={setOpenOgPicker}
+                    onSelect={(item) => {
+                      setFormData((prev) => ({ ...prev, og_image: item.url }));
+                      setStatusMessage(`✓ Imagen "${item.filename}" seleccionada de la biblioteca.`);
+                      setTimeout(() => setStatusMessage(null), 4000);
+                    }}
+                    accept="image"
+                    title="Biblioteca de Medios — Imagen Open Graph"
+                  />
                 </div>
 
                 {/* Accesos rápidos a imágenes de marca */}

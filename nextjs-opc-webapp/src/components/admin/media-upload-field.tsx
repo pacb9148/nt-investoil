@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerModal } from '@/components/admin/media-picker-modal';
+import { DeleteMediaFileButton } from '@/components/admin/delete-media-file-button';
 
 export interface MediaUploadFieldProps {
   label?: string;
@@ -199,10 +200,10 @@ export function MediaUploadField({
                 </div>
                 <ul className="list-disc list-inside space-y-1 text-[10px] text-text-subtle font-mono pt-0.5">
                   <li>
-                    <strong className="text-text">Imágenes:</strong> JPG, PNG, WebP, SVG, GIF (Máx. <span className="text-amber-400">2 MB</span>)
+                    <strong className="text-text">Imágenes:</strong> JPG, PNG, WebP, SVG, GIF (Máx. <span className="text-amber-400">{MAX_IMAGE_SIZE_MB} MB</span>)
                   </li>
                   <li>
-                    <strong className="text-text">Videos:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">100 MB</span>)
+                    <strong className="text-text">Videos:</strong> MP4, WebM, MOV (Máx. <span className="text-amber-400">{MAX_VIDEO_SIZE_MB} MB</span>)
                   </li>
                   <li className="text-[10px] text-text-muted font-sans pt-0.5">
                     Almacenamiento persistente en base de datos.
@@ -297,6 +298,18 @@ export function MediaUploadField({
           </button>
         )}
       </div>
+
+      {value && (
+        <DeleteMediaFileButton
+          url={value}
+          onDeleted={() => {
+            setPreviewError(false);
+            onChange('');
+            setMsg('✓ Archivo eliminado de la biblioteca y de la base de datos');
+            setTimeout(() => setMsg(null), 4000);
+          }}
+        />
+      )}
 
       {description && <p className="text-[11px] text-text-subtle">{description}</p>}
 

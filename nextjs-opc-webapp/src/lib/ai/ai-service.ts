@@ -32,8 +32,9 @@ export async function getAiSettings(): Promise<AiSettingsConfig> {
     }
   }
 
-  // 2. Fallback desde archivo JSON
+  // 2. Fallback desde archivo JSON (solo sin base de datos)
   try {
+    if (hasPostgresDb()) return DEFAULT_AI_SETTINGS;
     const dataFile = getAiSettingsPath();
     if (fs.existsSync(dataFile)) {
       const content = fs.readFileSync(dataFile, 'utf-8');
@@ -52,16 +53,18 @@ export async function getAiSettings(): Promise<AiSettingsConfig> {
 }
 
 export async function saveAiSettings(settings: AiSettingsConfig): Promise<boolean> {
-  // 1. Guardar en JSON
-  try {
-    const dataFile = getAiSettingsPath();
-    const dir = path.dirname(dataFile);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+  // 1. Guardar en JSON (solo sin base de datos)
+  if (!hasPostgresDb()) {
+    try {
+      const dataFile = getAiSettingsPath();
+      const dir = path.dirname(dataFile);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(dataFile, JSON.stringify(settings, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Error al guardar ai-settings.json:', err);
     }
-    fs.writeFileSync(dataFile, JSON.stringify(settings, null, 2), 'utf-8');
-  } catch (err) {
-    console.error('Error al guardar ai-settings.json:', err);
   }
 
   // 2. Guardar en PostgreSQL

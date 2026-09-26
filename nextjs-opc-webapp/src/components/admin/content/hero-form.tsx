@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerModal } from '@/components/admin/media-picker-modal';
+import { DeleteMediaFileButton } from '@/components/admin/delete-media-file-button';
 
 const INITIAL_STATE: ContentActionResponse = {
   success: false,
@@ -862,6 +863,14 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                     <X className="w-4 h-4" />
                   </button>
                 )}
+                <DeleteMediaFileButton
+                  url={bgUrl}
+                  className="shrink-0 py-2.5"
+                  onDeleted={() => {
+                    setBgUrl('');
+                    setLocalPreviewUrl(null);
+                  }}
+                />
                 {isLocalDiskPath && (
                   <button
                     type="button"
@@ -995,6 +1004,14 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                     <X className="w-4 h-4" />
                   </button>
                 )}
+                <DeleteMediaFileButton
+                  url={bgUrl}
+                  className="shrink-0 py-2.5"
+                  onDeleted={() => {
+                    setBgUrl('');
+                    setLocalPreviewUrl(null);
+                  }}
+                />
                 {isLocalDiskPath && (
                   <button
                     type="button"

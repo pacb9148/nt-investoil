@@ -15,18 +15,17 @@ export function TeamSection({
   customBg?: string;
   initialMembers?: TeamMember[];
 }) {
-  const [team, setTeam] = useState<TeamMember[]>(
-    initialMembers && initialMembers.length > 0 ? initialMembers : TEAM_MEMBERS
-  );
+  // Si el servidor entregó la lista (aunque esté vacía) es la de la base de datos: no se sustituye por el demo.
+  const [team, setTeam] = useState<TeamMember[]>(initialMembers ?? TEAM_MEMBERS);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     // Si no vinieron initialMembers del servidor, cargar desde API
-    if (!initialMembers || initialMembers.length === 0) {
+    if (!initialMembers) {
       fetch('/api/content/team')
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
-          if (Array.isArray(data) && data.length > 0) {
+          if (Array.isArray(data)) {
             setTeam(data);
           }
         })

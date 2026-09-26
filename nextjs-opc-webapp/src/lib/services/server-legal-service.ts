@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { LegalPageData } from '@/app/api/content/legales/route';
 import { getSectionContent } from '@/lib/services/content-service';
+import { hasPostgresDb } from '@/lib/db/pg-client';
 
 const DATA_PATH = path.join(process.cwd(), 'src', 'data', 'legal-pages.json');
 
@@ -13,8 +14,8 @@ export async function getLegalPage(slug: string): Promise<LegalPageData | null> 
       return pgData[slug];
     }
 
-    // 2. Fallback local si la BD aún no tiene esa página
-    if (fs.existsSync(DATA_PATH)) {
+    // 2. Fallback local solo sin base de datos: con ella, una página ausente es que no existe
+    if (!hasPostgresDb() && fs.existsSync(DATA_PATH)) {
       const data = JSON.parse(fs.readFileSync(DATA_PATH, 'utf-8'));
       if (data[slug]) {
         return data[slug] as LegalPageData;

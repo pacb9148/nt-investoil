@@ -1,0 +1,63 @@
+import type { HeaderData } from '@/components/admin/content/header-form';
+
+// Cabecera por defecto (semilla): solo se usa si la base de datos aún no tiene una guardada.
+export const DEFAULT_HEADER_DATA = {
+  "logo_url": "/images/branding/oil-drop-logo.png",
+  "logo_text": "INVEST OIL",
+  "logo_tagline": "Petroleum and Derivates Markets",
+  "menu_items": [
+    {
+      "id": "m-1",
+      "href": "/",
+      "label": "Inicio",
+      "label_en": "Home",
+      "is_active": true
+    },
+    {
+      "id": "m-2",
+      "href": "/#services",
+      "label": "Servicios",
+      "label_en": "Services",
+      "is_active": true
+    },
+    {
+      "id": "m-3",
+      "href": "/#products",
+      "label": "Productos",
+      "label_en": "Products",
+      "is_active": true
+    },
+    {
+      "id": "m-4",
+      "href": "/about",
+      "label": "Nosotros",
+      "label_en": "About Us",
+      "is_active": true
+    },
+    {
+      "id": "m-5",
+      "href": "/blog",
+      "label": "Blog & Mercado",
+      "label_en": "Market News",
+      "is_active": true
+    },
+    {
+      "id": "m-6",
+      "href": "/#contact",
+      "label": "Contacto",
+      "label_en": "Contact",
+      "is_active": true
+    }
+  ],
+  "action_button": {
+    "text": "Contactar",
+    "text_en": "Contact Us",
+    "url": "/#contact",
+    "is_visible": true
+  },
+  "backoffice_button": {
+    "text": "Acceso Backoffice",
+    "text_en": "Login",
+    "is_visible": true
+  }
+} as unknown as HeaderData;

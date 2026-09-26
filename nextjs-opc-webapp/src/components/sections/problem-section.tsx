@@ -41,22 +41,12 @@ export function ProblemSection({ customBg }: { customBg?: string }) {
   const [problems, setProblems] = useState<ProblemItem[]>(DEFAULT_PROBLEMS);
 
   useEffect(() => {
-    try {
-      const local = localStorage.getItem('investoil_problems');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) setProblems(parsed);
-      }
-    } catch {}
 
     fetch('/api/content/problem')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setProblems(data);
-          try {
-            localStorage.setItem('investoil_problems', JSON.stringify(data));
-          } catch {}
         }
       })
       .catch(() => {});

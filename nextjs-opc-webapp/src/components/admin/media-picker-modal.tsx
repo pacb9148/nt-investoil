@@ -13,6 +13,7 @@ import {
   Sparkles,
   ShieldCheck,
   RefreshCw,
+  Trash2,
 } from 'lucide-react';
 import { Dialog } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -122,6 +123,31 @@ export function MediaPickerModal({
   const handleConfirmSelect = (item: MediaItem) => {
     onSelect(item);
     onOpenChange(false);
+  };
+
+  const handleDeleteItem = async (e: React.MouseEvent, item: MediaItem) => {
+    e.stopPropagation();
+    const fileName = item.filename || item.url.split('/').pop() || 'este archivo';
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar permanentemente "${fileName}" de la biblioteca y de la base de datos? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    try {
+      const target = encodeURIComponent(item.id || item.filename || item.url);
+      const res = await fetch(`/api/media/${target}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setMediaList((prev) => prev.filter((m) => m.id !== item.id && m.url !== item.url));
+        if (selectedItem?.id === item.id || selectedItem?.url === item.url) {
+          setSelectedItem(null);
+        }
+      } else {
+        alert(data.error || 'No se pudo eliminar el archivo.');
+      }
+    } catch (err) {
+      console.error('Error al eliminar archivo:', err);
+      alert('Error de conexión al intentar eliminar el archivo.');
+    }
   };
 
   // Filtrado reactivo en memoria
@@ -359,6 +385,16 @@ export function MediaPickerModal({
                       </span>
                     </div>
 
+                    {/* Botón de Eliminar Archivo en la Tarjeta */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleDeleteItem(e, item)}
+                      className="absolute bottom-1 right-1 p-1 rounded-md bg-red-950/80 border border-red-500/40 text-red-400 hover:bg-red-600 hover:text-white transition-all opacity-80 group-hover:opacity-100 shadow-sm"
+                      title="Eliminar permanentemente este archivo de la base de datos"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+
                     {/* Check de selección */}
                     {isSelected && (
                       <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-accent text-bg flex items-center justify-center shadow-md animate-in zoom-in-50">
@@ -405,6 +441,18 @@ export function MediaPickerModal({
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          {selectedItem && (
+            <button
+              type="button"
+              onClick={(e) => handleDeleteItem(e, selectedItem)}
+              className="px-3 py-2 rounded-lg border border-red-500/40 bg-red-950/40 text-red-400 hover:bg-red-900/60 hover:text-red-200 text-xs font-semibold transition-colors flex items-center gap-1.5"
+              title="Eliminar este archivo de la base de datos"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Eliminar archivo</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => onOpenChange(false)}

@@ -25,13 +25,15 @@ export default function TeamEditorPage() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     // Cargar directamente desde la API (Base de datos real)
     fetch('/api/content/team')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
+        // La base es la fuente de verdad: una lista vacía real no se sustituye por el demo.
+        if (Array.isArray(data)) {
           setTeam(data);
         } else {
           setTeam(TEAM_MEMBERS);
@@ -78,6 +80,8 @@ export default function TeamEditorPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setSaveError(null);
+    setSaved(false);
 
     try {
       const res = await fetch('/api/content/team', {
@@ -85,23 +89,24 @@ export default function TeamEditorPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(team),
       });
+      const data = await res.json().catch(() => ({}));
 
-      if (res.ok) {
-        const data = await res.json();
-        const updated = Array.isArray(data.members) ? data.members : team;
-        setTeam(updated);
-        try {
-          localStorage.removeItem('investoil_team_members');
-          window.dispatchEvent(new CustomEvent('investoil_team_updated', { detail: updated }));
-        } catch {}
+      if (!res.ok) {
+        throw new Error(data?.error || 'El servidor rechazó el guardado del equipo.');
       }
+
+      const updated = Array.isArray(data.members) ? data.members : team;
+      setTeam(updated);
+      try {
+        localStorage.removeItem('investoil_team_members');
+        window.dispatchEvent(new CustomEvent('investoil_team_updated', { detail: updated }));
+      } catch {}
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3500);
     } catch (err) {
       console.error(err);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3500);
+      setSaveError(err instanceof Error ? err.message : 'No se pudo guardar el equipo.');
     } finally {
       setLoading(false);
     }
@@ -213,6 +218,12 @@ export default function TeamEditorPage() {
             </div>
           </div>
         ))}
+
+        {saveError && (
+          <div className="flex items-center gap-2 p-3.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold">
+            <span>✕ No se guardó: {saveError}</span>
+          </div>
+        )}
 
         {saved && (
           <div className="flex items-center gap-2 p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold animate-in fade-in">

@@ -39,22 +39,12 @@ export function FaqSection({ customBg }: { customBg?: string }) {
   const [openId, setOpenId] = useState<string | null>('faq-01');
 
   useEffect(() => {
-    try {
-      const local = localStorage.getItem('investoil_faqs');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) setFaqs(parsed);
-      }
-    } catch {}
 
     fetch('/api/content/faq')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setFaqs(data);
-          try {
-            localStorage.setItem('investoil_faqs', JSON.stringify(data));
-          } catch {}
         }
       })
       .catch(() => {});

@@ -27,7 +27,7 @@ export async function POST() {
 
     // Guardar en JSON
     const mediaJsonPath = path.join(process.cwd(), 'src/data/media.json');
-    if (fs.existsSync(mediaJsonPath)) {
+    if (!hasPostgresDb() && fs.existsSync(mediaJsonPath)) {
       fs.writeFileSync(mediaJsonPath, JSON.stringify(uniqueList, null, 2), 'utf-8');
     }
 

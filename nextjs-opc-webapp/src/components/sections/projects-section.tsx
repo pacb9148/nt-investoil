@@ -11,24 +11,12 @@ export function ProjectsSection({ customBg }: { customBg?: string }) {
   const [ops, setOps] = useState<FeaturedOperation[]>(FEATURED_OPERATIONS);
 
   useEffect(() => {
-    try {
-      const local = localStorage.getItem('investoil_operations');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setOps(parsed);
-        }
-      }
-    } catch {}
 
     fetch('/api/content/operations')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setOps(data);
-          try {
-            localStorage.setItem('investoil_operations', JSON.stringify(data));
-          } catch {}
         }
       })
       .catch(() => {});

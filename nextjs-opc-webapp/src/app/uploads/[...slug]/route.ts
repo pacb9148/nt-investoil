@@ -6,6 +6,9 @@ import { queryPg, hasPostgresDb } from '@/lib/db/pg-client';
 
 export const dynamic = 'force-dynamic';
 
+// Caché corta: con 24 h, un archivo ya eliminado seguía viéndose en navegadores y CDN (imagen «fantasma»).
+const CACHE_CONTROL = 'public, max-age=300, must-revalidate';
+
 function getMimeType(filename: string): string {
   const ext = path.extname(filename).toLowerCase();
   switch (ext) {
@@ -130,7 +133,7 @@ export async function GET(
                 'Accept-Ranges': 'bytes',
                 'Content-Length': chunk.length.toString(),
                 'Content-Type': mimeType,
-                'Cache-Control': 'public, max-age=86400',
+                'Cache-Control': CACHE_CONTROL,
               },
             });
           }
@@ -140,7 +143,7 @@ export async function GET(
             headers: {
               'Content-Type': mimeType,
               'Content-Length': fileSize.toString(),
-              'Cache-Control': 'public, max-age=86400',
+              'Cache-Control': CACHE_CONTROL,
             },
           });
         }
@@ -193,7 +196,7 @@ export async function GET(
           'Accept-Ranges': 'bytes',
           'Content-Length': chunkSize.toString(),
           'Content-Type': mimeType,
-          'Cache-Control': 'public, max-age=86400',
+          'Cache-Control': CACHE_CONTROL,
         },
       });
     }
@@ -207,7 +210,7 @@ export async function GET(
         'Content-Type': mimeType,
         'Content-Length': fileSize.toString(),
         'Accept-Ranges': 'bytes',
-        'Cache-Control': 'public, max-age=86400',
+        'Cache-Control': CACHE_CONTROL,
       },
     });
   } catch (error) {

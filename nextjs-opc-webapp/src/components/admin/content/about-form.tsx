@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaPickerModal } from '@/components/admin/media-picker-modal';
+import { DeleteMediaFileButton } from '@/components/admin/delete-media-file-button';
 
 const INPUT_STYLE =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2.5 text-xs text-text placeholder:text-text-subtle focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors';
@@ -190,6 +191,17 @@ export function AboutForm({ initialData }: { initialData: any }) {
                 >
                   ✕ Quitar Imagen (Limpio)
                 </button>
+              )}
+              {data.featured_image && (
+                <DeleteMediaFileButton
+                  url={data.featured_image}
+                  className="px-2.5 py-1 text-[10px] font-mono"
+                  onDeleted={() => {
+                    setData((prev: any) => ({ ...prev, featured_image: '' }));
+                    setStatusMessage('✓ Archivo eliminado de la biblioteca y de la base de datos.');
+                    setTimeout(() => setStatusMessage(null), 4000);
+                  }}
+                />
               )}
             </div>
           </div>

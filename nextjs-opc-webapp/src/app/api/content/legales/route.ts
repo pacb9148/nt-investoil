@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 
 import fs from 'fs';
 import path from 'path';
+import { hasPostgresDb } from '@/lib/db/pg-client';
 
 export interface LegalSection {
   title: string;
@@ -64,8 +65,9 @@ export async function POST(req: Request) {
     // 1. Persistir en PostgreSQL (landing_sections)
     await saveSectionContent('legal-pages', currentData);
 
-    // 2. Sincronizar archivo local de respaldo si existe
+    // 2. Respaldo en archivo local solo sin base de datos
     try {
+      if (hasPostgresDb()) throw new Error('omitido'); // con base de datos no hay respaldo en disco
       const dataPath = path.join(process.cwd(), 'src', 'data', 'legal-pages.json');
       fs.writeFileSync(dataPath, JSON.stringify(currentData, null, 2), 'utf-8');
     } catch {}

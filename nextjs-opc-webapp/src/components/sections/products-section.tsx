@@ -16,24 +16,12 @@ export function ProductsSection({ customBg }: { customBg?: string }) {
   const [products, setProducts] = useState<ProductItem[]>(PRODUCTS_LIST);
 
   useEffect(() => {
-    try {
-      const local = localStorage.getItem('investoil_products');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setProducts(parsed);
-        }
-      }
-    } catch {}
 
     fetch('/api/content/products')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setProducts(data);
-          try {
-            localStorage.setItem('investoil_products', JSON.stringify(data));
-          } catch {}
         }
       })
       .catch(() => {});

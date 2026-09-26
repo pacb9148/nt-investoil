@@ -33,7 +33,18 @@ function ensureDataDir() {
   }
 }
 
-export function readJsonFile<T>(filename: string, defaultData: T): T {
+// Con PostgreSQL configurado la base es la única fuente de verdad: los JSON de src/data solo
+// sirven de respaldo cuando no hay base (desarrollo local). Leerlos en producción resucita
+// contenido borrado (fotos, posts, medios «fantasma»). Excepción: `allowInDbMode` para lo que
+// todavía no tiene tabla propia en uso (leads y usuarios).
+export function readJsonFile<T>(
+  filename: string,
+  defaultData: T,
+  opts?: { allowInDbMode?: boolean }
+): T {
+  if (hasPostgresDb() && !opts?.allowInDbMode) {
+    return (Array.isArray(defaultData) ? [] : defaultData) as T;
+  }
   ensureDataDir();
   const filePath = path.join(DATA_DIR, filename);
   try {
@@ -50,7 +61,8 @@ export function readJsonFile<T>(filename: string, defaultData: T): T {
   }
 }
 
-export function writeJsonFile<T>(filename: string, data: T): void {
+export function writeJsonFile<T>(filename: string, data: T, opts?: { allowInDbMode?: boolean }): void {
+  if (hasPostgresDb() && !opts?.allowInDbMode) return;
   ensureDataDir();
   const filePath = path.join(DATA_DIR, filename);
   try {
@@ -59,6 +71,9 @@ export function writeJsonFile<T>(filename: string, data: T): void {
     console.error(`Error al escribir archivo de base de datos ${filename}:`, error);
   }
 }
+
+// Leads y usuarios del backoffice aún no se leen de PostgreSQL: mantienen su JSON hasta migrarlos.
+const KEEP_JSON_IN_DB_MODE = { allowInDbMode: true } as const;
 
 // Media inicial por defecto
 const DEFAULT_MEDIA: MediaItem[] = [
@@ -755,25 +770,55 @@ export async function saveMediaItem(item: Partial<MediaItem>): Promise<MediaItem
 }
 
 export async function deleteMediaItem(idOrIdentifier: string): Promise<boolean> {
-  const media = readJsonFile<MediaItem[]>('media.json', DEFAULT_MEDIA);
   const cleanId = decodeURIComponent(idOrIdentifier).trim();
+  const media = readJsonFile<MediaItem[]>('media.json', DEFAULT_MEDIA);
   
-  // Encontrar el item por ID, por URL exacta o por nombre de archivo
-  const itemToDelete = media.find(
-    (m) => m.id === cleanId || m.url === cleanId || m.filename === cleanId || m.url.endsWith(`/${cleanId}`)
-  );
+  // Recopilar todos los identificadores, nombres y URLs asociados
+  const targetIds = new Set<string>([cleanId]);
+  const targetFilenames = new Set<string>([path.basename(cleanId.split('?')[0])]);
+  const targetUrls = new Set<string>([cleanId]);
 
-  // Extraer el nombre del archivo para borrarlo físicamente del disco
-  const targetFilename = itemToDelete
-    ? (itemToDelete.filename || path.basename(itemToDelete.url))
-    : path.basename(cleanId.split('?')[0]);
+  // Si cleanId parece una URL completa o relativa
+  if (cleanId.startsWith('/') || cleanId.startsWith('http')) {
+    targetUrls.add(cleanId);
+    targetFilenames.add(path.basename(cleanId.split('?')[0]));
+  }
 
-  if (targetFilename && !targetFilename.includes('..') && targetFilename !== '.' && targetFilename !== '/') {
+  // 1. Consultar en PostgreSQL para obtener nombres reales y URLs de ambas tablas
+  if (hasPostgresDb()) {
+    try {
+      const res = await queryPg(
+        `SELECT id, filename, url FROM media 
+         WHERE id = $1 OR url = $1 OR filename = $1 OR url LIKE '%' || $1
+         UNION 
+         SELECT id, filename, NULL as url FROM media_files 
+         WHERE id = $1 OR filename = $1 OR filename LIKE '%' || $1`,
+        [cleanId]
+      );
+      if (res && res.rows) {
+        for (const row of res.rows) {
+          if (row.id) targetIds.add(row.id);
+          // `media.filename` guarda el nombre original (sin marca de tiempo) y lo comparten varias
+          // subidas: usarlo borraría archivos ajenos. Se identifica el archivo por el de su URL.
+          if (row.url) {
+            targetUrls.add(row.url);
+            targetFilenames.add(path.basename(String(row.url).split('?')[0]));
+          } else if (row.filename) {
+            targetFilenames.add(row.filename);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[db-service] Error querying media before delete:', e);
+    }
+  }
+
+  // 2. Borrar físicamente del disco todos los nombres identificados
+  for (const filename of Array.from(targetFilenames)) {
+    if (!filename || filename.includes('..') || filename === '.' || filename === '/') continue;
     const candidates = [
-      path.join(process.cwd(), 'public', 'uploads', targetFilename),
-      path.join(process.cwd(), 'nextjs-opc-webapp', 'public', 'uploads', targetFilename),
-      path.join(process.cwd(), 'public', targetFilename.startsWith('/') ? targetFilename.slice(1) : targetFilename),
-      path.join(process.cwd(), 'nextjs-opc-webapp', 'public', targetFilename.startsWith('/') ? targetFilename.slice(1) : targetFilename),
+      path.join(process.cwd(), 'public', 'uploads', filename),
+      path.join(process.cwd(), 'nextjs-opc-webapp', 'public', 'uploads', filename),
     ];
     for (const filePath of candidates) {
       try {
@@ -781,46 +826,101 @@ export async function deleteMediaItem(idOrIdentifier: string): Promise<boolean> 
           fs.unlinkSync(filePath);
         }
       } catch (err) {
-        console.warn(`[db-service] No se pudo borrar archivo en ${filePath}:`, err);
+        console.warn(`[db-service] No se pudo borrar archivo físico en ${filePath}:`, err);
       }
     }
   }
 
-  // Filtrar en media.json
-  const targetId = itemToDelete ? itemToDelete.id : cleanId;
+  // 3. Borrar de media.json
   const filtered = media.filter(
     (m) =>
-      m.id !== targetId &&
-      m.url !== cleanId &&
-      m.filename !== targetFilename &&
-      !m.url.endsWith(`/${targetFilename}`)
+      !targetIds.has(m.id) &&
+      !targetUrls.has(m.url) &&
+      !targetFilenames.has(m.filename) &&
+      !Array.from(targetFilenames).some((fn) => m.url.endsWith(`/${fn}`))
   );
   writeJsonFile('media.json', filtered);
 
+  // 4. Borrar de PostgreSQL en ambas tablas
   if (hasPostgresDb()) {
     try {
+      const idsArr = Array.from(targetIds);
+      const urlsArr = Array.from(targetUrls);
+      const fnArr = Array.from(targetFilenames);
+
       await queryPg(
-        'DELETE FROM media WHERE id = $1 OR url = $1 OR filename = $1 OR url = $2 OR filename = $2 OR id = $2',
-        [targetId, targetFilename]
+        `DELETE FROM media 
+         WHERE id = ANY($1::text[]) 
+            OR url = ANY($2::text[]) 
+            OR filename = ANY($3::text[])`,
+        [idsArr, urlsArr, fnArr]
       );
+
       await queryPg(
-        'DELETE FROM media_files WHERE id = $1 OR filename = $1 OR id = $2 OR filename = $2',
-        [targetId, targetFilename]
+        `DELETE FROM media_files 
+         WHERE id = ANY($1::text[]) 
+            OR filename = ANY($2::text[])`,
+        [idsArr, fnArr]
       );
     } catch (pgErr) {
       console.warn('[db-service] PostgreSQL deleteMediaItem error:', pgErr);
     }
   }
 
+  // 5. Borrar de Supabase
   if (isSupabaseConfigured()) {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
       const supabase = createAdminClient();
-      await supabase.from('media').delete().or(`id.eq.${targetId},filename.eq.${targetFilename}`);
+      for (const id of Array.from(targetIds)) {
+        await supabase.from('media').delete().eq('id', id);
+        await supabase.from('media_files').delete().eq('id', id);
+      }
+      for (const fn of Array.from(targetFilenames)) {
+        await supabase.from('media').delete().eq('filename', fn);
+        await supabase.from('media_files').delete().eq('filename', fn);
+      }
     } catch {}
   }
 
   return true;
+}
+
+// Tablas de contenido que pueden apuntar a un archivo de la biblioteca (lista fija: nunca viene del cliente).
+const MEDIA_REFERENCE_TABLES: Array<{ table: string; label: string }> = [
+  { table: 'landing_hero', label: 'Hero principal' },
+  { table: 'landing_header', label: 'Cabecera y menú' },
+  { table: 'landing_about', label: 'Página Nosotros' },
+  { table: 'landing_footer', label: 'Pie de página' },
+  { table: 'landing_seo', label: 'SEO / Open Graph' },
+  { table: 'landing_team', label: 'Equipo directivo' },
+  { table: 'landing_testimonials', label: 'Testimonios' },
+  { table: 'landing_products', label: 'Productos' },
+  { table: 'landing_services', label: 'Servicios' },
+  { table: 'landing_operations', label: 'Operaciones' },
+  { table: 'landing_sections', label: 'Secciones de la landing' },
+  { table: 'posts', label: 'Entradas del blog' },
+];
+
+/** Secciones/páginas donde se usa un archivo; sirve para avisar antes de borrarlo. */
+export async function findMediaUsage(urlOrFilename: string): Promise<string[]> {
+  if (!hasPostgresDb()) return [];
+  const needle = path.basename(decodeURIComponent(urlOrFilename).split('?')[0]);
+  if (!needle) return [];
+
+  const used: string[] = [];
+  for (const { table, label } of MEDIA_REFERENCE_TABLES) {
+    try {
+      const res = await queryPg(
+        `SELECT 1 FROM ${table} t WHERE position($1 in t::text) > 0 LIMIT 1`,
+        [needle]
+      );
+      if (res && res.rows.length > 0) used.push(label);
+    } catch {
+      // Una tabla ausente no debe impedir avisar de las demás.
+    }
+  }
+  return used;
 }
 
 // ==========================================
@@ -871,7 +971,11 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
         .select('*')
         .order('sort_order', { ascending: true });
       if (!error && data && data.length > 0) {
-        return data as TeamMember[];
+        return data.map((r: any) => ({
+          ...r,
+          image: r.image || r.photo_url || '',
+          photo_url: r.photo_url || r.image || '',
+        })) as TeamMember[];
       }
     } catch {}
   }
@@ -881,12 +985,17 @@ export async function getTeamMembers(): Promise<TeamMember[]> {
 }
 
 export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember[]> {
-  const sanitizedMembers: TeamMember[] = members.map((m, i) => ({
-    ...m,
-    id: m.id || `tm-${i + 1}`,
-    sort_order: i,
-    is_active: m.is_active !== false,
-  }));
+  const sanitizedMembers: TeamMember[] = members.map((m, i) => {
+    const effectiveImg = typeof m.image === 'string' ? m.image.trim() : (typeof m.photo_url === 'string' ? m.photo_url.trim() : '');
+    return {
+      ...m,
+      id: m.id || `tm-${i + 1}`,
+      image: effectiveImg,
+      photo_url: effectiveImg,
+      sort_order: i,
+      is_active: m.is_active !== false,
+    };
+  });
 
   // Sincronizar archivo JSON local de respaldo con exactamente la misma lista depurada
   writeJsonFile('team.json', sanitizedMembers);
@@ -906,6 +1015,8 @@ export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember
       // 2. Insertar o actualizar los miembros vigentes preservando su nuevo orden exacto (sort_order)
       for (let i = 0; i < sanitizedMembers.length; i++) {
         const m = sanitizedMembers[i];
+        const effectiveImg = m.image || null;
+
         await queryPg(
           `INSERT INTO landing_team (id, number, name, role, role_en, location, image, photo_url, bio, bio_en, linkedin_url, sort_order, is_active, updated_at)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
@@ -930,8 +1041,8 @@ export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember
             m.role,
             m.role_en || m.role,
             m.location || null,
-            m.photo_url || m.image || null,
-            m.photo_url || m.image || null,
+            effectiveImg,
+            effectiveImg,
             m.bio || '',
             m.bio_en || m.bio || '',
             m.linkedin_url || null,
@@ -941,7 +1052,11 @@ export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember
         );
       }
     } catch (pgErr) {
-      console.warn('[db-service] PostgreSQL saveTeamMembers error:', pgErr);
+      console.error('[db-service] PostgreSQL saveTeamMembers error:', pgErr);
+      // Sin esto el admin veía «guardado» mientras la web pública seguía leyendo la fila vieja.
+      throw new Error(
+        `No se pudo guardar el equipo en la base de datos: ${pgErr instanceof Error ? pgErr.message : String(pgErr)}`
+      );
     }
   }
 
@@ -966,7 +1081,8 @@ export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember
           role_en: m.role_en || m.role,
           bio: m.bio || '',
           bio_en: m.bio_en || m.bio || '',
-          photo_url: m.photo_url || m.image || '',
+          photo_url: m.image || '',
+          image: m.image || '',
           linkedin_url: m.linkedin_url || '',
           sort_order: i,
           is_active: m.is_active !== false,
@@ -1008,7 +1124,7 @@ export async function getLeads(): Promise<ContactLead[]> {
       created_at: new Date(Date.now() - 86400000).toISOString(),
       updated_at: new Date(Date.now() - 86400000).toISOString(),
     },
-  ]);
+  ], KEEP_JSON_IN_DB_MODE);
 }
 
 export async function saveLead(leadData: Partial<ContactLead>): Promise<ContactLead> {
@@ -1040,7 +1156,7 @@ export async function saveLead(leadData: Partial<ContactLead>): Promise<ContactL
     leads.unshift(targetLead);
   }
 
-  writeJsonFile('leads.json', leads);
+  writeJsonFile('leads.json', leads, KEEP_JSON_IN_DB_MODE);
 
   if (isSupabaseConfigured()) {
     try {
@@ -1143,7 +1259,7 @@ const DEFAULT_USERS: BackofficeUser[] = [
 ];
 
 export async function getUsers(): Promise<BackofficeUser[]> {
-  let users = readJsonFile<BackofficeUser[]>('users.json', DEFAULT_USERS);
+  let users = readJsonFile<BackofficeUser[]>('users.json', DEFAULT_USERS, KEEP_JSON_IN_DB_MODE);
 
   if (isSupabaseConfigured()) {
     try {
@@ -1178,7 +1294,7 @@ export async function getUsers(): Promise<BackofficeUser[]> {
   if (!hasEs || !hasCom) {
     if (!hasEs) users.unshift(DEFAULT_USERS[0]);
     if (!hasCom) users.unshift(DEFAULT_USERS[1]);
-    writeJsonFile('users.json', users);
+    writeJsonFile('users.json', users, KEEP_JSON_IN_DB_MODE);
   }
   return users;
 }
@@ -1296,7 +1412,7 @@ export async function saveUser(userData: Partial<BackofficeUser>): Promise<Backo
     }
   }
 
-  writeJsonFile('users.json', users);
+  writeJsonFile('users.json', users, KEEP_JSON_IN_DB_MODE);
 
   if (isSupabaseConfigured()) {
     try {
@@ -1336,7 +1452,7 @@ export async function deleteUser(id: string): Promise<boolean> {
   }
 
   const filtered = users.filter((u) => u.id !== id);
-  writeJsonFile('users.json', filtered);
+  writeJsonFile('users.json', filtered, KEEP_JSON_IN_DB_MODE);
 
   if (isSupabaseConfigured()) {
     try {
@@ -1355,7 +1471,7 @@ export async function recordUserLogin(email: string): Promise<void> {
   const user = users.find((u) => u.email.toLowerCase() === clean);
   if (user) {
     user.lastLogin = new Date().toISOString();
-    writeJsonFile('users.json', users);
+    writeJsonFile('users.json', users, KEEP_JSON_IN_DB_MODE);
 
     if (isSupabaseConfigured()) {
       try {
