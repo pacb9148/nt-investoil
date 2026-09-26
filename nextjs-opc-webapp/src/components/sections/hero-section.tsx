@@ -14,6 +14,29 @@ interface HeroSectionProps {
   customBg?: string;
 }
 
+function hexOrRgbToRgba(color: string, opacityPercent: number): string {
+  if (opacityPercent <= 0) return 'transparent';
+  const alpha = Math.max(0, Math.min(1, opacityPercent / 100));
+  if (!color || color === 'transparent') return `rgba(14, 30, 61, ${alpha})`;
+  if (color.startsWith('#')) {
+    let hex = color.slice(1);
+    if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('');
+    if (hex.length >= 6) {
+      const r = parseInt(hex.substring(0, 2), 16) || 0;
+      const g = parseInt(hex.substring(2, 4), 16) || 0;
+      const b = parseInt(hex.substring(4, 6), 16) || 0;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+  }
+  if (color.startsWith('rgb')) {
+    const nums = color.match(/\d+/g);
+    if (nums && nums.length >= 3) {
+      return `rgba(${nums[0]}, ${nums[1]}, ${nums[2]}, ${alpha})`;
+    }
+  }
+  return color;
+}
+
 export function HeroSection({ config: initialConfig, customBg }: HeroSectionProps) {
   const { t, language } = useLanguage();
   const [activeConfig, setActiveConfig] = useState<LandingHeroConfig | undefined>(initialConfig);
@@ -96,7 +119,9 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
 
   // Personalización dinámica de la Tarjeta Hero Señalada
   const heroCard = config?.hero_card;
-  const cardBgColor = heroCard?.card_bg_color || 'rgba(14, 30, 61, 0.9)';
+  const rawCardBg = heroCard?.card_bg_color || '#0e1e3d';
+  const cardOpacity = heroCard?.card_opacity !== undefined ? Number(heroCard.card_opacity) : 90;
+  const cardBgColor = hexOrRgbToRgba(rawCardBg, cardOpacity);
   const cardBorderColor = heroCard?.card_border_color || '#1a3264';
   const cardGlowOpacity = (heroCard?.card_glow_opacity ?? 50) / 100;
 

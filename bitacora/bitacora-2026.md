@@ -598,5 +598,27 @@
 - **Verificación Técnica**:
   - `npm run type-check`: 0 errores de TypeScript.
   - `npm run build`: 53/53 rutas generadas con éxito (100% OK).
+
+## [2026-09-26 16:35] - Fase 22: Correos Oficiales (info@ y business@), Opacidad en Hero Card, Noticias con Enlace Canónico y Video Preview, Setter Comercial B2B (Oli) y Marco Legal Bilingüe Exhaustivo
+- **Solicitud del Usuario**:
+  1. Eliminar `trading@investoil.es` y `contacto@investoil.es` de todas partes y cambiarlos por `info@investoil.es` (general/preliminar) y `business@investoil.es` (negocios/contratos/trading).
+  2. En Personalización de Tarjeta Hero & Logotipo, agregar control de opacidad (0 a 100%) para hacerla transparente y ver el fondo multimedia.
+  3. En noticias importadas, el link de la fuente debe apuntar directamente al artículo en cuestión y no solo a la home de la fuente; extraer la imagen original y reducirla si supera los 2 MB; y en videos, mostrar solo la vista previa (preview) desde la fuente sin forzar descarga pesada.
+  4. Reducir el límite de tamaño de video local a 20 MB; si es mayor, guardar el enlace de internet y mostrar preview.
+  5. En el agente Oli: recordar nombre, empresa, intereses, estilo de trato y perfil en futuras conversaciones; actuar como setter comercial B2B para nutrir la relación, cualificar el lead (ICPO, BCL, producto, laycan) y dejarlo listo para que un humano de `business@investoil.es` cierre el trato.
+  6. Ampliar exhaustivamente las 5 páginas legales en español e inglés (`/terminos-y-condiciones`, `/aviso-de-privacidad`, `/politica-de-cookies`, `/alerta-de-fraude-y-estafas`, `/accesibilidad`) con aspectos sensibles del sector (estilo Chevron: exención trading/precios, sanciones OFAC/UE, AML, prevención de intermediarios no autorizados, alertas de fraude petrolero).
+  7. Finalizar con orden `+dap`.
+- **Acciones Realizadas**:
+  1. **Emails Oficiales**: Erradicación de `contacto@` y `trading@` en `src/`, configurando `info@investoil.es` y `business@investoil.es` en código, base de datos, fallbacks, formularios, SEO y autenticación.
+  2. **Opacidad Hero Card**: Slider interactivo (0%-100%) en `/admin/content/hero` y función `hexOrRgbToRgba` en `hero-section.tsx`.
+  3. **Límite de Video Local**: Fijado tope de 20 MB en `/api/upload`, `MediaUploadField` y `MediaPickerModal`.
+  4. **Noticias con URL Canónica Directa y Preview de Video**: Extracción de URL profunda y tags de video en `/api/news-republish`, compresión automática con Canvas en `NewsRepublishDialog`, atributos `preload="none"` y `poster` en el reproductor del blog, y tarjeta de atribución con botón directo de lectura al pie del artículo.
+  5. **Setter Comercial B2B y Memoria de Usuario (Oli)**: Creado `src/lib/ai/ai-user-memory.ts` con persistencia dual (PostgreSQL + JSON), extracción de entidades de prospectos, persistencia de sesión con `localStorage` y prompt con rol de setter para calificar leads y canalizar contratos a `business@investoil.es`.
+  6. **Marco Legal Bilingüe Exhaustivo (ES / EN)**: Redacción completa de las 5 páginas legales en `src/data/legal-pages.json` con cláusulas específicas del sector energético internacional, y componente `LegalPageView` con selector interactivo de idioma `[ES | EN]` y contraste WCAG AA medido.
+- **Verificación Técnica**:
+  - `npm run type-check`: 0 errores de TypeScript.
+  - `npm run build`: 53/53 páginas estáticas y dinámicas compiladas exitosamente.
+  - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada sin secretos ni vulnerabilidades.
+
   - `pwsh ./scripts/bateria-seguridad.ps1`: Aprobada al 100% (cero secretos ni vulnerabilidades).
 

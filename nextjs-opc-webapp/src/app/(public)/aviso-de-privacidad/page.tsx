@@ -21,7 +21,7 @@ export default async function PrivacyPage() {
     sections: [
       {
         title: 'Responsable del Tratamiento',
-        content: 'Invest Oil LLC · Dirección de Cumplimiento · Contacto: contacto@investoil.es',
+        content: 'Invest Oil LLC · Dirección de Cumplimiento · Contacto: info@investoil.es',
       },
       {
         title: 'Legitimación y Conservación',
@@ -29,7 +29,7 @@ export default async function PrivacyPage() {
       },
       {
         title: 'Tus Derechos (RGPD)',
-        content: 'Puedes ejercer en cualquier momento tus derechos de acceso, rectificación, supresión y limitación escribiendo a contacto@investoil.es.',
+        content: 'Puedes ejercer en cualquier momento tus derechos de acceso, rectificación, supresión y limitación escribiendo a info@investoil.es.',
       },
     ],
   };

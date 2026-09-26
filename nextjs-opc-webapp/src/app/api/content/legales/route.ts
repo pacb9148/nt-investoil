@@ -15,6 +15,10 @@ export interface LegalPageData {
   lastUpdated: string;
   intro: string;
   sections: LegalSection[];
+  badge_en?: string;
+  title_en?: string;
+  intro_en?: string;
+  sections_en?: LegalSection[];
 }
 
 export async function GET(req: Request) {

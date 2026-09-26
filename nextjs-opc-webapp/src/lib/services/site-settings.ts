@@ -19,7 +19,7 @@ export interface SiteSettingsData {
 
 export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
   companyName: 'Invest Oil LLC',
-  email: 'contacto@investoil.es',
+  email: 'info@investoil.es',
   schedule: '24/7 Global Operations & Logistics',
   copyright: '© 2026 Invest Oil LLC. Todos los derechos reservados.',
   copyrightEn: '© 2026 Invest Oil LLC. All Rights Reserved.',

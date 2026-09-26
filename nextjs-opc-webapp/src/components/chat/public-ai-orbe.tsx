@@ -60,10 +60,24 @@ export function PublicAiOrbe() {
         content: m.text,
       }));
 
+      // Sesión persistente del interlocutor para reconocimiento en futuras visitas
+      let sessionId = 'session-default';
+      try {
+        const stored = localStorage.getItem('investoil_oli_session_id');
+        if (stored) {
+          sessionId = stored;
+        } else {
+          sessionId = `usr-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+          localStorage.setItem('investoil_oli_session_id', sessionId);
+        }
+      } catch {
+        // Fallback si localStorage no está disponible
+      }
+
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, history }),
+        body: JSON.stringify({ message: text, history, sessionId }),
       });
 
       const data = await res.json();
@@ -83,7 +97,7 @@ export function PublicAiOrbe() {
           {
             id: (Date.now() + 1).toString(),
             sender: 'agent',
-            text: 'En este momento puede canalizar su consulta directamente a trading@investoil.es o a través de nuestro formulario de contacto en la web.',
+            text: 'En este momento puede canalizar su consulta directamente a info@investoil.es o para operaciones y contratos a business@investoil.es.',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           },
         ]);
@@ -94,7 +108,7 @@ export function PublicAiOrbe() {
         {
           id: (Date.now() + 1).toString(),
           sender: 'agent',
-          text: 'Conexión temporalmente interrumpida. Puede contactar a nuestro equipo vía trading@investoil.es.',
+          text: 'Conexión temporalmente interrumpida. Puede contactar a nuestro equipo vía info@investoil.es o para acuerdos comerciales en business@investoil.es.',
           timestamp: 'Ahora',
         },
       ]);

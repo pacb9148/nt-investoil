@@ -27,6 +27,7 @@ export interface HeroCardCustomization {
   card_bg_color?: string;
   card_border_color?: string;
   card_glow_opacity?: number;
+  card_opacity?: number; // 0 a 100 (% de opacidad / transparencia)
   logo_url?: string;
   logo_hue?: number;
   logo_brightness?: number;

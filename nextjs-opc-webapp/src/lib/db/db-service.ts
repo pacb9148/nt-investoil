@@ -1124,7 +1124,7 @@ const DEFAULT_USERS: BackofficeUser[] = [
   },
   {
     id: 'usr-trading-01',
-    email: 'trading@investoil.es',
+    email: 'business@investoil.es',
     name: 'Operador Senior de Commodities',
     role: 'operator',
     status: 'active',
@@ -1211,7 +1211,7 @@ export async function verifyUserCredentials(
   if (
     cleanEmail === 'admin@investoil.es' ||
     cleanEmail === 'admin@investoil.com' ||
-    cleanEmail === 'trading@investoil.es'
+    cleanEmail === 'business@investoil.es'
   ) {
     if (
       cleanPassword === 'InvestOil2026!*' ||

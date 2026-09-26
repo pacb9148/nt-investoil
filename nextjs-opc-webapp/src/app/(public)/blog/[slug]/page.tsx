@@ -205,6 +205,8 @@ export default async function BlogPostPage({
               <video
                 src={post.video_url}
                 controls
+                preload="none"
+                poster={post.featured_image_url || undefined}
                 className="w-full h-full object-cover"
               >
                 Tu navegador no soporta el tag de video.
@@ -233,6 +235,32 @@ export default async function BlogPostPage({
           </p>
         )}
       </div>
+
+      {/* Tarjeta de Atribución y Enlace Directo a la Fuente Original */}
+      {post.original_source_url && (
+        <div className="p-4 sm:p-5 rounded-xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-950/20 text-slate-200 space-y-3">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">
+            <Share2 className="w-4 h-4 text-amber-400" />
+            <span>Atribución y Consulta de Fuente Original</span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-300 dark:text-slate-300 leading-relaxed">
+            Este artículo reproduce o referencia información publicada por{' '}
+            <strong className="text-amber-300">{post.original_source_name || 'la fuente emisora'}</strong>.
+            Si desea corroborar datos, contrastar la información o consultar el artículo íntegro en su plataforma original, puede acceder directamente a través del siguiente enlace:
+          </p>
+          <div>
+            <a
+              href={post.original_source_url}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs font-sans transition-colors shadow-md"
+            >
+              <span>Leer artículo original completo en {post.original_source_name || 'la fuente'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Tags Footer */}
       {post.tags && post.tags.length > 0 && (

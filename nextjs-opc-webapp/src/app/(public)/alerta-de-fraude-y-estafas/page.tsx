@@ -29,7 +29,7 @@ export default async function FraudAlertPage() {
       },
       {
         title: 'Reporte de Actividades Sospechosas',
-        content: 'Remite inmediatamente copia del correo a contacto@investoil.es para su investigación.',
+        content: 'Remite inmediatamente copia del correo a info@investoil.es para su investigación.',
       },
     ],
   };

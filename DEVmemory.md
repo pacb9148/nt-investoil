@@ -615,29 +615,39 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
   - `npm run build`: 53/53 páginas compiladas y optimizadas con éxito.
   - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada (0 secretos, 0 vulnerabilidades npm).
 
-### Fase 20: Editor Tiptap con Tipografías/Tamaños, Resumen Compacto, Agente Oli (Emoji 3D Expresivo) y Modelo de Aprendizaje Continuo
-- **Placeholder y Campo de Resumen Compacto (3 filas expandibles)**:
-  - Ajuste en `src/components/ui/textarea.tsx` y `src/components/admin/post-editor-form.tsx` para reducir la altura inicial del extracto/resumen a 3 filas (`min-h-[64px] h-[64px]`), manteniendo la capacidad de expansión vertical (`resize-y`) y optimizando el espacio visual en la redacción de noticias.
-- **Selectores de Tipografía y Tamaño en la Barra de Herramientas de Tiptap (`tiptap-editor.tsx`)**:
-  - Implementación de extensiones de estilo de texto `FontFamily` y `FontSize` para Tiptap utilizando la marca estándar `textStyle`.
-  - Integración de dos selectores desplegables compactos y estilizados en la barra de herramientas fija (ubicados exactamente tras Deshacer/Rehacer antes de H1):
-    - *Tipografías*: Inter (Sans), Merriweather (Serif), Playfair Display (Editorial), JetBrains (Mono), Poppins, Montserrat y Georgia.
-    - *Tamaños de Fuente*: 12px (Nota), 14px (Pie), 16px (Normal), 18px (Medio), 20px (Lead), 24px (Subtítulo), 28px (Título) y 32px (Grande).
-- **Personalización del Agente "Oli" con Expresión Facial Amigable y Ojos 3D (`oli-face.tsx`, `public-ai-orbe.tsx`)**:
-  - Sustitución definitiva del icono estático de destello (`Sparkles`) por el personaje esférico 3D de **Oli**.
-  - Ojos y mirada dinámica: ciclo orgánico que mira al centro, izquierda, derecha, arriba y abajo con parpadeo periódico natural (*blink*), simulando conciencia y espera activa.
-  - Expresión facial contextual reactiva:
-    - En hover o apertura del chat: expresión alegre radiante con ojos en arco feliz (`^ ^`) y sonrisa abierta con rubor sutil.
-    - Durante la generación de respuesta (`isTyping`): expresión concentrada pensativa con ojos hacia arriba.
-  - Presencia integral de Oli en la cabecera del chat, mensajes asistenciales y orbe flotante con badge `Agente Oficial` y bienvenida institucional personalizada.
-- **Sistema de Aprendizaje Continuo y Memoria de Experiencias de Trading (`ai-learning.ts`, `/api/ai/learning`)**:
-  - Detección automática e indexación en segundo plano de cada consulta: idioma (ES, EN, PT, FR), tema petrolero (EN590, Jet A-1, Merey 16, Pet Coke, ICPO, STS, Precios) y extracción sintética del aprendizaje (*insight*).
-  - Inyección en tiempo de ejecución: `executeAiChat` enriquece el System Prompt con las experiencias clave aprobadas para adaptar el criterio de Oli proactivamente ante nuevas dudas del mercado.
-  - Nueva pestaña en Backoffice (`/admin/settings/ai`): **"2. ⚡ Aprendizaje Continuo (Oli)"**:
-    - Métricas en tiempo real e interruptor de activación/pausa de auto-nutrición.
-    - Bandeja de experiencias aprendidas con botones de 1 clic: **"A FAQ Oficial"** (promueve a pregunta frecuente permanente) y **"A Base Conocimiento"** (anexa el concepto a las directrices de Invest Oil).
-    - Formulario interactivo para nutrir manualmente a Oli con casos operativos o directrices comerciales.
+### Fase 21: Correos Corporativos Oficiales (info@ y business@), Opacidad en Tarjeta Hero, Enlace Directo a Artículos y Preview de Video, Memoria Persistente de Usuario y Rol Setter B2B para Oli, y Páginas Legales Bilingües Exhaustivas
+- **Canalización Oficial de Correos Corporativos**:
+  - Erradicación total y definitiva de `trading@investoil.es` y `contacto@investoil.es` en todo el código fuente, componentes, fallbacks, formularios y base de datos.
+  - Distribución estricta de canales:
+    - `info@investoil.es`: Consultas preliminares, atención institucional, solicitudes generales, avisos de privacidad y reporte de actividades sospechosas o accesibilidad.
+    - `business@investoil.es`: Operaciones directas, contratos de compraventa (SPA), fletamentos, mesa de trading, recepción de ICPO bancarizadas y escalamiento comercial.
+- **Control de Opacidad en Tarjeta Hero & Logotipo (`hero-section.tsx`, `hero-form.tsx`)**:
+  - Incorporación del campo `card_opacity?: number` en `HeroCardCustomization`.
+  - Slider interactivo en `/admin/content/hero` que regula la opacidad de la tarjeta de 0% (totalmente transparente para lucir el fondo multimedia de video o imagen) a 100% (sólido).
+  - Cálculo dinámico de color RGBA con preservación de resplandor glow y visualización en tiempo real.
+- **Límite de Video Local a 20 MB y Manejo de Enlaces Externos**:
+  - Validación tanto en cliente (`MediaUploadField`, `MediaPickerModal`) como en servidor (`/api/upload`) fijando el tope de videos alojados en disco local a 20 MB.
+  - Para videos más pesados o fuentes externas, se fomenta el uso de enlaces de internet con vista previa responsiva sin sobrecargar el almacenamiento.
+- **Noticias Republicadas con Enlace Directo al Artículo Original, Reducción de Imagen y Preview de Video (`news-republish`, `post-editor-form.tsx`, `blog/[slug]`)**:
+  - En `/api/news-republish`: extracción y validación estricta de `canonicalUrl` y `sourceUrl` asegurando que apunten directamente a la URL profunda del artículo y nunca a la página de inicio o sección genérica.
+  - Detección automática de video en la noticia externa (OpenGraph video, Twitter player o iframes de YouTube/Vimeo) y paso al editor para visualización en modo preview con `preload="none"` y `poster` sin descargas pesadas.
+  - Verificación del tamaño de la imagen original en servidor; en el diálogo de importación (`NewsRepublishDialog`), compresión automática con Canvas del navegador a JPEG optimizado (< 2 MB) antes de integrarlo en la biblioteca multimedia de la plataforma.
+  - Al pie del artículo en `/blog/[slug]` y en el badge `NewsRepublishBadge`: tarjeta destacada con atribución y botón directo "Leer artículo original completo en [Fuente]" con `target="_blank" rel="noopener noreferrer"`.
+- **Memoria Persistente de Usuario y Rol de Setter Comercial B2B en Oli (`ai-user-memory.ts`, `/api/ai/chat`, `ai-client.ts`, `public-ai-orbe.tsx`)**:
+  - Creación de `src/lib/ai/ai-user-memory.ts` con persistencia dual (PostgreSQL tabla `ai_user_memories` y archivo local `src/data/ai-user-memories.json`).
+  - Identificador persistente `sessionId` en `localStorage` (`investoil_oli_session_id`) para reconocer al cliente entre recargas de página o futuras visitas.
+  - Extracción automática de perfil: nombre, empresa, productos requeridos (EN590, Jet A-1, Merey 16, Pet Coke), volumen estimado (MT/BBL), puerto/Incoterm (FOB/CIF) y etapa de cualificación.
+  - Instrucción como Setter Comercial B2B inyectada en el prompt de sistema: acoger calurosamente, detectar el idioma y responder en el mismo idioma, orientar sobre el procedimiento oficial (ICPO + BCL) y, una vez cualificado el prospecto o ante negociación de precios y SPA, canalizar de forma protocolar a un humano en `business@investoil.es`.
+- **Ampliación Exhaustiva de las 5 Páginas Legales Bilingües (ES / EN) estilo Multinacional Energética (`legal-pages.json`, `legal-page-view.tsx`)**:
+  - Redacción exhaustiva inspirada en los estándares de las grandes comercializadoras energéticas internacionales:
+    1. `/terminos-y-condiciones`: Exención de oferta pública en web, exención de precios spot de índices (Platts/Argus/Brent), marco Incoterms® 2020 (FOB/CIF/TTO), estricto cumplimiento KYC/AML y prohibición de operar con entidades sancionadas por OFAC/ONU/UE, política contra intermediarios no autorizados y brokers en cadena, cláusula de fuerza mayor marítima y geopolítica, y jurisdicción Delaware.
+    2. `/aviso-de-privacidad`: Tratamiento de datos para operaciones B2B y debida diligencia de contrapartes, base jurídica y derechos de los titulares.
+    3. `/politica-de-cookies`: Cookies técnicas, de seguridad y de sesión para el asistente Oli sin rastreo conductual publicitario.
+    4. `/alerta-de-fraude-y-estafas`: Advertencia sobre modalidades de estafa comunes en el sector (estafas de tarifas de tanques TSA, POP falsificados, ofertas irreales de descuento), canales de verificación obligatorios y canal de denuncia.
+    5. `/accesibilidad`: Compromiso formal con las pautas WCAG 2.1 Nivel AA, mediciones de contraste tipográfico auditadas y navegación asistida por teclado.
+  - Componente `LegalPageView` con selector interactivo de idioma `[ES (Español) | EN (English)]`, actualización reactiva y contraste accesible medido (WCAG AA).
 - **Verificación Rigurosa con Evidencia Real**:
   - `npm run type-check`: 0 errores de TypeScript.
-  - `npm run build`: 54/54 rutas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
-  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada.
+  - `npm run build`: 53/53 páginas compiladas y optimizadas exitosamente con Next.js y TypeScript (0 errores).
+  - Batería de seguridad (`pwsh ./scripts/bateria-seguridad.ps1`): 100% limpia y aprobada (0 secretos, 0 dependencias vulnerables).
+

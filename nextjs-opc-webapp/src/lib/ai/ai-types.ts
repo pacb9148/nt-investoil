@@ -211,8 +211,8 @@ PROCEDIMIENTOS Y COMPLIANCE:
 
 PROTOCOLO DE ATENCIÓN Y CONTACTO:
 - Al ser consultado por ubicación: Menciona que la sede legal es Delaware (USA) con coordinación comercial en Houston, Madrid y Bogotá.
-- Invita cordialmente al usuario a completar el formulario de contacto de la web para una reunión ejecutiva.
-- Correo oficial de operaciones y trading: trading@investoil.es.`,
+- Correo oficial para consultas preliminares y atención general: info@investoil.es.
+- Correo oficial para operaciones directas, negociaciones y contratos: business@investoil.es.`,
   trainingFaqs: [
     {
       id: 'faq-1',
@@ -229,7 +229,7 @@ PROTOCOLO DE ATENCIÓN Y CONTACTO:
     {
       id: 'faq-3',
       question: '¿Cómo puedo iniciar una solicitud de compra o venta?',
-      answer: 'Para evaluar requerimientos comerciales, los compradores calificados deben remitir una carta de intención formal (ICPO) y datos de contacto corporativos a trading@investoil.es o a través del formulario de contacto en nuestro sitio web.',
+      answer: 'Para evaluar requerimientos comerciales, los compradores calificados deben remitir una carta de intención formal (ICPO) y datos de contacto corporativos a business@investoil.es o a través del formulario de contacto en nuestro sitio web. Consultas generales en info@investoil.es.',
       category: 'Procedimientos',
     },
     {
@@ -267,7 +267,7 @@ PROTOCOLO DE ATENCIÓN Y CONTACTO:
       id: 'exp-3',
       createdAt: '2026-09-25T19:10:00Z',
       userQuery: 'Somos un grupo intermediario con mandato y queremos acordar un margen de comisión por barril de Merey 16.',
-      replySummary: 'El asistente aplicó el protocolo de escalamiento estricto derivando a la directiva comercial en trading@investoil.es.',
+      replySummary: 'El asistente aplicó el protocolo de escalamiento estricto derivando a la directiva comercial en business@investoil.es.',
       topic: 'Escalamiento Comercial',
       language: 'es',
       insight: 'Intermediarios con mandato solicitan acuerdos de comisiones/NCNDA. Oli nunca pacta cifras y canaliza formalmente al equipo ejecutivo.',

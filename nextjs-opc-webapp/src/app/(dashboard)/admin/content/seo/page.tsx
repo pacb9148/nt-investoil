@@ -82,7 +82,7 @@ const DEFAULT_SEO: LandingSeoConfig = {
     'Invest Oil LLC, Delaware USA energy corporation, crude oil trading, brent, merey 16, jet fuel a1, en590 diesel, maritime logistics, houston petroleum desk',
   canonical_url: 'https://investoil.es',
   og_image: '/images/branding/corporate-card-logo.jpeg',
-  contact_email: 'contacto@investoil.es',
+  contact_email: 'info@investoil.es',
   telephone: '+1 (713) 555-0190',
   linkedin_url: 'https://www.linkedin.com/company/invest-oil-llc',
   geo_region: 'US-DE',
@@ -824,7 +824,7 @@ export default function SeoEditorPage() {
                       value={formData.contact_email}
                       onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                       className={INPUT}
-                      placeholder="contacto@investoil.es"
+                      placeholder="info@investoil.es"
                     />
                   </div>
 

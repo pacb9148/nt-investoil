@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
         cleanEmail === DEFAULT_ADMIN_EMAIL.toLowerCase() ||
         cleanEmail === 'admin@investoil.es' ||
         cleanEmail === 'admin@investoil.com' ||
-        cleanEmail === 'trading@investoil.es' ||
+        cleanEmail === 'business@investoil.es' ||
         cleanEmail === 'compliance@investoil.es';
 
       const adminPasswordMatches =

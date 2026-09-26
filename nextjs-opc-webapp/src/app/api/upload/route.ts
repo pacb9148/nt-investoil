@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB
-const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100 MB
+const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20 MB (máximo para alojamiento en biblioteca local)
 
 const ALLOWED_IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif'];
 const ALLOWED_VIDEO_EXTS = ['.mp4', '.webm', '.mov', '.ogg'];
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     if (isVideo && file.size > MAX_VIDEO_SIZE) {
       return NextResponse.json(
         {
-          error: `El video excede el límite máximo de 100 MB (tamaño actual: ${(file.size / (1024 * 1024)).toFixed(2)} MB).`,
+          error: `El video pesa ${(file.size / (1024 * 1024)).toFixed(1)} MB y supera el límite de 20 MB para alojamiento directo en la biblioteca. Para videos más pesados, use un enlace o URL de referencia de internet y visualice la vista previa sin saturar el servidor.`,
         },
         { status: 400 }
       );

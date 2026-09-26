@@ -1,93 +1,258 @@
 {
-  "aviso-de-privacidad": {
-    "badge": "PROTECCIÓN DE DATOS",
-    "title": "Aviso de Privacidad",
-    "lastUpdated": "2026-03-15",
-    "intro": "En Invest Oil LLC tratamos la información que nos facilitas con la finalidad exclusiva de prestarte el servicio solicitado y atender a tus consultas comerciales bajo los más estrictos estándares de confidencialidad.",
+  "terminos-y-condiciones": {
+    "badge": "MARCO LEGAL & REGULATORIO",
+    "title": "Términos y Condiciones de Uso Comercial",
+    "lastUpdated": "2026-03-26",
+    "intro": "Bienvenido al portal corporativo de Invest Oil LLC. El acceso, navegación y utilización de este sitio web se rigen por los presentes Términos y Condiciones, los cuales regulan el marco informativo, de relacionamiento preliminar y de cumplimiento comercial en el mercado internacional de hidrocarburos y derivados energéticos.",
     "sections": [
       {
-        "title": "Responsable del Tratamiento",
-        "content": "Invest Oil LLC · Dirección de Cumplimiento · Contacto: contacto@investoil.es"
+        "title": "1. Identidad Corporativa y Jurisdicción",
+        "content": "Invest Oil LLC es una sociedad de responsabilidad limitada legalmente constituida y registrada bajo las leyes del Estado de Delaware, Estados Unidos de América. Las operaciones globales y desks comerciales se coordinan a través de sus oficinas corporativas en Houston (Texas, EE. UU.), Madrid (España) y Bogotá (Colombia). Invest Oil LLC es una entidad comercial enteramente independiente y no guarda vínculo alguno con sociedades locales extintas o de diversa denominación en otras jurisdicciones."
       },
       {
-        "title": "Legitimación y Conservación",
-        "content": "La base legal para el tratamiento de tus datos es el consentimiento explícito manifestado al remitir el formulario de contacto o entablar comunicaciones por correo electrónico. Los datos se conservarán durante el tiempo necesario para responder a la solicitud y cumplir con las obligaciones legales aplicables."
+        "title": "2. Carácter Informativo y Exención de Oferta Pública Vinculante",
+        "content": "El contenido, especificaciones de productos (EN590 10ppm, Jet A-1, Crudo Merey 16, Pet Coke, VLSFO) e información expuesta en este sitio web tienen un propósito exclusivamente institucional e informativo. Ningún dato, cifra, gráfica o referencia de mercado mostrada constituye una oferta pública vinculante, invitación a invertir, ni compromiso contractual formal.\n\nToda relación de suministro, compraventa o fletamento se formaliza única y exclusivamente mediante la emisión, negociación y firma bilateral de contratos solemnes de compraventa (Sales & Purchase Agreement - SPA), órdenes corporativas irrevocables de compra (ICPO) debidamente bancarizadas y ofertas corporativas plenas (FCO/SCO) suscritas por apoderados legalmente acreditados."
       },
       {
-        "title": "Tus Derechos (RGPD & Directivas Internacionales)",
-        "content": "Puedes ejercer en cualquier momento tus derechos de acceso, rectificación, supresión, limitación del tratamiento y portabilidad enviando un correo electrónico a contacto@investoil.es."
+        "title": "3. Exención en Cotizaciones Spot e Índices de Mercado",
+        "content": "Las menciones a precios, descuentos o metodologías de fijación de valor referenciadas a marcadores internacionales (tales como Platts, Argus Media, ICE Brent o NYMEX WTI) son de carácter meramente ilustrativo. Invest Oil LLC no garantiza la inmutabilidad ni la exactitud en tiempo real de cotizaciones de commodities petrolíferos en la web. El precio contractual vinculante para cualquier cargamento queda fijado únicamente en el contrato SPA específico, en función del laycan, puerto de entrega y fórmula convenida."
+      },
+      {
+        "title": "4. Reglas Comerciales Internacionales (Incoterms® 2020)",
+        "content": "Salvo pacto expreso en contrario debidamente formalizado por escrito, las transacciones comerciales coordinadas o estructuradas por Invest Oil LLC se sujetan a las reglas Incoterms® 2020 de la Cámara de Comercio Internacional (ICC), con particular énfasis en modalidades marítimas:\n• FOB (Free on Board): Transferencia de riesgo una vez que el producto sobrepasa la brida de conexión del buque en el puerto de carga convenido.\n• CIF (Cost, Insurance and Freight): Suministro en el que el vendedor asume flete y seguro marítimo hasta el puerto de destino designado, asumiendo el comprador las operaciones de descarga y derechos arancelarios locales.\n• TTO (Tanker Take Over) / STS (Ship-to-Ship): Sujetas a autorizaciones de capitanía de puerto, inspección conjunta independiente y verificación de laycan."
+      },
+      {
+        "title": "5. Debida Diligencia Obligatoria (KYC), AML y Sanciones Internacionales",
+        "content": "De conformidad con las directivas federales de los Estados Unidos de América, normativas de la Unión Europea y estándares internacionales de prevención del blanqueo de capitales (AML) y financiamiento del terrorismo (CFT), Invest Oil LLC aplica un riguroso protocolo de debida diligencia de contrapartes (Know Your Customer - KYC):\n• Verificación de Listas Restrictivas: Ninguna transacción, intermediación o negociación será cursada con personas naturales, entidades corporativas, instituciones financieras, banderas marítimas o buques tanque designados o sancionados por la Oficina de Control de Activos Extranjeros del Departamento del Tesoro de EE. UU. (OFAC), el Consejo de Seguridad de las Naciones Unidas (ONU), la Unión Europea (Consolidated List) o el Reino Unido (OFSI/HMT).\n• Certificación de Beneficiario Final: Toda contraparte debe revelar y acreditar de manera fehaciente sus beneficiarios reales finales (UBO).\n• Origen Lícito de Fondos y Producto: Se exige trazabilidad integral que garantice que ni los recursos financieros ni las moléculas de hidrocarburos proceden de jurisdicciones embargadas o de comercio ilícito."
+      },
+      {
+        "title": "6. Política sobre Intermediarios, Mandatarios y Brokers",
+        "content": "Para preservar la integridad de las operaciones y evitar distorsiones en la cadena de suministro, Invest Oil LLC establece que:\n• Solo se admitirán negociaciones directas con los Compradores Finales (End Buyers), Refinerías o sus Mandatarios Oficiales formalmente acreditados mediante poder notarial o carta de mandato corporativa en vigor.\n• Se rechazan categóricamente las cadenas especulativas de brokers no autorizados, cadenas masivas de intermediarios sin mandato y la circulación de documentos proforma no autorizados.\n• Los acuerdos de no elusión y no divulgación (NCNDA) y de protección de honorarios (IMFPA) únicamente tendrán validez cuando sean expresamente aceptados y firmados por la mesa directiva de Invest Oil LLC."
+      },
+      {
+        "title": "7. Cláusula de Fuerza Mayor Marítima y Geopolítica",
+        "content": "Invest Oil LLC no responderá por demoras, interrupciones o imposibilidad de suministro derivadas de eventos de fuerza mayor o caso fortuito conforme a los usos y costumbres del derecho marítimo internacional, incluyendo sin limitación: bloqueos de pasos o estrechos marítimos estratégicos (Estrecho de Ormuz, Canal de Suez, Canal de Panamá, Bab el-Mandeb), embargos sobrevinientes, hostilidades bélicas, actos de piratería, condiciones hidrometeorológicas extremas o cierres imperativos de terminales decretados por autoridades portuarias."
+      },
+      {
+        "title": "8. Propiedad Intelectual y Uso de Marcas",
+        "content": "La marca corporativa 'Invest Oil LLC', el logotipo, el lema 'Petroleum and Derivates Markets', la interfaz gráfica, código fuente, análisis técnicos y publicaciones del portal son titularidad exclusiva de Invest Oil LLC. Queda prohibida su reproducción, ingeniería inversa, enmarcado o aprovechamiento comercial no autorizado sin consentimiento previo y por escrito."
+      },
+      {
+        "title": "9. Ley Aplicable y Resolución de Disputas",
+        "content": "Los presentes términos se rigen e interpretan de conformidad con las leyes sustantivas del Estado de Delaware, Estados Unidos de América. Salvo disposición contractual expresa en contrario en contratos de suministro definitivos (que podrán prever arbitraje bajo el Reglamento de la Sociedad de Árbitros Marítimos de Nueva York - SMA o la Corte de Arbitraje Internacional de Londres - LCIA), cualquier controversia que surja del uso de este portal se someterá a los tribunales competentes de Delaware o de los tribunales federales de los Estados Unidos con jurisdicción en la materia."
+      }
+    ],
+    "badge_en": "LEGAL & REGULATORY FRAMEWORK",
+    "title_en": "Commercial Terms and Conditions of Use",
+    "intro_en": "Welcome to the corporate portal of Invest Oil LLC. Access, browsing, and use of this website are governed by these Terms and Conditions, establishing the informational, preliminary engagement, and commercial compliance framework across international petroleum and energy markets.",
+    "sections_en": [
+      {
+        "title": "1. Corporate Identity and Jurisdiction",
+        "content": "Invest Oil LLC is a limited liability company legally incorporated and registered under the laws of the State of Delaware, United States of America. Global trading desks and operations are coordinated through corporate offices in Houston (Texas, USA), Madrid (Spain), and Bogotá (Colombia). Invest Oil LLC is a completely independent commercial entity and maintains no affiliation with dissolved local entities in other jurisdictions."
+      },
+      {
+        "title": "2. Informational Character and Disclaimer of Binding Public Offer",
+        "content": "Content, product specifications (EN590 10ppm, Jet A-1, Merey 16 Crude, Pet Coke, VLSFO), and market references displayed on this website are for institutional and informational purposes only. No data, chart, or technical figure constitutes a binding public offering, investment invitation, or contractual commitment.\n\nAll commercial supply, purchase, or chartering relationships are formalized exclusively through the bilateral execution of definitive Sales & Purchase Agreements (SPA), backed by banked Irrevocable Corporate Purchase Orders (ICPO) and Full Corporate Offers (FCO) signed by authorized corporate signatories."
+      },
+      {
+        "title": "3. Disclaimer on Spot Quotations and Market Pricing Indices",
+        "content": "References to pricing formulas, benchmark discounts, or market indices (such as S&P Global Platts, Argus Media, ICE Brent, or NYMEX WTI) are illustrative. Invest Oil LLC does not warrant real-time accuracy or immutability of displayed oil commodity estimates. Legally binding contract prices are established exclusively within executed SPAs based on agreed laycans, delivery ports, and explicit pricing mechanisms."
+      },
+      {
+        "title": "4. International Commercial Rules (Incoterms® 2020)",
+        "content": "Unless expressly agreed otherwise in writing, commercial transactions structured or facilitated by Invest Oil LLC adhere to the International Chamber of Commerce (ICC) Incoterms® 2020, focusing on maritime terms:\n• FOB (Free on Board): Risk transfer occurs once fuel passes the vessel's permanent manifold connection at the designated loading port.\n• CIF (Cost, Insurance and Freight): Seller pays ocean freight and marine insurance to the destination port, while the buyer assumes discharge operations, import customs, and local tariffs.\n• TTO (Tanker Take Over) / STS (Ship-to-Ship): Conditioned on port authority clearances, joint independent inspection, and laycan adherence."
+      },
+      {
+        "title": "5. Mandatory Due Diligence (KYC), AML, and Sanctions Compliance",
+        "content": "Pursuant to United States federal statutes, European Union regulations, and international anti-money laundering (AML) and counter-terrorist financing (CFT) standards, Invest Oil LLC enforces strict counterparty vetting:\n• Sanctions Screening: No transaction or brokerage will be conducted with individuals, corporate entities, financial institutions, maritime flags, or tanker vessels designated on sanctions lists issued by the U.S. Office of Foreign Assets Control (OFAC), the United Nations Security Council (UN), the European Union, or the United Kingdom (OFSI/HMT).\n• Ultimate Beneficial Ownership (UBO): Counterparties must fully disclose and verify authentic ultimate beneficial owners.\n• Lawful Traceability: Comprehensive origin verification is required to guarantee that neither financial assets nor hydrocarbon molecules derive from embargoed origins or illicit trade."
+      },
+      {
+        "title": "6. Policy on Intermediaries, Mandates, and Brokers",
+        "content": "To safeguard operational reliability and prevent supply-chain disruption, Invest Oil LLC establishes:\n• Commercial discussions are conducted exclusively with qualified End Buyers, Refineries, or their formally documented Authorized Mandates holding valid power of attorney.\n• Unsolicited broker chains, speculative daisy chains, and circulating unauthorized proforma offers are systematically rejected.\n• Non-Circumvention, Non-Disclosure Agreements (NCNDA) and fee protection agreements (IMFPA) are recognized solely when reviewed and countersigned by authorized executive directors of Invest Oil LLC."
+      },
+      {
+        "title": "7. Maritime and Geopolitical Force Majeure Clause",
+        "content": "Invest Oil LLC shall not be liable for cargo delivery delays, supply interruptions, or failure to perform resulting from force majeure or maritime perils under international maritime law, including: strait or maritime chokepoint blockades (Strait of Hormuz, Suez Canal, Panama Canal, Bab el-Mandeb), war hostilities, piracy acts, sovereign embargoes, severe sea storms, or mandatory port authority closures."
+      },
+      {
+        "title": "8. Intellectual Property and Trademarks",
+        "content": "The 'Invest Oil LLC' trademark, emblem, slogan 'Petroleum and Derivates Markets', visual assets, technical briefs, source code, and content belong exclusively to Invest Oil LLC. Unauthorized reproduction, scraping, reverse engineering, framing, or commercial use is strictly prohibited without prior written consent."
+      },
+      {
+        "title": "9. Governing Law and Dispute Resolution",
+        "content": "These Terms and Conditions are governed by and construed under the substantive laws of the State of Delaware, United States of America. Unless otherwise agreed in executed commercial SPAs (which may stipulate arbitration under the Society of Maritime Arbitrators in New York or the London Court of International Arbitration - LCIA), any website-related dispute shall be submitted to competent courts in the State of Delaware."
       }
     ]
   },
-  "terminos-y-condiciones": {
-    "badge": "MARCO LEGAL",
-    "title": "Términos y Condiciones de Uso",
-    "lastUpdated": "2026-03-15",
-    "intro": "Bienvenido al portal corporativo de Invest Oil LLC. El acceso y utilización de este sitio web implican la aceptación plena de los presentes términos comerciales y normativos.",
+  "aviso-de-privacidad": {
+    "badge": "PROTECCIÓN DE DATOS & COMPLIANCE",
+    "title": "Aviso de Privacidad y Tratamiento de Datos",
+    "lastUpdated": "2026-03-26",
+    "intro": "En Invest Oil LLC tratamos la información institucional y datos de contacto de clientes, proveedores y contrapartes comerciales con los más elevados estándares de seguridad, confidencialidad y estricto apego a las legislaciones internacionales aplicables.",
     "sections": [
       {
-        "title": "1. Objeto y Alcance",
-        "content": "Este sitio web tiene un carácter exclusivamente informativo y de contacto comercial en relación con las operaciones de intermediación, comercialización y logística de crudos y derivados energéticos. Ninguna información expuesta constituye una oferta pública vinculante hasta la formalización de los contratos correspondientes (Sales & Purchase Agreement)."
+        "title": "1. Responsable del Tratamiento de Datos",
+        "content": "Razón Social: Invest Oil LLC\nJurisdicción: Delaware, Estados Unidos de América\nOficinas de Coordinación: Houston (EE. UU.), Madrid (España) y Bogotá (Colombia)\nCanal Oficial de Cumplimiento y Privacidad: info@investoil.es"
       },
       {
-        "title": "2. Procedimientos de Compliance y KYC",
-        "content": "Toda relación comercial formal queda condicionada a la previa superación de los procedimientos de debida diligencia (Know Your Customer - KYC), antiblanqueo de capitales (AML) y verificación contra listas de sanciones internacionales (OFAC, UE, ONU)."
+        "title": "2. Información Recopilada y Fines del Tratamiento",
+        "content": "Invest Oil LLC recopila datos estrictamente necesarios para el desarrollo de relaciones comerciales B2B:\n• Datos de Contacto y Representación: Nombre, cargo corporativo, empresa, dirección comercial, teléfono y correo corporativo.\n• Datos de Debida Diligencia (KYC/AML): Documentación societaria, certificados de registro mercantil, poderes de representación legal, pasaportes de directivos y acreditación de beneficiarios finales (UBO).\n• Comunicaciones y Cotizaciones: Registros de solicitudes enviadas mediante formularios web, correos electrónicos o interacciones con el asistente inteligente corporativo.\n\nFinalidades exclusivas: Gestión de solicitudes comerciales, verificación de cumplimiento legal y regulatorio internacional, prevención del fraude y ejecución de acuerdos contractuales."
       },
       {
-        "title": "3. Propiedad Intelectual",
-        "content": "La marca comercial 'Invest Oil LLC', los logotipos, sellos, textos, gráficos y estructura visual son propiedad exclusiva de Invest Oil LLC o se encuentran debidamente licenciados."
+        "title": "3. Base Jurídica y Principios de Tratamiento",
+        "content": "El tratamiento de sus datos se sustenta en:\n• El consentimiento explícito otorgado al remitir formularios de contacto o iniciar comunicaciones formales.\n• La aplicación de medidas precontractuales o ejecución de contratos comerciales (Sales & Purchase Agreements).\n• El cumplimiento de obligaciones legales de diligencia debida, prevención del blanqueo de capitales y normativas internacionales de control de sanciones.\n\nInvest Oil LLC aplica los principios de licitud, lealtad, transparencia, minimización de datos y limitación del plazo de conservación."
+      },
+      {
+        "title": "4. Seguridad y No Cesión a Terceros",
+        "content": "Invest Oil LLC no comercializa, alquila ni cede bases de datos a terceros con fines publicitarios o lucrativos. Los datos únicamente podrán ser comunicados a:\n• Autoridades regulatorias, aduaneras, portuarias o judiciales competentes en cumplimiento de mandatos legales imperativos.\n• Entidades bancarias internacionales, inspectores independientes (SGS, Saybolt, Intertek) o agentes navieros estrictamente cuando sea indispensable para la liquidación financiera y logística de los cargamentos acordados."
+      },
+      {
+        "title": "5. Conservación de Datos y Derechos de los Titulares",
+        "content": "La información corporativa y de debida diligencia se conservará durante la vigencia de la relación comercial y los plazos legales prescritos por las normativas mercantiles, tributarias y de prevención de delitos financieros (habitualmente entre 5 y 10 años).\n\nLos titulares pueden ejercer en todo momento sus derechos de acceso, rectificación, supresión, limitación del tratamiento y oposición remitiendo una comunicación formal acreditada al correo oficial: info@investoil.es."
+      }
+    ],
+    "badge_en": "DATA PRIVACY & COMPLIANCE",
+    "title_en": "Privacy Notice and Data Protection Policy",
+    "intro_en": "At Invest Oil LLC, corporate and business contact information from clients, refiners, and commercial counterparties is processed under the highest benchmarks of confidentiality, integrity, and strict adherence to applicable international privacy frameworks.",
+    "sections_en": [
+      {
+        "title": "1. Data Controller",
+        "content": "Corporate Entity: Invest Oil LLC\nJurisdiction: State of Delaware, United States of America\nOperating Desks: Houston (USA), Madrid (Spain), Bogotá (Colombia)\nOfficial Compliance & Privacy Contact: info@investoil.es"
+      },
+      {
+        "title": "2. Collected Information and Purposes",
+        "content": "Invest Oil LLC collects information strictly required for corporate B2B operations:\n• Contact & Corporate Representation: Full name, executive title, company, business address, telephone, corporate email.\n• Due Diligence & KYC/AML Documentation: Certificate of incorporation, articles of association, power of attorney, executive identification, and UBO verification.\n• Correspondence & Deal Logs: Records submitted through website inquiry forms, business email channels, or AI corporate assistant interactions.\n\nPurposes: Managing commercial trade inquiries, verifying mandatory KYC/AML compliance, preventing fraudulent impersonation, and executing formal petroleum transactions."
+      },
+      {
+        "title": "3. Legal Basis and Principles",
+        "content": "Data processing is legally grounded in:\n• Explicit consent provided upon submitting contact forms or formal inquiries.\n• Pre-contractual diligence and execution of commercial Sales & Purchase Agreements.\n• Compliance with mandatory anti-money laundering (AML), counter-terrorism financing (CFT), and international sanctions regulations.\n\nInvest Oil LLC rigorously enforces principles of lawfulness, transparency, purpose limitation, and data minimization."
+      },
+      {
+        "title": "4. Confidentiality and Third-Party Disclosures",
+        "content": "Invest Oil LLC does not sell, rent, or lease contact databases to commercial third parties. Data is disclosed only to:\n• Authorized regulatory, customs, maritime port, or judicial bodies when legally mandated.\n• Tier-1 international correspondent banks, independent accredited inspection agencies (SGS, Saybolt, Intertek), or shipping agents strictly when indispensable for cargo settlement and vessel clearance."
+      },
+      {
+        "title": "5. Retention Period and Data Subject Rights",
+        "content": "Corporate KYC records and deal logs are maintained for the duration of commercial ties and applicable statutory limitation periods required by maritime, fiscal, and financial transparency laws (typically 5 to 10 years).\n\nCounterparties and individuals may exercise rights of access, rectification, erasure, and objection by contacting our Compliance Desk at: info@investoil.es."
       }
     ]
   },
   "politica-de-cookies": {
-    "badge": "PRIVACIDAD & COOKIES",
-    "title": "Política de Cookies",
-    "lastUpdated": "2026-03-15",
-    "intro": "Este sitio web utiliza cookies técnicas estrictamente necesarias para el correcto funcionamiento del portal, la autenticación de administradores y la preservación de la seguridad operacional.",
+    "badge": "TRANSPARENCIA DIGITAL",
+    "title": "Política de Cookies y Tecnologías de Rastreo",
+    "lastUpdated": "2026-03-26",
+    "intro": "Invest Oil LLC informa a los visitantes sobre el uso de cookies técnicas y de rendimiento orientadas a garantizar la operatividad, estabilidad y seguridad de la plataforma web corporativa.",
     "sections": [
       {
-        "title": "Tipos de Cookies Utilizadas",
-        "content": "• Cookies de Sesión y Autenticación: Permiten mantener la sesión segura en el panel administrativo.\n• Cookies de Seguridad y Prevención de Abusos: Utilizadas para mitigar ataques CSRF y prevenir envíos automatizados no deseados."
+        "title": "1. ¿Qué son las Cookies?",
+        "content": "Una cookie es un pequeño archivo de texto almacenado en su navegador al visitar nuestro portal web. Permite recordar sus preferencias de navegación, autenticar accesos autorizados y proteger la infraestructura frente a accesos maliciosos o denegación de servicio."
       },
       {
-        "title": "Cómo Desactivar las Cookies",
-        "content": "Puedes configurar tu navegador en cualquier momento para bloquear o alertar sobre la presencia de estas cookies; no obstante, algunas funciones del sitio podrían no operar correctamente."
+        "title": "2. Tipos de Cookies Empleadas",
+        "content": "• Cookies Técnicas y de Seguridad (Obligatorias): Indispensables para la navegación, enrutamiento seguro de paquetes HTTPS, protección CSRF y autenticación en áreas de gestión.\n• Cookies de Preferencia de Idioma y Sesión: Almacenan la selección de idioma y el identificador de sesión local del asistente Oli para permitir continuidad conversacional y asistencia fluida.\n• Cookies de Métricas y Rendimiento Agregadas: Recopilan datos anónimos sobre tiempos de carga y respuesta de servidores sin almacenar direcciones IP personales ni crear perfiles de publicidad conductual."
+      },
+      {
+        "title": "3. Desactivación y Configuración del Navegador",
+        "content": "Usted puede bloquear, restringir o eliminar las cookies en cualquier momento a través de la configuración de privacidad de su navegador web (Chrome, Edge, Firefox, Safari). Tenga en cuenta que la desactivación de cookies técnicas esenciales puede limitar ciertas funcionalidades interactivas del sitio web."
+      }
+    ],
+    "badge_en": "DIGITAL TRANSPARENCY",
+    "title_en": "Cookie Policy and Tracking Technologies",
+    "intro_en": "Invest Oil LLC informs users regarding the deployment of technical and performance cookies designed to guarantee operational reliability, cybersecurity, and seamless navigation across our web portal.",
+    "sections_en": [
+      {
+        "title": "1. What are Cookies?",
+        "content": "A cookie is a small data file deposited on your device upon accessing our website. Cookies assist in recognizing secure sessions, remembering language preferences, and protecting server infrastructure against automated threats."
+      },
+      {
+        "title": "2. Categories of Cookies Used",
+        "content": "• Technical & Security Cookies (Strictly Necessary): Essential for HTTPS routing, CSRF token validation, and secure authentication.\n• Session & Preference Cookies: Preserve interface language selection and local session IDs for the Oli assistant to ensure seamless continuous support.\n• Aggregated Performance Metrics: Monitor server latency and page load speeds in an anonymous format without behavioral profiling or third-party ad tracking."
+      },
+      {
+        "title": "3. Browser Management and Deactivation",
+        "content": "You can manage, restrict, or purge cookies at any time via your browser settings (Chrome, Firefox, Safari, Edge). Disabling essential security cookies may degrade the interactive performance of specific portal features."
       }
     ]
   },
   "alerta-de-fraude-y-estafas": {
-    "badge": "SEGURIDAD & COMPLIANCE",
-    "title": "Alerta de Fraude y Suplantación de Identidad",
-    "lastUpdated": "2026-03-15",
-    "intro": "Aviso oficial de seguridad y advertencia contra suplantaciones comerciales en trading de petróleo y productos refinados.",
+    "badge": "SEGURIDAD & ALERTA DE FRAUDE",
+    "title": "Alerta Oficial Contra Fraude y Suplantación en Trading Petrolero",
+    "lastUpdated": "2026-03-26",
+    "intro": "Aviso oficial y permanente de seguridad para compradores, refinerías, armadores y proveedores del mercado internacional de energía sobre prácticas fraudulentas y suplantación de identidad en la comercialización de crudos y refinados.",
     "sections": [
       {
-        "title": "Advertencia Importante para Compradores y Vendedores",
-        "content": "Invest Oil LLC nunca solicita anticipos de honorarios a cuentas bancarias personales ni opera fuera de los canales oficiales corporativos (@investoil.es)."
+        "title": "1. Contexto y Advertencia en la Industria Energética",
+        "content": "El mercado internacional de derivados de petróleo (EN590, Jet Fuel, Crudos, D6) es frecuentemente blanco de organizaciones criminales que suplantan a compañías legítimas para estafar a compradores desprevenidos mediante el cobro de supuestas tarifas de almacenamiento, derechos de inspección o falsos compromisos de asignación de producto.\n\nInvest Oil LLC advierte expresamente a toda la comunidad comercial internacional que NUNCA solicita pagos por adelantado en cuentas bancarias a nombre de personas naturales, ni exige pagos de tarifas de tanqueo (Tank Storage Agreements - TSA) a intermediarios desconocidos para 'liberar' documentación de embarque."
       },
       {
-        "title": "Protocolos de Verificación Obligatorios",
-        "content": "• Dominios Oficiales: Todas las comunicaciones legítimas provienen exclusivamente de direcciones con el dominio @investoil.es.\n• Canales Bancarios: Las operaciones se liquidan exclusivamente mediante Cartas de Crédito Documentarias Irrevocables (DLC) o transferencias bancarias directas a cuentas institucionales de la compañía.\n• Prueba de Producto (POP) y Asignación: No se aceptan ni emiten documentos sin estricto respaldo de refinería o inspección certificada SGS/Saybolt."
+        "title": "2. Modalidades de Estafa Detectadas en el Sector",
+        "content": "• Estafa del Tanque de Almacenamiento (Tank Storage Scam): Falsos comercializadores solicitan al comprador que pague de forma inmediata facturas de almacenamiento a supuestas compañías de tanques en Rotterdam, Houston o Fujairah como condición previa para emitir la prueba de producto (POP). Dichas empresas de tanques suelen ser ficticias o suplantadas.\n• Falsa Prueba de Producto (Fake POP): Documentos de laboratorio falsificados con sellos apócrifos de SGS, Saybolt o Intertek que no corresponden a ningún lote real de refinería ni cuentan con confirmación verificable de trazabilidad.\n• Ofertas Imposibles con Descuentos Desproporcionados: Propuestas comerciales de Diésel EN590 o Jet Fuel A-1 con descuentos irreales respecto a los marcadores Platts que buscan enganchar a compradores inexpertos para exigir anticipos de tasas aduaneras o derechos portuarios."
       },
       {
-        "title": "Reporte de Actividades Sospechosas",
-        "content": "Si has recibido una oferta no solicitada que sospeches pueda ser fraudulenta a nombre de Invest Oil LLC, remite inmediatamente copia del correo a contacto@investoil.es para su investigación y remisión a las autoridades correspondientes."
+        "title": "3. Protocolo Oficial Obligatorio de Invest Oil LLC",
+        "content": "Para validar la autenticidad de cualquier oferta atribuida a Invest Oil LLC, verifique rigurosamente los siguientes estándares inmutables:\n1. Canales de Comunicación Exclusivos: Toda comunicación formal se cursa únicamente desde direcciones de correo electrónico bajo el dominio institucional oficial: @investoil.es. Las solicitudes generales se tramitan en info@investoil.es y los contratos comerciales en business@investoil.es. Rechace cualquier mensaje procedente de servicios gratuitos de correo (Gmail, Yahoo, Proton, Outlook) o dominios similares falsificados.\n2. Procedimiento Bancario Solemne: Invest Oil LLC liquida sus operaciones exclusivamente mediante cartas de crédito irrevocables, transferibles o confirmadas (DLC / SBLC / MT760) emitidas por bancos de primer orden (Top 50 Western / Prime Banks) o transferencias directas (MT103) contra entrega de documentos de embarque (Bill of Lading) e inspección SGS certificada.\n3. Emisión Documental y Firmas: Todos los documentos oficiales (SCO, FCO, SPA) son firmados exclusivamente por directores corporativos legalmente acreditados de Invest Oil LLC."
+      },
+      {
+        "title": "4. Canal Inmediato de Denuncia y Verificación",
+        "content": "Si ha recibido una comunicación, borrador de contrato, solicitud de pago o propuesta comercial no verificada atribuida a Invest Oil LLC, absténgase de transferir fondos o compartir credenciales bancarias y remita de inmediato copia íntegra con encabezados técnicos (headers) a:\n\n• Departamento de Cumplimiento & Legal: info@investoil.es\n• Mesa de Trading y Contratos: business@investoil.es\n\nInvest Oil LLC colabora activamente con agencias federales e internacionales de persecución del delito cibernético y fraude comercial para identificar y procesar a los responsables de intentos de suplantación."
+      }
+    ],
+    "badge_en": "SECURITY & FRAUD PREVENTION",
+    "title_en": "Official Warning on Fraud and Impersonation in Oil Trading",
+    "intro_en": "Official and mandatory security bulletin for qualified buyers, refiners, shipowners, and energy sector partners regarding fraudulent scams and identity impersonation in international petroleum commodity transactions.",
+    "sections_en": [
+      {
+        "title": "1. Industry Background and Urgent Caution",
+        "content": "The global petroleum trading market (EN590, Jet Fuel, Crude Oil, D6) is targeted by illicit networks attempting to impersonate legitimate trading firms to extort advance fees, fictitious storage charges, or fake allocation rights.\n\nInvest Oil LLC explicitly warns counterparties that it NEVER requests advance payments to personal bank accounts, nor does it mandate advance payments for Tank Storage Agreements (TSA) to third-party facilities to 'release' cargo documentation."
+      },
+      {
+        "title": "2. Prevalent Fraud Schemes in Commodity Markets",
+        "content": "• Tank Storage Fee Scams: Fraudsters direct buyers to urgently pay tank storage fees to fictitious tank farm operators in Rotterdam, Houston, or Fujairah before releasing Proof of Product (POP).\n• Fabricated Proof of Product (Fake POP): Forged quality and quantity certificates with counterfeit inspection stamps (SGS, Saybolt, Intertek) that lack refinery verifiable tracking numbers.\n• Unrealistic Discount Claims: Solicitations promoting EN590 or Jet A-1 at massive, unrealistic discounts beneath Platts benchmark indicators designed to lure buyers into paying advance administrative or customs fees."
+      },
+      {
+        "title": "3. Mandatory Verification Standards of Invest Oil LLC",
+        "content": "To authenticate any communication, contract, or transaction originating from Invest Oil LLC, counterparties must verify:\n1. Official Corporate Email Domain: Legitimate corporate communications originate exclusively from the @investoil.es domain (info@investoil.es for initial vetting, business@investoil.es for trading contracts). Ignore emails from public providers (Gmail, Yahoo, Outlook) or deceptive look-alike domains.\n2. Secure Banking Settlement: All transactions are settled strictly via Documentary Letters of Credit (DLC / SBLC MT760) through Top-50 prime international banking institutions, or verified MT103 against presentation of full shipping documents (Bill of Lading) and certified independent SGS inspection at load port.\n3. Corporate Authorized Signatories: Sales & Purchase Agreements (SPA) are executed only by legally certified executive officers."
+      },
+      {
+        "title": "4. Fraud Reporting and Counterparty Verification Desk",
+        "content": "If you receive an unverified offer, dubious contract draft, or advance payment solicitation bearing the name of Invest Oil LLC, do not remit funds or banking details. Forward the message with full technical headers to:\n\n• Legal & Compliance Department: info@investoil.es\n• Commercial Trading Desk: business@investoil.es\n\nInvest Oil LLC cooperates directly with federal law enforcement, INTERPOL, and maritime intelligence agencies to investigate and prosecute illicit impersonation attempts."
       }
     ]
   },
   "accesibilidad": {
     "badge": "CUMPLIMIENTO & ESTÁNDARES",
-    "title": "Declaración de Accesibilidad",
-    "lastUpdated": "2026-03-15",
-    "intro": "En Invest Oil LLC nos comprometemos a garantizar la accesibilidad digital de nuestro sitio web para todas las personas, incluidas aquellas con discapacidades físicas, visuales, auditivas o cognitivas.",
+    "title": "Declaración Oficial de Accesibilidad Web",
+    "lastUpdated": "2026-03-26",
+    "intro": "En Invest Oil LLC nos comprometemos a garantizar la accesibilidad digital de nuestro portal institucional para todas las personas, incluidas aquellas con discapacidades visuales, auditivas, motoras o cognitivas, conforme a las mejores prácticas internacionales de inclusión web.",
     "sections": [
       {
-        "title": "Pautas de Accesibilidad (WCAG 2.1 Nivel AA)",
-        "content": "Este sitio web ha sido diseñado e implementado siguiendo las pautas de accesibilidad para el contenido web (WCAG) 2.1 en su nivel AA:\n• Ratios de contraste tipográfico superiores a 4.5:1 sobre fondos oscuros.\n• Navegación completa y accesible a través del teclado mediante el uso de tabuladores e indicadores visuales de foco.\n• Atributos ARIA y etiquetas descriptivas en todos los elementos interactivos, formularios y botones.\n• Textos alternativos en todas las imágenes de contenido y logotipos corporativos.\n• Jerarquía estructural clara con encabezados semánticos (h1, h2, h3)."
+        "title": "1. Estándar de Conformidad (WCAG 2.1 Nivel AA)",
+        "content": "El portal de Invest Oil LLC ha sido desarrollado observando las Pautas de Accesibilidad para el Contenido Web (WCAG 2.1) en su nivel de conformidad AA emitidas por el World Wide Web Consortium (W3C):\n• Contraste Tipográfico Medido: Ratios de contraste superiores a 4.5:1 para texto normal y 3:1 para elementos de gran tamaño o controles de interfaz, auditados tanto en modo oscuro como en modo claro.\n• Navegación Completa por Teclado: Acceso total e intuitivo mediante tabuladores y teclas de dirección, con indicadores visuales de foco perceptibles en todos los elementos interactivos.\n• Semántica Estructurada y Marcado ARIA: Empleo sistemático de elementos HTML5 semánticos (main, nav, article, section, aside) e incorporación de atributos ARIA en botones, diálogos modales y controles desplegables.\n• Compatibilidad con Lectores de Pantalla: Etiquetas descriptivas (aria-label), textos alternativos (alt) en recursos visuales y jerarquía de encabezados coherente (h1, h2, h3)."
       },
       {
-        "title": "Contacto sobre Accesibilidad",
-        "content": "Si experimentas alguna dificultad para acceder a cualquier contenido o funcionalidad de este portal, por favor escríbenos a contacto@investoil.es."
+        "title": "2. Medidas Técnicas de Inclusión y Usabilidad",
+        "content": "• Diseño Adaptativo y Escalabilidad: La interfaz responde de forma fluida a diferentes resoluciones de pantalla y permite aumentos de zoom de hasta el 200% sin pérdida de contenido ni superposición de elementos.\n• Ausencia de Destellos Molestos: Eliminación de animaciones o destellos que puedan suponer un riesgo para personas con fotosensibilidad o epilepsia refleja.\n• Formularios Accesibles: Campos con etiquetas visibles y legibles, mensajes de error explícitos y foco guiado."
+      },
+      {
+        "title": "3. Canal de Asistencia y Reporte de Accesibilidad",
+        "content": "Trabajamos continuamente para auditar y perfeccionar la experiencia de usuario de nuestra plataforma. Si encuentra alguna barrera de accesibilidad o requiere asistencia especial para consultar cualquier información, por favor póngase en contacto con nuestro equipo:\n\n• Correo electrónico: info@investoil.es\n• Asunto: Consulta de Accesibilidad Web - Invest Oil LLC\n\nNos comprometemos a responder a su solicitud y facilitar el acceso a la información en el formato más accesible en un plazo máximo de 48 horas laborables."
+      }
+    ],
+    "badge_en": "COMPLIANCE & STANDARDS",
+    "title_en": "Official Web Accessibility Statement",
+    "intro_en": "Invest Oil LLC is committed to ensuring digital accessibility for all users, including individuals with visual, auditory, motor, or cognitive disabilities, adhering to international inclusive web engineering standards.",
+    "sections_en": [
+      {
+        "title": "1. Conformance Standard (WCAG 2.1 Level AA)",
+        "content": "The Invest Oil LLC portal is built in alignment with the Web Content Accessibility Guidelines (WCAG 2.1) Level AA established by the World Wide Web Consortium (W3C):\n• Verified Color Contrast: Strict minimum contrast ratios exceeding 4.5:1 for standard text and 3:1 for large headers and interface controls across light and dark display modes.\n• Full Keyboard Navigation: Complete and predictable navigational flow via tab keys with distinct high-visibility focus indicators on all interactive links, modal buttons, and input fields.\n• Semantic Markup & ARIA Integration: Full utilization of semantic HTML5 landmark tags (main, nav, article, header, footer) paired with ARIA roles for screen readers.\n• Assistive Device Support: Informative alternative text (alt tags) on charts, brand emblems, and images, alongside descriptive aria-labels on interactive elements."
+      },
+      {
+        "title": "2. Responsive Scaling and Ergonomics",
+        "content": "• Liquid Responsiveness: Adaptive layout scaling seamlessly from mobile displays to 4K desktop environments, supporting up to 200% browser zoom without text clipping or horizontal layout breaking.\n• Seizure and Motion Safety: No flashing content or aggressive looping animations, honoring user OS 'prefers-reduced-motion' preferences.\n• Accessible Form Controls: Clear field labeling, real-time client validation with descriptive error hints, and accessible focus states."
+      },
+      {
+        "title": "3. Feedback and Accessibility Assistance Contact",
+        "content": "We continuously audit our digital platform to sustain accessibility excellence. If you encounter any accessibility barrier or require content in an alternative accessible format, please contact our team:\n\n• Email: info@investoil.es\n• Subject line: Accessibility Feedback - Invest Oil LLC\n\nOur team is committed to addressing inquiries and providing accessible content within 48 business hours."
       }
     ]
   }

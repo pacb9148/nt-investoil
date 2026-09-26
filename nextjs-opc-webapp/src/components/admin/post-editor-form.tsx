@@ -167,6 +167,7 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
     setSlug(slugify(meta.title));
     setExcerpt(meta.excerpt);
     if (meta.imageUrl) setFeaturedImageUrl(meta.imageUrl);
+    if (meta.videoUrl) setVideoUrl(meta.videoUrl);
     setIsRepublished(true);
     setOriginalSourceUrl(meta.canonicalUrl || meta.sourceUrl);
     setOriginalSourceName(meta.sourceName);

@@ -25,7 +25,7 @@ export default async function AccessibilityPage() {
       },
       {
         title: 'Contacto sobre Accesibilidad',
-        content: 'Si experimentas alguna dificultad, contáctanos en contacto@investoil.es.',
+        content: 'Si experimentas alguna dificultad, contáctanos en info@investoil.es.',
       },
     ],
   };

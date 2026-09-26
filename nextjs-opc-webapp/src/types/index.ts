@@ -153,6 +153,10 @@ export interface NewsRepublishMetadata {
   excerpt: string;
   contentHtml?: string;
   imageUrl?: string;
+  videoUrl?: string;
+  imageSize?: number;
+  imageNeedsCompression?: boolean;
   publishedAt?: string;
   canonicalUrl: string;
 }
+

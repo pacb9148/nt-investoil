@@ -33,6 +33,29 @@ const INPUT_STYLE =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2.5 text-xs text-text placeholder:text-text-subtle focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors';
 const LABEL_STYLE = 'block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1.5';
 
+function hexOrRgbToRgba(color: string, opacityPercent: number): string {
+  if (opacityPercent <= 0) return 'transparent';
+  const alpha = Math.max(0, Math.min(1, opacityPercent / 100));
+  if (!color || color === 'transparent') return `rgba(14, 30, 61, ${alpha})`;
+  if (color.startsWith('#')) {
+    let hex = color.slice(1);
+    if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('');
+    if (hex.length >= 6) {
+      const r = parseInt(hex.substring(0, 2), 16) || 0;
+      const g = parseInt(hex.substring(2, 4), 16) || 0;
+      const b = parseInt(hex.substring(4, 6), 16) || 0;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+  }
+  if (color.startsWith('rgb')) {
+    const nums = color.match(/\d+/g);
+    if (nums && nums.length >= 3) {
+      return `rgba(${nums[0]}, ${nums[1]}, ${nums[2]}, ${alpha})`;
+    }
+  }
+  return color;
+}
+
 export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }) {
   const [state, setState] = useState<ContentActionResponse>(INITIAL_STATE);
   const [isPending, startTransition] = useTransition();
@@ -53,6 +76,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   const [cardBg, setCardBg] = useState<string>(defaultValues.hero_card?.card_bg_color || '#0e1e3d');
   const [cardBorder, setCardBorder] = useState<string>(defaultValues.hero_card?.card_border_color || '#1a3264');
   const [cardGlow, setCardGlow] = useState<number>(defaultValues.hero_card?.card_glow_opacity ?? 50);
+  const [cardOpacity, setCardOpacity] = useState<number>(defaultValues.hero_card?.card_opacity ?? 90);
   const [logoUrl, setLogoUrl] = useState<string>(
     defaultValues.hero_card?.logo_url || '/images/branding/corporate-card-logo.jpeg'
   );
@@ -302,6 +326,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
     formData.set('hero_card_bg', cardBg);
     formData.set('hero_card_border', cardBorder);
     formData.set('hero_card_glow_opacity', String(cardGlow));
+    formData.set('hero_card_opacity', String(cardOpacity));
     formData.set('hero_logo_hue', String(logoHue));
     formData.set('hero_logo_brightness', String(logoBrightness));
     formData.set('hero_logo_saturation', String(logoSaturation));
@@ -347,6 +372,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
             card_bg_color: cardBg,
             card_border_color: cardBorder,
             card_glow_opacity: cardGlow,
+            card_opacity: cardOpacity,
             logo_url: logoUrl,
             logo_hue: logoHue,
             logo_brightness: logoBrightness,
@@ -1298,8 +1324,30 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                 max="100"
                 value={cardGlow}
                 onChange={(e) => setCardGlow(Number(e.target.value))}
-                className="w-full accent-amber-500"
+                className="w-full accent-amber-500 cursor-pointer"
               />
+            </div>
+
+            {/* Opacidad / Transparencia de la Tarjeta */}
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className={LABEL_STYLE}>Opacidad / Transparencia de la Tarjeta</label>
+                <span className="text-xs font-mono text-accent font-bold">
+                  {cardOpacity}% {cardOpacity === 0 ? '(100% Transparente)' : cardOpacity < 40 ? '(Muy transparente)' : cardOpacity < 90 ? '(Translúcido)' : '(Sólido)'}
+                </span>
+              </div>
+              <input
+                type="range"
+                name="hero_card_opacity"
+                min="0"
+                max="100"
+                value={cardOpacity}
+                onChange={(e) => setCardOpacity(Number(e.target.value))}
+                className="w-full accent-amber-500 cursor-pointer"
+              />
+              <p className="text-[10px] text-text-subtle mt-1 font-mono">
+                Regula el nivel de transparencia para dejar ver el fondo multimedia del hero a través de la tarjeta.
+              </p>
             </div>
 
             {/* Filtros del Logotipo (Matiz, Luminosidad, Saturación) */}
@@ -1640,7 +1688,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
               <div
                 className="relative rounded-xl p-4 shadow-xl space-y-4 transition-all duration-300 backdrop-blur-md"
                 style={{
-                  backgroundColor: cardBg,
+                  backgroundColor: hexOrRgbToRgba(cardBg, cardOpacity),
                   border: `1px solid ${cardBorder}`,
                 }}
               >

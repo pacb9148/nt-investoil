@@ -1,13 +1,77 @@
-'use client';
-
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Newspaper, Sparkles, ExternalLink, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Newspaper, Sparkles, ExternalLink, AlertCircle, CheckCircle2, Video, Shrink } from 'lucide-react';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { type NewsRepublishMetadata } from '@/types';
+
+async function compressAndOptimizeImage(imageUrl: string): Promise<string> {
+  return new Promise((resolve) => {
+    try {
+      const img = new (window as any).Image();
+      img.crossOrigin = 'anonymous';
+      img.src = imageUrl;
+      img.onload = async () => {
+        try {
+          const maxDim = 1600;
+          let width = img.naturalWidth || img.width;
+          let height = img.naturalHeight || img.height;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(imageUrl);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(async (blob) => {
+            if (!blob) {
+              resolve(imageUrl);
+              return;
+            }
+            try {
+              const formData = new FormData();
+              formData.append('file', blob, `news-${Date.now()}.jpg`);
+              const uploadRes = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
+              });
+              if (uploadRes.ok) {
+                const uploadData = await uploadRes.json();
+                if (uploadData.url) {
+                  resolve(uploadData.url);
+                  return;
+                }
+              }
+            } catch {
+              // Si falla la subida a /api/upload, usar la URL original
+            }
+            resolve(imageUrl);
+          }, 'image/jpeg', 0.85);
+        } catch {
+          resolve(imageUrl);
+        }
+      };
+      img.onerror = () => resolve(imageUrl);
+    } catch {
+      resolve(imageUrl);
+    }
+  });
+}
 
 export function NewsRepublishDialog({
   open,
@@ -20,6 +84,7 @@ export function NewsRepublishDialog({
 }) {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [optimizingImage, setOptimizingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<NewsRepublishMetadata | null>(null);
 
@@ -52,13 +117,28 @@ export function NewsRepublishDialog({
     }
   };
 
-  const handleConfirm = () => {
-    if (preview) {
-      onImport(preview);
-      onOpenChange(false);
-      setPreview(null);
-      setUrl('');
+  const handleConfirm = async () => {
+    if (!preview) return;
+
+    let finalMeta = { ...preview };
+
+    // Si la imagen supera 2MB o se solicita optimización, comprimirla con canvas
+    if (preview.imageUrl && (preview.imageNeedsCompression || preview.imageUrl.startsWith('http'))) {
+      setOptimizingImage(true);
+      try {
+        const optimizedUrl = await compressAndOptimizeImage(preview.imageUrl);
+        finalMeta.imageUrl = optimizedUrl;
+      } catch (e) {
+        console.warn('Compresión omitida por política CORS, usando URL remota:', e);
+      } finally {
+        setOptimizingImage(false);
+      }
     }
+
+    onImport(finalMeta);
+    onOpenChange(false);
+    setPreview(null);
+    setUrl('');
   };
 
   return (
@@ -106,13 +186,31 @@ export function NewsRepublishDialog({
             </div>
 
             {preview.imageUrl && (
-              <div className="relative aspect-video w-full rounded-lg overflow-hidden border border-border">
-                <Image
-                  src={preview.imageUrl}
-                  alt={preview.title}
-                  fill
-                  className="object-cover"
-                />
+              <div className="space-y-1.5">
+                <div className="relative aspect-video w-full rounded-lg overflow-hidden border border-border">
+                  <Image
+                    src={preview.imageUrl}
+                    alt={preview.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                {preview.imageNeedsCompression && (
+                  <p className="text-[11px] font-mono text-amber-400 flex items-center gap-1">
+                    <Shrink className="w-3 h-3" />
+                    <span>Imagen externa &gt; 2 MB detectada: Se reducirá automáticamente antes de integrarla.</span>
+                  </p>
+                )}
+              </div>
+            )}
+
+            {preview.videoUrl && (
+              <div className="p-2.5 rounded-lg border border-cyan-500/30 bg-cyan-950/20 text-cyan-300 text-xs flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Video className="w-4 h-4 text-cyan-400 shrink-0" />
+                  <span className="truncate max-w-[280px]">Video detectado en la fuente original</span>
+                </div>
+                <span className="text-[10px] font-mono text-cyan-400/80">Vista previa externa</span>
               </div>
             )}
 

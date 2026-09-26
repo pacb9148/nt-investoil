@@ -33,7 +33,7 @@ const INPUT_STYLE =
 const LABEL_STYLE = 'block text-[11px] font-mono uppercase tracking-wider text-text-muted mb-1.5';
 
 const MAX_IMAGE_SIZE_MB = 2;
-const MAX_VIDEO_SIZE_MB = 100;
+const MAX_VIDEO_SIZE_MB = 20;
 
 export function MediaUploadField({
   label,
@@ -100,7 +100,7 @@ export function MediaUploadField({
       return;
     }
     if (isVid && fileSizeMB > MAX_VIDEO_SIZE_MB) {
-      setErr(`El video pesa ${fileSizeMB.toFixed(1)} MB y supera el tamaño máximo permitido de ${MAX_VIDEO_SIZE_MB} MB.`);
+      setErr(`El video pesa ${fileSizeMB.toFixed(1)} MB y supera el límite de ${MAX_VIDEO_SIZE_MB} MB para alojamiento local. Ingrese el enlace de referencia de internet para guardar la URL y reproducir la vista previa.`);
       return;
     }
 

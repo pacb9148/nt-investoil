@@ -75,6 +75,13 @@ export function MediaPickerModal({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+    const isVid = file.type.startsWith('video/') || ['.mp4', '.webm', '.mov'].includes(ext);
+    if (isVid && file.size > 20 * 1024 * 1024) {
+      alert(`El video seleccionado pesa ${(file.size / (1024 * 1024)).toFixed(1)} MB y supera el límite de 20 MB para alojamiento en la biblioteca. Para videos de mayor peso, introduzca directamente el enlace de referencia de internet.`);
+      return;
+    }
+
     setUploading(true);
     try {
       const formData = new FormData();
