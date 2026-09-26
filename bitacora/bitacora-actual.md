@@ -43,3 +43,7 @@ El aprendizaje del agente, se guarda en tarjetas que después de un tiempo va a 
 5. La sección "4 servicios petroleros" de la landing, ahora es la sección de "Actualidad" donde se deben mostrar las ultimas 6 publicaciones del blog, así modifícala para que sea adecuada a su función y lo mismo con el botón del hero que lleva a esta sección.
 6. Dale un repaso integral a la landing en su totalidad y verifica la internacionalización (i18n), que todo tenga su correcta traducción español/ingles al momento de clicar el selector de idioma que la pagina se muestre por completo en el idioma seleccionado. Revisa cada sección de forma exhaustiva Home, Services, Products, About Us, Market News, Contact y todas las secciones no listadas en el menú.
 7. al finalizar +dap
+
+## 2026-09-26 23:46:22
+
+Hice un deploy manual para desplegar el ultimo commit, pero no está ninguno de los artículos anteriores y para probar usé el agente de noticias y cree un nuevo artículo con fecha 5 de enero de 2026, pero ese tampoco aparece ni en gestión de blogs, ni publicado en actualidad, ni en el blog. También hice una publicación con fecha actual usando el agente de noticia pero tampoco la muestra. revísalo, arréglalo y +dap

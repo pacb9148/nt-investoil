@@ -24,8 +24,8 @@ export default async function AdminDashboardPage() {
   const { getDashboardStats, getPosts, getLeads } = await import('@/lib/db/db-service');
   const [stats, allPosts, leads] = await Promise.all([
     getDashboardStats(),
-    getPosts(),
-    getLeads(),
+    getPosts().catch(() => []),
+    getLeads().catch(() => []),
   ]);
 
   const posts = stats.recentPosts;

@@ -25,8 +25,9 @@ export const revalidate = 0; // Dynamic blog feed from database
 export default async function BlogPage() {
   const isEn = getServerLanguage() === 'en';
   const { getPosts, getCategories } = await import('@/lib/db/db-service');
+  // Si la base falla, el blog se muestra vacío (y el error queda en el log) en vez de romper la página.
   const [posts, categories] = await Promise.all([
-    getPosts({ status: 'published' }),
+    getPosts({ status: 'published' }).catch(() => [] as Post[]),
     getCategories(),
   ]);
 

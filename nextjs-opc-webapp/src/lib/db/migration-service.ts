@@ -54,7 +54,7 @@ export async function seedPostsFromJson(): Promise<{ count: number; failed: stri
              (SELECT id FROM categories WHERE regexp_replace(lower(name), '[^a-z0-9]', '', 'g') = regexp_replace(lower($8::text), '[^a-z0-9]', '', 'g') LIMIT 1)
            ),
            $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW())
-         ON CONFLICT (id) DO NOTHING`,
+         ON CONFLICT DO NOTHING`,
         [
           p.id,
           p.slug,

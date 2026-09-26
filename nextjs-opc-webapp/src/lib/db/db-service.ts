@@ -123,19 +123,17 @@ async function ensurePostsSeededOnce(): Promise<void> {
   if (postsSeedChecked || !hasPostgresDb()) return;
   postsSeedChecked = true;
   try {
-    const flag = await queryPg("SELECT 1 FROM landing_sections WHERE id = 'posts_seed_v1'");
+    const flag = await queryPg("SELECT 1 FROM landing_sections WHERE id = 'posts_seed_v2'");
     if (!flag || flag.rows.length > 0) return;
 
-    const count = await queryPg('SELECT COUNT(*)::int AS c FROM posts');
-    if (!count) return;
-    if (count.rows[0].c === 0) {
-      const { seedPostsFromJson } = await import('@/lib/db/migration-service');
-      const { count: seeded, failed } = await seedPostsFromJson();
-      console.log(`[db-service] Artículos sembrados desde posts.json: ${seeded}${failed.length ? `, fallidos: ${failed.join(', ')}` : ''}`);
-      if (seeded === 0 && failed.length > 0) return; // sin marca: se reintentará en el próximo arranque
-    }
+    // Se insertan los que falten (los existentes y los conflictos de slug se respetan): la v1 solo sembraba con
+    // la tabla vacía y dejaba fuera los artículos de partida en cuanto alguien creaba uno nuevo.
+    const { seedPostsFromJson } = await import('@/lib/db/migration-service');
+    const { count: seeded, failed } = await seedPostsFromJson();
+    console.log(`[db-service] Artículos sembrados desde posts.json: ${seeded}${failed.length ? `, fallidos: ${failed.join(', ')}` : ''}`);
+    if (seeded === 0 && failed.length > 0) return; // sin marca: se reintentará en el próximo arranque
     await queryPg(
-      `INSERT INTO landing_sections (id, content, updated_at) VALUES ('posts_seed_v1', '{"done":true}'::jsonb, NOW())
+      `INSERT INTO landing_sections (id, content, updated_at) VALUES ('posts_seed_v2', '{"done":true}'::jsonb, NOW())
        ON CONFLICT (id) DO NOTHING`
     );
   } catch (err) {
@@ -156,10 +154,24 @@ export async function getPosts(options?: {
     try {
       await ensurePostsSeededOnce();
       const res = await queryPg('SELECT * FROM posts ORDER BY created_at DESC');
-      if (res && res.rows) {
+      if (!res) {
+        // Antes esto caía en silencio a «sin artículos»: el blog aparecía vacío sin explicación.
+        throw new Error('No se pudo leer la tabla de artículos en PostgreSQL (revisa los logs del servidor).');
+      }
+      if (res.rows) {
+        // El contenido puede ser un documento Tiptap (objeto) o HTML guardado como cadena (noticias del radar):
+        // JSON.parse sobre el HTML lanzaba y hacía desaparecer TODOS los artículos.
+        const parseContent = (c: unknown) => {
+          if (typeof c !== 'string') return c;
+          try {
+            return JSON.parse(c);
+          } catch {
+            return c;
+          }
+        };
         posts = res.rows.map((r: any) => ({
           ...r,
-          content: typeof r.content === 'string' ? JSON.parse(r.content) : r.content,
+          content: parseContent(r.content),
           tags: r.tags || [],
         })) as Post[];
 
@@ -188,7 +200,8 @@ export async function getPosts(options?: {
         return filtered;
       }
     } catch (err) {
-      console.warn('PostgreSQL getPosts fallback:', err);
+      console.error('[db-service] getPosts falló:', err);
+      throw err;
     }
   }
 
@@ -378,7 +391,7 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
   // Sincronizar en PostgreSQL si DATABASE_URL está presente
   if (hasPostgresDb()) {
     try {
-      await queryPg(
+      const saved = await queryPg(
         `INSERT INTO posts (id, slug, title, excerpt, content, status, category_id, category, featured_image_url, video_url, tags, reading_time, views, likes, is_republished, original_source_url, original_source_name, published_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW())
          ON CONFLICT (id) DO UPDATE SET
@@ -421,8 +434,11 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
           targetPost.published_at,
         ]
       );
+      if (!saved) throw new Error('PostgreSQL rechazó el guardado del artículo (revisa los logs del servidor).');
     } catch (pgErr) {
-      console.warn('Sync post to PostgreSQL failed:', pgErr);
+      console.error('Sync post to PostgreSQL failed:', pgErr);
+      // Sin esto el editor decía «publicado» y el artículo nunca llegaba a la base.
+      throw pgErr instanceof Error ? pgErr : new Error(String(pgErr));
     }
   }
 
@@ -1252,10 +1268,11 @@ export async function saveLead(leadData: Partial<ContactLead>): Promise<ContactL
 // 6. ESTADÍSTICAS DEL DASHBOARD
 // ==========================================
 export async function getDashboardStats() {
+  // Un fallo en una tabla no debe tumbar todo el panel de control.
   const [posts, media, leads] = await Promise.all([
-    getPosts(),
-    getMediaList(),
-    getLeads(),
+    getPosts().catch(() => [] as Post[]),
+    getMediaList().catch(() => [] as MediaItem[]),
+    getLeads().catch(() => [] as ContactLead[]),
   ]);
 
   const publishedPostsCount = posts.filter((p) => p.status === 'published').length;
