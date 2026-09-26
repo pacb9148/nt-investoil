@@ -10,6 +10,9 @@ import {
   Trash2,
   ExternalLink,
   Eye,
+  Heart,
+  ArrowUp,
+  ArrowDown,
   CheckCircle,
   Archive,
   AlertCircle,
@@ -34,6 +37,8 @@ export default function AdminPostsPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  // Orden por fecha de publicación: más recientes primero por defecto.
+  const [sortDesc, setSortDesc] = useState(true);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -115,7 +120,7 @@ export default function AdminPostsPage() {
     }
   };
 
-  const filteredPosts = posts.filter((p) => {
+  const filteredUnsorted = posts.filter((p) => {
     const pCatName = typeof p.category === 'string' ? p.category : p.category?.name || '';
     const matchesSearch =
       p.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -135,6 +140,9 @@ export default function AdminPostsPage() {
 
     return true;
   });
+
+  const dateOf = (p: Post) => new Date(p.published_at || p.created_at).getTime() || 0;
+  const filteredPosts = [...filteredUnsorted].sort((x, y) => (sortDesc ? dateOf(y) - dateOf(x) : dateOf(x) - dateOf(y)));
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -252,7 +260,21 @@ export default function AdminPostsPage() {
                   <th className="py-3 px-4">Categoría</th>
                   <th className="py-3 px-4">Estado</th>
                   <th className="py-3 px-4">Vistas</th>
-                  <th className="py-3 px-4">Fecha</th>
+                  <th className="py-3 px-4">Likes</th>
+                  <th
+                    className="py-3 px-4"
+                    aria-sort={sortDesc ? 'descending' : 'ascending'}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSortDesc((v) => !v)}
+                      className="inline-flex items-center gap-1 uppercase tracking-wider hover:text-accent transition-colors"
+                      title={sortDesc ? 'Más recientes primero (clic para invertir)' : 'Más antiguos primero (clic para invertir)'}
+                    >
+                      Fecha
+                      {sortDesc ? <ArrowDown className="w-3.5 h-3.5 text-accent" /> : <ArrowUp className="w-3.5 h-3.5 text-accent" />}
+                    </button>
+                  </th>
                   <th className="py-3 px-4 text-right">Acciones</th>
                 </tr>
               </thead>
@@ -346,6 +368,13 @@ export default function AdminPostsPage() {
                         <div className="flex items-center gap-1.5">
                           <Eye className="w-3.5 h-3.5 text-text-subtle" />
                           <span>{post.views || 0}</span>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-text-muted font-mono">
+                        <div className="flex items-center gap-1.5">
+                          <Heart className="w-3.5 h-3.5 text-rose-400" />
+                          <span>{post.likes || 0}</span>
                         </div>
                       </td>
 

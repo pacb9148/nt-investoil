@@ -10,6 +10,10 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 
 ## 2. Hitos y Funcionalidades Desarrolladas
 
+### Fase 29: Likes y orden por fecha en la gestión de posts, y favicon a partir del logo
+1. **Gestión de posts** (`admin/posts/page.tsx`): nueva columna **Likes** (icono de corazón) entre Vistas y Fecha, y la cabecera **Fecha** es un botón que alterna el orden por fecha de publicación (`published_at`, o `created_at` si no la hay): descendente por defecto, ascendente al invertir, con flecha e `aria-sort`. Probado en local: 10-9-2026 → 25-9-2026 en ascendente y a la inversa.
+2. **Favicon**: se regeneró desde la gota con el equipo de bombeo del logo (recorte cuadrado sin la etiqueta de texto, ilegible a 16-32 px): `favicon.ico` (16/32/48/64), `favicon.png`, `icon-192.png` e `icon-512.png`; los enlaces del `<head>` llevan `?v=2` para saltarse la caché del navegador.
+
 ### Fase 28: Los artículos publicados no aparecían (contenido HTML del radar rompía la lista) y la siembra se saltaba los originales
 1. **Causa**: el radar de noticias deja el cuerpo como cadena HTML. Se guarda en `posts.content` (JSONB) como cadena JSON y al leer, `getPosts` hacía `JSON.parse` sobre esa cadena: lanzaba `SyntaxError`, la excepción caía en un `catch` que la convertía en «sin artículos», y **un solo artículo con HTML hacía desaparecer todos** (blog, Actualidad y gestión de posts). Además la siembra `posts_seed_v1` solo actuaba con la tabla vacía: en cuanto alguien creó un artículo nuevo, los 8 originales quedaron sin sembrar.
 2. **Arreglo** (`db-service.ts`, `migration-service.ts`): el contenido se interpreta con tolerancia (objeto Tiptap o HTML); una lectura fallida ya no se disfraza de lista vacía (lanza el error y queda en el log); `savePost` deja de dar por bueno un guardado que PostgreSQL rechazó (`queryPg` devuelve `null` en vez de lanzar); la siembra pasa a `posts_seed_v2` e inserta los artículos que falten aunque ya existan otros (`ON CONFLICT DO NOTHING`). La portada del blog y el panel de control absorben un fallo de tabla sin romperse.

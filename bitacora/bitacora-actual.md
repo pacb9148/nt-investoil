@@ -47,3 +47,7 @@ El aprendizaje del agente, se guarda en tarjetas que después de un tiempo va a 
 ## 2026-09-26 23:46:22
 
 Hice un deploy manual para desplegar el ultimo commit, pero no está ninguno de los artículos anteriores y para probar usé el agente de noticias y cree un nuevo artículo con fecha 5 de enero de 2026, pero ese tampoco aparece ni en gestión de blogs, ni publicado en actualidad, ni en el blog. También hice una publicación con fecha actual usando el agente de noticia pero tampoco la muestra. revísalo, arréglalo y +dap
+
+## 2026-09-27 00:11:30
+
+Por ultimo, vamos a agregar donde se indica los likes, y que la lista se ordene por la fecha de publicación ascendente o descendente. Con esto terminamos. Al finalizar +dap y cerramos la sesión, muchas gracias eres excelente mi querido amigo
