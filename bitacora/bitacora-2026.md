@@ -1,6 +1,27 @@
 # Bitácora de Desarrollo — Invest Oil LLC
 
-## [2026-09-25 19:50 CET]
+## [2026-09-26 17:50 CET]
+- **Petición del usuario**:
+  1. Base de datos & despliegue: Resolver que tras cada deploy reaparecían configuraciones viejas, se reseteaban datos de la landing, foto del CEO Rufino con logo incorrecto, se modificaba footer/copyright/Nosotros y se perdían artículos; explicar la causa técnica y blindar la base de datos PostgreSQL como única fuente de verdad para que el deploy no altere la información viva.
+  2. Página Nosotros (`/admin/content/nosotros`): incorporar la opción de elegir imagen o video desde la biblioteca de medios reutilizable (`MediaPickerModal`).
+  3. Opacidad de tarjeta Hero: corregir el control para que permita transparencia real y deje ver el fondo del hero sin difuminado, resolviendo el conflicto de sobrescritura con Apariencia.
+  4. Quitar imagen residual de Rufino Antonio Villalobos en `landing_team` y `team.json`.
+  5. Páginas Legales (`/admin/content/legales`): descartar edición por bloques; implementar editor visual tipo artículo con Tiptap / Rich Text para las 5 páginas normativas, con selector bilingüe (ES / EN) y guardado en PostgreSQL.
+  6. Eliminar en todo el sistema `contacto@investoil.es` y `trading@investoil.es` sustituyéndolos por `info@investoil.es` (para consultas generales) y `business@investoil.es` (para operaciones comerciales), reflejándolo en Schema.org y tarjeta social, y agregando campos de metatags SEO (robots, google verification, custom head scripts).
+  7. Orden `+dap` al finalizar.
+- **Resolución y Evidencias**:
+  1. **Blindaje de PostgreSQL**: Se eliminó la llamada automática destructiva `migrateAllJsonToPostgres()` en `src/lib/db/pg-client.ts`. En `src/lib/db/migration-service.ts`, las 22 tablas verifican previamente si `COUNT(*) > 0` y usan exclusivamente `ON CONFLICT DO NOTHING`, impidiendo que los despliegues o arranques en frío de serverless sobreescriban datos vivos. En `db-service.ts` y `content-service.ts`, las consultas de artículos, categorías, equipo y secciones leen y escriben directamente en PostgreSQL.
+  2. **Biblioteca de Medios en Nosotros**: `src/app/(dashboard)/admin/content/nosotros/page.tsx` actualizado a asíncrono para leer directamente de PostgreSQL (`getLandingAbout()`). En `src/components/admin/content/about-form.tsx`, integrado `MediaPickerModal` para selección instantánea de fotos o videos con vista previa dinámica (`<video>` o `<img>`).
+  3. **Opacidad de Tarjeta Hero & Apariencia**: En `src/components/sections/hero-section.tsx`, se ajustó la condición de renderizado para alternar a `backdrop-blur-none` y `transparent` cuando la opacidad de la tarjeta es baja (`cardOpacity <= 15`). En `src/components/admin/content/apariencia-form.tsx`, se retiró el Bloque 5 que pisaba Hero y se sustituyó por un banner informativo hacia `/admin/content/hero`.
+  4. **Directivo Rufino Antonio Villalobos**: Depurado en `team.json` y en `TEAM_MEMBERS` de `src/lib/constants/investoil.ts` con imagen vacía `""`, mostrando el avatar corporativo neutral sin logos extraños.
+  5. **Editor de Páginas Legales con Tiptap**: Rediseñado `src/app/(dashboard)/admin/content/legales/page.tsx` con `TiptapEditor` enriquecido, pestañas para los 5 documentos normativos y selector bilingüe ES / EN. `src/lib/services/server-legal-service.ts` y `src/components/legal/legal-page-view.tsx` actualizados para persistir y renderizar `content_html` con formato editorial.
+  6. **Canalización a info@investoil.es & Metatags SEO**: Schema.org JSON-LD corporativo (`layout.tsx`) inyecta `email: info@investoil.es`. En `src/app/(dashboard)/admin/content/seo/page.tsx`, se incorporaron campos para `robots` (`index, follow`), `google_site_verification` y bloque de scripts personalizados para `<head>`, reflejados en el `<head>` del layout raíz.
+  7. **Evidencias Técnicas**:
+     - `npm run type-check`: 0 errores (código de salida 0).
+     - `npm run build`: 53/53 páginas estáticas y dinámicas compiladas exitosamente en Next.js 14.
+     - `pwsh .\scripts\bateria-seguridad.ps1`: Batería Strix 100% aprobada (0 secretos, 0 vulnerabilidades).
+
+
 - **Petición del usuario**:
   - Habilitar en el backoffice el espacio y herramientas para proporcionarle más información al agente de IA para que sus respuestas sean más ajustadas a la realidad, y entrenarlo con datos precisos de la compañía.
 - **Resolución y Evidencias**:

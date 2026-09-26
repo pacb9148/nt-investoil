@@ -13,8 +13,11 @@ import {
   Globe,
   ShieldCheck,
   Target,
+  FolderOpen,
+  Film,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MediaPickerModal } from '@/components/admin/media-picker-modal';
 
 const INPUT_STYLE =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2.5 text-xs text-text placeholder:text-text-subtle focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors';
@@ -25,6 +28,7 @@ export function AboutForm({ initialData }: { initialData: any }) {
   const [langTab, setLangTab] = useState<'es' | 'en'>('es');
   const [uploading, setUploading] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
+  const [openMediaPicker, setOpenMediaPicker] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -118,31 +122,40 @@ export function AboutForm({ initialData }: { initialData: any }) {
         </div>
       </div>
 
-      {/* Bloque 1: Identidad Visual & Imagen Destacada de Nosotros */}
+      {/* Bloque 1: Identidad Visual & Imagen/Video Destacado de Nosotros */}
       <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-5">
         <h3 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
           <ImageIcon className="w-4 h-4" />
-          <span>01.</span> Logotipo e Imagen Destacada de la Página Nosotros
+          <span>01.</span> Logotipo, Imagen o Video de la Página Nosotros
         </h3>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           <div className="lg:col-span-7 space-y-3">
-            <label className={LABEL_STYLE}>Archivo o URL de la Imagen Central</label>
-            <div className="flex items-center gap-2">
+            <label className={LABEL_STYLE}>Archivo o URL del Elemento Multimedia Central</label>
+            <div className="flex flex-wrap items-center gap-2">
               <input
                 type="text"
                 value={data.featured_image || ''}
                 onChange={(e) => setData({ ...data, featured_image: e.target.value })}
-                className={INPUT_STYLE}
+                className={cn(INPUT_STYLE, 'flex-1 min-w-[200px]')}
                 placeholder="/images/branding/corporate-card-logo.jpeg"
               />
               <input
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileUpload}
-                accept="image/*"
+                accept="image/*,video/*"
                 className="hidden"
               />
+              <button
+                type="button"
+                onClick={() => setOpenMediaPicker(true)}
+                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-card border border-border hover:border-accent text-text hover:text-accent text-xs font-semibold transition-all shadow-sm"
+                title="Elegir o reutilizar un archivo de la biblioteca de medios"
+              >
+                <FolderOpen className="w-3.5 h-3.5 text-accent" />
+                <span>Biblioteca de Medios...</span>
+              </button>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -150,13 +163,13 @@ export function AboutForm({ initialData }: { initialData: any }) {
                 className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-accent text-bg hover:bg-accent-400 text-xs font-bold transition-all shadow-sm disabled:opacity-50"
               >
                 {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-                <span>{uploading ? 'Subiendo...' : 'Subir Imagen...'}</span>
+                <span>{uploading ? 'Subiendo...' : 'Subir Archivo...'}</span>
               </button>
             </div>
 
             {/* Accesos rápidos a imágenes corporativas oficiales */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
-              <span className="text-[10px] font-mono text-text-subtle">Fondos disponibles:</span>
+              <span className="text-[10px] font-mono text-text-subtle">Fondos y recursos oficiales:</span>
               <button
                 type="button"
                 onClick={() => setData({ ...data, featured_image: '/images/branding/corporate-card-logo.jpeg' })}
@@ -181,23 +194,55 @@ export function AboutForm({ initialData }: { initialData: any }) {
               >
                 Logotipo Principal
               </button>
+              {data.featured_image && (
+                <button
+                  type="button"
+                  onClick={() => setData({ ...data, featured_image: '' })}
+                  className="px-2.5 py-1 rounded text-[10px] font-mono border border-border bg-card text-rose-400 hover:text-rose-300 hover:border-rose-500/50 transition-colors"
+                >
+                  ✕ Limpiar
+                </button>
+              )}
             </div>
           </div>
 
           <div className="lg:col-span-5 flex flex-col items-center justify-center p-4 rounded-xl border border-border bg-black/40">
             <span className="text-[10px] font-mono text-text-subtle uppercase mb-2">Vista previa actual</span>
-            <div className="w-44 h-44 rounded-xl border border-amber-500/30 bg-card p-3 flex items-center justify-center shadow-lg overflow-hidden">
-              <img
-                src={data.featured_image || '/images/branding/corporate-card-logo.jpeg'}
-                alt="Vista previa Nosotros"
-                className="w-full h-full object-contain filter drop-shadow-[0_2px_12px_rgba(245,158,11,0.3)]"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
+            <div className="w-48 h-48 rounded-xl border border-amber-500/30 bg-card p-2 flex items-center justify-center shadow-lg overflow-hidden relative">
+              {data.featured_image && data.featured_image.match(/\.(mp4|webm|mov)$/i) ? (
+                <video
+                  src={data.featured_image}
+                  controls
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              ) : (
+                <img
+                  src={data.featured_image || '/images/branding/corporate-card-logo.jpeg'}
+                  alt="Vista previa Nosotros"
+                  className="w-full h-full object-contain filter drop-shadow-[0_2px_12px_rgba(245,158,11,0.3)]"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
+              )}
             </div>
           </div>
         </div>
+
+        {/* Modal de selección desde la Biblioteca de Medios */}
+        <MediaPickerModal
+          open={openMediaPicker}
+          onOpenChange={setOpenMediaPicker}
+          onSelect={(item) => {
+            setData((prev: any) => ({ ...prev, featured_image: item.url }));
+            setStatusMessage(`✓ Elemento multimedia "${item.filename}" seleccionado de la biblioteca.`);
+            setTimeout(() => setStatusMessage(null), 4000);
+          }}
+          accept="all"
+          title="Biblioteca de Medios — Seleccionar Imagen o Video para Nosotros"
+        />
       </div>
 
       {/* Bloque 2: Titular, Eslogan y Misión */}

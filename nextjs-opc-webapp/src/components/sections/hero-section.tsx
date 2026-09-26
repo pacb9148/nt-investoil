@@ -55,7 +55,7 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
     fetch('/api/content/hero')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (data && data.id) {
+        if (data && typeof data === 'object') {
           setActiveConfig((prev) => ({ ...(prev || {}), ...data }));
         }
       })
@@ -305,16 +305,19 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
                 className="absolute -inset-1 rounded-3xl blur-xl transition-all duration-300 pointer-events-none"
                 style={{
                   background: `linear-gradient(to right, ${cardBorderColor}, #f59e0b, #d97706)`,
-                  opacity: cardGlowOpacity,
+                  opacity: cardOpacity <= 0 ? 0 : cardGlowOpacity,
                 }}
               />
 
               {/* Tarjeta Principal Glassmorphic con Sello Oficial */}
               <div
-                className="relative rounded-2xl backdrop-blur-xl p-6 shadow-2xl space-y-6 transition-all duration-300"
+                className={cn(
+                  'relative rounded-2xl p-6 shadow-2xl space-y-6 transition-all duration-300',
+                  cardOpacity > 15 ? 'backdrop-blur-xl' : 'backdrop-blur-none'
+                )}
                 style={{
-                  backgroundColor: cardBgColor,
-                  border: `1px solid ${cardBorderColor}`,
+                  backgroundColor: cardOpacity <= 0 ? 'transparent' : cardBgColor,
+                  border: cardOpacity <= 0 ? '1px solid rgba(245, 158, 11, 0.25)' : `1px solid ${cardBorderColor}`,
                 }}
               >
                 <div

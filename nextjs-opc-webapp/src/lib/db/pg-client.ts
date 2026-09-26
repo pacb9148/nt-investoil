@@ -411,23 +411,6 @@ export async function ensurePgSchema(): Promise<void> {
 
   try {
     await p.query(schemaSql);
-
-    // Comprobación de datos iniciales: si landing_sections o categories están vacías, migrar automáticamente los JSON
-    try {
-      const checkRes = await p.query('SELECT COUNT(*) as count FROM landing_sections');
-      const count = parseInt(checkRes.rows[0]?.count || '0', 10);
-      if (count === 0 && !migrationStarted) {
-        migrationStarted = true;
-        console.log('[PostgreSQL] Base de datos vacía detectada. Iniciando migración automática de datos JSON (una sola vez, en segundo plano)...');
-        // Sin await: la migración usa queryPg y las peticiones no deben esperar a que termine.
-        import('@/lib/db/migration-service')
-          .then((m) => m.migrateAllJsonToPostgres())
-          .then(() => console.log('[PostgreSQL] Migración automática completada.'))
-          .catch((e: unknown) => console.error('[PostgreSQL] Migración automática fallida:', e instanceof Error ? e.message : e));
-      }
-    } catch (checkErr) {
-      console.warn('[PostgreSQL Data Check Warning]:', checkErr);
-    }
   } catch (err: any) {
     console.error('[PostgreSQL Schema Init Error]:', err.message);
   }

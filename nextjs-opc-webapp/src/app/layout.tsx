@@ -66,8 +66,11 @@ export async function generateMetadata(): Promise<Metadata> {
       apple: [{ url: '/images/branding/icon-192.png' }],
     },
     robots: {
-      index: true,
-      follow: true,
+      index: !seo.robots || !seo.robots.includes('noindex'),
+      follow: !seo.robots || !seo.robots.includes('nofollow'),
+    },
+    verification: {
+      google: seo.google_site_verification || undefined,
     },
     other: {
       'geo.region': seo.geo_region || 'US-DE',
@@ -94,6 +97,13 @@ export default async function RootLayout({
     : `${canonicalUrl}${seo.og_image || '/images/branding/corporate-card-logo.jpeg'}`;
 
   // Schema.org Corporativo Institucional (Desambiguación Delaware USA para Google e IA)
+  const corporateEmail =
+    seo.contact_email &&
+    seo.contact_email !== 'contacto@investoil.es' &&
+    seo.contact_email !== 'trading@investoil.es'
+      ? seo.contact_email
+      : 'info@investoil.es';
+
   const corporateJsonLd = {
     '@context': 'https://schema.org',
     '@type': ['Corporation', 'Organization'],
@@ -146,7 +156,7 @@ export default async function RootLayout({
       'Pet Coke',
       'Energy Commodities Facilitation',
     ],
-    email: seo.contact_email || COMPANY_INFO.email,
+    email: corporateEmail,
     telephone: seo.telephone || undefined,
     sameAs: seo.linkedin_url ? [seo.linkedin_url] : [COMPANY_INFO.linkedin],
   };
@@ -164,6 +174,11 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(corporateJsonLd) }}
         />
+        {seo.custom_head_scripts && (
+          <script
+            dangerouslySetInnerHTML={{ __html: seo.custom_head_scripts }}
+          />
+        )}
       </head>
       <body className="min-h-screen bg-bg text-text antialiased selection:bg-accent/30 selection:text-neon">
         <LanguageProvider>

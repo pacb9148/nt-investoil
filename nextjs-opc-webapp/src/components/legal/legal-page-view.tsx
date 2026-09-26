@@ -51,6 +51,7 @@ export function LegalPageView({ slug, initialData }: LegalPageViewProps) {
     lang === 'en' && data.sections_en && data.sections_en.length > 0
       ? data.sections_en
       : data.sections;
+  const currentHtml = lang === 'en' ? data.content_html_en || data.content_html : data.content_html;
 
   return (
     <div className="pt-32 pb-24 max-w-4xl mx-auto px-4 md:px-8 space-y-8">
@@ -133,19 +134,26 @@ export function LegalPageView({ slug, initialData }: LegalPageViewProps) {
           </p>
         )}
 
-        <div className="space-y-7">
-          {currentSections?.map((section, idx) => (
-            <div key={idx} className="space-y-2.5">
-              <h2 className="text-lg font-bold text-slate-100 dark:text-slate-100 flex items-center gap-2">
-                <span className="text-amber-400 font-mono text-sm font-bold">§</span>
-                <span>{section.title}</span>
-              </h2>
-              <div className="text-sm text-slate-300 dark:text-slate-300 leading-relaxed whitespace-pre-line pl-4 border-l-2 border-amber-500/30 space-y-2">
-                {section.content}
+        {currentHtml ? (
+          <div
+            className="prose prose-invert prose-amber max-w-none text-slate-200 dark:text-slate-200 leading-relaxed text-sm space-y-4"
+            dangerouslySetInnerHTML={{ __html: currentHtml }}
+          />
+        ) : (
+          <div className="space-y-7">
+            {currentSections?.map((section, idx) => (
+              <div key={idx} className="space-y-2.5">
+                <h2 className="text-lg font-bold text-slate-100 dark:text-slate-100 flex items-center gap-2">
+                  <span className="text-amber-400 font-mono text-sm font-bold">§</span>
+                  <span>{section.title}</span>
+                </h2>
+                <div className="text-sm text-slate-300 dark:text-slate-300 leading-relaxed whitespace-pre-line pl-4 border-l-2 border-amber-500/30 space-y-2">
+                  {section.content}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Footer institucional de la página legal */}
         <div className="pt-6 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-slate-400 dark:text-slate-400">

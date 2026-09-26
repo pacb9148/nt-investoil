@@ -10,7 +10,35 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 
 ## 2. Hitos y Funcionalidades Desarrolladas
 
-### Fase 20: Selector de Biblioteca de Medios, Persistencia de Eliminaciones de Equipo y Protección contra Resurrección de Archivos tras Deploy
+### Fase 21: Blindaje Inviolable de Base de Datos PostgreSQL, Editor WYSIWYG de Legales con Tiptap, Biblioteca de Medios en Nosotros y Transparencia Hero
+1. **Blindaje de la Base de Datos contra Sobreescrituras tras Deploy**:
+   - Se erradicó la llamada automática destructiva `migrateAllJsonToPostgres()` en `src/lib/db/pg-client.ts`, impidiendo que los arranques en frío o despliegues serverless reseteen la BD con los JSON estáticos de git.
+   - En `src/lib/db/migration-service.ts`, todas las 22 tablas (`posts`, `categories`, `landing_team`, `landing_services`, `landing_products`, `products`, `landing_testimonials`, `media`, `landing_about`, `landing_footer`, `landing_header`, `landing_hero`, `landing_seo`, etc.) verifican previamente `SELECT COUNT(*)`. Si la tabla ya contiene filas, no ejecuta nada (`DO NOTHING`), convirtiendo a PostgreSQL en la fuente única y permanente de la verdad.
+   - `getPosts`, `savePost`, `deletePost`, `getCategories` y `getTeamMembers` en `src/lib/db/db-service.ts` operan exclusivamente sobre PostgreSQL, impidiendo que artículos o directivos eliminados reaparezcan.
+   - En `src/lib/services/content-service.ts`, `getLandingHero`, `getLandingAppearance`, `getLandingAbout`, `getLandingFooter`, `getLandingHeader` y `getLandingSeo` leen y escriben directamente en PostgreSQL (`landing_sections` y tablas singleton), garantizando que las modificaciones del usuario nunca sean sobreescritas.
+2. **Biblioteca de Medios en Nosotros (`/admin/content/nosotros`)**:
+   - `NosotrosPage` ahora es asíncrono y obtiene los datos vivos de PostgreSQL con `await getLandingAbout()`.
+   - Integración completa de `MediaPickerModal` en `AboutForm` (`src/components/admin/content/about-form.tsx`), permitiendo seleccionar imágenes o videos directamente de la biblioteca corporativa con un clic, con soporte para preview interactivo (`<video>` o `<img>`).
+3. **Opacidad de Tarjeta Hero & Resolución de Conflicto con Apariencia**:
+   - En `src/components/sections/hero-section.tsx`, se corrigió la lógica de renderizado: cuando la opacidad de la tarjeta es baja (`cardOpacity <= 15`), se desactiva `backdrop-blur-xl` a `backdrop-blur-none` y el fondo se vuelve 100% transparente (`transparent`), logrando el efecto de cristal / transparencia real sobre el video del hero.
+   - En `src/components/admin/content/apariencia-form.tsx`, se eliminó el Bloque 5 que sobrescribía los ajustes del Hero al guardar la apariencia del sitio. Se reemplazó por un banner informativo dedicado que enlaza directamente a `/admin/content/hero`.
+4. **Erradicación de Foto Residual de Rufino**:
+   - Se verificó y depuró `team.json` y la constante `TEAM_MEMBERS` en `src/lib/constants/investoil.ts`, asegurando que Rufino Antonio Villalobos tenga imagen vacía `""` y muestre el avatar corporativo neutral por defecto, sin rastros de logos antiguos.
+5. **Nuevo Editor de Páginas Legales tipo Artículo (Tiptap / Rich Text)**:
+   - Descarte de la edición rígida por bloques en `/admin/content/legales`.
+   - Se implementó un editor visual enriquecido con `TiptapEditor` (`src/app/(dashboard)/admin/content/legales/page.tsx`), con pestañas para los 5 documentos normativos (*Aviso de Privacidad, Términos y Condiciones, Política de Cookies, Alerta de Fraude y Estafas, Declaración de Accesibilidad*).
+   - Soporte bilingüe completo (ES / EN) tanto para metadatos (insignia, título, fecha de revisión, introducción) como para el cuerpo del documento.
+   - `src/lib/services/server-legal-service.ts` actualizado a asíncrono para leer directamente de PostgreSQL (`getSectionContent('legal-pages')`) y `LegalPageView` (`src/components/legal/legal-page-view.tsx`) actualizado para renderizar `content_html` con formato tipográfico editorial (`prose prose-invert prose-amber`).
+6. **Canalización de Correos a `info@investoil.es` & Metatags Avanzados de SEO**:
+   - Se forzó en todo el sistema (`src/app/layout.tsx`, `src/lib/services/content-service.ts`, `src/app/(dashboard)/admin/content/seo/page.tsx`) la sustitución automática de `contacto@investoil.es` y `trading@investoil.es` por `info@investoil.es` (para consultas generales) y `business@investoil.es` (para operaciones comerciales).
+   - Schema.org JSON-LD corporativo inyecta de forma garantizada `email: info@investoil.es`.
+   - En el editor de SEO se agregaron nuevos campos de metatags: Directiva `robots` (`index, follow` / `noindex`), Token de Verificación de Google Search Console y bloque de scripts personalizados para `<head>` (Analytics, GTM, Pixel).
+7. **Verificaciones**:
+   - `npm run type-check`: 0 errores de compilación TypeScript.
+   - `npm run build`: 53/53 páginas estáticas y dinámicas compiladas al 100%.
+   - `pwsh .\scripts\bateria-seguridad.ps1`: Batería de seguridad aprobada con 0 vulnerabilidades.
+
+
 1. **Persistencia y Eliminación Definitiva en Consejo Directivo (`team`)**:
    - `saveTeamMembers` en `src/lib/db/db-service.ts` implementa `DELETE FROM landing_team WHERE id NOT IN (...)` para PostgreSQL y Supabase, purgando definitivamente de la base de datos a los directivos que el usuario ha borrado.
    - Preservación del orden visual mediante `sort_order = index`.

@@ -200,9 +200,12 @@ export interface LandingSeoConfig {
   telephone?: string;
   linkedin_url?: string;
 
-  // Geotags
+  // Geotags & Metatags Avanzados
   geo_region?: string;
   geo_placename?: string;
+  robots?: string;
+  google_site_verification?: string;
+  custom_head_scripts?: string;
 }
 
 export interface ContentActionResponse {

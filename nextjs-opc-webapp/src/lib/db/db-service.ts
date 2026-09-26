@@ -128,12 +128,36 @@ export async function getPosts(options?: {
   if (hasPostgresDb()) {
     try {
       const res = await queryPg('SELECT * FROM posts ORDER BY created_at DESC');
-      if (res && res.rows.length > 0) {
+      if (res && res.rows) {
         posts = res.rows.map((r: any) => ({
           ...r,
           content: typeof r.content === 'string' ? JSON.parse(r.content) : r.content,
           tags: r.tags || [],
         })) as Post[];
+
+        // Si la base de datos respondió, es la única fuente de verdad
+        let filtered = posts;
+        if (options?.status && options.status !== 'all') {
+          filtered = filtered.filter((p) => p.status === options.status);
+        }
+        if (options?.search) {
+          const q = options.search.toLowerCase();
+          filtered = filtered.filter(
+            (p) =>
+              p.title.toLowerCase().includes(q) ||
+              (p.excerpt && p.excerpt.toLowerCase().includes(q)) ||
+              p.tags?.some((t) => t.toLowerCase().includes(q))
+          );
+        }
+        if (options?.categorySlug) {
+          filtered = filtered.filter((p) =>
+            p.category === options.categorySlug || p.categories?.some((c) => c.slug === options.categorySlug)
+          );
+        }
+        if (options?.limit && filtered.length > options.limit) {
+          filtered = filtered.slice(0, options.limit);
+        }
+        return filtered;
       }
     } catch (err) {
       console.warn('PostgreSQL getPosts fallback:', err);
@@ -155,15 +179,15 @@ export async function getPosts(options?: {
       const { data, error } = await query;
       if (!error && data && data.length > 0) {
         posts = data as Post[];
+        return posts;
       }
     } catch {
       // Fallback local
     }
   }
 
-  if (posts.length === 0) {
-    posts = readJsonFile<Post[]>('posts.json', BLOG_POSTS);
-  }
+  // Fallback a JSON solo si no hay conexión a PostgreSQL ni Supabase
+  posts = readJsonFile<Post[]>('posts.json', BLOG_POSTS);
 
   // Filtrado en memoria
   if (options?.status && options.status !== 'all') {
@@ -204,7 +228,8 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 }
 
 export async function savePost(postData: Partial<Post>): Promise<Post> {
-  const posts = readJsonFile<Post[]>('posts.json', BLOG_POSTS);
+  // Obtener posts vigentes de la base de datos real
+  const posts = await getPosts();
   const now = new Date().toISOString();
   const allCategories = await getCategories();
 
@@ -407,14 +432,12 @@ export async function savePost(postData: Partial<Post>): Promise<Post> {
 }
 
 export async function deletePost(id: string): Promise<boolean> {
-  const posts = readJsonFile<Post[]>('posts.json', BLOG_POSTS);
-  const filtered = posts.filter((p) => p.id !== id);
-  writeJsonFile('posts.json', filtered);
-
   if (hasPostgresDb()) {
     try {
       await queryPg('DELETE FROM posts WHERE id = $1', [id]);
-    } catch {}
+    } catch (err) {
+      console.warn('PostgreSQL deletePost error:', err);
+    }
   }
 
   if (isSupabaseConfigured()) {
@@ -425,6 +448,10 @@ export async function deletePost(id: string): Promise<boolean> {
     } catch {}
   }
 
+  const posts = readJsonFile<Post[]>('posts.json', BLOG_POSTS);
+  const filtered = posts.filter((p) => p.id !== id);
+  writeJsonFile('posts.json', filtered);
+
   return true;
 }
 
@@ -432,27 +459,20 @@ export async function deletePost(id: string): Promise<boolean> {
 // 2. CATEGORÍAS (CRUD en Base de Datos & Local)
 // ==========================================
 export async function getCategories(): Promise<Category[]> {
-  let categories = readJsonFile<Category[]>('categories.json', BLOG_CATEGORIES);
-
   if (hasPostgresDb()) {
     try {
       const res = await queryPg('SELECT * FROM categories ORDER BY name ASC');
-      if (res && res.rows.length > 0) {
-        const map = new Map<string, Category>();
-        for (const c of categories) map.set(c.id, c);
-        for (const item of res.rows) {
-          map.set(item.id, {
-            id: item.id,
-            name: item.name,
-            slug: item.slug,
-            description: item.description,
-            name_en: item.name_en,
-            description_en: item.description_en,
-            color: item.color,
-            created_at: item.created_at,
-          });
-        }
-        categories = Array.from(map.values());
+      if (res && res.rows && res.rows.length > 0) {
+        return res.rows.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          slug: item.slug,
+          description: item.description,
+          name_en: item.name_en,
+          description_en: item.description_en,
+          color: item.color,
+          created_at: item.created_at,
+        }));
       }
     } catch {}
   }
@@ -463,26 +483,21 @@ export async function getCategories(): Promise<Category[]> {
       const supabase = createAdminClient();
       const { data, error } = await supabase.from('categories').select('*').order('name');
       if (!error && data && data.length > 0) {
-        const map = new Map<string, Category>();
-        for (const c of categories) map.set(c.id, c);
-        for (const item of data) {
-          map.set(item.id, {
-            id: item.id,
-            name: item.name,
-            slug: item.slug,
-            description: item.description,
-            name_en: item.name_en,
-            description_en: item.description_en,
-            color: item.color,
-            created_at: item.created_at,
-          });
-        }
-        categories = Array.from(map.values());
+        return data.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          slug: item.slug,
+          description: item.description,
+          name_en: item.name_en,
+          description_en: item.description_en,
+          color: item.color,
+          created_at: item.created_at,
+        }));
       }
     } catch {}
   }
 
-  return categories;
+  return readJsonFile<Category[]>('categories.json', BLOG_CATEGORIES);
 }
 
 export async function getCategoryById(id: string): Promise<Category | null> {

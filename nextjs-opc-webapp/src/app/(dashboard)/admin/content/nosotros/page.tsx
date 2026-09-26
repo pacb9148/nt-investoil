@@ -5,33 +5,16 @@ import { AboutForm } from '@/components/admin/content/about-form';
 import fs from 'fs';
 import path from 'path';
 
+import { getLandingAbout } from '@/lib/services/content-service';
+
 export const metadata = {
   title: 'Editar Página Nosotros | Admin Invest Oil LLC',
 };
 
-function getAboutData() {
-  const candidates = [
-    path.join(process.cwd(), 'src', 'data', 'about.json'),
-    path.join(process.cwd(), 'nextjs-opc-webapp', 'src', 'data', 'about.json'),
-  ];
-  for (const c of candidates) {
-    if (fs.existsSync(c)) {
-      try {
-        return JSON.parse(fs.readFileSync(c, 'utf-8'));
-      } catch {}
-    }
-  }
-  return {
-    badge_text: 'IDENTIDAD & VALORES',
-    title: 'Liderando el puente comercial entre productores y refinerías globales',
-    slogan: 'En Invest Oil LLC, nos especializamos en la comercialización física y estructuración de contratos para crudos pesados, ligeros y derivados.',
-    featured_image: '/images/branding/corporate-card-logo.jpeg',
-    pillars: []
-  };
-}
+export const dynamic = 'force-dynamic';
 
-export default function AdminNosotrosPage() {
-  const aboutData = getAboutData();
+export default async function AdminNosotrosPage() {
+  const aboutData = await getLandingAbout();
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">

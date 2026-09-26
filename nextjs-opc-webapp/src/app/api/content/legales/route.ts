@@ -4,6 +4,9 @@ import { getSectionContent, saveSectionContent } from '@/lib/services/content-se
 
 export const dynamic = 'force-dynamic';
 
+import fs from 'fs';
+import path from 'path';
+
 export interface LegalSection {
   title: string;
   content: string;
@@ -14,11 +17,13 @@ export interface LegalPageData {
   title: string;
   lastUpdated: string;
   intro: string;
-  sections: LegalSection[];
+  sections?: LegalSection[];
+  content_html?: string;
   badge_en?: string;
   title_en?: string;
   intro_en?: string;
   sections_en?: LegalSection[];
+  content_html_en?: string;
 }
 
 export async function GET(req: Request) {
@@ -56,7 +61,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Formato de payload inválido' }, { status: 400 });
     }
 
+    // 1. Persistir en PostgreSQL (landing_sections)
     await saveSectionContent('legal-pages', currentData);
+
+    // 2. Sincronizar archivo local de respaldo si existe
+    try {
+      const dataPath = path.join(process.cwd(), 'src', 'data', 'legal-pages.json');
+      fs.writeFileSync(dataPath, JSON.stringify(currentData, null, 2), 'utf-8');
+    } catch {}
+
     revalidatePath('/', 'layout');
     revalidatePath('/admin/content/legales');
 

@@ -14,8 +14,8 @@ import {
   Paintbrush,
   Sliders,
   RotateCcw,
-  Upload,
-  Trash2,
+  ArrowRight,
+  ExternalLink,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -76,128 +76,6 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
     return initial;
   });
 
-  // Estados de la tarjeta hero (sincronizados exactamente con el Hero)
-  const [cardBg, setCardBg] = useState<string>(
-    defaultValues.hero_card?.card_bg_color || '#0e1e3d'
-  );
-  const [cardBorder, setCardBorder] = useState<string>(
-    defaultValues.hero_card?.card_border_color || '#1a3264'
-  );
-  const [cardGlow, setCardGlow] = useState<number>(
-    defaultValues.hero_card?.card_glow_opacity ?? 50
-  );
-  const [logoUrl, setLogoUrl] = useState<string>(() => {
-    const raw = defaultValues.hero_card?.logo_url;
-    if (!raw || raw.includes('seal-transparent') || raw.includes('1790262200243')) {
-      return '/images/branding/corporate-card-logo.jpeg';
-    }
-    return raw;
-  });
-  const [logoHue, setLogoHue] = useState<number>(
-    defaultValues.hero_card?.logo_hue ?? 0
-  );
-  const [logoBrightness, setLogoBrightness] = useState<number>(
-    defaultValues.hero_card?.logo_brightness ?? 100
-  );
-  const [logoSaturation, setLogoSaturation] = useState<number>(
-    defaultValues.hero_card?.logo_saturation ?? 100
-  );
-  const [logoShadowColor, setLogoShadowColor] = useState<string>(
-    defaultValues.hero_card?.logo_shadow_color || '#f59e0b'
-  );
-  const [logoShadowBlur, setLogoShadowBlur] = useState<number>(
-    defaultValues.hero_card?.logo_shadow_blur ?? 20
-  );
-
-  // Textos y métricas de la tarjeta
-  const [badgeText, setBadgeText] = useState<string>(
-    defaultValues.hero_card?.badge_text || 'VERIFICACIÓN SGS & ASTM D1655'
-  );
-  const [metric1Label, setMetric1Label] = useState<string>(
-    defaultValues.hero_card?.metric1_label || 'Despachos Mensuales:'
-  );
-  const [metric1Value, setMetric1Value] = useState<string>(
-    defaultValues.hero_card?.metric1_value || '12.5M BBLS'
-  );
-  const [metric2Label, setMetric2Label] = useState<string>(
-    defaultValues.hero_card?.metric2_label || 'Terminales Marítimas:'
-  );
-  const [metric2Value, setMetric2Value] = useState<string>(
-    defaultValues.hero_card?.metric2_value || 'Houston / Rotterdam'
-  );
-  const [metric3Label, setMetric3Label] = useState<string>(
-    defaultValues.hero_card?.metric3_label || 'Estatus Operativo:'
-  );
-  const [metric3Value, setMetric3Value] = useState<string>(
-    defaultValues.hero_card?.metric3_value || 'ACTIVO 100%'
-  );
-
-  // Estados para subida de la imagen corporativa / sello
-  const [uploadingLogo, setUploadingLogo] = useState<boolean>(false);
-  const [deletingLogo, setDeletingLogo] = useState<boolean>(false);
-  const [logoMessage, setLogoMessage] = useState<string | null>(null);
-  const [logoError, setLogoError] = useState<string | null>(null);
-  const logoFileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleLogoFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingLogo(true);
-    setLogoError(null);
-    setLogoMessage(null);
-
-    try {
-      const uploadFormData = new FormData();
-      uploadFormData.append('file', file);
-
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: uploadFormData,
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Fallo en la subida del logotipo');
-      }
-
-      setLogoUrl(data.url);
-      setLogoMessage(`Imagen corporativa subida con éxito (${file.name})`);
-      setTimeout(() => setLogoMessage(null), 5000);
-    } catch (err) {
-      setLogoError(err instanceof Error ? err.message : 'Error al subir imagen corporativa');
-    } finally {
-      setUploadingLogo(false);
-    }
-  };
-
-  const handleRemoveLogo = () => {
-    setLogoUrl('');
-    setLogoMessage('Imagen corporativa quitada.');
-    setTimeout(() => setLogoMessage(null), 3500);
-  };
-
-  const handleDeleteLogoFile = async () => {
-    if (!logoUrl) return;
-    if (!window.confirm('¿Deseas eliminar permanentemente este archivo del servidor y la base de datos?')) return;
-    setDeletingLogo(true);
-    try {
-      const res = await fetch(`/api/upload?url=${encodeURIComponent(logoUrl)}`, { method: 'DELETE' });
-      const resData = await res.json();
-      if (res.ok) {
-        setLogoUrl('');
-        setLogoMessage('✓ Archivo eliminado del almacén con éxito.');
-        setTimeout(() => setLogoMessage(null), 4000);
-      } else {
-        setLogoError(resData.error || 'Error al eliminar archivo');
-      }
-    } catch {
-      setLogoError('Error al comunicar con el servidor para eliminar el archivo');
-    } finally {
-      setDeletingLogo(false);
-    }
-  };
-
   const handleColorChange = (secId: string, value: string) => {
     setSectionColors((prev) => ({ ...prev, [secId]: value }));
   };
@@ -209,22 +87,6 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    formData.set('hero_logo_url', logoUrl);
-    formData.set('hero_card_bg', cardBg);
-    formData.set('hero_card_border', cardBorder);
-    formData.set('hero_card_glow_opacity', String(cardGlow));
-    formData.set('hero_logo_hue', String(logoHue));
-    formData.set('hero_logo_brightness', String(logoBrightness));
-    formData.set('hero_logo_saturation', String(logoSaturation));
-    formData.set('hero_logo_shadow_color', logoShadowColor);
-    formData.set('hero_logo_shadow_blur', String(logoShadowBlur));
-    formData.set('hero_badge_text', badgeText);
-    formData.set('hero_metric1_label', metric1Label);
-    formData.set('hero_metric1_value', metric1Value);
-    formData.set('hero_metric2_label', metric2Label);
-    formData.set('hero_metric2_value', metric2Value);
-    formData.set('hero_metric3_label', metric3Label);
-    formData.set('hero_metric3_value', metric3Value);
 
     startTransition(async () => {
       // 1. Guardar vía API REST directa para actualización instantánea
@@ -232,37 +94,12 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
         const payload = {
           ...defaultValues,
           section_bg_colors: sectionColors,
-          hero_card: {
-            card_bg_color: cardBg,
-            card_border_color: cardBorder,
-            card_glow_opacity: cardGlow,
-            logo_url: logoUrl,
-            logo_hue: logoHue,
-            logo_brightness: logoBrightness,
-            logo_saturation: logoSaturation,
-            logo_shadow_color: logoShadowColor,
-            logo_shadow_blur: logoShadowBlur,
-            badge_text: badgeText,
-            metric1_label: metric1Label,
-            metric1_value: metric1Value,
-            metric2_label: metric2Label,
-            metric2_value: metric2Value,
-            metric3_label: metric3Label,
-            metric3_value: metric3Value,
-          },
         };
 
         await fetch('/api/content/appearance', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
-        });
-
-        // Sincronizar simultáneamente con el Hero
-        await fetch('/api/content/hero', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ hero_card: payload.hero_card }),
         });
       } catch (err) {
         console.error('Error al sincronizar apariencia:', err);
@@ -445,422 +282,33 @@ export function AparienciaForm({ defaultValues }: { defaultValues: LandingAppear
       </div>
 
       {/* 5. Personalización de Tarjeta Hero Señalada & Logotipo */}
-      <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-5">
-        <div className="flex items-center justify-between border-b border-border/60 pb-3">
+      <div className="rounded-xl border border-accent/30 bg-accent/5 p-5 space-y-4">
+        <div className="flex items-center justify-between border-b border-accent/20 pb-3">
           <h3 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
             <Sliders className="w-4 h-4" />
-            <span>Personalización de Tarjeta Hero & Logotipo (Filtros, Sombra y Luminosidad)</span>
+            <span>Personalización de Tarjeta Hero & Logotipo</span>
           </h3>
-          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-            Sincronizado con Hero
+          <span className="text-[10px] font-mono text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20">
+            Módulo Dedicado
           </span>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Controles */}
-          <div className="lg:col-span-7 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className={LABEL_STYLE}>Color de Fondo de Tarjeta</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={cardBg.startsWith('#') ? cardBg : '#0e1e3d'}
-                    onChange={(e) => setCardBg(e.target.value)}
-                    className="w-9 h-9 rounded-lg border border-border bg-transparent cursor-pointer p-0.5"
-                  />
-                  <input
-                    type="text"
-                    name="hero_card_bg"
-                    value={cardBg}
-                    onChange={(e) => setCardBg(e.target.value)}
-                    className={INPUT_STYLE}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className={LABEL_STYLE}>Color de Borde / Resplandor</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={cardBorder.startsWith('#') ? cardBorder : '#1a3264'}
-                    onChange={(e) => setCardBorder(e.target.value)}
-                    className="w-9 h-9 rounded-lg border border-border bg-transparent cursor-pointer p-0.5"
-                  />
-                  <input
-                    type="text"
-                    name="hero_card_border"
-                    value={cardBorder}
-                    onChange={(e) => setCardBorder(e.target.value)}
-                    className={INPUT_STYLE}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className={LABEL_STYLE}>Opacidad del Resplandor Glow</label>
-                <span className="text-xs font-mono text-accent">{cardGlow}%</span>
-              </div>
-              <input
-                type="range"
-                name="hero_card_glow_opacity"
-                min="0"
-                max="100"
-                value={cardGlow}
-                onChange={(e) => setCardGlow(Number(e.target.value))}
-                className="w-full accent-amber-500"
-              />
-            </div>
-
-            <div className="pt-2 border-t border-border/40 space-y-3">
-              <div className="text-[11px] font-mono text-accent font-semibold">
-                Filtros del Logotipo / Sello:
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[11px] font-mono text-text-muted">Matiz (Hue Rotate)</span>
-                  <span className="text-xs font-mono text-amber-400">{logoHue}°</span>
-                </div>
-                <input
-                  type="range"
-                  name="hero_logo_hue"
-                  min="0"
-                  max="360"
-                  value={logoHue}
-                  onChange={(e) => setLogoHue(Number(e.target.value))}
-                  className="w-full accent-amber-500"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[11px] font-mono text-text-muted">Luminosidad (Brightness)</span>
-                  <span className="text-xs font-mono text-amber-400">{logoBrightness}%</span>
-                </div>
-                <input
-                  type="range"
-                  name="hero_logo_brightness"
-                  min="50"
-                  max="200"
-                  value={logoBrightness}
-                  onChange={(e) => setLogoBrightness(Number(e.target.value))}
-                  className="w-full accent-amber-500"
-                />
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[11px] font-mono text-text-muted">Saturación</span>
-                  <span className="text-xs font-mono text-amber-400">{logoSaturation}%</span>
-                </div>
-                <input
-                  type="range"
-                  name="hero_logo_saturation"
-                  min="0"
-                  max="200"
-                  value={logoSaturation}
-                  onChange={(e) => setLogoSaturation(Number(e.target.value))}
-                  className="w-full accent-amber-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                <div>
-                  <span className="text-[11px] font-mono text-text-muted block mb-1">Color de Sombra</span>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={logoShadowColor.startsWith('#') ? logoShadowColor : '#f59e0b'}
-                      onChange={(e) => setLogoShadowColor(e.target.value)}
-                      className="w-8 h-8 rounded-lg border border-border bg-transparent cursor-pointer p-0.5"
-                    />
-                    <input
-                      type="text"
-                      name="hero_logo_shadow_color"
-                      value={logoShadowColor}
-                      onChange={(e) => setLogoShadowColor(e.target.value)}
-                      className={INPUT_STYLE}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-[11px] font-mono text-text-muted">Blur Sombra</span>
-                    <span className="text-xs font-mono text-accent">{logoShadowBlur}px</span>
-                  </div>
-                  <input
-                    type="range"
-                    name="hero_logo_shadow_blur"
-                    min="0"
-                    max="50"
-                    value={logoShadowBlur}
-                    onChange={(e) => setLogoShadowBlur(Number(e.target.value))}
-                    className="w-full accent-amber-500 mt-2"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Imagen Corporativa Central (Sello o Logotipo de la Tarjeta) */}
-            <div className="p-4 rounded-lg bg-card/60 border border-border space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <label className={LABEL_STYLE}>
-                  Imagen Corporativa Central (Sello o Logotipo de la Tarjeta)
-                </label>
-
-                {/* Input de archivo nativo oculto para el logo */}
-                <input
-                  type="file"
-                  ref={logoFileInputRef}
-                  onChange={handleLogoFileSelect}
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                  className="hidden"
-                />
-
-                {/* Botón para examinar y subir archivo local de imagen */}
-                <button
-                  type="button"
-                  onClick={() => logoFileInputRef.current?.click()}
-                  disabled={uploadingLogo}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
-                >
-                  {uploadingLogo ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Subiendo imagen...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>Buscar y Seleccionar Archivo...</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  name="hero_logo_url"
-                  value={logoUrl}
-                  onChange={(e) => setLogoUrl(e.target.value)}
-                  placeholder="/images/branding/seal-transparent.png o /uploads/..."
-                  className={INPUT_STYLE}
-                />
-              </div>
-
-              {/* Botones de selección rápida de logos corporativos y gestión */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="text-[10px] font-mono text-text-subtle">Plantillas:</span>
-                <button
-                  type="button"
-                  onClick={() => setLogoUrl('/images/branding/corporate-card-logo.jpeg')}
-                  className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
-                >
-                  Sello Gota Petróleo (Actual)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLogoUrl('/images/branding/seal-transparent.png')}
-                  className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
-                >
-                  Sello Oficial Dorado
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLogoUrl('/images/branding/logo.png')}
-                  className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
-                >
-                  Logotipo Corporativo
-                </button>
-
-                {logoUrl && (
-                  <button
-                    type="button"
-                    onClick={handleRemoveLogo}
-                    disabled={uploadingLogo || deletingLogo}
-                    className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
-                    title="Quitar la imagen corporativa"
-                  >
-                    ✕ Quitar Sello
-                  </button>
-                )}
-
-                {logoUrl && logoUrl.startsWith('/uploads/') && (
-                  <button
-                    type="button"
-                    onClick={handleDeleteLogoFile}
-                    disabled={uploadingLogo || deletingLogo}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-mono bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 font-semibold transition-all disabled:opacity-50"
-                    title="Eliminar archivo del servidor y la base de datos"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                    <span>{deletingLogo ? 'Eliminando...' : 'Eliminar Archivo'}</span>
-                  </button>
-                )}
-              </div>
-
-              {logoMessage && (
-                <div className="flex items-center gap-2 p-2 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>{logoMessage}</span>
-                </div>
-              )}
-              {logoError && (
-                <div className="flex items-center gap-2 p-2 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  <span>{logoError}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Textos y Métricas de la Tarjeta Hero */}
-            <div className="p-4 rounded-lg bg-card/60 border border-border space-y-3">
-              <span className="text-[11px] font-mono text-accent font-semibold block">
-                Textos y Métricas de la Tarjeta:
-              </span>
-
-              <div>
-                <label className={LABEL_STYLE}>Insignia Superior</label>
-                <input
-                  type="text"
-                  value={badgeText}
-                  onChange={(e) => setBadgeText(e.target.value)}
-                  className={INPUT_STYLE}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={LABEL_STYLE}>Métrica 1 Etiqueta</label>
-                  <input
-                    type="text"
-                    value={metric1Label}
-                    onChange={(e) => setMetric1Label(e.target.value)}
-                    className={INPUT_STYLE}
-                  />
-                </div>
-                <div>
-                  <label className={LABEL_STYLE}>Métrica 1 Valor</label>
-                  <input
-                    type="text"
-                    value={metric1Value}
-                    onChange={(e) => setMetric1Value(e.target.value)}
-                    className={INPUT_STYLE}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={LABEL_STYLE}>Métrica 2 Etiqueta</label>
-                  <input
-                    type="text"
-                    value={metric2Label}
-                    onChange={(e) => setMetric2Label(e.target.value)}
-                    className={INPUT_STYLE}
-                  />
-                </div>
-                <div>
-                  <label className={LABEL_STYLE}>Métrica 2 Valor</label>
-                  <input
-                    type="text"
-                    value={metric2Value}
-                    onChange={(e) => setMetric2Value(e.target.value)}
-                    className={INPUT_STYLE}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={LABEL_STYLE}>Métrica 3 Etiqueta</label>
-                  <input
-                    type="text"
-                    value={metric3Label}
-                    onChange={(e) => setMetric3Label(e.target.value)}
-                    className={INPUT_STYLE}
-                  />
-                </div>
-                <div>
-                  <label className={LABEL_STYLE}>Métrica 3 Valor</label>
-                  <input
-                    type="text"
-                    value={metric3Value}
-                    onChange={(e) => setMetric3Value(e.target.value)}
-                    className={INPUT_STYLE}
-                  />
-                </div>
-              </div>
-            </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-2">
+          <div className="space-y-1">
+            <p className="text-xs text-text font-medium">
+              El control completo de la tarjeta flotante, su opacidad y transparencia, sello corporativo y métricas en vivo se gestiona desde su módulo específico.
+            </p>
+            <p className="text-[11px] text-text-muted">
+              Esto evita conflictos de sobrescritura y permite graduar la opacidad (0% a 100%), filtros de color y textos en tiempo real.
+            </p>
           </div>
-
-          {/* Vista previa en vivo */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center p-4 rounded-xl bg-black/40 border border-border/80 sticky top-4">
-            <span className="text-[10px] font-mono text-text-subtle uppercase tracking-wider mb-3">
-              Vista previa sincronizada en tiempo real
-            </span>
-            <div className="relative w-full max-w-[280px]">
-              <div
-                className="absolute -inset-1 rounded-2xl blur-lg transition-all duration-300 pointer-events-none"
-                style={{
-                  background: `linear-gradient(to right, ${cardBorder}, #f59e0b)`,
-                  opacity: cardGlow / 100,
-                }}
-              />
-              <div
-                className="relative rounded-xl p-4 shadow-xl space-y-4 transition-all duration-300 backdrop-blur-md"
-                style={{
-                  backgroundColor: cardBg,
-                  border: `1px solid ${cardBorder}`,
-                }}
-              >
-                <div
-                  className="flex items-center justify-between pb-2 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-200"
-                  style={{ borderBottom: `1px solid ${cardBorder}40` }}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
-                    <span>{badgeText}</span>
-                  </span>
-                </div>
-
-                <div className="flex justify-center py-1">
-                  <img
-                    src={logoUrl || '/images/branding/corporate-card-logo.jpeg'}
-                    alt="Sello Oficial Invest Oil LLC"
-                    className="w-28 h-28 object-contain transition-all duration-200"
-                    style={{
-                      filter: `hue-rotate(${logoHue}deg) brightness(${logoBrightness}%) saturate(${logoSaturation}%) drop-shadow(0 0 ${logoShadowBlur}px ${logoShadowColor})`,
-                    }}
-                  />
-                </div>
-
-                <div
-                  className="space-y-1.5 pt-2 text-[10px] font-mono"
-                  style={{ borderTop: `1px solid ${cardBorder}40` }}
-                >
-                  <div className="flex justify-between text-slate-300">
-                    <span>{metric1Label}</span>
-                    <span className="font-bold text-white">{metric1Value}</span>
-                  </div>
-                  <div className="flex justify-between text-slate-300">
-                    <span>{metric2Label}</span>
-                    <span className="font-bold text-white">{metric2Value}</span>
-                  </div>
-                  <div className="flex justify-between text-slate-300">
-                    <span>{metric3Label}</span>
-                    <span className="font-bold text-emerald-400">{metric3Value}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <a
+            href="/admin/content/hero"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all shrink-0"
+          >
+            <span>Ir a Configurar Hero y Tarjeta</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </a>
         </div>
       </div>
 

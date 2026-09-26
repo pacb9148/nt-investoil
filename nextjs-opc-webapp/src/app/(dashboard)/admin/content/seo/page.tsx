@@ -105,9 +105,15 @@ export default function SeoEditorPage() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data && typeof data === 'object') {
+          const sanitizedContactEmail =
+            (!data.contact_email || data.contact_email === 'contacto@investoil.es' || data.contact_email === 'trading@investoil.es')
+              ? 'info@investoil.es'
+              : data.contact_email;
+
           setFormData((prev) => ({
             ...prev,
             ...data,
+            contact_email: sanitizedContactEmail,
             legal_address: {
               ...prev.legal_address,
               ...(data.legal_address || {}),
@@ -251,7 +257,12 @@ export default function SeoEditorPage() {
       'Pet Coke',
       'Energy Commodities Facilitation',
     ],
-    email: formData.contact_email,
+    email:
+      formData.contact_email &&
+      formData.contact_email !== 'contacto@investoil.es' &&
+      formData.contact_email !== 'trading@investoil.es'
+        ? formData.contact_email
+        : 'info@investoil.es',
     telephone: formData.telephone || undefined,
     sameAs: formData.linkedin_url ? [formData.linkedin_url] : [],
   };
@@ -725,6 +736,54 @@ export default function SeoEditorPage() {
                   onChange={(e) => setFormData({ ...formData, geo_placename: e.target.value })}
                   className={INPUT}
                   placeholder="Delaware, United States"
+                />
+              </div>
+            </div>
+
+            {/* Metatags Avanzados de Indexación y Scripts */}
+            <div className="pt-4 border-t border-border/60 space-y-4">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-accent font-bold block">
+                Indexación Avanzada & Verificación de Motores de Búsqueda
+              </span>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={LABEL}>Directiva Robots (Meta Robots)</label>
+                  <input
+                    type="text"
+                    value={formData.robots || 'index, follow'}
+                    onChange={(e) => setFormData({ ...formData, robots: e.target.value })}
+                    className={INPUT}
+                    placeholder="index, follow"
+                  />
+                  <span className="text-[10px] font-mono text-text-subtle mt-1 block">
+                    Por defecto: index, follow (o noindex, nofollow para entornos privados)
+                  </span>
+                </div>
+
+                <div>
+                  <label className={LABEL}>Google Site Verification Token</label>
+                  <input
+                    type="text"
+                    value={formData.google_site_verification || ''}
+                    onChange={(e) => setFormData({ ...formData, google_site_verification: e.target.value })}
+                    className={INPUT}
+                    placeholder="google-site-verification=abcdef123456"
+                  />
+                  <span className="text-[10px] font-mono text-text-subtle mt-1 block">
+                    Código de verificación provisto por Google Search Console
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className={LABEL}>Scripts / Snippets Personalizados para &lt;head&gt; (Analytics / Tag Manager)</label>
+                <textarea
+                  rows={3}
+                  value={formData.custom_head_scripts || ''}
+                  onChange={(e) => setFormData({ ...formData, custom_head_scripts: e.target.value })}
+                  className={INPUT}
+                  placeholder="<!-- Google Analytics / Search Console custom tags -->"
                 />
               </div>
             </div>
