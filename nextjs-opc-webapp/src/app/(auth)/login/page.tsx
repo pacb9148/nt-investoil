@@ -47,7 +47,6 @@ function LoginFormContent() {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -56,12 +55,6 @@ function LoginFormContent() {
       password: '',
     },
   });
-
-  const handleQuickFill = () => {
-    setValue('email', 'admin@investoil.es');
-    setValue('password', 'InvestOil2026!*');
-    setAuthError(null);
-  };
 
   const handleLogout = async () => {
     try {
@@ -171,18 +164,6 @@ function LoginFormContent() {
 
           {/* Formulario */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-            {/* Botón de acceso de prueba / credenciales sugeridas */}
-            <div className="flex items-center justify-between text-[11px] px-1">
-              <span className="text-white/50">{isEn ? 'Operator credentials' : 'Credenciales autorizadas'}</span>
-              <button
-                type="button"
-                onClick={handleQuickFill}
-                className="text-amber-400 hover:text-amber-300 font-mono transition-colors underline"
-              >
-                {isEn ? 'Auto-fill demo credentials' : 'Autocompletar credenciales'}
-              </button>
-            </div>
-
             {/* Input Usuario / Email */}
             <div className="space-y-1">
               <div className="relative">

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { fetchRadarNewsForDate, parseRadarDate } from '@/lib/news/google-news-radar';
 
 export const dynamic = 'force-dynamic';
 
@@ -130,11 +131,32 @@ const FALLBACK_RADAR_NEWS: MarketNewsItem[] = [
 
 export async function GET(request: NextRequest) {
   try {
-    return NextResponse.json({
-      success: true,
-      count: FALLBACK_RADAR_NEWS.length,
-      news: FALLBACK_RADAR_NEWS,
-    });
+    const today = new Date().toISOString().slice(0, 10);
+    // El navegador envía su fecha local, que puede ir un día por delante de UTC por la noche.
+    const tomorrow = new Date(Date.now() + 24 * 3600 * 1000).toISOString().slice(0, 10);
+    const rawDate = new URL(request.url).searchParams.get('date');
+    const date = rawDate ? parseRadarDate(rawDate) : today;
+
+    if (!date || date > tomorrow) {
+      return NextResponse.json(
+        { error: 'Fecha no válida: usa AAAA-MM-DD y no una fecha futura.' },
+        { status: 400 }
+      );
+    }
+
+    let live: MarketNewsItem[] = [];
+    let warning: string | undefined;
+    try {
+      live = await fetchRadarNewsForDate(date);
+    } catch (e) {
+      warning = 'No se pudo consultar Google News en este momento.';
+      console.error('[news-agent] Error consultando el radar:', e);
+    }
+
+    // Las noticias curadas de Invest Oil llevan fecha relativa a «ahora»: solo valen para hoy.
+    const news = date >= today ? [...live, ...FALLBACK_RADAR_NEWS] : live;
+
+    return NextResponse.json({ success: true, date, count: news.length, liveCount: live.length, warning, news });
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Error al obtener radar de noticias' },

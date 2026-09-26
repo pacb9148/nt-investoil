@@ -1,4 +1,5 @@
 import fs from 'fs';
+import crypto from 'crypto';
 import path from 'path';
 import { hasPostgresDb, queryPg, ensurePgSchema } from '@/lib/db/pg-client';
 
@@ -103,35 +104,48 @@ export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
     } else {
       const posts = readJson<any[]>('posts.json') || [];
       let count = 0;
+      const failed: string[] = [];
       for (const p of posts) {
-        await queryPg(
-          `INSERT INTO posts (id, slug, title, excerpt, content, status, category_id, category, featured_image_url, video_url, tags, reading_time, views, likes, is_republished, original_source_url, original_source_name, published_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW())
-           ON CONFLICT (id) DO NOTHING`,
-          [
-            p.id,
-            p.slug,
-            p.title,
-            p.excerpt || '',
-            p.content ? JSON.stringify(p.content) : null,
-            p.status || 'draft',
-            p.category_id || null,
-            p.category || null,
-            p.featured_image_url || null,
-            p.video_url || null,
-            p.tags || [],
-            p.reading_time || 3,
-            p.views || 0,
-            p.likes || 0,
-            p.is_republished || false,
-            p.original_source_url || null,
-            p.original_source_name || null,
-            p.published_at || null,
-          ]
-        );
-        count++;
+        // Un artículo con problemas no debe impedir que se recuperen los demás (antes el primero
+        // que fallaba abortaba el bucle y el blog quedaba vacío).
+        try {
+          const inserted = await queryPg(
+            `INSERT INTO posts (id, slug, title, excerpt, content, status, category_id, category, featured_image_url, video_url, tags, reading_time, views, likes, is_republished, original_source_url, original_source_name, published_at, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6, (SELECT id FROM categories WHERE id = $7), $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW())
+             ON CONFLICT (id) DO NOTHING`,
+            [
+              p.id,
+              p.slug,
+              p.title,
+              p.excerpt || '',
+              p.content ? JSON.stringify(p.content) : null,
+              p.status || 'draft',
+              p.category_id || null,
+              p.category || null,
+              p.featured_image_url || null,
+              p.video_url || null,
+              p.tags || [],
+              p.reading_time || 3,
+              p.views || 0,
+              p.likes || 0,
+              p.is_republished || false,
+              p.original_source_url || null,
+              p.original_source_name || null,
+              p.published_at || null,
+              p.created_at || p.published_at || new Date().toISOString(),
+            ]
+          );
+          if (inserted) count++;
+          else failed.push(String(p.slug || p.id));
+        } catch {
+          failed.push(String(p.slug || p.id));
+        }
       }
-      recordTable('posts', count, 'migrated');
+      if (failed.length > 0) {
+        recordTable('posts', count, 'error', `No se pudieron migrar: ${failed.join(', ')}`);
+      } else {
+        recordTable('posts', count, 'migrated');
+      }
     }
   } catch (err: any) {
     recordTable('posts', 0, 'error', err.message);
@@ -399,7 +413,7 @@ export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
       for (const u of users) {
         await queryPg(
           `INSERT INTO backoffice_users (id, email, name, role, status, department, phone, password_plain, password_aliases, created_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
            ON CONFLICT (email) DO NOTHING`,
           [
             u.id,
@@ -409,8 +423,9 @@ export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
             u.status || 'active',
             u.department || null,
             u.phone || null,
-            u.password_plain || 'InvestOil2026!*',
-            u.password_aliases || ['InvestOil2026!*', 'InvestOil2026!#', 'admin1234'],
+            u.passwordPlain || u.password_plain || crypto.randomBytes(12).toString('base64url'),
+            u.passwordAliases || u.password_aliases || [],
+            u.createdAt || new Date().toISOString(),
           ]
         );
 
@@ -437,12 +452,13 @@ export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
     if (existingLeadsCount > 0) {
       recordTable('leads', existingLeadsCount, 'migrated');
     } else {
-      const leads = readJson<any[]>('leads.json') || [];
+      // Los dos leads de src/data/leads.json son de demostración: no se siembran en el CRM real.
+      const leads = (readJson<any[]>('leads.json') || []).filter((l) => l.id !== 'l-01' && l.id !== 'l-02');
       let count = 0;
       for (const l of leads) {
         await queryPg(
-          `INSERT INTO leads (id, name, email, phone, company, country, product_interest, volume, message, status, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+          `INSERT INTO leads (id, name, email, phone, company, country, product_interest, volume, message, status, subject, source, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
            ON CONFLICT (id) DO NOTHING`,
           [
             l.id,
@@ -455,6 +471,10 @@ export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
             l.volume || null,
             l.message || null,
             l.status || 'new',
+            l.subject || null,
+            l.source || 'web_form',
+            l.created_at || new Date().toISOString(),
+            l.updated_at || l.created_at || new Date().toISOString(),
           ]
         );
         count++;

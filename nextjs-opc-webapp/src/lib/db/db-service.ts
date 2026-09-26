@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { hasPostgresDb, queryPg } from '@/lib/db/pg-client';
 import type { Post, Category, MediaItem, ContactLead, TeamMember, BackofficeUser } from '@/types';
@@ -35,14 +36,9 @@ function ensureDataDir() {
 
 // Con PostgreSQL configurado la base es la única fuente de verdad: los JSON de src/data solo
 // sirven de respaldo cuando no hay base (desarrollo local). Leerlos en producción resucita
-// contenido borrado (fotos, posts, medios «fantasma»). Excepción: `allowInDbMode` para lo que
-// todavía no tiene tabla propia en uso (leads y usuarios).
-export function readJsonFile<T>(
-  filename: string,
-  defaultData: T,
-  opts?: { allowInDbMode?: boolean }
-): T {
-  if (hasPostgresDb() && !opts?.allowInDbMode) {
+// contenido borrado (fotos, posts, medios «fantasma»).
+export function readJsonFile<T>(filename: string, defaultData: T): T {
+  if (hasPostgresDb()) {
     return (Array.isArray(defaultData) ? [] : defaultData) as T;
   }
   ensureDataDir();
@@ -61,8 +57,8 @@ export function readJsonFile<T>(
   }
 }
 
-export function writeJsonFile<T>(filename: string, data: T, opts?: { allowInDbMode?: boolean }): void {
-  if (hasPostgresDb() && !opts?.allowInDbMode) return;
+export function writeJsonFile<T>(filename: string, data: T): void {
+  if (hasPostgresDb()) return;
   ensureDataDir();
   const filePath = path.join(DATA_DIR, filename);
   try {
@@ -71,9 +67,6 @@ export function writeJsonFile<T>(filename: string, data: T, opts?: { allowInDbMo
     console.error(`Error al escribir archivo de base de datos ${filename}:`, error);
   }
 }
-
-// Leads y usuarios del backoffice aún no se leen de PostgreSQL: mantienen su JSON hasta migrarlos.
-const KEEP_JSON_IN_DB_MODE = { allowInDbMode: true } as const;
 
 // Media inicial por defecto
 const DEFAULT_MEDIA: MediaItem[] = [
@@ -1100,7 +1093,32 @@ export async function saveTeamMembers(members: TeamMember[]): Promise<TeamMember
 // ==========================================
 // 5. CONTACT LEADS
 // ==========================================
+function rowToLead(r: any): ContactLead {
+  return {
+    id: r.id,
+    name: r.name,
+    email: r.email,
+    subject: r.subject || null,
+    message: r.message || '',
+    status: r.status || 'new',
+    source: r.source || 'web_form',
+    created_at: new Date(r.created_at).toISOString(),
+    updated_at: new Date(r.updated_at || r.created_at).toISOString(),
+  };
+}
+
 export async function getLeads(): Promise<ContactLead[]> {
+  if (hasPostgresDb()) {
+    const res = await queryPg('SELECT * FROM leads ORDER BY created_at DESC');
+    if (!res) {
+      throw new Error('No se pudo leer la tabla de leads en PostgreSQL.');
+    }
+    return res.rows.map(rowToLead);
+  }
+  return getLeadsFromJson();
+}
+
+function getLeadsFromJson(): ContactLead[] {
   return readJsonFile<ContactLead[]>('leads.json', [
     {
       id: 'l-01',
@@ -1124,7 +1142,7 @@ export async function getLeads(): Promise<ContactLead[]> {
       created_at: new Date(Date.now() - 86400000).toISOString(),
       updated_at: new Date(Date.now() - 86400000).toISOString(),
     },
-  ], KEEP_JSON_IN_DB_MODE);
+  ]);
 }
 
 export async function saveLead(leadData: Partial<ContactLead>): Promise<ContactLead> {
@@ -1156,7 +1174,31 @@ export async function saveLead(leadData: Partial<ContactLead>): Promise<ContactL
     leads.unshift(targetLead);
   }
 
-  writeJsonFile('leads.json', leads, KEEP_JSON_IN_DB_MODE);
+  if (hasPostgresDb()) {
+    // Un lead perdido es un cliente perdido: si la base falla, el formulario debe enterarse.
+    const saved = await queryPg(
+      `INSERT INTO leads (id, name, email, subject, message, status, source, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       ON CONFLICT (id) DO UPDATE SET
+         name = EXCLUDED.name, email = EXCLUDED.email, subject = EXCLUDED.subject,
+         message = EXCLUDED.message, status = EXCLUDED.status, source = EXCLUDED.source,
+         updated_at = EXCLUDED.updated_at`,
+      [
+        targetLead.id,
+        targetLead.name,
+        targetLead.email,
+        targetLead.subject || null,
+        targetLead.message,
+        targetLead.status,
+        targetLead.source || 'web_form',
+        targetLead.created_at,
+        targetLead.updated_at,
+      ]
+    );
+    if (!saved) throw new Error('No se pudo guardar el lead en PostgreSQL.');
+  } else {
+    writeJsonFile('leads.json', leads);
+  }
 
   if (isSupabaseConfigured()) {
     try {
@@ -1258,8 +1300,52 @@ const DEFAULT_USERS: BackofficeUser[] = [
   },
 ];
 
+function rowToUser(r: any): BackofficeUser {
+  return {
+    id: r.id,
+    email: r.email,
+    name: r.name,
+    role: r.role,
+    status: r.status,
+    department: r.department || undefined,
+    phone: r.phone || undefined,
+    passwordPlain: r.password_plain || undefined,
+    passwordAliases: r.password_aliases || [],
+    createdAt: new Date(r.created_at).toISOString(),
+    lastLogin: r.last_login ? new Date(r.last_login).toISOString() : null,
+  };
+}
+
+async function upsertUserInPg(u: BackofficeUser): Promise<void> {
+  const res = await queryPg(
+    `INSERT INTO backoffice_users (id, email, name, role, status, department, phone, password_plain, password_aliases, created_at, last_login)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+     ON CONFLICT (id) DO UPDATE SET
+       email = EXCLUDED.email, name = EXCLUDED.name, role = EXCLUDED.role, status = EXCLUDED.status,
+       department = EXCLUDED.department, phone = EXCLUDED.phone, password_plain = EXCLUDED.password_plain,
+       password_aliases = EXCLUDED.password_aliases, last_login = EXCLUDED.last_login`,
+    [
+      u.id, u.email, u.name, u.role, u.status, u.department || null, u.phone || null,
+      u.passwordPlain || null, u.passwordAliases || [], u.createdAt, u.lastLogin || null,
+    ]
+  );
+  if (!res) throw new Error('No se pudo guardar el usuario en PostgreSQL.');
+}
+
+async function getUsersFromPg(): Promise<BackofficeUser[]> {
+  const res = await queryPg('SELECT * FROM backoffice_users ORDER BY created_at ASC');
+  if (!res) throw new Error('No se pudo leer la tabla de usuarios en PostgreSQL.');
+  if (res.rows.length === 0) {
+    // Primer arranque: se siembran los administradores iniciales para no dejar el panel inaccesible.
+    for (const u of DEFAULT_USERS) await upsertUserInPg(u);
+    return DEFAULT_USERS.map((u) => ({ ...u }));
+  }
+  return res.rows.map(rowToUser);
+}
+
 export async function getUsers(): Promise<BackofficeUser[]> {
-  let users = readJsonFile<BackofficeUser[]>('users.json', DEFAULT_USERS, KEEP_JSON_IN_DB_MODE);
+  if (hasPostgresDb()) return getUsersFromPg();
+  let users = readJsonFile<BackofficeUser[]>('users.json', DEFAULT_USERS);
 
   if (isSupabaseConfigured()) {
     try {
@@ -1294,7 +1380,7 @@ export async function getUsers(): Promise<BackofficeUser[]> {
   if (!hasEs || !hasCom) {
     if (!hasEs) users.unshift(DEFAULT_USERS[0]);
     if (!hasCom) users.unshift(DEFAULT_USERS[1]);
-    writeJsonFile('users.json', users, KEEP_JSON_IN_DB_MODE);
+    writeJsonFile('users.json', users);
   }
   return users;
 }
@@ -1328,21 +1414,6 @@ export async function verifyUserCredentials(
     return user;
   }
 
-  // Si es admin principal, admitir variantes universales de emergencia autorizadas
-  if (
-    cleanEmail === 'admin@investoil.es' ||
-    cleanEmail === 'admin@investoil.com' ||
-    cleanEmail === 'business@investoil.es'
-  ) {
-    if (
-      cleanPassword === 'InvestOil2026!*' ||
-      cleanPassword === 'InvestOil2026!#' ||
-      cleanPassword === 'admin1234'
-    ) {
-      return user;
-    }
-  }
-
   return null;
 }
 
@@ -1362,7 +1433,12 @@ export async function saveUser(userData: Partial<BackofficeUser>): Promise<Backo
         ...userData,
         email: userData.email ? userData.email.trim().toLowerCase() : existing.email,
         passwordPlain: userData.passwordPlain || existing.passwordPlain,
-        passwordAliases: userData.passwordAliases || existing.passwordAliases,
+        // Al rotar la contraseña se descartan las anteriores: si no, seguirían siendo válidas.
+        passwordAliases:
+          userData.passwordAliases ??
+          (userData.passwordPlain && userData.passwordPlain !== existing.passwordPlain
+            ? []
+            : existing.passwordAliases),
       };
       users[index] = targetUser;
     } else {
@@ -1374,8 +1450,8 @@ export async function saveUser(userData: Partial<BackofficeUser>): Promise<Backo
         status: userData.status || 'active',
         department: userData.department || 'Operaciones',
         phone: userData.phone || '',
-        passwordPlain: userData.passwordPlain || 'InvestOil2026!*',
-        passwordAliases: userData.passwordAliases || ['InvestOil2026!#', 'InvestOil2026!*'],
+        passwordPlain: userData.passwordPlain || crypto.randomBytes(12).toString('base64url'),
+        passwordAliases: userData.passwordAliases || [],
         createdAt: now,
         lastLogin: null,
       };
@@ -1403,8 +1479,8 @@ export async function saveUser(userData: Partial<BackofficeUser>): Promise<Backo
         status: userData.status || 'active',
         department: userData.department || 'Operaciones',
         phone: userData.phone || '',
-        passwordPlain: userData.passwordPlain || 'InvestOil2026!*',
-        passwordAliases: userData.passwordAliases || ['InvestOil2026!#', 'InvestOil2026!*'],
+        passwordPlain: userData.passwordPlain || crypto.randomBytes(12).toString('base64url'),
+        passwordAliases: userData.passwordAliases || [],
         createdAt: now,
         lastLogin: null,
       };
@@ -1412,7 +1488,11 @@ export async function saveUser(userData: Partial<BackofficeUser>): Promise<Backo
     }
   }
 
-  writeJsonFile('users.json', users, KEEP_JSON_IN_DB_MODE);
+  if (hasPostgresDb()) {
+    await upsertUserInPg(targetUser);
+  } else {
+    writeJsonFile('users.json', users);
+  }
 
   if (isSupabaseConfigured()) {
     try {
@@ -1452,7 +1532,12 @@ export async function deleteUser(id: string): Promise<boolean> {
   }
 
   const filtered = users.filter((u) => u.id !== id);
-  writeJsonFile('users.json', filtered, KEEP_JSON_IN_DB_MODE);
+  if (hasPostgresDb()) {
+    const res = await queryPg('DELETE FROM backoffice_users WHERE id = $1', [id]);
+    if (!res) throw new Error('No se pudo eliminar el usuario en PostgreSQL.');
+  } else {
+    writeJsonFile('users.json', filtered);
+  }
 
   if (isSupabaseConfigured()) {
     try {
@@ -1471,7 +1556,11 @@ export async function recordUserLogin(email: string): Promise<void> {
   const user = users.find((u) => u.email.toLowerCase() === clean);
   if (user) {
     user.lastLogin = new Date().toISOString();
-    writeJsonFile('users.json', users, KEEP_JSON_IN_DB_MODE);
+    if (hasPostgresDb()) {
+      await queryPg('UPDATE backoffice_users SET last_login = $1 WHERE lower(email) = $2', [user.lastLogin, clean]);
+    } else {
+      writeJsonFile('users.json', users);
+    }
 
     if (isSupabaseConfigured()) {
       try {

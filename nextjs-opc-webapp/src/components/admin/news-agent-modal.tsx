@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Search,
   Filter,
+  CalendarDays,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -39,14 +40,23 @@ export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModal
   const [filterTopic, setFilterTopic] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [republishedId, setRepublishedId] = useState<string | null>(null);
+  // Fecha local del navegador (no UTC) para que «hoy» sea el día que ve el editor.
+  const todayLocal = new Date().toLocaleDateString('en-CA');
+  const [selectedDate, setSelectedDate] = useState<string>(todayLocal);
+  const [warning, setWarning] = useState<string | null>(null);
 
-  const fetchNews = async () => {
+  const fetchNews = async (date: string = selectedDate) => {
     setLoading(true);
+    setWarning(null);
     try {
-      const res = await fetch('/api/news-agent');
+      const res = await fetch(`/api/news-agent?date=${encodeURIComponent(date)}`);
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        const data = await res.json();
         setNews(data.news || []);
+        setWarning(data.warning || null);
+      } else {
+        setNews([]);
+        setWarning(data.error || 'No se pudo cargar el radar.');
       }
     } catch (e) {
       console.error('Error fetching news radar:', e);
@@ -57,9 +67,9 @@ export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModal
 
   useEffect(() => {
     if (isOpen) {
-      fetchNews();
+      fetchNews(selectedDate);
     }
-  }, [isOpen]);
+  }, [isOpen, selectedDate]);
 
   if (!isOpen) return null;
 
@@ -125,7 +135,7 @@ export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModal
                 </span>
               </div>
               <p className="text-xs text-text-muted">
-                10 noticias clave en tiempo real sobre crudo, hidrocarburos, GLP, fletes y refino para republicar.
+                Noticias sobre crudo, hidrocarburos, GLP, fletes y refino: hoy por defecto, o elige una fecha anterior para republicar.
               </p>
             </div>
           </div>
@@ -176,10 +186,32 @@ export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModal
             ))}
           </div>
 
+          <label className="flex items-center gap-1.5 text-[11px] font-mono text-text-muted">
+            <CalendarDays className="w-3.5 h-3.5 text-accent" />
+            <span>Fecha</span>
+            <input
+              type="date"
+              value={selectedDate}
+              max={todayLocal}
+              onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
+              className="px-2 py-1 text-xs rounded-lg bg-card/80 border border-border text-text focus:outline-none focus:border-accent [color-scheme:dark]"
+              aria-label="Fecha de las noticias"
+            />
+          </label>
+          {selectedDate !== todayLocal && (
+            <button
+              type="button"
+              onClick={() => setSelectedDate(todayLocal)}
+              className="text-[11px] font-mono text-accent hover:underline"
+            >
+              Volver a hoy
+            </button>
+          )}
+
           <Button
             variant="ghost"
             size="sm"
-            onClick={fetchNews}
+            onClick={() => fetchNews()}
             disabled={loading}
             className="h-8 px-2.5 text-xs text-text-muted hover:text-accent"
           >
@@ -196,8 +228,9 @@ export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModal
               <p className="text-xs font-mono">Escaneando portales internacionales de energía y commodities...</p>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="py-12 text-center text-text-muted text-xs">
-              No se encontraron noticias con los filtros actuales.
+            <div className="py-12 text-center text-text-muted text-xs space-y-1">
+              <p>No se encontraron noticias con los filtros actuales para el {selectedDate}.</p>
+              {warning && <p className="text-amber-400">{warning}</p>}
             </div>
           ) : (
             filtered.map((item) => (
@@ -281,7 +314,12 @@ export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModal
 
         {/* Pie del modal */}
         <div className="px-6 py-3 border-t border-border/80 bg-card/40 flex items-center justify-between text-[11px] text-text-subtle">
-          <span>Fuente: Reuters Energy, S&P Platts, Argus Media & EIA Feed.</span>
+          <span>
+            {selectedDate === todayLocal
+              ? 'Hoy: noticias de Google News más el archivo curado de Invest Oil.'
+              : `Noticias de Google News publicadas el ${selectedDate}.`}
+            {warning && filtered.length > 0 ? ` ${warning}` : ''}
+          </span>
           <button onClick={onClose} className="hover:text-text font-mono">
             Cerrar [ESC]
           </button>

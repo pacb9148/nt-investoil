@@ -58,7 +58,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const initialPassword = password ? String(password).trim() : 'InvestOil2026!*';
+    const initialPassword = password ? String(password).trim() : '';
+    if (initialPassword.length < 10) {
+      return NextResponse.json(
+        { error: 'La contraseña inicial es obligatoria y debe tener al menos 10 caracteres.' },
+        { status: 400 }
+      );
+    }
 
     const newUser = await saveUser({
       email: cleanEmail,
@@ -68,7 +74,7 @@ export async function POST(request: NextRequest) {
       department: department ? String(department).trim() : 'Operaciones',
       phone: phone ? String(phone).trim() : '',
       passwordPlain: initialPassword,
-      passwordAliases: [initialPassword, 'InvestOil2026!*', 'InvestOil2026!#'],
+      passwordAliases: [],
     });
 
     return NextResponse.json({
@@ -116,8 +122,14 @@ export async function PUT(request: NextRequest) {
     if (phone !== undefined) updatePayload.phone = String(phone).trim();
     if (password && String(password).trim().length > 0) {
       const cleanPass = String(password).trim();
+      if (cleanPass.length < 10) {
+        return NextResponse.json(
+          { error: 'La nueva contraseña debe tener al menos 10 caracteres.' },
+          { status: 400 }
+        );
+      }
       updatePayload.passwordPlain = cleanPass;
-      updatePayload.passwordAliases = [cleanPass, 'InvestOil2026!*', 'InvestOil2026!#'];
+      updatePayload.passwordAliases = [];
     }
 
     const updated = await saveUser(updatePayload);

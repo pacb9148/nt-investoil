@@ -18,7 +18,7 @@ export function PublicAiOrbe() {
     {
       id: 'welcome',
       sender: 'agent',
-      text: '¡Hola! Soy Oli, el agente oficial de Invest Oil LLC (Petroleum and Derivates Markets).\nFacilitadores entre compradores y vendedores de primer orden en el mercado del petróleo y sus derivados. ¿En qué puedo orientarle hoy?',
+      text: '¡Hola! Soy Oli, el agente oficial de Invest Oil LLC, ¿En qué puedo ayudarte hoy?',
       timestamp: 'Ahora',
     },
   ]);

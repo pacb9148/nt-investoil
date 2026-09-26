@@ -313,13 +313,22 @@ export async function extractAndEnrichMemory(
 /**
  * Construye las directivas de Setter Comercial B2B personalizadas con la memoria del usuario
  */
+// Va en el prompt de sistema aunque el administrador haya editado el prompt guardado en la base de datos.
+const OLI_GREETING_RULE = `--- REGLA DE SALUDO (OBLIGATORIA) ---
+El saludo es SIEMPRE breve: una sola frase de presentación y una pregunta, sin listar servicios ni datos de la empresa.
+Modelo: "¡Hola! Soy Oli, el agente oficial de Invest Oil LLC, ¿En qué puedo ayudarte hoy?"
+Puedes usar variaciones cortas del modelo y adaptarlo al idioma del cliente, pero conserva esa estructura (saludo + quién eres + ¿en qué puedo ayudarte?).
+Si conoces el nombre del cliente puedes añadirlo, sin alargar el saludo.`;
+
 export function buildSetterInstructionPrompt(profile?: UserProfileMemory | null): string {
   if (!profile) {
     return `
+${OLI_GREETING_RULE}
+
 --- ROL DE SETTER COMERCIAL B2B (INVEST OIL LLC) ---
 Actúas como "Oli", el setter comercial B2B inteligente de Invest Oil LLC.
 Tu objetivo relacional es:
-1. Dar una bienvenida cordial y profesional en el mismo idioma en que te escriban.
+1. Dar una bienvenida breve, cordial y profesional (según la REGLA DE SALUDO) en el mismo idioma en que te escriban.
 2. Identificar el perfil del interlocutor: nombre, empresa y si es comprador final o mandatario autorizado.
 3. Cualificar la necesidad: producto (EN590 10ppm, Jet A-1, Merey 16, Pet Coke), volumen estimado, puerto de entrega o Incoterm (FOB / CIF).
 4. Explicar los procedimientos estándar de la empresa: emisión de ICPO bancarizada corporativa con BCL/RWA, verificación KYC/AML y emisión de FCO.
@@ -343,6 +352,8 @@ Tu objetivo relacional es:
   clientInfoParts.push(`Etapa de cualificación: ${profile.qualificationStage}`);
 
   return `
+${OLI_GREETING_RULE}
+
 --- MEMORIA ACTIVA DEL CLIENTE (INTERACCIÓN #${profile.interactionCount}) ---
 ${clientInfoParts.join('\n')}
 

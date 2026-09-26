@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from 'next/server';
 import {
   ADMIN_COOKIE_NAME,
   DEFAULT_ADMIN_EMAIL,
-  DEFAULT_ADMIN_PASSWORD,
   encodeSessionToken,
   type AdminSession,
 } from '@/lib/auth/session';
@@ -84,28 +83,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 3. Fallback de emergencia a credenciales maestras autorizadas de Invest Oil LLC
-    if (!isValid) {
-      const adminEmailMatches =
-        cleanEmail === DEFAULT_ADMIN_EMAIL.toLowerCase() ||
-        cleanEmail === 'admin@investoil.es' ||
-        cleanEmail === 'admin@investoil.com' ||
-        cleanEmail === 'business@investoil.es' ||
-        cleanEmail === 'compliance@investoil.es';
-
-      const adminPasswordMatches =
-        password === DEFAULT_ADMIN_PASSWORD ||
-        password === 'InvestOil2026!*' ||
-        password === 'InvestOil2026!#' ||
-        password === 'admin1234' ||
-        (process.env.ADMIN_PASSWORD && password === process.env.ADMIN_PASSWORD);
-
-      if (adminEmailMatches && adminPasswordMatches) {
+    // 3. Acceso de emergencia SOLO si el dueño lo define por variable de entorno (ADMIN_PASSWORD en el
+    //    servidor). Sin ella no existe: las contraseñas fijas que había en el código quedaban válidas
+    //    aunque se rotaran las de la base de datos.
+    if (!isValid && process.env.ADMIN_PASSWORD) {
+      if (cleanEmail === DEFAULT_ADMIN_EMAIL.toLowerCase() && password === process.env.ADMIN_PASSWORD) {
         isValid = true;
-        userName = cleanEmail.includes('compliance')
-          ? 'Oficial de Cumplimiento & KYC'
-          : 'Director de Operaciones & Trading';
-        userRole = cleanEmail.includes('compliance') ? 'compliance_kyc' : 'superadmin';
+        userName = 'Director de Operaciones & Trading';
+        userRole = 'superadmin';
         try {
           await recordUserLogin(cleanEmail);
         } catch {}

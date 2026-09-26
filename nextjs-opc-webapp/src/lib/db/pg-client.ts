@@ -407,6 +407,9 @@ export async function ensurePgSchema(): Promise<void> {
       created_at TIMESTAMPTZ DEFAULT NOW(),
       updated_at TIMESTAMPTZ DEFAULT NOW()
     );
+
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS subject TEXT;
+    ALTER TABLE leads ADD COLUMN IF NOT EXISTS source TEXT;
   `;
 
   try {

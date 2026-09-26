@@ -96,7 +96,7 @@ export default function UsersAdminPage() {
   const [formRole, setFormRole] = useState<UserRole>('operator');
   const [formDepartment, setFormDepartment] = useState('Operaciones & Trading');
   const [formPhone, setFormPhone] = useState('');
-  const [formPassword, setFormPassword] = useState('InvestOil2026!*');
+  const [formPassword, setFormPassword] = useState('');
 
   const fetchUsers = async () => {
     try {
@@ -274,7 +274,7 @@ export default function UsersAdminPage() {
     setFormRole('operator');
     setFormDepartment('Operaciones & Trading');
     setFormPhone('');
-    setFormPassword('InvestOil2026!*');
+    setFormPassword('');
   };
 
   // Filtrado
@@ -836,7 +836,7 @@ export default function UsersAdminPage() {
                 <input
                   type="text"
                   required
-                  placeholder="ej. InvestOil2026!*"
+                  placeholder="Mínimo 10 caracteres"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className={INPUT_CLASS}
