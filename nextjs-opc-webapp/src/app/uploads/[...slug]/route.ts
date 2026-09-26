@@ -67,35 +67,10 @@ function resolveUploadFilePath(relPath: string): string | null {
   return null;
 }
 
-function resolveFallbackFilePath(relPath: string): string | null {
-  const lower = relPath.toLowerCase();
-
-  // 1. Videos
-  if (lower.endsWith('.mp4') || lower.endsWith('.webm') || lower.endsWith('.mov')) {
-    const defaultVid = resolveUploadFilePath('videos/hero-background.mp4') ||
-                       resolveUploadFilePath('hero-background.mp4');
-    if (defaultVid) return defaultVid;
-  }
-
-  // 2. Retratos de miembros de equipo por nombre de archivo
-  if (lower.includes('descarga__10') || lower.includes('elena')) {
-    return resolveUploadFilePath('images/team/elena-torres.jpg');
-  }
-  if (lower.includes('descarga__37') || lower.includes('marco')) {
-    return resolveUploadFilePath('images/team/marco-ferreira.jpg');
-  }
-  if (lower.includes('descarga__8') || lower.includes('aisha')) {
-    return resolveUploadFilePath('images/team/aisha-rahman.jpg');
-  }
-  if (lower.includes('230839') || lower.includes('pablo') || lower.includes('costales')) {
-    return resolveUploadFilePath('images/team/carlos-medina.jpg');
-  }
-  if (lower.includes('paulo')) {
-    return resolveUploadFilePath('images/team/paulo-dasilva.jpg');
-  }
-
-  // 3. Fallback genérico a logo o sello oficial
-  return resolveUploadFilePath('images/branding/corporate-card-logo.jpeg');
+function resolveFallbackFilePath(_relPath: string): string | null {
+  // Política estricta: Si un archivo no existe en disco ni en base de datos,
+  // no se inventan ni resucitan imágenes borradas.
+  return null;
 }
 
 export async function GET(

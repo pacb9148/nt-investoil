@@ -421,10 +421,10 @@ export function HeaderForm({ initialData }: { initialData: HeaderData }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setData((p) => ({ ...p, logo_url: '/images/branding/corporate-card-logo.jpeg' }))}
+                  onClick={() => setData((p) => ({ ...p, logo_url: '/images/branding/oil-drop-logo.png' }))}
                   className="text-[10px] font-mono px-2 py-0.5 rounded bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
                 >
-                  Gota Ámbar
+                  Gota Oficial (oil-drop-logo.png)
                 </button>
               </div>
             </div>

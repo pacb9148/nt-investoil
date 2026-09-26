@@ -138,7 +138,7 @@ export function AboutForm({ initialData }: { initialData: any }) {
                 value={data.featured_image || ''}
                 onChange={(e) => setData({ ...data, featured_image: e.target.value })}
                 className={cn(INPUT_STYLE, 'flex-1 min-w-[200px]')}
-                placeholder="/images/branding/corporate-card-logo.jpeg"
+                placeholder="/images/branding/oil-drop-logo.png"
               />
               <input
                 type="file"
@@ -172,27 +172,15 @@ export function AboutForm({ initialData }: { initialData: any }) {
               <span className="text-[10px] font-mono text-text-subtle">Fondos y recursos oficiales:</span>
               <button
                 type="button"
-                onClick={() => setData({ ...data, featured_image: '/images/branding/corporate-card-logo.jpeg' })}
+                onClick={() => setData({ ...data, featured_image: '/images/branding/oil-drop-logo.png' })}
                 className={cn(
                   'px-2.5 py-1 rounded text-[10px] font-mono border transition-all',
-                  data.featured_image === '/images/branding/corporate-card-logo.jpeg'
+                  data.featured_image === '/images/branding/oil-drop-logo.png'
                     ? 'bg-amber-500/20 border-amber-500 text-amber-400 font-semibold'
                     : 'bg-card border-border hover:border-amber-500/50 text-text-muted hover:text-text'
                 )}
               >
-                Sello Gota Ámbar (Oficial)
-              </button>
-              <button
-                type="button"
-                onClick={() => setData({ ...data, featured_image: '/images/branding/logo.png' })}
-                className={cn(
-                  'px-2.5 py-1 rounded text-[10px] font-mono border transition-all',
-                  data.featured_image === '/images/branding/logo.png'
-                    ? 'bg-accent/20 border-accent text-accent font-semibold'
-                    : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
-                )}
-              >
-                Logotipo Principal
+                Gota de Petróleo (Oficial)
               </button>
               {data.featured_image && (
                 <button
@@ -200,7 +188,7 @@ export function AboutForm({ initialData }: { initialData: any }) {
                   onClick={() => setData({ ...data, featured_image: '' })}
                   className="px-2.5 py-1 rounded text-[10px] font-mono border border-border bg-card text-rose-400 hover:text-rose-300 hover:border-rose-500/50 transition-colors"
                 >
-                  ✕ Limpiar
+                  ✕ Quitar Imagen (Limpio)
                 </button>
               )}
             </div>
@@ -217,15 +205,19 @@ export function AboutForm({ initialData }: { initialData: any }) {
                   playsInline
                   className="w-full h-full object-cover rounded-lg"
                 />
-              ) : (
+              ) : data.featured_image ? (
                 <img
-                  src={data.featured_image || '/images/branding/corporate-card-logo.jpeg'}
+                  src={data.featured_image}
                   alt="Vista previa Nosotros"
                   className="w-full h-full object-contain filter drop-shadow-[0_2px_12px_rgba(245,158,11,0.3)]"
                   onError={(e) => {
                     (e.target as HTMLElement).style.display = 'none';
                   }}
                 />
+              ) : (
+                <div className="text-center text-xs text-text-subtle font-mono p-4 italic">
+                  (Sin elemento multimedia asignado)
+                </div>
               )}
             </div>
           </div>

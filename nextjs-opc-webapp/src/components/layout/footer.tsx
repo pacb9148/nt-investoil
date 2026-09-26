@@ -16,7 +16,7 @@ export function Footer() {
 
   const footerLogo = settings.footerLogoUrl !== undefined
     ? settings.footerLogoUrl
-    : '/images/branding/corporate-card-logo.jpeg';
+    : '/images/branding/oil-drop-logo.png';
   const tagline = isEn
     ? (settings.footerTaglineEn || t.footer.tagline)
     : (settings.footerTagline || t.footer.tagline);
@@ -33,7 +33,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-border/60 items-start">
           {/* Col 1: Marca e Identidad (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <BrandLogo variant="seal" size={56} src={footerLogo} />
+            <BrandLogo
+              variant="logo"
+              size={56}
+              src={footerLogo}
+              customTitle={settings.companyName || 'INVEST OIL'}
+              customSubtitle={settings.footerTagline || 'Petroleum and Derivates Markets'}
+            />
             <p className="text-xs text-text-muted leading-relaxed max-w-sm">
               {tagline}
             </p>

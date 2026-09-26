@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = seo.meta_title || `${COMPANY_INFO.name} — ${COMPANY_INFO.tagline}`;
   const description = seo.meta_description || `${COMPANY_INFO.tagline}. ${COMPANY_INFO.heroSubtitle}`;
   const canonicalUrl = seo.canonical_url || process.env.NEXT_PUBLIC_APP_URL || 'https://investoil.es';
-  const ogImageUrl = seo.og_image || '/images/branding/corporate-card-logo.jpeg';
+  const ogImageUrl = seo.og_image || '/images/branding/oil-drop-logo.png';
   const keywords = typeof seo.keywords === 'string'
     ? seo.keywords.split(',').map((k: string) => k.trim()).filter(Boolean)
     : [
@@ -94,7 +94,7 @@ export default async function RootLayout({
   const canonicalUrl = seo.canonical_url || 'https://investoil.es';
   const ogImageUrl = seo.og_image?.startsWith('http')
     ? seo.og_image
-    : `${canonicalUrl}${seo.og_image || '/images/branding/corporate-card-logo.jpeg'}`;
+    : `${canonicalUrl}${seo.og_image || '/images/branding/oil-drop-logo.png'}`;
 
   // Schema.org Corporativo Institucional (Desambiguación Delaware USA para Google e IA)
   const corporateEmail =

@@ -10,6 +10,28 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 
 ## 2. Hitos y Funcionalidades Desarrolladas
 
+### Fase 23: Solución Definitiva de Opacidad Hero, Purga de Logos/Fotos Fantasma, Persistencia en PostgreSQL de Footer y Corrección de Navegación Activa en Header
+1. **Control de Opacidad y Logo Condicional de la Tarjeta Hero**:
+   - Se subsanó la pérdida del valor en `src/app/actions/content-actions.ts`: `updateHeroAction` y `updateAppearanceAction` ahora leen y persisten correctamente `hero_card_opacity` y `card_opacity`.
+   - En `src/components/sections/hero-section.tsx`: erradicada la inyección de `localStorage`, `cardOpacity` fijado por defecto en 0 y fondo estrictamente `transparent` cuando `cardOpacity <= 0`.
+   - Logo condicional: se eliminó el fallback a `seal-transparent.png`. Se renderiza únicamente si `heroCard?.logo_url` existe y no está vacío.
+   - En `src/components/admin/content/hero-form.tsx`: eliminadas plantillas obsoletas que inyectaban sellos viejos y ajustado valor inicial de opacidad a 0%.
+2. **Política Estricta de Cero Fallbacks de Imágenes & Purga de Fotos Fantasma**:
+   - En `src/app/uploads/[...slug]/route.ts`: eliminado `resolveFallbackFilePath` que inyectaba imágenes viejas de directivos y logos cuando un archivo no existía en BD ni en disco (ahora retorna 404 limpio).
+   - En `src/app/(public)/about/page.tsx`: Server Component asíncrono conectado a `getLandingAbout()`; la caja de imagen solo se renderiza si `data.featured_image` existe y es válida.
+   - En `src/components/admin/content/about-form.tsx`, `src/app/(dashboard)/admin/content/seo/page.tsx` y `migration-service.ts`: purgadas todas las rutas obsoletas a `corporate-card-logo.jpeg` y `seal-transparent.png`.
+3. **Persistencia del Pie de Página (Footer) en PostgreSQL**:
+   - En `src/app/api/settings/route.ts`: conectado a PostgreSQL con `getSectionFromPg('site_settings')`, `saveSectionToPg('site_settings')` y `saveLandingFooter`. Los ajustes ya no se pierden en los deploys serverless.
+   - En `src/components/layout/footer.tsx`: unificado con `customTitle={settings.companyName || 'INVEST OIL'}` y `customSubtitle={settings.footerTagline || 'Petroleum and Derivates Markets'}` y logo oficial `/images/branding/oil-drop-logo.png`.
+4. **Navegación Activa del Menú en Header**:
+   - En `src/components/layout/header.tsx`: implementado detector dinámico `isLinkActive` con ScrollSpy e `IntersectionObserver`/`scroll` para las secciones (`#hero`, `#services`, `#products`, `#contact`, etc.), tanto en desktop como en el drawer móvil. Si el usuario está en "Productos" o hace clic en él, se ilumina "Productos" y no "Inicio".
+5. **Favicon y Activos Oficiales**:
+   - Generados con Pillow: `public/favicon.ico`, `public/images/branding/favicon.png`, `icon-192.png`, `icon-512.png` a partir del logo oficial de la gota.
+6. **Verificaciones Técnicas en Local**:
+   - `npm run type-check`: 0 errores de compilación TypeScript.
+   - `npm run build`: 53/53 páginas estáticas y dinámicas compiladas exitosamente al 100%.
+   - `pwsh .\scripts\bateria-seguridad.ps1`: Aprobada al 100% (batería limpia sin secretos ni vulnerabilidades).
+
 ### Fase 21: Blindaje Inviolable de Base de Datos PostgreSQL, Editor WYSIWYG de Legales con Tiptap, Biblioteca de Medios en Nosotros y Transparencia Hero
 1. **Blindaje de la Base de Datos contra Sobreescrituras tras Deploy**:
    - Se erradicó la llamada automática destructiva `migrateAllJsonToPostgres()` en `src/lib/db/pg-client.ts`, impidiendo que los arranques en frío o despliegues serverless reseteen la BD con los JSON estáticos de git.

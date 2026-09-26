@@ -17,8 +17,17 @@ function getSettingsFilePath(): string {
   return candidates[0];
 }
 
+import { getSectionFromPg, saveSectionToPg, saveLandingFooter } from '@/lib/services/content-service';
+
 export async function GET() {
   try {
+    // 1. Intentar leer desde PostgreSQL (fuente primaria y persistente)
+    const pgData = await getSectionFromPg<SiteSettingsData>('site_settings');
+    if (pgData && typeof pgData === 'object') {
+      return NextResponse.json({ ...DEFAULT_SITE_SETTINGS, ...pgData });
+    }
+
+    // 2. Fallback a archivo JSON local si no está en BD
     const filePath = getSettingsFilePath();
     if (fs.existsSync(filePath)) {
       const raw = fs.readFileSync(filePath, 'utf-8');
@@ -34,13 +43,19 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as Partial<SiteSettingsData>;
-    const filePath = getSettingsFilePath();
 
+    // 1. Obtener estado actual desde PostgreSQL o fallback
     let current = { ...DEFAULT_SITE_SETTINGS };
     try {
-      if (fs.existsSync(filePath)) {
-        const raw = fs.readFileSync(filePath, 'utf-8');
-        current = { ...current, ...JSON.parse(raw) };
+      const pgData = await getSectionFromPg<SiteSettingsData>('site_settings');
+      if (pgData) {
+        current = { ...current, ...pgData };
+      } else {
+        const filePath = getSettingsFilePath();
+        if (fs.existsSync(filePath)) {
+          const raw = fs.readFileSync(filePath, 'utf-8');
+          current = { ...current, ...JSON.parse(raw) };
+        }
       }
     } catch {
       // Usar defaults
@@ -60,10 +75,28 @@ export async function POST(request: NextRequest) {
       offices: Array.isArray(body.offices) && body.offices.length > 0 ? body.offices : current.offices,
     };
 
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, JSON.stringify(updated, null, 2), 'utf-8');
+    // 2. Persistir en PostgreSQL de forma definitiva
+    await saveSectionToPg('site_settings', updated);
+    await saveLandingFooter({
+      brand: {
+        name: updated.companyName,
+        tagline: updated.footerTagline,
+        tagline_en: updated.footerTaglineEn,
+        logo_url: updated.footerLogoUrl,
+      },
+      headquarters: updated.offices,
+      copyright: updated.copyright,
+      legal_notice: updated.certificationsText,
+    });
 
-    // Revalidar rutas que usan footer y layout
+    // 3. Escribir en archivo local de respaldo si el entorno lo permite
+    try {
+      const filePath = getSettingsFilePath();
+      fs.mkdirSync(path.dirname(filePath), { recursive: true });
+      fs.writeFileSync(filePath, JSON.stringify(updated, null, 2), 'utf-8');
+    } catch {}
+
+    // 4. Revalidar rutas que usan footer y layout
     revalidatePath('/', 'layout');
     revalidatePath('/admin/content/settings');
     revalidatePath('/admin/content/footer');

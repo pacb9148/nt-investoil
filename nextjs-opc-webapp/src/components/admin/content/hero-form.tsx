@@ -76,9 +76,9 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   const [cardBg, setCardBg] = useState<string>(defaultValues.hero_card?.card_bg_color || '#0e1e3d');
   const [cardBorder, setCardBorder] = useState<string>(defaultValues.hero_card?.card_border_color || '#1a3264');
   const [cardGlow, setCardGlow] = useState<number>(defaultValues.hero_card?.card_glow_opacity ?? 50);
-  const [cardOpacity, setCardOpacity] = useState<number>(defaultValues.hero_card?.card_opacity ?? 90);
+  const [cardOpacity, setCardOpacity] = useState<number>(defaultValues.hero_card?.card_opacity ?? 0);
   const [logoUrl, setLogoUrl] = useState<string>(
-    defaultValues.hero_card?.logo_url || '/images/branding/corporate-card-logo.jpeg'
+    defaultValues.hero_card?.logo_url ?? ''
   );
   const [logoHue, setLogoHue] = useState<number>(defaultValues.hero_card?.logo_hue ?? 0);
   const [logoBrightness, setLogoBrightness] = useState<number>(defaultValues.hero_card?.logo_brightness ?? 100);
@@ -1467,52 +1467,40 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                   name="hero_logo_url"
                   value={logoUrl}
                   onChange={(e) => setLogoUrl(e.target.value)}
-                  placeholder="/images/branding/seal-transparent.png o https://..."
+                  placeholder="/images/branding/oil-drop-logo.png o https://..."
                   className={INPUT_STYLE}
                 />
               </div>
 
               {/* Botones de selección rápida de logos corporativos y gestión */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <span className="text-[10px] font-mono text-text-subtle">Plantillas:</span>
+                <span className="text-[10px] font-mono text-text-subtle">Recursos oficiales:</span>
                 <button
                   type="button"
-                  onClick={() => setLogoUrl('/uploads/1790262200243-2026-09-24_at_17.02.08.jpeg')}
+                  onClick={() => setLogoUrl('/images/branding/oil-drop-logo.png')}
                   className={cn(
-                    'px-2 py-1 rounded text-[10px] font-mono border transition-all',
-                    logoUrl.includes('1790262200243')
+                    'px-2.5 py-1 rounded text-[10px] font-mono border transition-all',
+                    logoUrl === '/images/branding/oil-drop-logo.png'
                       ? 'bg-accent/20 border-accent text-accent font-semibold'
                       : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
                   )}
                 >
-                  Sello Gota Petróleo (Actual)
+                  Gota de Petróleo (Oficial)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setLogoUrl('/images/branding/seal-transparent.png')}
-                  className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
+                  onClick={handleRemoveHeroLogo}
+                  disabled={uploadingLogo || deletingLogo}
+                  className={cn(
+                    'px-2.5 py-1 rounded text-[10px] font-mono border transition-all',
+                    !logoUrl
+                      ? 'bg-amber-500/20 border-amber-500 text-amber-400 font-semibold'
+                      : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
+                  )}
+                  title="Quitar la imagen o sello de la tarjeta para dejarla completamente limpia"
                 >
-                  Sello Oficial Dorado
+                  ✕ Sin Imagen (Tarjeta Limpia)
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setLogoUrl('/images/branding/logo.png')}
-                  className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
-                >
-                  Logotipo Corporativo
-                </button>
-
-                {logoUrl && (
-                  <button
-                    type="button"
-                    onClick={handleRemoveHeroLogo}
-                    disabled={uploadingLogo || deletingLogo}
-                    className="px-2 py-1 rounded text-[10px] font-mono bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
-                    title="Quitar la imagen o sello de la tarjeta"
-                  >
-                    ✕ Quitar Sello
-                  </button>
-                )}
 
                 {logoUrl && logoUrl.startsWith('/uploads/') && (
                   <button
@@ -1703,14 +1691,20 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                 </div>
 
                 <div className="flex justify-center py-1">
-                  <img
-                    src={logoUrl || '/images/branding/corporate-card-logo.jpeg'}
-                    alt="Preview"
-                    className="w-28 h-28 object-contain transition-all duration-200"
-                    style={{
-                      filter: `hue-rotate(${logoHue}deg) brightness(${logoBrightness}%) saturate(${logoSaturation}%) drop-shadow(0 0 ${logoShadowBlur}px ${logoShadowColor})`,
-                    }}
-                  />
+                  {logoUrl ? (
+                    <img
+                      src={logoUrl}
+                      alt="Preview"
+                      className="w-28 h-28 object-contain transition-all duration-200"
+                      style={{
+                        filter: `hue-rotate(${logoHue}deg) brightness(${logoBrightness}%) saturate(${logoSaturation}%) drop-shadow(0 0 ${logoShadowBlur}px ${logoShadowColor})`,
+                      }}
+                    />
+                  ) : (
+                    <div className="py-6 text-[11px] font-mono text-text-subtle text-center italic">
+                      (Sin imagen corporativa central)
+                    </div>
+                  )}
                 </div>
 
                 <div

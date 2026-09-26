@@ -81,7 +81,7 @@ const DEFAULT_SEO: LandingSeoConfig = {
   keywords_en:
     'Invest Oil LLC, Delaware USA energy corporation, crude oil trading, brent, merey 16, jet fuel a1, en590 diesel, maritime logistics, houston petroleum desk',
   canonical_url: 'https://investoil.es',
-  og_image: '/images/branding/corporate-card-logo.jpeg',
+  og_image: '/images/branding/oil-drop-logo.png',
   contact_email: 'info@investoil.es',
   telephone: '+1 (713) 555-0190',
   linkedin_url: 'https://www.linkedin.com/company/invest-oil-llc',
@@ -225,10 +225,10 @@ export default function SeoEditorPage() {
     legalName: formData.legal_name || 'Invest Oil LLC',
     alternateName: ['Invest Oil', 'InvestOil LLC', 'Invest Oil Delaware'],
     url: formData.canonical_url || 'https://investoil.es',
-    logo: `${formData.canonical_url || 'https://investoil.es'}/images/branding/logo.png`,
+    logo: `${formData.canonical_url || 'https://investoil.es'}/images/branding/oil-drop-logo.png`,
     image: formData.og_image?.startsWith('http')
       ? formData.og_image
-      : `${formData.canonical_url || 'https://investoil.es'}${formData.og_image || '/images/branding/corporate-card-logo.jpeg'}`,
+      : `${formData.canonical_url || 'https://investoil.es'}${formData.og_image || '/images/branding/oil-drop-logo.png'}`,
     description: formData.meta_description,
     disambiguatingDescription: formData.disambiguation_note,
     address: {
@@ -810,7 +810,7 @@ export default function SeoEditorPage() {
                       value={formData.og_image}
                       onChange={(e) => setFormData({ ...formData, og_image: e.target.value })}
                       className={INPUT}
-                      placeholder="/images/branding/corporate-card-logo.jpeg"
+                      placeholder="/images/branding/oil-drop-logo.png"
                     />
                     <input
                       type="file"
@@ -837,39 +837,15 @@ export default function SeoEditorPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => setFormData({ ...formData, og_image: '/images/branding/corporate-card-logo.jpeg' })}
+                      onClick={() => setFormData({ ...formData, og_image: '/images/branding/oil-drop-logo.png' })}
                       className={cn(
                         'px-2.5 py-1 rounded text-[10px] font-mono border transition-all',
-                        formData.og_image === '/images/branding/corporate-card-logo.jpeg'
+                        formData.og_image === '/images/branding/oil-drop-logo.png'
                           ? 'bg-amber-500/20 border-amber-500 text-amber-400 font-semibold'
                           : 'bg-card border-border hover:border-amber-500/50 text-text-muted hover:text-text'
                       )}
                     >
-                      Sello Ámbar Corporativo
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, og_image: '/images/branding/seal-transparent.png' })}
-                      className={cn(
-                        'px-2.5 py-1 rounded text-[10px] font-mono border transition-all',
-                        formData.og_image === '/images/branding/seal-transparent.png'
-                          ? 'bg-accent/20 border-accent text-accent font-semibold'
-                          : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
-                      )}
-                    >
-                      Sello Oficial
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, og_image: '/images/branding/logo.png' })}
-                      className={cn(
-                        'px-2.5 py-1 rounded text-[10px] font-mono border transition-all',
-                        formData.og_image === '/images/branding/logo.png'
-                          ? 'bg-accent/20 border-accent text-accent font-semibold'
-                          : 'bg-card border-border hover:border-accent/50 text-text-muted hover:text-text'
-                      )}
-                    >
-                      Logotipo Horizontal
+                      Gota de Petróleo (Oficial)
                     </button>
                   </div>
                 </div>
@@ -921,7 +897,7 @@ export default function SeoEditorPage() {
                 <div className="rounded-lg border border-border/80 bg-card overflow-hidden shadow-lg">
                   <div className="w-full h-36 bg-slate-950 flex items-center justify-center overflow-hidden">
                     <img
-                      src={formData.og_image || '/images/branding/corporate-card-logo.jpeg'}
+                      src={formData.og_image || '/images/branding/oil-drop-logo.png'}
                       alt="Previsualización Open Graph"
                       className="w-full h-full object-contain filter drop-shadow-md"
                       onError={(e) => {

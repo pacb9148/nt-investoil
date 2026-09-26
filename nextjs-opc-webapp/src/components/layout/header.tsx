@@ -20,6 +20,8 @@ export function Header() {
   const { t, language } = useLanguage();
   const isEn = language === 'en';
 
+  const [activeSection, setActiveSection] = useState<string>('hero');
+
   useEffect(() => {
     fetch('/api/content/header')
       .then((res) => (res.ok ? res.json() : null))
@@ -40,12 +42,72 @@ export function Header() {
   }, []);
 
   useEffect(() => {
+    if (pathname !== '/') return;
+
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+      setActiveSection(hash);
+    }
+
+    const handleHashChange = () => {
+      const h = window.location.hash.replace('#', '');
+      if (h) setActiveSection(h);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+
+    const sections = ['contact', 'faq', 'testimonials', 'team', 'plataforma', 'products', 'services', 'problema', 'hero'];
+
+    const handleScrollSpy = () => {
+      if (window.scrollY < 180) {
+        setActiveSection('hero');
+        return;
+      }
+
+      for (const sectionId of sections) {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 250 && rect.bottom >= 150) {
+            setActiveSection(sectionId);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScrollSpy, { passive: true });
+    handleScrollSpy();
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('scroll', handleScrollSpy);
+    };
+  }, [pathname]);
+
+  useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
   const activeMenuItems = (headerConfig.menu_items || []).filter(
     (item) => item.is_active !== false
   );
+
+  const isLinkActive = (href: string) => {
+    if (pathname === '/') {
+      if (href === '/' || href === '/#hero') {
+        return activeSection === 'hero' || activeSection === '';
+      }
+      if (href.startsWith('/#')) {
+        const sectionId = href.replace('/#', '');
+        return activeSection === sectionId;
+      }
+      return false;
+    }
+
+    if (href === '/' || href.startsWith('/#')) return false;
+    return pathname === href || pathname.startsWith(href + '/');
+  };
 
   return (
     <>
@@ -71,15 +133,19 @@ export function Header() {
           <nav className="hidden md:flex items-center gap-6" aria-label="Navegación principal">
             {activeMenuItems.map((link) => {
               const label = isEn ? (link.label_en || link.label) : link.label;
-              const isActive =
-                link.href === '/'
-                  ? pathname === '/'
-                  : pathname.startsWith(link.href) && link.href !== '/#';
+              const isActive = isLinkActive(link.href);
 
               return (
                 <Link
                   key={link.id || link.href}
                   href={link.href}
+                  onClick={() => {
+                    if (link.href.startsWith('/#')) {
+                      setActiveSection(link.href.replace('/#', ''));
+                    } else if (link.href === '/') {
+                      setActiveSection('hero');
+                    }
+                  }}
                   className={cn(
                     'relative text-xs font-semibold uppercase tracking-wider transition-colors py-1 hover:text-text group',
                     isActive ? 'text-accent font-bold' : 'text-text-muted'
@@ -161,12 +227,23 @@ export function Header() {
           <nav className="flex flex-col gap-4">
             {activeMenuItems.map((link) => {
               const label = isEn ? (link.label_en || link.label) : link.label;
+              const isActive = isLinkActive(link.href);
               return (
                 <Link
                   key={link.id || link.href}
                   href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-base font-semibold text-text hover:text-accent py-2 border-b border-border/40 transition-colors uppercase tracking-wider"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    if (link.href.startsWith('/#')) {
+                      setActiveSection(link.href.replace('/#', ''));
+                    } else if (link.href === '/') {
+                      setActiveSection('hero');
+                    }
+                  }}
+                  className={cn(
+                    'text-base font-semibold py-2 border-b border-border/40 transition-colors uppercase tracking-wider',
+                    isActive ? 'text-accent font-bold' : 'text-text hover:text-accent'
+                  )}
                 >
                   {label}
                 </Link>

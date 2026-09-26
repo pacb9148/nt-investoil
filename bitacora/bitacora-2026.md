@@ -641,5 +641,36 @@
   - `npm run build`: 53/53 páginas estáticas y dinámicas compiladas exitosamente.
   - `pwsh ./scripts/bateria-seguridad.ps1`: 100% aprobada sin secretos ni vulnerabilidades.
 
-  - `pwsh ./scripts/bateria-seguridad.ps1`: Aprobada al 100% (cero secretos ni vulnerabilidades).
 
+## [2026-09-26 19:15] - Fase 23: Solución Definitiva de Opacidad Hero, Purga de Logos/Fotos Fantasma, Persistencia en PostgreSQL de Footer y Corrección de Navegación Activa en Header
+- **Solicitud del Usuario**:
+  1. La tarjeta Hero está configurada en 0% de opacidad y sigue viéndose sólida.
+  2. Aparece un logo borrado hace tiempo en la tarjeta del hero.
+  3. Foto del CEO y política estricta de imágenes: Si en algún sitio no hay una imagen desde la biblioteca o desde un link de internet guardado en la base de datos, simplemente no debe aparecer ninguna imagen (cero fallbacks hardcodeados ni imágenes fantasma resucitadas).
+  4. Los datos modificados del pie de página deben persistir y leerse siempre de la base de datos tras cada deploy.
+  5. Branding unificado: El logo, nombre de la compañía ("INVEST OIL") y el eslogan ("Petroleum and Derivates Markets") deben ser idénticos en Header y Footer.
+  6. Navegación activa del menú en Header: al estar o hacer clic en "Actualidad / Noticias", "Productos", "Servicios" o "Contacto", debe iluminarse la sección correspondiente y no quedarse siempre fijo en "Inicio".
+  7. Menú y buscador en página Nosotros: incorporar buscador ágil y menú de navegación contextual.
+  8. Favicon y activos oficiales: generar favicons oficiales a partir de la gota corporativa (`oil-drop-logo.png`).
+  9. Orden `+dap` con directriz estricta: *"actualiza primero en local y luego del local a la nube no quiero que se repitan los errores"*.
+- **Acciones Realizadas**:
+  1. **Control de Opacidad y Logo Condicional de la Tarjeta Hero**:
+     - Corregido `src/app/actions/content-actions.ts`: se agregó la lectura y persistencia de `hero_card_opacity` en `updateHeroAction` y `updateAppearanceAction`, que se perdía en el FormData.
+     - En `src/components/sections/hero-section.tsx`: erradicada la lectura de `localStorage`, `cardOpacity` por defecto fijado en 0 y fondo estrictamente `transparent` cuando `cardOpacity <= 0`.
+     - Logo condicional: se eliminó el fallback a `seal-transparent.png`. Solo se renderiza si `heroCard?.logo_url` existe y no está vacío.
+     - En `src/components/admin/content/hero-form.tsx`: eliminados los botones de plantillas que inyectaban sellos viejos y fijado valor por defecto de opacidad en 0%.
+  2. **Política Estricta de Cero Fallbacks de Imágenes & Purga de Fotos Fantasma**:
+     - En `src/app/uploads/[...slug]/route.ts`: eliminado `resolveFallbackFilePath` que inyectaba imágenes viejas de directivos y logos cuando un archivo no existía en BD ni en disco (ahora retorna 404 limpio).
+     - En `src/app/(public)/about/page.tsx`: convertido a Server Component asíncrono conectado a `getLandingAbout()`; la caja de imagen solo se renderiza si `data.featured_image` existe y es válida.
+     - En `src/components/admin/content/about-form.tsx`, `src/app/(dashboard)/admin/content/seo/page.tsx` y `migration-service.ts`: purgadas todas las rutas obsoletas a `corporate-card-logo.jpeg` y `seal-transparent.png`.
+  3. **Persistencia del Pie de Página (Footer) en PostgreSQL**:
+     - En `src/app/api/settings/route.ts`: conectado a PostgreSQL con `getSectionFromPg('site_settings')`, `saveSectionToPg('site_settings')` y `saveLandingFooter`. Los ajustes ya no se pierden en los deploys serverless.
+     - En `src/components/layout/footer.tsx`: unificado con `customTitle={settings.companyName || 'INVEST OIL'}` y `customSubtitle={settings.footerTagline || 'Petroleum and Derivates Markets'}` y logo oficial `/images/branding/oil-drop-logo.png`.
+  4. **Navegación Activa del Menú en Header**:
+     - En `src/components/layout/header.tsx`: implementado detector dinámico `isLinkActive` con ScrollSpy e `IntersectionObserver`/`scroll` para las secciones (`#hero`, `#services`, `#products`, `#contact`, etc.), tanto en desktop como en el drawer móvil. Si el usuario está en "Productos" o hace clic en él, se ilumina "Productos" y no "Inicio".
+  5. **Favicon y Activos Oficiales**:
+     - Generados con Pillow: `public/favicon.ico`, `public/images/branding/favicon.png`, `icon-192.png`, `icon-512.png` a partir del logo oficial de la gota.
+- **Verificación Técnica en Local**:
+  - `npm run type-check`: 0 errores de compilación TypeScript.
+  - `npm run build`: 53/53 páginas estáticas y dinámicas compiladas exitosamente al 100%.
+  - `pwsh .\scripts\bateria-seguridad.ps1`: Aprobada al 100% (batería limpia sin secretos ni vulnerabilidades).

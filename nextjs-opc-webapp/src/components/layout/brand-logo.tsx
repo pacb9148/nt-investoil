@@ -25,9 +25,7 @@ export function BrandLogo({
   const hasNoImage = src === '' || src === 'none';
   const imageSrc = hasNoImage
     ? null
-    : (src || (variant === 'seal'
-        ? '/images/branding/corporate-card-logo.jpeg'
-        : '/images/branding/corporate-card-logo.jpeg'));
+    : (src || '/images/branding/oil-drop-logo.png');
 
   return (
     <Link
@@ -55,7 +53,7 @@ export function BrandLogo({
             {customTitle || 'INVEST OIL'}
           </span>
           <span className="text-[10px] uppercase font-mono tracking-widest text-text-muted -mt-1">
-            {customSubtitle || 'Trading Company'}
+            {customSubtitle || 'Petroleum and Derivates Markets'}
           </span>
         </div>
       )}

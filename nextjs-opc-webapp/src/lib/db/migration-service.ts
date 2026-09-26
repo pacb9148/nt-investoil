@@ -479,9 +479,9 @@ export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
            VALUES (1, $1, $2, $3, $4, $5, $6, NOW())
            ON CONFLICT (id) DO NOTHING`,
           [
-            header.logo_url || '/images/branding/corporate-card-logo.jpeg',
+            header.logo_url || '/images/branding/oil-drop-logo.png',
             header.logo_text || 'INVEST OIL',
-            header.logo_tagline || 'Trading Company',
+            header.logo_tagline || 'Petroleum and Derivates Markets',
             JSON.stringify(header.menu_items || []),
             JSON.stringify(header.action_button || {}),
             JSON.stringify(header.backoffice_button || {}),
@@ -550,7 +550,7 @@ export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
             seo.site_name || 'Invest Oil LLC',
             seo.title_template || '%s | Invest Oil LLC',
             seo.default_meta_description || seo.meta_description || '',
-            seo.default_og_image || seo.og_image || '/images/branding/corporate-card-logo.jpeg',
+            seo.default_og_image || seo.og_image || '/images/branding/oil-drop-logo.png',
             seo.twitter_handle || null,
             JSON.stringify(seo.keywords || []),
             seo.canonical_url || 'https://investoil.es',

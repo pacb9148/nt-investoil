@@ -3,8 +3,8 @@
   "showLivePrices": true,
   "speedSeconds": 120,
   "pauseOnHover": true,
-  "pricesBadgeText": "Precios de Energía en Vivo",
-  "pricesBadgeTextEn": "Live Energy Prices",
+  "pricesBadgeText": "Precios de Energía",
+  "pricesBadgeTextEn": "Energy Prices",
   "newsBadgeText": "Actualidad & Operaciones",
   "newsBadgeTextEn": "Market News & Ops",
   "customItems": [

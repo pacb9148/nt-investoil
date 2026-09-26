@@ -74,7 +74,7 @@ export function writeLocalJson(filename: string, data: any): void {
 }
 
 // Helpers para PostgreSQL landing_sections
-async function getSectionFromPg<T>(sectionId: string): Promise<T | null> {
+export async function getSectionFromPg<T>(sectionId: string): Promise<T | null> {
   if (!hasPostgresDb()) return null;
   try {
     const res = await queryPg('SELECT content FROM landing_sections WHERE id = $1', [sectionId]);
@@ -87,7 +87,7 @@ async function getSectionFromPg<T>(sectionId: string): Promise<T | null> {
   return null;
 }
 
-async function saveSectionToPg(sectionId: string, content: any): Promise<void> {
+export async function saveSectionToPg(sectionId: string, content: any): Promise<void> {
   if (!hasPostgresDb()) return;
   try {
     await queryPg(
@@ -209,9 +209,9 @@ export async function getLandingAppearance(): Promise<LandingAppearanceConfig> {
 // ==============================================================================
 export async function getLandingHeader(): Promise<any> {
   const defaultHeader = {
-    logo_url: '/images/branding/corporate-card-logo.jpeg',
+    logo_url: '/images/branding/oil-drop-logo.png',
     logo_text: 'INVEST OIL',
-    logo_tagline: 'Trading Company',
+    logo_tagline: 'Petroleum and Derivates Markets',
     menu_items: [],
   };
 
@@ -261,9 +261,9 @@ export async function saveLandingHeader(data: any): Promise<any> {
            backoffice_button = EXCLUDED.backoffice_button,
            updated_at = NOW()`,
         [
-          data.logo_url || '/images/branding/corporate-card-logo.jpeg',
+          data.logo_url || '/images/branding/oil-drop-logo.png',
           data.logo_text || 'INVEST OIL',
-          data.logo_tagline || 'Trading Company',
+          data.logo_tagline || 'Petroleum and Derivates Markets',
           JSON.stringify(data.menu_items || []),
           JSON.stringify(data.action_button || {}),
           JSON.stringify(data.backoffice_button || {}),
@@ -280,9 +280,9 @@ export async function saveLandingHeader(data: any): Promise<any> {
       const db = createAdminClient();
       await db.from('landing_header').upsert({
         id: 1,
-        logo_url: data.logo_url !== undefined ? data.logo_url : '/images/branding/corporate-card-logo.jpeg',
+        logo_url: data.logo_url !== undefined ? data.logo_url : '/images/branding/oil-drop-logo.png',
         logo_text: data.logo_text || 'INVEST OIL',
-        logo_tagline: data.logo_tagline || 'Trading Company',
+        logo_tagline: data.logo_tagline || 'Petroleum and Derivates Markets',
         menu_items: data.menu_items || [],
         action_button: data.action_button || {},
         backoffice_button: data.backoffice_button || {},
@@ -554,7 +554,7 @@ export async function saveLandingSeo(data: any): Promise<any> {
           data.site_name || 'Invest Oil LLC',
           data.title_template || '%s | Invest Oil LLC',
           data.default_meta_description || data.meta_description || '',
-          data.default_og_image || data.og_image || '/images/branding/corporate-card-logo.jpeg',
+          data.default_og_image || data.og_image || '/images/branding/oil-drop-logo.png',
           data.twitter_handle || null,
           JSON.stringify(data.keywords || []),
           data.canonical_url || 'https://investoil.es',

@@ -384,17 +384,10 @@ export default function SettingsContentPage() {
                 <div className="flex flex-wrap gap-1.5 justify-center">
                   <button
                     type="button"
-                    onClick={() => setSettings((p) => ({ ...p, footerLogoUrl: '/images/branding/corporate-card-logo.jpeg' }))}
+                    onClick={() => setSettings((p) => ({ ...p, footerLogoUrl: '/images/branding/oil-drop-logo.png' }))}
                     className="text-[10px] font-mono px-2 py-0.5 rounded bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
                   >
-                    Gota Ámbar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSettings((p) => ({ ...p, footerLogoUrl: '/images/branding/logo.png' }))}
-                    className="text-[10px] font-mono px-2 py-0.5 rounded bg-card border border-border hover:border-accent/50 text-text-muted hover:text-text transition-colors"
-                  >
-                    Logo Rectangular
+                    Gota de Petróleo Oficial
                   </button>
                 </div>
               </div>
@@ -430,7 +423,7 @@ export default function SettingsContentPage() {
                     value={settings.footerLogoUrl}
                     onChange={(e) => setSettings({ ...settings, footerLogoUrl: e.target.value })}
                     className={INPUT_STYLE}
-                    placeholder="Ej: /images/branding/corporate-card-logo.jpeg o dejar vacío"
+                    placeholder="Ej: /images/branding/oil-drop-logo.png o dejar vacío"
                   />
                   {settings.footerLogoUrl && (
                     <button

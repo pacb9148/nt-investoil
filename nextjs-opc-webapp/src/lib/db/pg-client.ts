@@ -158,9 +158,9 @@ export async function ensurePgSchema(): Promise<void> {
     -- 7. Cabecera y Menú
     CREATE TABLE IF NOT EXISTS landing_header (
       id INT PRIMARY KEY DEFAULT 1,
-      logo_url TEXT NOT NULL DEFAULT '/images/branding/corporate-card-logo.jpeg',
+      logo_url TEXT NOT NULL DEFAULT '/images/branding/oil-drop-logo.png',
       logo_text TEXT NOT NULL DEFAULT 'INVEST OIL',
-      logo_tagline TEXT NOT NULL DEFAULT 'Trading Company',
+      logo_tagline TEXT NOT NULL DEFAULT 'Petroleum and Derivates Markets',
       menu_items JSONB NOT NULL DEFAULT '[]'::jsonb,
       action_button JSONB NOT NULL DEFAULT '{"text":"Mesa de Trading","text_en":"Trading Desk","url":"/#contact","is_visible":true}'::jsonb,
       backoffice_button JSONB NOT NULL DEFAULT '{"text":"Backoffice","text_en":"Backoffice","is_visible":true}'::jsonb,
@@ -202,7 +202,7 @@ export async function ensurePgSchema(): Promise<void> {
       site_name TEXT NOT NULL DEFAULT 'Invest Oil LLC',
       title_template TEXT NOT NULL DEFAULT '%s | Invest Oil LLC',
       default_meta_description TEXT NOT NULL DEFAULT 'Compañía internacional de trading de crudo, derivados petrolíferos y Pet Coke con logística global.',
-      default_og_image TEXT NOT NULL DEFAULT '/images/branding/corporate-card-logo.jpeg',
+      default_og_image TEXT NOT NULL DEFAULT '/images/branding/oil-drop-logo.png',
       twitter_handle TEXT DEFAULT '@InvestOilGlobal',
       keywords JSONB NOT NULL DEFAULT '["petróleo","trading crudo","pet coke","combustibles marinos","invest oil"]'::jsonb,
       canonical_url TEXT NOT NULL DEFAULT 'https://investoil.es',

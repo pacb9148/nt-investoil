@@ -42,16 +42,7 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
   const [activeConfig, setActiveConfig] = useState<LandingHeroConfig | undefined>(initialConfig);
 
   useEffect(() => {
-    // 0. Sincronización inmediata desde localStorage
-    try {
-      const cached = localStorage.getItem('investoil_hero_config');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        setActiveConfig((prev) => ({ ...(prev || {}), ...parsed }));
-      }
-    } catch {}
-
-    // Sincronizar desde la API para asegurar persistencia entre navegadores e incógnito
+    // Sincronizar desde la API para asegurar persistencia y lectura directa de base de datos
     fetch('/api/content/hero')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -120,7 +111,7 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
   // Personalización dinámica de la Tarjeta Hero Señalada
   const heroCard = config?.hero_card;
   const rawCardBg = heroCard?.card_bg_color || '#0e1e3d';
-  const cardOpacity = heroCard?.card_opacity !== undefined ? Number(heroCard.card_opacity) : 90;
+  const cardOpacity = heroCard?.card_opacity !== undefined ? Number(heroCard.card_opacity) : 0;
   const cardBgColor = hexOrRgbToRgba(rawCardBg, cardOpacity);
   const cardBorderColor = heroCard?.card_border_color || '#1a3264';
   const cardGlowOpacity = (heroCard?.card_glow_opacity ?? 50) / 100;
@@ -335,24 +326,26 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
                   <ShieldCheck className="w-4 h-4 text-accent" />
                 </div>
 
-                {/* Sello / Imagen Corporativa Oficial con Filtros Dinámicos */}
-                <div className="flex justify-center py-2">
-                  <div className="relative w-44 h-44 group">
-                    <Image
-                      src={heroCard?.logo_url || '/images/branding/seal-transparent.png'}
-                      alt="Invest Oil LLC Official Seal"
-                      width={176}
-                      height={176}
-                      unoptimized={Boolean(heroCard?.logo_url && heroCard.logo_url.startsWith('/uploads'))}
-                      className="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
-                      style={{
-                        filter: logoFilterStyle,
-                        WebkitFilter: logoFilterStyle,
-                      }}
-                      priority
-                    />
+                {/* Sello / Imagen Corporativa Oficial con Filtros Dinámicos (solo si está configurado) */}
+                {Boolean(heroCard?.logo_url && heroCard.logo_url.trim()) && (
+                  <div className="flex justify-center py-2">
+                    <div className="relative w-44 h-44 group">
+                      <Image
+                        src={heroCard!.logo_url!}
+                        alt="Invest Oil LLC Official Seal"
+                        width={176}
+                        height={176}
+                        unoptimized={Boolean(heroCard?.logo_url && heroCard.logo_url.startsWith('/uploads'))}
+                        className="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
+                        style={{
+                          filter: logoFilterStyle,
+                          WebkitFilter: logoFilterStyle,
+                        }}
+                        priority
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Resumen Operativo */}
                 <div

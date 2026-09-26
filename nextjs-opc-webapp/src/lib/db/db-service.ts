@@ -64,22 +64,12 @@ export function writeJsonFile<T>(filename: string, data: T): void {
 const DEFAULT_MEDIA: MediaItem[] = [
   {
     id: 'm-1',
-    filename: 'seal-transparent.png',
-    url: '/images/branding/seal-transparent.png',
+    filename: 'oil-drop-logo.png',
+    url: '/images/branding/oil-drop-logo.png',
     type: 'image',
     mime_type: 'image/png',
-    size: 540000,
-    alt_text: 'Sello Oficial Invest Oil LLC',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'm-2',
-    filename: 'logo.png',
-    url: '/images/branding/logo.png',
-    type: 'image',
-    mime_type: 'image/png',
-    size: 210000,
-    alt_text: 'Logotipo Principal Invest Oil LLC',
+    size: 167738,
+    alt_text: 'Logotipo Oficial Gota de Petróleo Invest Oil LLC',
     created_at: new Date().toISOString(),
   },
   {
