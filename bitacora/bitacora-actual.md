@@ -56,3 +56,11 @@ Por ultimo, vamos a agregar donde se indica los likes, y que la lista se ordene 
 
 @"C:\Users\pacb9\Documents\COSTAIN\BUSINESS\Rufino Villalobos\img\favicon.ico"
 Buenos dias, reemplaza el favicon del sitio por el que te adjunto y terminamos +dap
+
+## 2026-09-27 11:26:53
+
+1. veo que el favicon tiene fondo blanco, necesito que sea solo la gota, C:\Users\pacb9\Documents\COSTAIN\BUSINESS\Rufino Villalobos\img\faviconio, en esta carpeta lo tienes con fondo transparente y quiero que el favicon sea con fondo transparente.
+2. y al agente de noticias, crea un selector de categorías, agrega una lista de 10 categorías relacionadas con nuestro negocio, la opción "otros" para que se pueda escribir una distinta solo para la búsqueda inmediata sin quedar registrada en la base de datos y al principio de la lista "todas las categorías" lanzando noticias de las categorías listadas en la fecha seleccionada. Mantén la barra de búsqueda y pon el selector de categorías como lo señalo en la imagen adjunta.
+3. A la biblioteca de medios, quita toda la información innecesaria y ponla en un pop accesible desde un icono de info, título, icono info, y botones duplicar medios y subir archivo todo en la misma fila, reduce y aprovecha el espacio para el despliegue de información necesaria, agrega los iconos para ver como lista, tarjetas y por fecha con un datapicker, se mantiene el buscador y se reduce el tamaño de las tarjetas al 50% así tenemos el doble de información y más espacio disponible, una vista local mas amplia para el usuario, puedes agregar un preview en un pop al hacer clic sobre la tarjeta o sobre la lista
+
+Al finalizar +dap

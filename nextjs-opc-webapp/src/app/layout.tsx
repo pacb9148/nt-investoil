@@ -64,10 +64,10 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     icons: {
       icon: [
-        { url: '/favicon.ico?v=3', sizes: 'any' },
-        { url: '/images/branding/favicon.png?v=3', type: 'image/png' },
+        { url: '/favicon.ico?v=4', sizes: 'any' },
+        { url: '/images/branding/favicon.png?v=4', type: 'image/png' },
       ],
-      apple: [{ url: '/images/branding/icon-192.png?v=3' }],
+      apple: [{ url: '/images/branding/icon-192.png?v=4' }],
     },
     robots: {
       index: !seo.robots || !seo.robots.includes('noindex'),

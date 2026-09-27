@@ -12,13 +12,21 @@ import {
   ArrowRight,
   RefreshCw,
   Search,
-  Filter,
   CalendarDays,
+  Layers,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import type { MarketNewsItem } from '@/app/api/news-agent/route';
 import { compressAndOptimizeImage } from '@/components/admin/news-republish-dialog';
+import { RADAR_CATEGORIES } from '@/lib/news/google-news-radar';
+
+const OTROS_ID = 'otros';
+const CATEGORY_OPTIONS = [
+  { id: 'all', label: 'Todas las categorías' },
+  ...RADAR_CATEGORIES.map((c) => ({ id: c.id, label: c.label })),
+  { id: OTROS_ID, label: 'Otros (búsqueda puntual)' },
+];
 
 interface NewsAgentModalProps {
   isOpen: boolean;
@@ -38,7 +46,6 @@ interface NewsAgentModalProps {
 export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModalProps) {
   const [loading, setLoading] = useState(false);
   const [news, setNews] = useState<MarketNewsItem[]>([]);
-  const [filterTopic, setFilterTopic] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [republishedId, setRepublishedId] = useState<string | null>(null);
   // Fecha local del navegador (no UTC) para que «hoy» sea el día que ve el editor.
@@ -46,12 +53,25 @@ export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModal
   const [selectedDate, setSelectedDate] = useState<string>(todayLocal);
   const [warning, setWarning] = useState<string | null>(null);
   const [composeError, setComposeError] = useState<string | null>(null);
+  // Categoría del selector: 'all', una de las 10 del negocio, u «otros» (búsqueda puntual, nunca guardada).
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [otrosQuery, setOtrosQuery] = useState<string>('');
 
-  const fetchNews = async (date: string = selectedDate) => {
+  const fetchNews = async (opts?: { date?: string; category?: string; q?: string }) => {
+    const date = opts?.date ?? selectedDate;
+    const category = opts?.category ?? selectedCategory;
+    const q = category === OTROS_ID ? opts?.q ?? otrosQuery : undefined;
+
+    if (category === OTROS_ID && !q?.trim()) return; // «Otros» solo busca cuando hay un término escrito.
+
     setLoading(true);
     setWarning(null);
     try {
-      const res = await fetch(`/api/news-agent?date=${encodeURIComponent(date)}`);
+      const params = new URLSearchParams({ date });
+      if (category !== 'all') params.set('category', category);
+      if (category === OTROS_ID && q) params.set('q', q.trim());
+
+      const res = await fetch(`/api/news-agent?${params.toString()}`);
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setNews(data.news || []);
@@ -68,26 +88,24 @@ export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModal
   };
 
   useEffect(() => {
-    if (isOpen) {
-      fetchNews(selectedDate);
+    // «Otros» no se dispara solo: espera a que se escriba y se envíe el término puntual.
+    if (isOpen && selectedCategory !== OTROS_ID) {
+      fetchNews();
     }
-  }, [isOpen, selectedDate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, selectedDate, selectedCategory]);
 
   if (!isOpen) return null;
 
+  // El buscador de texto libre solo afina dentro de lo ya traído para la categoría y fecha elegidas.
   const filtered = news.filter((item) => {
-    const matchesSearch =
-      searchQuery === '' ||
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    const matchesTopic =
-      filterTopic === 'all' ||
-      item.category.toLowerCase().includes(filterTopic.toLowerCase()) ||
-      item.tags.some((t) => t.toLowerCase().includes(filterTopic.toLowerCase()));
-
-    return matchesSearch && matchesTopic;
+    if (searchQuery === '') return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      item.title.toLowerCase().includes(q) ||
+      item.summary.toLowerCase().includes(q) ||
+      item.tags.some((t) => t.toLowerCase().includes(q))
+    );
   });
 
   // El agente hace el trabajo completo (localiza el artículo, redacta el análisis, trae la imagen y
@@ -160,76 +178,105 @@ export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModal
         </div>
 
         {/* Barra de Filtros y Búsqueda */}
-        <div className="p-4 border-b border-border/60 bg-surf/40 flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-subtle" />
-            <input
-              type="text"
-              placeholder="Buscar por término, crudo, buque, refinería..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-card/80 border border-border text-text placeholder:text-text-subtle focus:outline-none focus:border-accent"
-            />
-          </div>
+        <div className="p-4 border-b border-border/60 bg-surf/40 space-y-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-subtle" />
+              <input
+                type="text"
+                placeholder="Buscar por término, crudo, buque, refinería..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-card/80 border border-border text-text placeholder:text-text-subtle focus:outline-none focus:border-accent"
+              />
+            </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto text-[11px] font-mono pb-0.5">
-            {[
-              { id: 'all', label: 'Todas las Fuentes' },
-              { id: 'Google News', label: 'Google News' },
-              { id: 'BBC Mundo', label: 'BBC Mundo' },
-              { id: 'Euronews', label: 'Euronews' },
-              { id: 'EFE', label: 'Agencia EFE' },
-              { id: 'Brent', label: 'Brent / WTI' },
-              { id: 'Pet Coke', label: 'Pet Coke' },
-              { id: 'EN590', label: 'Diésel EN590' },
-              { id: 'Logística', label: 'Fletes VLCC' },
-            ].map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setFilterTopic(cat.id)}
-                className={`px-2.5 py-1 rounded-md transition-all whitespace-nowrap ${
-                  filterTopic === cat.id
-                    ? 'bg-accent text-bg font-bold shadow-sm'
-                    : 'bg-card/60 text-text-muted hover:text-text border border-border/60'
-                }`}
+            <div className="relative min-w-[220px]">
+              <Layers className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-accent pointer-events-none" />
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                aria-label="Categoría de noticias"
+                className="w-full appearance-none pl-9 pr-8 py-1.5 text-xs rounded-lg bg-card/80 border border-border text-text focus:outline-none focus:border-accent cursor-pointer"
               >
-                {cat.label}
-              </button>
-            ))}
+                {CATEGORY_OPTIONS.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+              <svg
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-subtle pointer-events-none"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+              </svg>
+            </div>
           </div>
 
-          <label className="flex items-center gap-1.5 text-[11px] font-mono text-text-muted">
-            <CalendarDays className="w-3.5 h-3.5 text-accent" />
-            <span>Fecha</span>
-            <input
-              type="date"
-              value={selectedDate}
-              max={todayLocal}
-              onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
-              className="px-2 py-1 text-xs rounded-lg bg-card/80 border border-border text-text focus:outline-none focus:border-accent [color-scheme:dark]"
-              aria-label="Fecha de las noticias"
-            />
-          </label>
-          {selectedDate !== todayLocal && (
-            <button
-              type="button"
-              onClick={() => setSelectedDate(todayLocal)}
-              className="text-[11px] font-mono text-accent hover:underline"
+          {selectedCategory === OTROS_ID && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                fetchNews({ category: OTROS_ID, q: otrosQuery });
+              }}
+              className="flex items-center gap-2"
             >
-              Volver a hoy
-            </button>
+              <input
+                type="text"
+                autoFocus
+                placeholder="Escribe un término y pulsa Enter (búsqueda puntual, no se guarda)…"
+                value={otrosQuery}
+                onChange={(e) => setOtrosQuery(e.target.value)}
+                maxLength={120}
+                className="flex-1 px-3 py-1.5 text-xs rounded-lg bg-card/80 border border-accent/40 text-text placeholder:text-text-subtle focus:outline-none focus:border-accent"
+              />
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!otrosQuery.trim() || loading}
+                className="h-8 px-3 text-xs bg-accent text-bg hover:bg-accent-hover font-semibold shrink-0"
+              >
+                Buscar
+              </Button>
+            </form>
           )}
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => fetchNews()}
-            disabled={loading}
-            className="h-8 px-2.5 text-xs text-text-muted hover:text-accent"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
-            Actualizar Radar
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="flex items-center gap-1.5 text-[11px] font-mono text-text-muted">
+              <CalendarDays className="w-3.5 h-3.5 text-accent" />
+              <span>Fecha</span>
+              <input
+                type="date"
+                value={selectedDate}
+                max={todayLocal}
+                onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
+                className="px-2 py-1 text-xs rounded-lg bg-card/80 border border-border text-text focus:outline-none focus:border-accent [color-scheme:dark]"
+                aria-label="Fecha de las noticias"
+              />
+            </label>
+            {selectedDate !== todayLocal && (
+              <button
+                type="button"
+                onClick={() => setSelectedDate(todayLocal)}
+                className="text-[11px] font-mono text-accent hover:underline"
+              >
+                Volver a hoy
+              </button>
+            )}
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => fetchNews()}
+              disabled={loading || (selectedCategory === OTROS_ID && !otrosQuery.trim())}
+              className="h-8 px-2.5 text-xs text-text-muted hover:text-accent"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
+              Actualizar Radar
+            </Button>
+          </div>
         </div>
 
         {composeError && (
