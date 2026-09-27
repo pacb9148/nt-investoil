@@ -19,7 +19,17 @@ export async function toggleSectionAction(
   id: string,
   isActive: boolean
 ): Promise<ContentActionResponse> {
-  await updateMemorySection(id, isActive);
+  // updateMemorySection ahora lanza si PostgreSQL rechaza el guardado (antes fingía éxito); el
+  // interruptor del admin necesita un objeto de respuesta, nunca una excepción sin capturar, para
+  // poder revertirse visualmente si el guardado real falló.
+  try {
+    await updateMemorySection(id, isActive);
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'No se pudo guardar el cambio de visibilidad.',
+    };
+  }
 
   if (isSupabaseConfigured()) {
     try {

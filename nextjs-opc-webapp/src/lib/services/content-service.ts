@@ -128,22 +128,35 @@ let memoryAppearance = readLocalJson<LandingAppearanceConfig>('appearance.json',
 // ==============================================================================
 // «Actualidad» se separó de «Catálogo de Servicios» (antes compartían una sola sección mal
 // etiquetada): a lo ya guardado en la base se le devuelve el título real de Servicios y, si falta,
-// se añade la nueva sección Actualidad justo después — sin esto, las instalaciones que ya tenían
+// se añade la nueva sección Actualidad justo antes — sin esto, las instalaciones que ya tenían
 // las secciones guardadas se quedarían sin el interruptor de Actualidad hasta guardar a mano.
+// Además, si ambas ya existen pero en el orden antiguo (Servicios antes que Actualidad), se
+// reordenan: Actualidad va siempre inmediatamente antes de Servicios.
 function normalizeLegacySections(list: LandingSectionConfig[]): LandingSectionConfig[] {
-  const fixed = list.map((sec) =>
+  let fixed = list.map((sec) =>
     sec.id === 'services' && sec.title === 'Actualidad'
       ? { ...sec, title: 'Catálogo de Servicios', description: '10 servicios integrales de comercialización y trading' }
       : sec
   );
-  if (fixed.some((sec) => sec.id === 'actualidad')) return fixed;
 
-  const servicesIdx = fixed.findIndex((sec) => sec.id === 'services');
-  const actualidadDefault = DEFAULT_LANDING_SECTIONS.find((sec) => sec.id === 'actualidad')!;
-  const insertAt = servicesIdx === -1 ? fixed.length : servicesIdx + 1;
-  const withActualidad = [...fixed];
-  withActualidad.splice(insertAt, 0, actualidadDefault);
-  return withActualidad.map((sec, i) => ({ ...sec, sort_order: i + 1 }));
+  if (!fixed.some((sec) => sec.id === 'actualidad')) {
+    const servicesIdx = fixed.findIndex((sec) => sec.id === 'services');
+    const actualidadDefault = DEFAULT_LANDING_SECTIONS.find((sec) => sec.id === 'actualidad')!;
+    const insertAt = servicesIdx === -1 ? fixed.length : servicesIdx;
+    fixed = [...fixed];
+    fixed.splice(insertAt, 0, actualidadDefault);
+  }
+
+  const actIdx = fixed.findIndex((sec) => sec.id === 'actualidad');
+  const svcIdx = fixed.findIndex((sec) => sec.id === 'services');
+  if (actIdx !== -1 && svcIdx !== -1 && actIdx > svcIdx) {
+    const reordered = [...fixed];
+    const [actualidad] = reordered.splice(actIdx, 1);
+    reordered.splice(svcIdx, 0, actualidad);
+    fixed = reordered;
+  }
+
+  return fixed.map((sec, i) => ({ ...sec, sort_order: i + 1 }));
 }
 
 export async function getLandingSections(): Promise<LandingSectionConfig[]> {
@@ -687,7 +700,7 @@ export async function updateMemoryHero(data: Partial<LandingHeroConfig>) {
           memoryHero.cta_secondary_text_en || null,
           memoryHero.cta_secondary_url || '#products',
           memoryHero.hero_bg_type || 'video',
-          memoryHero.hero_bg_type === 'video' ? memoryHero.hero_bg_url : '/videos/hero-background.mp4',
+          memoryHero.hero_bg_type === 'video' ? memoryHero.hero_bg_url : null,
           memoryHero.hero_bg_type === 'image' ? memoryHero.hero_bg_url : null,
           memoryHero.hero_bg_opacity ?? 45,
           memoryHero.hero_card?.logo_url ? 'trading_seal' : 'stats',

@@ -43,7 +43,11 @@ export function DashboardTopbar({
       </div>
 
       {/* Right controls */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        {/* Slot donde cada página de contenido inyecta (por portal) su selector de idioma y su botón
+            de guardar, para que queden en la misma barra que la identidad del usuario conectado. */}
+        <div id="admin-topbar-actions" className="flex items-center gap-2.5 flex-wrap justify-end" />
+
         {/* User Badge */}
         <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg border border-border bg-card text-xs">
           <div className="w-6 h-6 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-accent">

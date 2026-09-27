@@ -62,11 +62,11 @@ export default async function HomePage() {
       {/* 3. Retos del Sector (El Problema) */}
       {isVisible('problema') && <ProblemSection customBg={secBg.problema} />}
 
-      {/* 4. Catálogo de Servicios */}
-      {isVisible('services') && <ServicesSection customBg={secBg.services} />}
-
-      {/* 5. Actualidad: últimas publicaciones del blog */}
+      {/* 4. Actualidad: últimas publicaciones del blog */}
       {isVisible('actualidad') && <NewsSection customBg={secBg.actualidad} />}
+
+      {/* 5. Catálogo de Servicios */}
+      {isVisible('services') && <ServicesSection customBg={secBg.services} />}
 
       {/* 6. Portafolio de Hidrocarburos */}
       {isVisible('products') && <ProductsSection customBg={secBg.products} />}

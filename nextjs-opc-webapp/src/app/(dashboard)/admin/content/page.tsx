@@ -68,18 +68,18 @@ const SECTIONS_MODULES: ContentCardItem[] = [
     desc: '3 tarjetas de desafíos de la intermediación no regulada, volatilidad de fletes y disrupciones globales.',
   },
   {
-    href: '/admin/content/services',
-    label: '04. Catálogo de Servicios',
-    badge: 'Sección 04',
-    icon: Zap,
-    desc: '10 soluciones integrales: comercialización, fletamento marítimo, blending, almacenamiento y derivados.',
-  },
-  {
     href: '/admin/content/actualidad',
-    label: '05. Actualidad (Blog)',
-    badge: 'Sección 05',
+    label: '04. Actualidad (Blog)',
+    badge: 'Sección 04',
     icon: Newspaper,
     desc: 'Últimas publicaciones del blog y análisis de mercado, con control de número de tarjetas mostradas.',
+  },
+  {
+    href: '/admin/content/services',
+    label: '05. Catálogo de Servicios',
+    badge: 'Sección 05',
+    icon: Zap,
+    desc: '10 soluciones integrales: comercialización, fletamento marítimo, blending, almacenamiento y derivados.',
   },
   {
     href: '/admin/content/products',

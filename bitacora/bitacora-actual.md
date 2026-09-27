@@ -89,3 +89,12 @@ Ahora quiero que modifiques la interfase para toda la plataforma:
 4. La sección de "catalogo de servicios", se utilizó para mostrar la sección de "Actualidad (Blog)", sepáralas y crea una sección independiente para Actualidad, reordénalas todas quedando 4. catalogo de servicios, 5. Actualidad ... y consecutivamente las demás. Agrega el botón de "Actualidad" en la lista de "Visibilidad y Control Activo de Secciones". En la sección de actualidad los contoles de despliegue, para presentar las tarjetas de 1 a 12 tarjetas, manteniendo siempre la alineación estéticamente es decir si son 5 en la primera fila 3 y en la segunda fila 2 distribuyendo el espacio para que las 2 tarjetas no rompan la armonía visual.
 5. En el backoffice, la identificación y logo debe ser la misma de Cabecera, Logotipo & Menú Principal "Logotipo e Identidad de Marca" para mantener consistencia.
 6. Confirma que entiendes todas las instrucciones, analiza, planifica e implementa, al finalizar +dap
+
+## 2026-09-27 19:49:23
+
+1. Actualidad debe estar de 4ta en el orden de aparición en la landing y servicios de 5to las demás siguen el orden correlativo.
+2. El video que estás viendo (el de ondas doradas) en el hero en este momento lo eliminé yo de la biblioteca, de donde lo estás sacando ahora? Hay información remanente (basura) aun en los json?
+3. puedes reducir el boton de idiomas a solo "ES | EN" para ocupar menos espacio, igualmente se entiende, aplica esto a toda la plataforma.
+4. Recuerda que los botones de idioma y guardar van en la barra donde aparece la identidad del usuario conectato al backoffice.
+5. Verifica que los botones de activar/desactivar las secciones funcionen correctamente
+6. Al finalizar +dap

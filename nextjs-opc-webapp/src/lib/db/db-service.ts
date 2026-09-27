@@ -927,7 +927,71 @@ export async function deleteMediaItem(idOrIdentifier: string): Promise<boolean> 
     } catch {}
   }
 
+  // 6. Limpiar la referencia en las secciones de la landing (Hero, Cabecera, Servicios, etc.):
+  // borrar el archivo aquí NO tocaba antes lo que ya tenían guardado esos formularios, así que un
+  // video o imagen borrado seguía "configurado" (y a veces seguía cargando desde caché) hasta que
+  // alguien lo quitaba a mano en el admin correspondiente.
+  await clearMediaReferencesInSections(targetUrls, targetFilenames);
+
   return true;
+}
+
+/**
+ * Recorre todo el contenido guardado en `landing_sections` (Hero, Cabecera, Retos, Servicios,
+ * Actualidad, Productos, Operaciones, Equipo, Testimonios, FAQ...) y vacía cualquier campo de texto
+ * que apunte exactamente al archivo borrado, sin necesidad de conocer de antemano el nombre del
+ * campo en cada sección.
+ */
+async function clearMediaReferencesInSections(targetUrls: Set<string>, targetFilenames: Set<string>): Promise<void> {
+  if (!hasPostgresDb()) return;
+  if (targetUrls.size === 0 && targetFilenames.size === 0) return;
+
+  const matchesTarget = (value: string): boolean => {
+    if (targetUrls.has(value)) return true;
+    const base = path.basename(value.split('?')[0]);
+    return targetFilenames.has(base);
+  };
+
+  const scrub = (value: unknown): { value: unknown; changed: boolean } => {
+    if (typeof value === 'string') {
+      return matchesTarget(value) ? { value: '', changed: true } : { value, changed: false };
+    }
+    if (Array.isArray(value)) {
+      let changed = false;
+      const next = value.map((item) => {
+        const r = scrub(item);
+        if (r.changed) changed = true;
+        return r.value;
+      });
+      return { value: next, changed };
+    }
+    if (value && typeof value === 'object') {
+      let changed = false;
+      const next: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+        const r = scrub(v);
+        if (r.changed) changed = true;
+        next[k] = r.value;
+      }
+      return { value: next, changed };
+    }
+    return { value, changed: false };
+  };
+
+  try {
+    const res = await queryPg('SELECT id, content FROM landing_sections');
+    if (!res) return;
+    for (const row of res.rows) {
+      const { value, changed } = scrub(row.content);
+      if (!changed) continue;
+      await queryPg(
+        `UPDATE landing_sections SET content = $2, updated_at = NOW() WHERE id = $1`,
+        [row.id, JSON.stringify(value)]
+      );
+    }
+  } catch (e) {
+    console.warn('[db-service] Error limpiando referencias de medios en landing_sections:', e);
+  }
 }
 
 // Tablas de contenido que pueden apuntar a un archivo de la biblioteca (lista fija: nunca viene del cliente).

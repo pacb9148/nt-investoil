@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
-import { Save, Loader2, CheckCircle2, AlertCircle, Languages } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Save, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type EditLang = 'es' | 'en';
@@ -16,14 +17,16 @@ export interface AdminEditorToolbarProps {
   saveLabel?: string;
   savingLabel?: string;
   savedLabel?: string;
-  /** Contenido extra a la izquierda del selector de idioma (p.ej. un botón «Añadir»). */
+  /** Contenido extra (p.ej. un botón «Añadir») que se muestra dentro de la página, no en la topbar. */
   extraActions?: React.ReactNode;
 }
 
+const TOPBAR_SLOT_ID = 'admin-topbar-actions';
+
 /**
- * Barra fija (idioma de edición + guardar) para todos los formularios de contenido del backoffice:
- * se queda visible al hacer scroll, así el operador nunca pierde de vista con qué idioma está
- * trabajando ni tiene que bajar hasta el final para guardar.
+ * Selector de idioma de edición + botón de guardar para todos los formularios de contenido del
+ * backoffice. En vez de una barra propia, se inyecta por portal en la topbar fija (junto a la
+ * identidad del usuario conectado) para que quede siempre visible sin duplicar barras al hacer scroll.
  */
 export function AdminEditorToolbar({
   langTab,
@@ -37,68 +40,78 @@ export function AdminEditorToolbar({
   savedLabel = '¡Guardado!',
   extraActions,
 }: AdminEditorToolbarProps) {
-  return (
-    <div className="sticky top-0 z-30 -mx-4 md:-mx-8 px-4 md:px-8 py-3 bg-bg/95 backdrop-blur-md border-b border-border shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 flex-wrap">{extraActions}</div>
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
 
-        <div className="flex items-center gap-2.5 ml-auto">
-          {error && (
-            <span className="hidden lg:flex items-center gap-1.5 text-[11px] text-rose-400 font-mono max-w-xs truncate" title={error}>
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              {error}
-            </span>
+  useEffect(() => {
+    setSlot(document.getElementById(TOPBAR_SLOT_ID));
+  }, []);
+
+  const actions = (
+    <>
+      {error && (
+        <span
+          className="hidden lg:flex items-center gap-1.5 text-[11px] text-rose-400 font-mono max-w-[220px] truncate"
+          title={error}
+        >
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+          {error}
+        </span>
+      )}
+
+      <div className="inline-flex items-center rounded-lg border border-border bg-card p-0.5 text-xs font-mono font-bold">
+        <button
+          type="button"
+          onClick={() => onLangChange('es')}
+          className={cn(
+            'px-2.5 py-1.5 rounded transition-all',
+            langTab === 'es' ? 'bg-accent text-bg shadow-sm' : 'text-text-muted hover:text-text'
           )}
-
-          <div className="inline-flex items-center rounded-lg border border-border bg-card p-1 text-xs font-mono">
-            <Languages className="w-3.5 h-3.5 text-accent mx-1.5 shrink-0" />
-            <button
-              type="button"
-              onClick={() => onLangChange('es')}
-              className={cn(
-                'px-3 py-1.5 rounded font-semibold transition-all',
-                langTab === 'es' ? 'bg-accent text-bg shadow-sm' : 'text-text-muted hover:text-text'
-              )}
-            >
-              Español (ES)
-            </button>
-            <button
-              type="button"
-              onClick={() => onLangChange('en')}
-              className={cn(
-                'px-3 py-1.5 rounded font-semibold transition-all',
-                langTab === 'en' ? 'bg-accent text-bg shadow-sm' : 'text-text-muted hover:text-text'
-              )}
-            >
-              English (EN)
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={onSave}
-            disabled={saving}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all disabled:opacity-50 shrink-0"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>{savingLabel}</span>
-              </>
-            ) : saved ? (
-              <>
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>{savedLabel}</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-3.5 h-3.5" />
-                <span>{saveLabel}</span>
-              </>
-            )}
-          </button>
-        </div>
+        >
+          ES
+        </button>
+        <span className="text-border">|</span>
+        <button
+          type="button"
+          onClick={() => onLangChange('en')}
+          className={cn(
+            'px-2.5 py-1.5 rounded transition-all',
+            langTab === 'en' ? 'bg-accent text-bg shadow-sm' : 'text-text-muted hover:text-text'
+          )}
+        >
+          EN
+        </button>
       </div>
-    </div>
+
+      <button
+        type="button"
+        onClick={onSave}
+        disabled={saving}
+        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all disabled:opacity-50 shrink-0"
+      >
+        {saving ? (
+          <>
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <span>{savingLabel}</span>
+          </>
+        ) : saved ? (
+          <>
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>{savedLabel}</span>
+          </>
+        ) : (
+          <>
+            <Save className="w-3.5 h-3.5" />
+            <span>{saveLabel}</span>
+          </>
+        )}
+      </button>
+    </>
+  );
+
+  return (
+    <>
+      {slot && createPortal(actions, slot)}
+      {extraActions && <div className="flex items-center gap-2 flex-wrap">{extraActions}</div>}
+    </>
   );
 }
