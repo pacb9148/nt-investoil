@@ -10,6 +10,11 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 
 ## 2. Hitos y Funcionalidades Desarrolladas
 
+### Fase 30: Favicon definitivo a partir del logo suministrado por el dueño
+1. El dueño entregó un paquete de favicon ya generado (`favicon.ico`, PNGs por tamaño, iconos Apple/Android) a partir del logotipo oficial (la gota con el equipo de bombeo y el óvalo "INVEST OIL LLC"). Se sustituyeron `public/favicon.ico` (ICO real, no el PNG mal etiquetado que había antes en origen), `public/images/branding/favicon.png` (32×32), `icon-192.png` (192×192, usado como apple-touch-icon) e `icon-512.png` (256×256, sin uso actual en el código salvo como activo de reserva).
+2. Cache-busting subido a `?v=3` en `layout.tsx` para que el navegador no siga sirviendo el favicon anterior.
+3. **Verificación**: `tsc --noEmit` y `npm run build` correctos, batería de seguridad aprobada. **Sin verificar visualmente en el navegador** (pestaña/marcador) ni en producción tras el despliegue, que hace el dueño manualmente.
+
 ### Fase 29: Likes y orden por fecha en la gestión de posts, y favicon a partir del logo
 1. **Gestión de posts** (`admin/posts/page.tsx`): nueva columna **Likes** (icono de corazón) entre Vistas y Fecha, y la cabecera **Fecha** es un botón que alterna el orden por fecha de publicación (`published_at`, o `created_at` si no la hay): descendente por defecto, ascendente al invertir, con flecha e `aria-sort`. Probado en local: 10-9-2026 → 25-9-2026 en ascendente y a la inversa.
 2. **Favicon**: se regeneró desde la gota con el equipo de bombeo del logo (recorte cuadrado sin la etiqueta de texto, ilegible a 16-32 px): `favicon.ico` (16/32/48/64), `favicon.png`, `icon-192.png` e `icon-512.png`; los enlaces del `<head>` llevan `?v=2` para saltarse la caché del navegador.

@@ -51,3 +51,8 @@ Hice un deploy manual para desplegar el ultimo commit, pero no está ninguno de 
 ## 2026-09-27 00:11:30
 
 Por ultimo, vamos a agregar donde se indica los likes, y que la lista se ordene por la fecha de publicación ascendente o descendente. Con esto terminamos. Al finalizar +dap y cerramos la sesión, muchas gracias eres excelente mi querido amigo
+
+## 2026-09-27 10:02:00
+
+@"C:\Users\pacb9\Documents\COSTAIN\BUSINESS\Rufino Villalobos\img\favicon.ico"
+Buenos dias, reemplaza el favicon del sitio por el que te adjunto y terminamos +dap
