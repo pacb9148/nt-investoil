@@ -68,3 +68,13 @@ Al finalizar +dap
 ## 2026-09-27 11:53:49
 
 ok +dap
+
+## 2026-09-27 13:11:44
+
+1. En la vista de la landing del blog, vamos a modificar lo señalado en la imagen, elimina lo que está en los recuadros rojos y coloca lo señalado en amarillo, el selector de categorías, visualización en lista, tarjetas y por fecha, el orden normal debe ser por fecha la fecha más actual de primera por defecto, según la fecha señalada en la imagen.
+2. A la sección nosotros dale el mismo formato del editor, reutiliza lo ya construido para no reconstruir innecesariamente.
+3. Al finalizar +dap
+
+## 2026-09-27 18:02:34
+
+continua

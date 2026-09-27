@@ -11,6 +11,7 @@ import { PostLikeButton } from '@/components/blog/post-like-button';
 import { formatDate } from '@/lib/utils';
 import { LABELS_EN } from '@/lib/i18n/content-en';
 import { getServerLanguage } from '@/lib/i18n/server-language';
+import { TiptapContent } from '@/components/blog/tiptap-content';
 import { type Post } from '@/types';
 
 export async function generateMetadata({
@@ -36,55 +37,6 @@ export async function generateMetadata({
       images: post.featured_image_url ? [post.featured_image_url] : [],
     },
   };
-}
-
-// Simple render for Tiptap JSON content nodes
-function renderTiptapNode(node: any, index: number): React.ReactNode {
-  if (!node) return null;
-
-  switch (node.type) {
-    case 'heading': {
-      const Level = (`h${node.attrs?.level || 2}`) as keyof JSX.IntrinsicElements;
-      return (
-        <Level key={index} className="font-heading font-bold text-text mt-8 mb-4 text-xl sm:text-2xl">
-          {node.content?.map(renderTiptapNode)}
-        </Level>
-      );
-    }
-    case 'paragraph': {
-      return (
-        <p key={index} className="text-text-muted leading-relaxed mb-5 text-sm sm:text-base">
-          {node.content?.map(renderTiptapNode)}
-        </p>
-      );
-    }
-    case 'text': {
-      let textContent: React.ReactNode = node.text;
-      if (node.marks) {
-        for (const mark of node.marks) {
-          if (mark.type === 'bold') textContent = <strong key={mark.type}>{textContent}</strong>;
-          if (mark.type === 'italic') textContent = <em key={mark.type}>{textContent}</em>;
-          if (mark.type === 'underline') textContent = <u key={mark.type}>{textContent}</u>;
-          if (mark.type === 'link') {
-            textContent = (
-              <a
-                key={mark.type}
-                href={mark.attrs?.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent underline hover:text-neon"
-              >
-                {textContent}
-              </a>
-            );
-          }
-        }
-      }
-      return textContent;
-    }
-    default:
-      return null;
-  }
 }
 
 export default async function BlogPostPage({
@@ -234,17 +186,16 @@ export default async function BlogPostPage({
 
       {/* Post Content */}
       <div className="prose prose-invert max-w-none pt-4">
-        {post.content?.content ? (
-          post.content.content.map(renderTiptapNode)
-        ) : typeof post.content === 'string' ? (
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
-        ) : (
-          <p className="text-text-muted leading-relaxed">
-            {isEn
-              ? 'Technical content and trading analysis prepared by the Invest Oil LLC team.'
-              : 'Contenido técnico y análisis de trading estructurado por el equipo de Invest Oil LLC.'}
-          </p>
-        )}
+        <TiptapContent
+          content={post.content}
+          fallback={
+            <p className="text-text-muted leading-relaxed">
+              {isEn
+                ? 'Technical content and trading analysis prepared by the Invest Oil LLC team.'
+                : 'Contenido técnico y análisis de trading estructurado por el equipo de Invest Oil LLC.'}
+            </p>
+          }
+        />
       </div>
 
       {/* Tarjeta de Atribución y Enlace Directo a la Fuente Original */}

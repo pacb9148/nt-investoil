@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { getLandingAbout } from '@/lib/services/content-service';
 import { getServerLanguage } from '@/lib/i18n/server-language';
 import { ABOUT_EN, ABOUT_ES_SEED } from '@/lib/i18n/about-en';
+import { TiptapContent } from '@/components/blog/tiptap-content';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -29,13 +30,23 @@ export default async function AboutPage() {
   const data = await getLandingAbout();
   const isEn = getServerLanguage() === 'en';
   // En inglés: campo `_en` del panel; si falta y el español es el texto original, la traducción incorporada.
-  const pick = (field: 'badge_text' | 'title' | 'slogan' | 'mission' | 'cta_text'): string => {
+  const pick = (field: 'badge_text' | 'title' | 'slogan' | 'cta_text'): string => {
     const es = String(data?.[field] ?? '');
     if (!isEn) return es;
     const own = data?.[`${field}_en`];
     if (typeof own === 'string' && own.trim()) return own;
     return es.startsWith(ABOUT_ES_SEED[field]) ? ABOUT_EN[field] : es;
   };
+  // La misión se edita con el mismo editor enriquecido del blog: puede ser un documento Tiptap
+  // (objeto) o, en contenido antiguo sin editar todavía, una cadena de texto plano.
+  const missionRaw = isEn ? data?.mission_en : data?.mission;
+  const missionContent =
+    missionRaw ||
+    (isEn && typeof data?.mission === 'string' && data.mission.startsWith(ABOUT_ES_SEED.mission)
+      ? ABOUT_EN.mission
+      : isEn
+      ? data?.mission
+      : undefined);
   const featuredImage = (data?.featured_image || '').trim();
 
   return (
@@ -51,9 +62,9 @@ export default async function AboutPage() {
             <p className="text-base text-text-muted leading-relaxed">
               {pick('slogan')}
             </p>
-            <p className="text-sm text-text-muted leading-relaxed">
-              {pick('mission')}
-            </p>
+            <div className="text-sm">
+              <TiptapContent content={missionContent} legacyClassName="text-text-muted leading-relaxed" />
+            </div>
             <div className="pt-2">
               <Button href={data?.cta_url || '/#contact'} variant="accent" size="lg" className="gap-2">
                 <span>{pick('cta_text') || (isEn ? 'Contact management' : 'Contactar con la dirección')}</span>

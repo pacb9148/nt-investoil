@@ -153,7 +153,9 @@ export async function getPosts(options?: {
   if (hasPostgresDb()) {
     try {
       await ensurePostsSeededOnce();
-      const res = await queryPg('SELECT * FROM posts ORDER BY created_at DESC');
+      // Por fecha de PUBLICACIÓN (no de creación en la base): un artículo redactado hoy con fecha
+      // histórica de enero debe listarse por esa fecha, no por cuándo se guardó en la base de datos.
+      const res = await queryPg('SELECT * FROM posts ORDER BY COALESCE(published_at, created_at) DESC');
       if (!res) {
         // Antes esto caía en silencio a «sin artículos»: el blog aparecía vacío sin explicación.
         throw new Error('No se pudo leer la tabla de artículos en PostgreSQL (revisa los logs del servidor).');
@@ -229,6 +231,9 @@ export async function getPosts(options?: {
 
   // Fallback a JSON solo si no hay conexión a PostgreSQL ni Supabase
   posts = readJsonFile<Post[]>('posts.json', BLOG_POSTS);
+  posts = [...posts].sort(
+    (a, b) => new Date(b.published_at || b.created_at || 0).getTime() - new Date(a.published_at || a.created_at || 0).getTime()
+  );
 
   // Filtrado en memoria
   if (options?.status && options.status !== 'all') {

@@ -19,6 +19,7 @@ import {
 import { cn } from '@/lib/utils';
 import { MediaPickerModal } from '@/components/admin/media-picker-modal';
 import { DeleteMediaFileButton } from '@/components/admin/delete-media-file-button';
+import { TiptapEditor } from '@/components/admin/tiptap-editor';
 
 const INPUT_STYLE =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2.5 text-xs text-text placeholder:text-text-subtle focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors';
@@ -287,11 +288,10 @@ export function AboutForm({ initialData }: { initialData: any }) {
             </div>
             <div>
               <label className={LABEL_STYLE}>Misión y Compromiso Normativo</label>
-              <textarea
-                rows={3}
-                value={data.mission || ''}
-                onChange={(e) => setData({ ...data, mission: e.target.value })}
-                className={cn(INPUT_STYLE, 'resize-y')}
+              <TiptapEditor
+                content={data.mission || ''}
+                onChange={(json) => setData({ ...data, mission: json })}
+                placeholder="Redacta la misión y el compromiso normativo de la compañía..."
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -346,11 +346,10 @@ export function AboutForm({ initialData }: { initialData: any }) {
             </div>
             <div>
               <label className={LABEL_STYLE}>Mission & Compliance (English)</label>
-              <textarea
-                rows={3}
-                value={data.mission_en || ''}
-                onChange={(e) => setData({ ...data, mission_en: e.target.value })}
-                className={cn(INPUT_STYLE, 'resize-y')}
+              <TiptapEditor
+                content={data.mission_en || ''}
+                onChange={(json) => setData({ ...data, mission_en: json })}
+                placeholder="Write the company's mission and regulatory commitment..."
               />
             </div>
             <div>
