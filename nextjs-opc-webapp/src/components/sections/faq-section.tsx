@@ -6,12 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { FAQ_EN, localized } from '@/lib/i18n/content-en';
-
-interface FaqItem {
-  id: string;
-  question: string;
-  answer: string;
-}
+import type { FaqItem } from '@/types';
 
 const DEFAULT_FAQS: FaqItem[] = [
   {

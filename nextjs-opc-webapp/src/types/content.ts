@@ -15,6 +15,7 @@ export interface SectionBackgroundColors {
   marquee?: string;
   problema?: string;
   services?: string;
+  actualidad?: string;
   products?: string;
   plataforma?: string;
   team?: string;

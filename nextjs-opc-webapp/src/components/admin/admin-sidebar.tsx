@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -30,9 +30,12 @@ import {
   Star,
   Award,
   Cpu,
+  Newspaper,
 } from 'lucide-react';
 import { BrandLogo } from '@/components/layout/brand-logo';
 import { cn } from '@/lib/utils';
+import type { HeaderData } from '@/components/admin/content/header-form';
+import { DEFAULT_HEADER_DATA } from '@/lib/constants/header-defaults';
 
 interface NavItem {
   href: string;
@@ -54,14 +57,15 @@ const SECTIONS_NAV: NavItem[] = [
   { href: '/admin/content/hero', label: '01. Hero Principal & Tarjeta', icon: Sparkles },
   { href: '/admin/content/marquee', label: '02. Marquesina Doble (Precios)', icon: Sliders },
   { href: '/admin/content/problema', label: '03. Retos del Sector (Problema)', icon: Flame },
-  { href: '/admin/content/services', label: '04. Actualidad (Blog)', icon: Zap },
-  { href: '/admin/content/products', label: '05. Portafolio Hidrocarburos', icon: DollarSign },
-  { href: '/admin/content/plataforma', label: '06. Operaciones & Infraestructura', icon: Building2 },
-  { href: '/admin/content/team', label: '07. Consejo Directivo (Equipo)', icon: Users },
-  { href: '/admin/content/testimonials', label: '08. Testimonios & Clientes', icon: Star },
-  { href: '/admin/content/faq-editor', label: '09. Preguntas Frecuentes (FAQ)', icon: HelpCircle },
-  { href: '/admin/content/contact', label: '10. Formulario de Contacto', icon: Mail },
-  { href: '/admin/content/cta-final', label: '11. CTA Final de Cierre', icon: Award },
+  { href: '/admin/content/services', label: '04. Catálogo de Servicios', icon: Zap },
+  { href: '/admin/content/actualidad', label: '05. Actualidad (Blog)', icon: Newspaper },
+  { href: '/admin/content/products', label: '06. Portafolio Hidrocarburos', icon: DollarSign },
+  { href: '/admin/content/plataforma', label: '07. Operaciones & Infraestructura', icon: Building2 },
+  { href: '/admin/content/team', label: '08. Consejo Directivo (Equipo)', icon: Users },
+  { href: '/admin/content/testimonials', label: '09. Testimonios & Clientes', icon: Star },
+  { href: '/admin/content/faq-editor', label: '10. Preguntas Frecuentes (FAQ)', icon: HelpCircle },
+  { href: '/admin/content/contact', label: '11. Formulario de Contacto', icon: Mail },
+  { href: '/admin/content/cta-final', label: '12. CTA Final de Cierre', icon: Award },
 ];
 
 const PAGES_NAV: NavItem[] = [
@@ -73,6 +77,18 @@ export function AdminSidebar() {
   const pathname = usePathname();
   // Todos los menús inician cerrados por defecto según directiva de UX
   const [openSection, setOpenSection] = useState<string | null>(null);
+  // Misma fuente que el Header público: sin esto el backoffice mostraba siempre el logo por defecto
+  // aunque el dueño hubiera configurado otro en Cabecera, Logotipo & Menú Principal.
+  const [headerConfig, setHeaderConfig] = useState<HeaderData>(DEFAULT_HEADER_DATA);
+
+  useEffect(() => {
+    fetch('/api/content/header')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.logo_url !== undefined) setHeaderConfig(data);
+      })
+      .catch(() => {});
+  }, []);
 
   const toggleSection = (id: string) => {
     setOpenSection((prev) => (prev === id ? null : id));
@@ -84,7 +100,12 @@ export function AdminSidebar() {
       <div className="flex-1 overflow-y-auto p-4 space-y-5 scrollbar-thin scrollbar-thumb-border">
         {/* Brand header */}
         <div className="pb-3 border-b border-border/80">
-          <BrandLogo variant="seal" size={38} />
+          <BrandLogo
+            size={38}
+            src={headerConfig.logo_url}
+            customTitle={headerConfig.logo_text}
+            customSubtitle={headerConfig.logo_tagline}
+          />
           <div className="mt-1.5 text-[10px] font-mono uppercase text-accent tracking-wider font-semibold">
             Panel Administrativo
           </div>

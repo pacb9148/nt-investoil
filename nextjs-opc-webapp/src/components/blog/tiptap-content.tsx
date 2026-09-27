@@ -53,6 +53,20 @@ export function renderTiptapNode(node: any, index: number): React.ReactNode {
   }
 }
 
+/** Texto plano de un documento Tiptap, cadena de texto o HTML heredado; para recortes y metadatos. */
+export function tiptapToPlainText(content: any): string {
+  if (!content) return '';
+  if (typeof content === 'string') return content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const walk = (node: any): string => {
+    if (!node) return '';
+    if (node.type === 'text') return node.text || '';
+    if (Array.isArray(node.content)) return node.content.map(walk).join(node.type === 'paragraph' || node.type === 'heading' ? ' ' : '');
+    return '';
+  };
+  const nodes = content.content || [];
+  return nodes.map(walk).join(' ').replace(/\s+/g, ' ').trim();
+}
+
 export interface TiptapContentProps {
   /** Documento JSON de Tiptap (`{type:'doc', content:[...]}`), HTML/texto heredado, o vacío. */
   content: any;

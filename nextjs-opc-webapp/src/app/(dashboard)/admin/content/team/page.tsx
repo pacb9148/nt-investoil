@@ -4,17 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { TEAM_MEMBERS } from '@/lib/constants/investoil';
 import type { TeamMember } from '@/types';
-import {
-  ArrowLeft,
-  Save,
-  CheckCircle2,
-  Plus,
-  Trash2,
-  User,
-  Loader2,
-} from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import { MediaUploadField } from '@/components/admin/media-upload-field';
 import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
+import { AdminEditorToolbar, type EditLang } from '@/components/admin/content/admin-editor-toolbar';
 
 const INPUT =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2 text-xs text-text focus:outline-none focus:border-accent transition-colors';
@@ -26,6 +19,7 @@ export default function TeamEditorPage() {
   const [fetching, setFetching] = useState(true);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [langTab, setLangTab] = useState<EditLang>('es');
 
   useEffect(() => {
     // Cargar directamente desde la API (Base de datos real)
@@ -77,8 +71,7 @@ export default function TeamEditorPage() {
     setTeam((prev) => prev.filter((m) => m.id !== id));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async () => {
     setLoading(true);
     setSaveError(null);
     setSaved(false);
@@ -112,38 +105,47 @@ export default function TeamEditorPage() {
     }
   };
 
+  const roleField = langTab === 'es' ? 'role' : 'role_en';
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-36">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
-        <div>
-          <Link
-            href="/admin/content"
-            className="inline-flex items-center gap-1 text-xs text-text-subtle hover:text-accent font-mono transition-colors mb-1"
+      <AdminEditorToolbar
+        langTab={langTab}
+        onLangChange={setLangTab}
+        onSave={handleSave}
+        saving={loading}
+        saved={saved}
+        error={saveError}
+        saveLabel="Guardar Cambios del Equipo"
+        extraActions={
+          <button
+            type="button"
+            onClick={addMember}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-bold transition-all shadow-sm"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Volver a Contenido</span>
-          </Link>
-          <h1 className="text-2xl font-bold tracking-tight text-text">
-            Consejo Directivo y Dirección Ejecutiva
-          </h1>
-          <p className="mt-1 text-xs text-text-muted">
-            Gestiona los directivos, añade o elimina perfiles y selecciona o sube las fotografías oficiales.
-          </p>
-        </div>
+            <Plus className="w-4 h-4" />
+            <span>Añadir Directivo</span>
+          </button>
+        }
+      />
 
-        <button
-          type="button"
-          onClick={addMember}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-bold transition-all self-start sm:self-auto shadow-sm"
+      <div>
+        <Link
+          href="/admin/content"
+          className="inline-flex items-center gap-1 text-xs text-text-subtle hover:text-accent font-mono transition-colors mb-1"
         >
-          <Plus className="w-4 h-4" />
-          <span>Añadir Directivo</span>
-        </button>
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Volver a Contenido</span>
+        </Link>
+        <h1 className="text-2xl font-bold tracking-tight text-text">Consejo Directivo y Dirección Ejecutiva</h1>
+        <p className="mt-1 text-xs text-text-muted">
+          Gestiona los directivos, añade o elimina perfiles y selecciona o sube las fotografías oficiales.
+        </p>
       </div>
 
       <SectionDesignBar sectionId="team" sectionName="Equipo Directivo" />
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="space-y-5">
         {team.map((m: TeamMember, idx: number) => (
           <div key={m.id} className="rounded-xl border border-border bg-surf/50 p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-border/60 pb-3">
@@ -179,14 +181,14 @@ export default function TeamEditorPage() {
                   />
                 </div>
                 <div>
-                  <label className={LABEL}>Cargo Directivo</label>
+                  <label className={LABEL}>Cargo Directivo ({langTab.toUpperCase()})</label>
                   <input
                     type="text"
-                    value={m.role}
-                    onChange={(e) => updateMember(m.id, 'role', e.target.value)}
+                    value={(m[roleField] as string) || ''}
+                    onChange={(e) => updateMember(m.id, roleField, e.target.value)}
                     className={INPUT}
-                    placeholder="ej. Director General & Trading Head"
-                    required
+                    placeholder={langTab === 'es' ? 'ej. Director General & Trading Head' : 'e.g. CEO & Trading Head'}
+                    required={langTab === 'es'}
                   />
                 </div>
               </div>
@@ -232,35 +234,15 @@ export default function TeamEditorPage() {
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2">
-          <button
-            type="button"
-            onClick={addMember}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-card border border-border text-xs font-semibold text-text hover:text-accent hover:border-accent/40 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5 text-accent" />
-            <span>+ Añadir otro miembro</span>
-          </button>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all disabled:opacity-50"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Guardando cambios...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                <span>Guardar Cambios del Equipo</span>
-              </>
-            )}
-          </button>
-        </div>
-      </form>
+        <button
+          type="button"
+          onClick={addMember}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-card border border-border text-xs font-semibold text-text hover:text-accent hover:border-accent/40 transition-colors"
+        >
+          <Plus className="w-3.5 h-3.5 text-accent" />
+          <span>+ Añadir otro miembro</span>
+        </button>
+      </div>
     </div>
   );
 }

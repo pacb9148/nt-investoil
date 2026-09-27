@@ -173,14 +173,16 @@ export function TiptapEditor({
     },
   });
 
-  // Sincronizar contenido cuando cambie externamente (Agente de noticias, scraper o carga de post)
+  // Sincronizar contenido cuando cambie externamente (Agente de noticias, scraper, carga de post, o
+  // cambio del selector de idioma ES/EN): el guard original exigía `content` con valor, así que un
+  // campo _en todavía vacío se quedaba mostrando el texto en español que había antes del cambio de pestaña.
   useEffect(() => {
-    if (editor && content) {
-      const currentJson = JSON.stringify(editor.getJSON());
-      const newJson = typeof content === 'string' ? content : JSON.stringify(content);
-      if (currentJson !== newJson) {
-        editor.commands.setContent(content);
-      }
+    if (!editor) return;
+    const safeContent = content || '';
+    const currentJson = JSON.stringify(editor.getJSON());
+    const newJson = typeof safeContent === 'string' ? safeContent : JSON.stringify(safeContent);
+    if (currentJson !== newJson) {
+      editor.commands.setContent(safeContent);
     }
   }, [content, editor]);
 

@@ -20,6 +20,7 @@ import {
   FileText,
   Palette,
   Search,
+  Newspaper,
 } from 'lucide-react';
 
 export const metadata = {
@@ -68,57 +69,64 @@ const SECTIONS_MODULES: ContentCardItem[] = [
   },
   {
     href: '/admin/content/services',
-    label: '04. Actualidad (Blog)',
+    label: '04. Catálogo de Servicios',
     badge: 'Sección 04',
     icon: Zap,
     desc: '10 soluciones integrales: comercialización, fletamento marítimo, blending, almacenamiento y derivados.',
   },
   {
-    href: '/admin/content/products',
-    label: '05. Portafolio de Hidrocarburos',
+    href: '/admin/content/actualidad',
+    label: '05. Actualidad (Blog)',
     badge: 'Sección 05',
+    icon: Newspaper,
+    desc: 'Últimas publicaciones del blog y análisis de mercado, con control de número de tarjetas mostradas.',
+  },
+  {
+    href: '/admin/content/products',
+    label: '06. Portafolio de Hidrocarburos',
+    badge: 'Sección 06',
     icon: DollarSign,
     desc: 'Catálogo de crudos pesados/ligeros, Jet Fuel A1, Diesel EN590, Pet Coke, D2 y Gas Natural Licuado.',
   },
   {
     href: '/admin/content/plataforma',
-    label: '06. Operaciones & Infraestructura',
-    badge: 'Sección 06',
+    label: '07. Operaciones & Infraestructura',
+    badge: 'Sección 07',
     icon: Building2,
     desc: 'Terminales marítimas estratégicas, capacidad de almacenamiento y corredores logísticos globales.',
   },
   {
     href: '/admin/content/team',
-    label: '07. Consejo Directivo & Gobernanza',
-    badge: 'Sección 07',
+    label: '08. Consejo Directivo & Gobernanza',
+    badge: 'Sección 08',
     icon: Users,
     desc: 'Perfiles ejecutivos del consejo directivo, directores de trading, cumplimiento y gobernanza corporativa.',
   },
   {
     href: '/admin/content/testimonials',
-    label: '08. Testimonios & Clientes',
-    badge: 'Sección 08',
+    label: '09. Testimonios & Clientes',
+    badge: 'Sección 09',
     icon: Star,
     desc: 'Prueba social y cartas de satisfacción de refinerías, distribuidores independientes y socios comerciales.',
   },
   {
     href: '/admin/content/faq-editor',
-    label: '09. Preguntas Frecuentes (FAQ)',
-    badge: 'Sección 09',
+    label: '10. Preguntas Frecuentes (FAQ)',
+    badge: 'Sección 10',
     icon: HelpCircle,
     desc: 'Preguntas y respuestas operativas sobre contratos ICC, inspecciones SGS e Incoterms 2020.',
   },
   {
     href: '/admin/content/contact',
-    label: '10. Formulario de Contacto & Leads',
-    badge: 'Sección 10',
+    label: '11. Formulario de Contacto & Leads',
+    badge: 'Sección 11',
     icon: Mail,
     desc: 'Módulo de captación de consultas comerciales, ofertas de compra/venta y soporte al cliente.',
   },
   {
     href: '/admin/content/cta-final',
-    label: '11. CTA Final de Cierre Comercial',
-    badge: 'Sección 11',
+    label: '12. CTA Final de Cierre Comercial',
+    badge: 'Sección 12',
     icon: Award,
     desc: 'Sección de cierre comercial para apertura de cuentas y negociación de contratos a largo plazo.',
   },
@@ -253,7 +261,7 @@ export default async function ContentOverviewPage() {
             <Sparkles className="w-4 h-4" />
             <span>02. Secciones de la Landing Page (Orden 1:1 en Línea)</span>
           </h2>
-          <span className="text-[11px] text-text-subtle font-mono">11 secciones secuenciales</span>
+          <span className="text-[11px] text-text-subtle font-mono">12 secciones secuenciales</span>
         </div>
         {renderModuleGrid(SECTIONS_MODULES)}
       </section>

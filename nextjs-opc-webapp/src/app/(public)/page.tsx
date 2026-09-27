@@ -7,6 +7,7 @@ import {
 } from '@/lib/services/content-service';
 import { getTeamMembers } from '@/lib/db/db-service';
 import { HeroSection } from '@/components/sections/hero-section';
+import { ServicesSection } from '@/components/sections/services-section';
 import { NewsSection } from '@/components/sections/news-section';
 import { ProductsSection } from '@/components/sections/products-section';
 import { ProjectsSection } from '@/components/sections/projects-section';
@@ -61,25 +62,28 @@ export default async function HomePage() {
       {/* 3. Retos del Sector (El Problema) */}
       {isVisible('problema') && <ProblemSection customBg={secBg.problema} />}
 
-      {/* 4. Actualidad: últimas 6 publicaciones del blog */}
-      {isVisible('services') && <NewsSection customBg={secBg.services} />}
+      {/* 4. Catálogo de Servicios */}
+      {isVisible('services') && <ServicesSection customBg={secBg.services} />}
 
-      {/* 5. Portafolio de Hidrocarburos */}
+      {/* 5. Actualidad: últimas publicaciones del blog */}
+      {isVisible('actualidad') && <NewsSection customBg={secBg.actualidad} />}
+
+      {/* 6. Portafolio de Hidrocarburos */}
       {isVisible('products') && <ProductsSection customBg={secBg.products} />}
 
-      {/* 6. Operaciones & Infraestructura */}
+      {/* 7. Operaciones & Infraestructura */}
       {isVisible('plataforma') && <ProjectsSection customBg={secBg.plataforma} />}
 
-      {/* 7. Consejo Directivo */}
+      {/* 8. Consejo Directivo */}
       {isVisible('team') && <TeamSection customBg={secBg.team} initialMembers={teamMembers} />}
 
-      {/* 8. Testimonios */}
+      {/* 9. Testimonios */}
       {isVisible('testimonials') && <TestimonialsSection customBg={secBg.testimonials} />}
 
-      {/* 9. Preguntas Frecuentes (FAQ) */}
+      {/* 10. Preguntas Frecuentes (FAQ) */}
       {isVisible('faq') && <FaqSection customBg={secBg.faq} />}
 
-      {/* 10. Contacto Directo */}
+      {/* 11. Contacto Directo */}
       {isVisible('contact') && <ContactSection customBg={secBg.contact} />}
     </>
   );

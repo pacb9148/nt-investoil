@@ -203,3 +203,23 @@ export function localized<T extends object>(
   if (byKey) return byKey;
   return LABELS_EN[original] ?? original;
 }
+
+/**
+ * Igual que `localized`, pero para campos de texto enriquecido (documento Tiptap u objeto): nunca
+ * los convierte a cadena, para no imprimir «[object Object]» en pantalla.
+ */
+export function localizedRich<T extends object>(
+  item: T,
+  field: string,
+  isEn: boolean,
+  table?: Dict,
+  key?: string
+): unknown {
+  const original = (item as Record<string, unknown>)[field];
+  if (!isEn) return original;
+  const own = (item as Record<string, unknown>)[`${field}_en`];
+  if (own) return own;
+  const byKey = key && table ? table[key]?.[field] : undefined;
+  if (byKey) return byKey;
+  return original;
+}

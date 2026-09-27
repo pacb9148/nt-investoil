@@ -78,3 +78,14 @@ ok +dap
 ## 2026-09-27 18:02:34
 
 continua
+
+## 2026-09-27 18:32:10
+
+Ahora quiero que modifiques la interfase para toda la plataforma:
+
+1. el botón de cambio de idioma y el de guardar cambios quedan fijos como en la imagen, y la interfase de edición se muestra para el idioma seleccionado, todas las traducciones se guardan en la base de datos conectadas a los formularios de edición, sin excepción. Recuerda que todas las interfases en su totalidad se personalizan en su propio formulario en español e inglés por separado y activamente por el usuario del backoffice de la plataforma. Se que la plataforma ya muestra toda la información en español e inglés, pero que toda esa información se corresponda a sus formularios para que se pueda hacer mantenimiento, edición, corrección o ajustes al contenido de forma fácil.
+2. La sección "Retos del sector" adopta el diseño de la 1ra imagen adjunta, el formulario permite texto de mayo extensión, y con controles de formato por cada tarjeta de un problema agregada, así mismo en la visualización en la landing el publico ve un fragmento de 128 caracteres y punto suspensivo, y una etiqueta "ver mas..." activa que abre un pop donde se puede ver el contenido completo y en detalle de la información de la tarjeta. 
+3. el selector de color debe ser exacto como el diseño en la imagen adjunta.
+4. La sección de "catalogo de servicios", se utilizó para mostrar la sección de "Actualidad (Blog)", sepáralas y crea una sección independiente para Actualidad, reordénalas todas quedando 4. catalogo de servicios, 5. Actualidad ... y consecutivamente las demás. Agrega el botón de "Actualidad" en la lista de "Visibilidad y Control Activo de Secciones". En la sección de actualidad los contoles de despliegue, para presentar las tarjetas de 1 a 12 tarjetas, manteniendo siempre la alineación estéticamente es decir si son 5 en la primera fila 3 y en la segunda fila 2 distribuyendo el espacio para que las 2 tarjetas no rompan la armonía visual.
+5. En el backoffice, la identificación y logo debe ser la misma de Cabecera, Logotipo & Menú Principal "Logotipo e Identidad de Marca" para mantener consistencia.
+6. Confirma que entiendes todas las instrucciones, analiza, planifica e implementa, al finalizar +dap

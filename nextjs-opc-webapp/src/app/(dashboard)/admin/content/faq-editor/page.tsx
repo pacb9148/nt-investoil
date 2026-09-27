@@ -2,22 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  ArrowLeft,
-  Save,
-  Plus,
-  Trash2,
-  CheckCircle2,
-  Loader2,
-  HelpCircle,
-} from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
-
-interface FaqItem {
-  id: string;
-  question: string;
-  answer: string;
-}
+import { AdminEditorToolbar, type EditLang } from '@/components/admin/content/admin-editor-toolbar';
+import type { FaqItem } from '@/types';
 
 const INPUT =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2 text-xs text-text focus:outline-none focus:border-accent transition-colors';
@@ -27,40 +15,20 @@ export default function FaqEditorPage() {
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [langTab, setLangTab] = useState<EditLang>('es');
 
   useEffect(() => {
-    try {
-      const local = localStorage.getItem('investoil_faqs');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setFaqs(parsed);
-        }
-      }
-    } catch {}
-
     fetch('/api/content/faq')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setFaqs(data);
-          try {
-            localStorage.setItem('investoil_faqs', JSON.stringify(data));
-          } catch {}
-        }
+        if (Array.isArray(data) && data.length > 0) setFaqs(data);
       })
       .catch(() => {});
   }, []);
 
   const addFaq = () => {
-    setFaqs([
-      ...faqs,
-      {
-        id: `faq-${Date.now().toString().slice(-4)}`,
-        question: '',
-        answer: '',
-      },
-    ]);
+    setFaqs([...faqs, { id: `faq-${Date.now().toString().slice(-4)}`, question: '', answer: '' }]);
   };
 
   const removeFaq = (id: string) => {
@@ -71,78 +39,74 @@ export default function FaqEditorPage() {
     setFaqs(faqs.filter((f) => f.id !== id));
   };
 
-  const updateFaq = (id: string, field: 'question' | 'answer', value: string) => {
+  const updateFaq = (id: string, field: keyof FaqItem, value: string) => {
     setFaqs(faqs.map((f) => (f.id === id ? { ...f, [field]: value } : f)));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async () => {
     setLoading(true);
-
+    setError(null);
     try {
       const res = await fetch('/api/content/faq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(faqs),
       });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.faqs) setFaqs(data.faqs);
-      }
-
-      try {
-        localStorage.setItem('investoil_faqs', JSON.stringify(faqs));
-        window.dispatchEvent(new CustomEvent('investoil_faqs_updated', { detail: faqs }));
-      } catch {}
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || 'No se pudieron guardar las preguntas frecuentes.');
+      if (data.faqs) setFaqs(data.faqs);
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3500);
     } catch (err) {
-      console.error(err);
-      try {
-        localStorage.setItem('investoil_faqs', JSON.stringify(faqs));
-        window.dispatchEvent(new CustomEvent('investoil_faqs_updated', { detail: faqs }));
-      } catch {}
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3500);
+      setError(err instanceof Error ? err.message : 'Error al guardar');
     } finally {
       setLoading(false);
     }
   };
 
+  const questionField = langTab === 'es' ? 'question' : 'question_en';
+  const answerField = langTab === 'es' ? 'answer' : 'answer_en';
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-36">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
-        <div>
-          <Link
-            href="/admin/content"
-            className="inline-flex items-center gap-1 text-xs text-text-subtle hover:text-accent font-mono transition-colors mb-1"
+      <AdminEditorToolbar
+        langTab={langTab}
+        onLangChange={setLangTab}
+        onSave={handleSave}
+        saving={loading}
+        saved={saved}
+        error={error}
+        saveLabel="Guardar Cambios de FAQ"
+        extraActions={
+          <button
+            type="button"
+            onClick={addFaq}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-bold transition-all shadow-sm"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Volver a Contenido</span>
-          </Link>
-          <h1 className="text-2xl font-bold tracking-tight text-text">
-            Preguntas Frecuentes (FAQ)
-          </h1>
-          <p className="mt-1 text-xs text-text-muted">
-            Gestiona las preguntas y respuestas operativas y contractuales: añade nuevas consultas o elimina las existentes.
-          </p>
-        </div>
+            <Plus className="w-4 h-4" />
+            <span>Añadir Pregunta</span>
+          </button>
+        }
+      />
 
-        <button
-          type="button"
-          onClick={addFaq}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-bold transition-all self-start sm:self-auto shadow-sm"
+      <div>
+        <Link
+          href="/admin/content"
+          className="inline-flex items-center gap-1 text-xs text-text-subtle hover:text-accent font-mono transition-colors mb-1"
         >
-          <Plus className="w-4 h-4" />
-          <span>Añadir Pregunta</span>
-        </button>
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Volver a Contenido</span>
+        </Link>
+        <h1 className="text-2xl font-bold tracking-tight text-text">Preguntas Frecuentes (FAQ)</h1>
+        <p className="mt-1 text-xs text-text-muted">
+          Gestiona las preguntas y respuestas operativas y contractuales: añade nuevas consultas o elimina las existentes.
+        </p>
       </div>
 
       <SectionDesignBar sectionId="faq" sectionName="Preguntas Frecuentes (FAQ)" />
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-4">
         {faqs.map((faq, idx) => (
           <div key={faq.id} className="rounded-xl border border-border bg-surf/50 p-5 space-y-3">
             <div className="flex items-center justify-between border-b border-border/60 pb-2">
@@ -162,26 +126,26 @@ export default function FaqEditorPage() {
             </div>
 
             <div>
-              <label className={LABEL}>Pregunta Frecuente</label>
+              <label className={LABEL}>Pregunta Frecuente ({langTab.toUpperCase()})</label>
               <input
                 type="text"
-                value={faq.question}
-                onChange={(e) => updateFaq(faq.id, 'question', e.target.value)}
+                value={(faq[questionField] as string) || ''}
+                onChange={(e) => updateFaq(faq.id, questionField, e.target.value)}
                 className={INPUT}
-                placeholder="ej. ¿Cuáles son los procedimientos de compra...?"
-                required
+                placeholder={langTab === 'es' ? 'ej. ¿Cuáles son los procedimientos de compra...?' : 'e.g. What are the purchasing procedures...?'}
+                required={langTab === 'es'}
               />
             </div>
 
             <div>
-              <label className={LABEL}>Respuesta Operativa Detallada</label>
+              <label className={LABEL}>Respuesta Operativa Detallada ({langTab.toUpperCase()})</label>
               <textarea
                 rows={3}
-                value={faq.answer}
-                onChange={(e) => updateFaq(faq.id, 'answer', e.target.value)}
+                value={(faq[answerField] as string) || ''}
+                onChange={(e) => updateFaq(faq.id, answerField, e.target.value)}
                 className={INPUT}
-                placeholder="Detalla los términos, documentación requerida, Incoterms..."
-                required
+                placeholder={langTab === 'es' ? 'Detalla los términos, documentación requerida, Incoterms...' : 'Detail the terms, required documentation, Incoterms...'}
+                required={langTab === 'es'}
               />
             </div>
           </div>
@@ -194,35 +158,15 @@ export default function FaqEditorPage() {
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2">
-          <button
-            type="button"
-            onClick={addFaq}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-card border border-border text-xs font-semibold text-text hover:text-accent hover:border-accent/40 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5 text-accent" />
-            <span>+ Añadir otra pregunta</span>
-          </button>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all disabled:opacity-50"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Guardando...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                <span>Guardar Cambios de FAQ</span>
-              </>
-            )}
-          </button>
-        </div>
-      </form>
+        <button
+          type="button"
+          onClick={addFaq}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-card border border-border text-xs font-semibold text-text hover:text-accent hover:border-accent/40 transition-colors"
+        >
+          <Plus className="w-3.5 h-3.5 text-accent" />
+          <span>+ Añadir otra pregunta</span>
+        </button>
+      </div>
     </div>
   );
 }

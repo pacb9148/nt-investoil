@@ -2,24 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  ArrowLeft,
-  Save,
-  CheckCircle2,
-  Plus,
-  Trash2,
-  Loader2,
-  AlertTriangle,
-} from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
-
-interface ProblemItem {
-  id: string;
-  num: string;
-  title: string;
-  desc: string;
-  solution?: string;
-}
+import { AdminEditorToolbar, type EditLang } from '@/components/admin/content/admin-editor-toolbar';
+import { TiptapEditor } from '@/components/admin/tiptap-editor';
+import type { ProblemItem } from '@/types';
 
 const INPUT =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2 text-xs text-text focus:outline-none focus:border-accent transition-colors';
@@ -29,35 +16,20 @@ export default function ProblemaPage() {
   const [items, setItems] = useState<ProblemItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [langTab, setLangTab] = useState<EditLang>('es');
 
   useEffect(() => {
-    try {
-      const local = localStorage.getItem('investoil_problems');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setItems(parsed);
-        }
-      }
-    } catch {}
-
     fetch('/api/content/problem')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setItems(data);
-          try {
-            localStorage.setItem('investoil_problems', JSON.stringify(data));
-          } catch {}
-        }
+        if (Array.isArray(data) && data.length > 0) setItems(data);
       })
       .catch(() => {});
   }, []);
 
-  const updateItem = (index: number, field: keyof ProblemItem, val: string) => {
-    setItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: val } : item))
-    );
+  const updateItem = (index: number, field: keyof ProblemItem, val: any) => {
+    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, [field]: val } : item)));
   };
 
   const addItem = () => {
@@ -80,78 +52,72 @@ export default function ProblemaPage() {
     setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async () => {
     setLoading(true);
-
+    setError(null);
     try {
       const res = await fetch('/api/content/problem', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(items),
       });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.problems) setItems(data.problems);
-      }
-
-      try {
-        localStorage.setItem('investoil_problems', JSON.stringify(items));
-        window.dispatchEvent(new CustomEvent('investoil_problems_updated', { detail: items }));
-      } catch {}
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || 'No se pudieron guardar los retos.');
+      if (data.problems) setItems(data.problems);
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3500);
     } catch (err) {
-      console.error(err);
-      try {
-        localStorage.setItem('investoil_problems', JSON.stringify(items));
-        window.dispatchEvent(new CustomEvent('investoil_problems_updated', { detail: items }));
-      } catch {}
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3500);
+      setError(err instanceof Error ? err.message : 'Error al guardar');
     } finally {
       setLoading(false);
     }
   };
 
+  const titleField = langTab === 'es' ? 'title' : 'title_en';
+  const descField = langTab === 'es' ? 'desc' : 'desc_en';
+  const solutionField = langTab === 'es' ? 'solution' : 'solution_en';
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-36">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
-        <div>
-          <Link
-            href="/admin/content"
-            className="inline-flex items-center gap-1 text-xs text-text-subtle hover:text-accent font-mono transition-colors mb-1"
+      <AdminEditorToolbar
+        langTab={langTab}
+        onLangChange={setLangTab}
+        onSave={handleSave}
+        saving={loading}
+        saved={saved}
+        error={error}
+        saveLabel="Guardar Cambios de Retos"
+        extraActions={
+          <button
+            type="button"
+            onClick={addItem}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-bold transition-all shadow-sm"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Volver a Contenido</span>
-          </Link>
-          <h1 className="text-2xl font-bold tracking-tight text-text">
-            Retos del Sector Energético (El Problema)
-          </h1>
-          <p className="mt-1 text-xs text-text-muted">
-            Configura los desafíos y puntos de dolor que experimentan refinerías, fondos y distribuidores, y cómo Invest Oil los resuelve.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={addItem}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-bold transition-all self-start sm:self-auto shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Añadir Reto</span>
-        </button>
-      </div>
-
-      <SectionDesignBar
-        sectionId="problema"
-        sectionName="Retos del Sector Petrolero"
-        defaultBgColor="#07090e"
+            <Plus className="w-4 h-4" />
+            <span>Añadir Reto</span>
+          </button>
+        }
       />
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <Link
+          href="/admin/content"
+          className="inline-flex items-center gap-1 text-xs text-text-subtle hover:text-accent font-mono transition-colors mb-1"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Volver a Contenido</span>
+        </Link>
+        <h1 className="text-2xl font-bold tracking-tight text-text">Retos del Sector Energético (El Problema)</h1>
+        <p className="mt-1 text-xs text-text-muted">
+          Configura los desafíos y puntos de dolor que experimentan refinerías, fondos y distribuidores, y cómo Invest Oil
+          los resuelve. En la web pública se muestra un fragmento de 128 caracteres con «ver más» para el detalle completo.
+        </p>
+      </div>
+
+      <SectionDesignBar sectionId="problema" sectionName="Retos del Sector Petrolero" defaultBgColor="#07090e" />
+
+      <div className="space-y-5">
         {items.map((item, idx) => (
           <div key={item.id || idx} className="rounded-xl border border-border bg-surf/50 p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-border/60 pb-3">
@@ -184,38 +150,41 @@ export default function ProblemaPage() {
                   />
                 </div>
                 <div className="md:col-span-3">
-                  <label className={LABEL}>Titular del Desafío / Punto de Dolor</label>
+                  <label className={LABEL}>Titular del Desafío / Punto de Dolor ({langTab.toUpperCase()})</label>
                   <input
                     type="text"
-                    value={item.title}
-                    onChange={(e) => updateItem(idx, 'title', e.target.value)}
+                    value={(item[titleField] as string) || ''}
+                    onChange={(e) => updateItem(idx, titleField, e.target.value)}
                     className={INPUT}
-                    placeholder="ej. Intermediación Ineficiente..."
-                    required
+                    placeholder={langTab === 'es' ? 'ej. Intermediación Ineficiente...' : 'e.g. Inefficient Intermediation...'}
+                    required={langTab === 'es'}
                   />
                 </div>
               </div>
 
               <div>
-                <label className={LABEL}>Descripción del Problema en el Mercado</label>
-                <textarea
-                  rows={2}
-                  value={item.desc}
-                  onChange={(e) => updateItem(idx, 'desc', e.target.value)}
-                  className={INPUT}
-                  placeholder="Detalla el problema que sufren los actores del sector..."
-                  required
+                <label className={LABEL}>Descripción del Problema en el Mercado ({langTab.toUpperCase()})</label>
+                <TiptapEditor
+                  content={item[descField] || ''}
+                  onChange={(json) => updateItem(idx, descField, json)}
+                  placeholder={
+                    langTab === 'es'
+                      ? 'Detalla el problema que sufren los actores del sector...'
+                      : 'Detail the problem industry players face...'
+                  }
                 />
               </div>
 
               <div>
-                <label className={LABEL}>Solución Aportada por Invest Oil LLC</label>
-                <textarea
-                  rows={2}
-                  value={item.solution || ''}
-                  onChange={(e) => updateItem(idx, 'solution', e.target.value)}
-                  className={INPUT}
-                  placeholder="Cómo resolvemos este desafío con seguridad y trazabilidad..."
+                <label className={LABEL}>Solución Aportada por Invest Oil LLC ({langTab.toUpperCase()})</label>
+                <TiptapEditor
+                  content={item[solutionField] || ''}
+                  onChange={(json) => updateItem(idx, solutionField, json)}
+                  placeholder={
+                    langTab === 'es'
+                      ? 'Cómo resolvemos este desafío con seguridad y trazabilidad...'
+                      : 'How we solve this challenge with security and traceability...'
+                  }
                 />
               </div>
             </div>
@@ -229,35 +198,15 @@ export default function ProblemaPage() {
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2">
-          <button
-            type="button"
-            onClick={addItem}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-card border border-border text-xs font-semibold text-text hover:text-accent hover:border-accent/40 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5 text-accent" />
-            <span>+ Añadir otro reto</span>
-          </button>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all disabled:opacity-50"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Guardando...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                <span>Guardar Cambios de Retos</span>
-              </>
-            )}
-          </button>
-        </div>
-      </form>
+        <button
+          type="button"
+          onClick={addItem}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-card border border-border text-xs font-semibold text-text hover:text-accent hover:border-accent/40 transition-colors"
+        >
+          <Plus className="w-3.5 h-3.5 text-accent" />
+          <span>+ Añadir otro reto</span>
+        </button>
+      </div>
     </div>
   );
 }

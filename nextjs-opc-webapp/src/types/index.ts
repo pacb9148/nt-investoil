@@ -96,7 +96,9 @@ export interface ContactLead {
 export interface ServiceItem {
   code: string;
   title: string;
+  title_en?: string;
   description: string;
+  description_en?: string;
   iconName: string;
   tags: string[];
 }
@@ -104,12 +106,32 @@ export interface ServiceItem {
 export interface ProductItem {
   sku: string;
   title: string;
+  title_en?: string;
   description: string;
+  description_en?: string;
   specs: string;
+  specs_en?: string;
   market: string;
+  market_en?: string;
   availability: string;
+  availability_en?: string;
   category?: string;
+  category_en?: string;
   imageUrl?: string;
+}
+
+/** Documento Tiptap (JSON) o texto plano heredado; el mismo formato que usan los artículos del blog. */
+export type RichText = string | Record<string, unknown>;
+
+export interface ProblemItem {
+  id: string;
+  num: string;
+  title: string;
+  title_en?: string;
+  desc: RichText;
+  desc_en?: RichText;
+  solution?: RichText;
+  solution_en?: RichText;
 }
 
 export interface TeamMember {
@@ -130,20 +152,34 @@ export interface TeamMember {
 
 export interface FeaturedOperation {
   title: string;
+  title_en?: string;
   description: string;
+  description_en?: string;
   client: string;
+  client_en?: string;
   year: string;
   result: string;
+  result_en?: string;
 }
 
 export interface ClientTestimonial {
   id?: string;
   rating: number;
   text: string;
+  text_en?: string;
   name: string;
   role: string;
+  role_en?: string;
   avatar?: string;
   videoUrl?: string;
+}
+
+export interface FaqItem {
+  id: string;
+  question: string;
+  question_en?: string;
+  answer: string;
+  answer_en?: string;
 }
 
 export interface NewsRepublishMetadata {

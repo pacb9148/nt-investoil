@@ -15,34 +15,41 @@ export const DEFAULT_HEADER_DATA = {
     },
     {
       "id": "m-2",
+      "href": "/#services",
+      "label": "Servicios",
+      "label_en": "Services",
+      "is_active": true
+    },
+    {
+      "id": "m-3",
       "href": "/#actualidad",
       "label": "Actualidad",
       "label_en": "News",
       "is_active": true
     },
     {
-      "id": "m-3",
+      "id": "m-4",
       "href": "/#products",
       "label": "Productos",
       "label_en": "Products",
       "is_active": true
     },
     {
-      "id": "m-4",
+      "id": "m-5",
       "href": "/about",
       "label": "Nosotros",
       "label_en": "About Us",
       "is_active": true
     },
     {
-      "id": "m-5",
+      "id": "m-6",
       "href": "/blog",
       "label": "Blog & Mercado",
       "label_en": "Market News",
       "is_active": true
     },
     {
-      "id": "m-6",
+      "id": "m-7",
       "href": "/#contact",
       "label": "Contacto",
       "label_en": "Contact",

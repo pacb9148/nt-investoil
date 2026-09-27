@@ -90,15 +90,17 @@ export async function getSectionFromPg<T>(sectionId: string): Promise<T | null> 
 
 export async function saveSectionToPg(sectionId: string, content: any): Promise<void> {
   if (!hasPostgresDb()) return;
-  try {
-    await queryPg(
-      `INSERT INTO landing_sections (id, content, updated_at)
-       VALUES ($1, $2, NOW())
-       ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content, updated_at = NOW()`,
-      [sectionId, JSON.stringify(content)]
-    );
-  } catch (err) {
-    console.warn(`[content-service] Error saving ${sectionId} to pg:`, err);
+  // Antes tragaba el error y devolvía éxito igual: el admin veía «guardado» y el cambio nunca
+  // llegaba a la base. Todas las secciones genéricas (retos, productos, servicios, testimonios,
+  // operaciones, FAQ...) pasan por aquí, así que un fallo real debe llegar hasta el formulario.
+  const res = await queryPg(
+    `INSERT INTO landing_sections (id, content, updated_at)
+     VALUES ($1, $2, NOW())
+     ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content, updated_at = NOW()`,
+    [sectionId, JSON.stringify(content)]
+  );
+  if (!res) {
+    throw new Error(`No se pudo guardar la sección «${sectionId}» en PostgreSQL (revisa los logs del servidor).`);
   }
 }
 
@@ -124,13 +126,24 @@ let memoryAppearance = readLocalJson<LandingAppearanceConfig>('appearance.json',
 // ==============================================================================
 // 1. SECCIONES GENERALES
 // ==============================================================================
-// La sección «Servicios Petroleros» pasó a ser «Actualidad»: se corrige lo que ya estaba guardado en la base.
+// «Actualidad» se separó de «Catálogo de Servicios» (antes compartían una sola sección mal
+// etiquetada): a lo ya guardado en la base se le devuelve el título real de Servicios y, si falta,
+// se añade la nueva sección Actualidad justo después — sin esto, las instalaciones que ya tenían
+// las secciones guardadas se quedarían sin el interruptor de Actualidad hasta guardar a mano.
 function normalizeLegacySections(list: LandingSectionConfig[]): LandingSectionConfig[] {
-  return list.map((sec) =>
-    sec.id === 'services' && /servicios/i.test(sec.title)
-      ? { ...sec, title: 'Actualidad', description: 'Últimas 6 publicaciones del blog y análisis de mercado' }
+  const fixed = list.map((sec) =>
+    sec.id === 'services' && sec.title === 'Actualidad'
+      ? { ...sec, title: 'Catálogo de Servicios', description: '10 servicios integrales de comercialización y trading' }
       : sec
   );
+  if (fixed.some((sec) => sec.id === 'actualidad')) return fixed;
+
+  const servicesIdx = fixed.findIndex((sec) => sec.id === 'services');
+  const actualidadDefault = DEFAULT_LANDING_SECTIONS.find((sec) => sec.id === 'actualidad')!;
+  const insertAt = servicesIdx === -1 ? fixed.length : servicesIdx + 1;
+  const withActualidad = [...fixed];
+  withActualidad.splice(insertAt, 0, actualidadDefault);
+  return withActualidad.map((sec, i) => ({ ...sec, sort_order: i + 1 }));
 }
 
 export async function getLandingSections(): Promise<LandingSectionConfig[]> {
@@ -157,16 +170,8 @@ async function readLandingSections(): Promise<LandingSectionConfig[]> {
 // ==============================================================================
 // 2. HERO PRINCIPAL & TARJETA
 // ==============================================================================
-function normalizeLegacyHero(h: LandingHeroConfig): LandingHeroConfig {
-  const out = { ...h };
-  if (out.cta_primary_url === '#services') out.cta_primary_url = '#actualidad';
-  if (out.cta_primary_text === 'Explorar Servicios Petroleros') out.cta_primary_text = 'Ver Actualidad y Análisis';
-  if (out.cta_primary_text_en === 'Explore Petroleum Services') out.cta_primary_text_en = 'Latest News & Analysis';
-  return out;
-}
-
 export async function getLandingHero(): Promise<LandingHeroConfig> {
-  return normalizeLegacyHero(await readLandingHero());
+  return readLandingHero();
 }
 
 async function readLandingHero(): Promise<LandingHeroConfig> {
@@ -233,21 +238,8 @@ export async function getLandingAppearance(): Promise<LandingAppearanceConfig> {
 // ==============================================================================
 // 4. CABECERA & MENÚ (landing_header)
 // ==============================================================================
-// El menú guardado puede traer el enlace antiguo «Servicios» (#services): ahora es «Actualidad» (#actualidad).
-function normalizeLegacyHeader(h: any): any {
-  if (!h || !Array.isArray(h.menu_items)) return h;
-  return {
-    ...h,
-    menu_items: h.menu_items.map((m: any) =>
-      m && m.href === '/#services'
-        ? { ...m, href: '/#actualidad', label: m.label === 'Servicios' ? 'Actualidad' : m.label, label_en: m.label_en === 'Services' ? 'News' : m.label_en }
-        : m
-    ),
-  };
-}
-
 export async function getLandingHeader(): Promise<any> {
-  return normalizeLegacyHeader(await readLandingHeader());
+  return readLandingHeader();
 }
 
 async function readLandingHeader(): Promise<any> {

@@ -3,16 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { ServiceItem } from '@/types';
-import {
-  ArrowLeft,
-  Save,
-  CheckCircle2,
-  Plus,
-  Trash2,
-  Loader2,
-  Layers,
-} from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
+import { AdminEditorToolbar, type EditLang } from '@/components/admin/content/admin-editor-toolbar';
 
 const INPUT =
   'w-full rounded-lg bg-card/70 border border-border px-3.5 py-2 text-xs text-text focus:outline-none focus:border-accent transition-colors';
@@ -22,35 +15,20 @@ export default function ServicesEditorPage() {
   const [items, setItems] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [langTab, setLangTab] = useState<EditLang>('es');
 
   useEffect(() => {
-    try {
-      const local = localStorage.getItem('investoil_services');
-      if (local) {
-        const parsed = JSON.parse(local);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setItems(parsed);
-        }
-      }
-    } catch {}
-
     fetch('/api/content/services')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setItems(data);
-          try {
-            localStorage.setItem('investoil_services', JSON.stringify(data));
-          } catch {}
-        }
+        if (Array.isArray(data) && data.length > 0) setItems(data);
       })
       .catch(() => {});
   }, []);
 
   const updateItem = (index: number, field: keyof ServiceItem, val: any) => {
-    setItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: val } : item))
-    );
+    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, [field]: val } : item)));
   };
 
   const addItem = () => {
@@ -73,78 +51,70 @@ export default function ServicesEditorPage() {
     setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async () => {
     setLoading(true);
-
+    setError(null);
     try {
       const res = await fetch('/api/content/services', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(items),
       });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.services) setItems(data.services);
-      }
-
-      try {
-        localStorage.setItem('investoil_services', JSON.stringify(items));
-        window.dispatchEvent(new CustomEvent('investoil_services_updated', { detail: items }));
-      } catch {}
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || 'No se pudo guardar el catálogo de servicios.');
+      if (data.services) setItems(data.services);
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3500);
     } catch (err) {
-      console.error(err);
-      try {
-        localStorage.setItem('investoil_services', JSON.stringify(items));
-        window.dispatchEvent(new CustomEvent('investoil_services_updated', { detail: items }));
-      } catch {}
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3500);
+      setError(err instanceof Error ? err.message : 'Error al guardar');
     } finally {
       setLoading(false);
     }
   };
 
+  const titleField = langTab === 'es' ? 'title' : 'title_en';
+  const descField = langTab === 'es' ? 'description' : 'description_en';
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-36">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
-        <div>
-          <Link
-            href="/admin/content"
-            className="inline-flex items-center gap-1 text-xs text-text-subtle hover:text-accent font-mono transition-colors mb-1"
+      <AdminEditorToolbar
+        langTab={langTab}
+        onLangChange={setLangTab}
+        onSave={handleSave}
+        saving={loading}
+        saved={saved}
+        error={error}
+        saveLabel="Guardar Cambios de Servicios"
+        extraActions={
+          <button
+            type="button"
+            onClick={addItem}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-bold transition-all shadow-sm"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Volver a Contenido</span>
-          </Link>
-          <h1 className="text-2xl font-bold tracking-tight text-text">
-            Catálogo de Servicios Petroleros
-          </h1>
-          <p className="mt-1 text-xs text-text-muted">
-            Gestiona los servicios de trading, logística e infraestructura: añade nuevos servicios o elimina los existentes.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={addItem}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-bold transition-all self-start sm:self-auto shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Añadir Servicio</span>
-        </button>
-      </div>
-
-      <SectionDesignBar
-        sectionId="services"
-        sectionName="Actualidad"
-        defaultBgColor="#0a0d14"
+            <Plus className="w-4 h-4" />
+            <span>Añadir Servicio</span>
+          </button>
+        }
       />
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <Link
+          href="/admin/content"
+          className="inline-flex items-center gap-1 text-xs text-text-subtle hover:text-accent font-mono transition-colors mb-1"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Volver a Contenido</span>
+        </Link>
+        <h1 className="text-2xl font-bold tracking-tight text-text">Catálogo de Servicios Petroleros</h1>
+        <p className="mt-1 text-xs text-text-muted">
+          Gestiona los servicios de trading, logística e infraestructura: añade nuevos servicios o elimina los existentes.
+        </p>
+      </div>
+
+      <SectionDesignBar sectionId="services" sectionName="Catálogo de Servicios" defaultBgColor="#0a0d14" />
+
+      <div className="space-y-5">
         {items.map((item, idx) => (
           <div key={idx} className="rounded-xl border border-border bg-surf/50 p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-border/60 pb-3">
@@ -177,14 +147,14 @@ export default function ServicesEditorPage() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className={LABEL}>Título del Servicio</label>
+                  <label className={LABEL}>Título del Servicio ({langTab.toUpperCase()})</label>
                   <input
                     type="text"
-                    value={item.title}
-                    onChange={(e) => updateItem(idx, 'title', e.target.value)}
+                    value={(item[titleField] as string) || ''}
+                    onChange={(e) => updateItem(idx, titleField, e.target.value)}
                     className={INPUT}
-                    placeholder="ej. Trading y corretaje de crudos"
-                    required
+                    placeholder={langTab === 'es' ? 'ej. Trading y corretaje de crudos' : 'e.g. Crude oil trading & brokerage'}
+                    required={langTab === 'es'}
                   />
                 </div>
                 <div>
@@ -201,14 +171,14 @@ export default function ServicesEditorPage() {
               </div>
 
               <div>
-                <label className={LABEL}>Descripción Operativa</label>
+                <label className={LABEL}>Descripción Operativa ({langTab.toUpperCase()})</label>
                 <textarea
                   rows={2}
-                  value={item.description}
-                  onChange={(e) => updateItem(idx, 'description', e.target.value)}
+                  value={(item[descField] as string) || ''}
+                  onChange={(e) => updateItem(idx, descField, e.target.value)}
                   className={INPUT}
-                  placeholder="Detalle del alcance del servicio..."
-                  required
+                  placeholder={langTab === 'es' ? 'Detalle del alcance del servicio...' : 'Scope of the service...'}
+                  required={langTab === 'es'}
                 />
               </div>
 
@@ -239,35 +209,15 @@ export default function ServicesEditorPage() {
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2">
-          <button
-            type="button"
-            onClick={addItem}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-card border border-border text-xs font-semibold text-text hover:text-accent hover:border-accent/40 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5 text-accent" />
-            <span>+ Añadir otro servicio</span>
-          </button>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-accent text-bg text-xs font-bold hover:shadow-glow-accent transition-all disabled:opacity-50"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Guardando...</span>
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                <span>Guardar Cambios de Servicios</span>
-              </>
-            )}
-          </button>
-        </div>
-      </form>
+        <button
+          type="button"
+          onClick={addItem}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-card border border-border text-xs font-semibold text-text hover:text-accent hover:border-accent/40 transition-colors"
+        >
+          <Plus className="w-3.5 h-3.5 text-accent" />
+          <span>+ Añadir otro servicio</span>
+        </button>
+      </div>
     </div>
   );
 }
