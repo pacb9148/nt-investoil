@@ -64,3 +64,7 @@ Buenos dias, reemplaza el favicon del sitio por el que te adjunto y terminamos +
 3. A la biblioteca de medios, quita toda la información innecesaria y ponla en un pop accesible desde un icono de info, título, icono info, y botones duplicar medios y subir archivo todo en la misma fila, reduce y aprovecha el espacio para el despliegue de información necesaria, agrega los iconos para ver como lista, tarjetas y por fecha con un datapicker, se mantiene el buscador y se reduce el tamaño de las tarjetas al 50% así tenemos el doble de información y más espacio disponible, una vista local mas amplia para el usuario, puedes agregar un preview en un pop al hacer clic sobre la tarjeta o sobre la lista
 
 Al finalizar +dap
+
+## 2026-09-27 11:53:49
+
+ok +dap
