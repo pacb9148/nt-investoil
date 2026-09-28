@@ -69,18 +69,19 @@ export async function saveAiSettings(settings: AiSettingsConfig): Promise<boolea
 
   // 2. Guardar en PostgreSQL
   if (hasPostgresDb()) {
-    try {
-      await queryPg(
-        `INSERT INTO landing_sections (id, content, updated_at)
-         VALUES ('ai_settings_config', $1, NOW())
-         ON CONFLICT (id) DO UPDATE SET
-           content = EXCLUDED.content,
-           updated_at = NOW()`,
-        [JSON.stringify(settings)]
-      );
-      return true;
-    } catch (err) {
-      console.error('Error al guardar configuración AI en PostgreSQL:', err);
+    // Antes, un error aquí solo se registraba en consola y la función igual devolvía `true`: el
+    // admin veía «guardado correctamente» aunque el prompt real nunca llegara a la base, y Oli
+    // seguía respondiendo con la configuración vieja sin que nadie se enterara del fallo.
+    const res = await queryPg(
+      `INSERT INTO landing_sections (id, content, updated_at)
+       VALUES ('ai_settings_config', $1, NOW())
+       ON CONFLICT (id) DO UPDATE SET
+         content = EXCLUDED.content,
+         updated_at = NOW()`,
+      [JSON.stringify(settings)]
+    );
+    if (!res) {
+      throw new Error('No se pudo guardar la configuración de IA en PostgreSQL (revisa los logs del servidor).');
     }
   }
 

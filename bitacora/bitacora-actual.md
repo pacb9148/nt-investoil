@@ -116,3 +116,8 @@ El otro detalles es que Oli está mezclando idiomas, si está en una conversaci�
 ## 2026-09-28 21:34:34
 
 Para el agente de noticias, cuando se está recopilando una noticia debe traer también la fecha y hora de la publicación original además de toda la información que ya está trayendo, este es un detalle complementario para mejorar su desempeño y calidad de servicio.
+
+## 2026-09-28 22:01:45
+
+1. Tenemos una interfase para manejar la configuración del agente, revísala y verifica si está se puede usar para introducir la información del prompt y si esta información se corresponde en la base de datos, con lo cual al momento de introducirla no afecte el comportamiento y desempeño del agente.
+2. Agrega también en la pagina del blog un contador de total de artículos donde te indico con las flechas, en la cabecera pon toda la información en una sola fila incluyendo los botones de gestionar categorías y crear post para ahorrar espacio y mejorar la visualización, y a cada artículo asígnale el número correlativo que le corresponda, en orden correlativo y de acuerdo a la fecha, es decir  artículo del 3 de enero 2026 es el número 1 y el ultimo articulo del 28 de septiembre 2026 agregado es n+1 y así sucesivamente, el número no se corresponde con la fecha de cuando se agrega sino con la fecha del artículo. Si un artículo es borrado el correlativo se actualiza e igualmente el total de artículos publicados. al finalizar +dap.

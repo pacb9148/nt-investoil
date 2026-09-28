@@ -120,6 +120,23 @@ export default function AdminPostsPage() {
     }
   };
 
+  const dateOf = (p: Post) => new Date(p.published_at || p.created_at).getTime() || 0;
+
+  // Numeración correlativa por fecha REAL del artículo (published_at, o created_at si no la tiene),
+  // no por cuándo se agregó a la plataforma: el más antiguo de todo el catálogo es el #1. Se calcula
+  // sobre `posts` completo (no sobre lo filtrado/ordenado para mostrar), así el número de cada
+  // artículo no cambia al buscar, filtrar o invertir el orden de la tabla — solo se recorre al
+  // añadir o borrar un artículo, nunca se guarda como campo fijo.
+  const correlativeNumberById = React.useMemo(() => {
+    const sorted = [...posts].sort((a, b) => dateOf(a) - dateOf(b));
+    const map = new Map<string, number>();
+    sorted.forEach((p, i) => map.set(p.id, i + 1));
+    return map;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [posts]);
+
+  const publishedCount = posts.filter((p) => p.status === 'published').length;
+
   const filteredUnsorted = posts.filter((p) => {
     const pCatName = typeof p.category === 'string' ? p.category : p.category?.name || '';
     const matchesSearch =
@@ -141,24 +158,29 @@ export default function AdminPostsPage() {
     return true;
   });
 
-  const dateOf = (p: Post) => new Date(p.published_at || p.created_at).getTime() || 0;
   const filteredPosts = [...filteredUnsorted].sort((x, y) => (sortDesc ? dateOf(y) - dateOf(x) : dateOf(x) - dateOf(y)));
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-border">
-        <div>
+      {/* Header: todo en una sola fila para ahorrar espacio vertical */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-border">
+        <div className="flex items-center gap-3 flex-wrap min-w-0">
           <Badge variant="accent">CONTENIDO EDITORIAL</Badge>
-          <h1 className="font-heading font-extrabold text-2xl text-text mt-1">
+          <h1 className="font-heading font-extrabold text-xl text-text truncate">
             Gestión de Posts del Blog
           </h1>
-          <p className="text-xs text-text-muted">
-            Crea, edita, publica y administra todos los análisis y noticias republicadas.
-          </p>
+          <span className="hidden sm:inline text-border">|</span>
+          <div className="flex items-center gap-2 text-[11px] font-mono">
+            <span className="px-2.5 py-1 rounded-md border border-accent/30 bg-accent/10 text-accent font-semibold whitespace-nowrap">
+              {posts.length} artículo{posts.length === 1 ? '' : 's'}
+            </span>
+            <span className="px-2.5 py-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-semibold whitespace-nowrap">
+              {publishedCount} publicado{publishedCount === 1 ? '' : 's'}
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 shrink-0">
           <Button
             variant="outline"
             size="sm"
@@ -211,6 +233,10 @@ export default function AdminPostsPage() {
               </option>
             ))}
           </select>
+
+          <span className="text-[11px] font-mono text-text-subtle whitespace-nowrap">
+            Mostrando {filteredPosts.length} de {posts.length}
+          </span>
         </div>
 
         <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 sm:pb-0">
@@ -256,6 +282,9 @@ export default function AdminPostsPage() {
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-border bg-surf/60 text-text-muted uppercase font-mono tracking-wider">
+                  <th className="py-3 px-4 text-center" title="Número correlativo por fecha real del artículo">
+                    #
+                  </th>
                   <th className="py-3 px-4">Título</th>
                   <th className="py-3 px-4">Categoría</th>
                   <th className="py-3 px-4">Estado</th>
@@ -291,6 +320,11 @@ export default function AdminPostsPage() {
 
                   return (
                     <tr key={post.id} className="hover:bg-surf/40 transition-colors">
+                      <td className="py-3.5 px-4 text-center">
+                        <span className="inline-flex items-center justify-center min-w-[1.75rem] h-7 px-1.5 rounded-md border border-border bg-surf font-mono text-[11px] font-semibold text-text-muted">
+                          {correlativeNumberById.get(post.id) ?? '—'}
+                        </span>
+                      </td>
                       <td className="py-3.5 px-4 font-medium max-w-sm">
                         <div className="flex items-center gap-3">
                           {post.featured_image_url ? (
