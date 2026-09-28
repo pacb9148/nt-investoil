@@ -23,6 +23,54 @@ function resolveApiKey(model: ConfiguredModelItem): string {
   return '';
 }
 
+// Algunos modelos "razonadores" (DeepSeek-R1, Qwen QwQ, y varios gratuitos de OpenRouter) devuelven
+// su cadena de pensamiento interna dentro del propio campo `content`, envuelta en etiquetas — sin
+// esto, esa cadena se mostraba tal cual en el chat público (ver incidente del 2026-09-27: Oli
+// respondió narrando en inglés su propio razonamiento interno, incluyendo nombres de secciones del
+// prompt de sistema).
+const REASONING_TAG_RE = /<(think|thinking|reasoning|analysis)>[\s\S]*?<\/\1>/gi;
+const UNCLOSED_REASONING_TAG_RE = /<(think|thinking|reasoning|analysis)>[\s\S]*$/i;
+
+function stripReasoningTags(text: string): string {
+  if (!text) return text;
+  return text.replace(REASONING_TAG_RE, '').replace(UNCLOSED_REASONING_TAG_RE, '').trim();
+}
+
+// Red de seguridad para el caso peor: un modelo que narra su razonamiento en prosa libre, sin
+// etiquetas, imposible de recortar con precisión. Si el inicio de la respuesta coincide con estos
+// patrones, se descarta la respuesta entera y se deja que la cascada de proveedores pruebe el
+// siguiente modelo, en vez de mostrarle al visitante ese texto.
+const REASONING_LEAK_MARKERS: RegExp[] = [
+  /^(okay|ok|alright)[,.]?\s+(the|i|let)/i,
+  /^let me (check|look|think|see|review|verify)/i,
+  /^looking (back|at) (the|this)/i,
+  /^i need to (check|look|verify|consider|review)/i,
+  /according to the protocol/i,
+  /^wait[,.]?\s*(no|actually)/i,
+  /base de conocimiento corporativa/i,
+  /memoria de experiencias/i,
+  /regla de saludo/i,
+  /the user is asking/i,
+  /this is the (second|third|\d+\w*) time/i,
+];
+
+function looksLikeLeakedReasoning(text: string): boolean {
+  const head = text.slice(0, 220);
+  return REASONING_LEAK_MARKERS.some((re) => re.test(head));
+}
+
+/** Limpia y valida la respuesta cruda de un proveedor; lanza si detecta razonamiento filtrado. */
+function sanitizeProviderReply(raw: string, providerLabel: string): string {
+  const cleaned = stripReasoningTags(raw);
+  if (!cleaned) {
+    throw new Error(`${providerLabel}: la respuesta quedó vacía tras filtrar el razonamiento interno`);
+  }
+  if (looksLikeLeakedReasoning(cleaned)) {
+    throw new Error(`${providerLabel}: se detectó razonamiento interno filtrado en la respuesta`);
+  }
+  return cleaned;
+}
+
 async function callSingleModel(
   model: ConfiguredModelItem & { effectiveApiKey: string },
   messages: ChatMessage[],
@@ -61,7 +109,7 @@ async function callSingleModel(
 
       const data = await res.json();
       if (data.content && data.content[0]?.text) {
-        return data.content[0].text;
+        return sanitizeProviderReply(data.content[0].text, 'Anthropic');
       }
       throw new Error('Respuesta vacía de Anthropic');
     }
@@ -93,7 +141,7 @@ async function callSingleModel(
 
       const data = await res.json();
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) return text;
+      if (text) return sanitizeProviderReply(text, 'Gemini');
       throw new Error('Respuesta vacía de Gemini');
     }
 
@@ -108,19 +156,28 @@ async function callSingleModel(
       headers['X-Title'] = 'Invest Oil LLC Assistant';
     }
 
+    const requestBody: Record<string, unknown> = {
+      model: model.modelName,
+      messages: [
+        { role: 'system', content: fullSystemPrompt },
+        ...messages.filter((m) => m.role !== 'system'),
+      ],
+      temperature: 0.3,
+      max_tokens: opts.maxTokens ?? 1000,
+    };
+    // OpenRouter enruta a varios modelos "razonadores" (DeepSeek-R1, QwQ, gratuitos incluidos) que
+    // por defecto devuelven su cadena de pensamiento dentro de la respuesta: se le pide
+    // explícitamente que la excluya. Es un parámetro propio de OpenRouter; otros proveedores
+    // OpenAI-compatible simplemente lo ignoran si no lo reconocen.
+    if (model.providerId === 'openrouter') {
+      requestBody.reasoning = { exclude: true };
+    }
+
     const res = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       signal: controller.signal,
       headers,
-      body: JSON.stringify({
-        model: model.modelName,
-        messages: [
-          { role: 'system', content: fullSystemPrompt },
-          ...messages.filter((m) => m.role !== 'system'),
-        ],
-        temperature: 0.3,
-        max_tokens: opts.maxTokens ?? 1000,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!res.ok) {
@@ -130,7 +187,10 @@ async function callSingleModel(
 
     const data = await res.json();
     if (data.choices && data.choices[0]?.message?.content) {
-      return data.choices[0].message.content;
+      // Se lee únicamente `message.content`: si el proveedor separa el razonamiento en un campo
+      // aparte (p.ej. `message.reasoning` de OpenRouter o `reasoning_content` de DeepSeek), ese
+      // campo se ignora a propósito y nunca llega al usuario.
+      return sanitizeProviderReply(data.choices[0].message.content, model.providerName || 'proveedor');
     }
     throw new Error('Respuesta vacía de proveedor compatible con OpenAI');
   } finally {
@@ -182,6 +242,37 @@ export async function executeAiTask(
 
 import { buildSetterInstructionPrompt, UserProfileMemory } from './ai-user-memory';
 
+function normalizeForCompare(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '') // quitar acentos
+    .replace(/[^\w\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Detecta si `current` repite, literal o casi literalmente, alguna pregunta anterior del visitante. */
+function findRepeatedQuestion(current: string, priorUserMessages: string[]): string | null {
+  const normCurrent = normalizeForCompare(current);
+  const currentTokens = new Set(normCurrent.split(' ').filter((w) => w.length > 3));
+  if (currentTokens.size === 0) return null;
+
+  for (const prior of priorUserMessages) {
+    const normPrior = normalizeForCompare(prior);
+    if (!normPrior || normPrior === normCurrent) {
+      if (normPrior === normCurrent) return prior;
+      continue;
+    }
+    const priorTokens = normPrior.split(' ').filter((w) => w.length > 3);
+    if (priorTokens.length === 0) continue;
+    const shared = priorTokens.filter((t) => currentTokens.has(t)).length;
+    const ratio = shared / Math.min(currentTokens.size, priorTokens.length);
+    if (ratio >= 0.75) return prior;
+  }
+  return null;
+}
+
 export async function executeAiChat(
   messages: ChatMessage[],
   userProfile?: UserProfileMemory | null
@@ -195,6 +286,33 @@ export async function executeAiChat(
   // Inyectar Directivas de Setter B2B y Memoria del Cliente
   const setterPrompt = buildSetterInstructionPrompt(userProfile);
   systemPromptChunks.push(setterPrompt);
+
+  // Pregunta repetida: se detecta aquí (no como mensaje "system" suelto en el array de mensajes,
+  // que los tres proveedores filtran y descartan) para que la instrucción llegue garantizada al
+  // modelo como parte del propio system prompt de este turno.
+  // Excluir por índice, no por contenido: si dos mensajes tienen el mismo texto (justo el caso que
+  // se quiere detectar), filtrar "todo lo que sea igual al actual" también borraría la aparición
+  // anterior, y la comparación nunca encontraría con qué compararse.
+  let currentUserMessage = '';
+  let currentUserIndex = -1;
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === 'user') {
+      currentUserMessage = messages[i].content;
+      currentUserIndex = i;
+      break;
+    }
+  }
+  const priorUserMessages = messages
+    .filter((m, idx) => m.role === 'user' && idx !== currentUserIndex)
+    .map((m) => m.content);
+  const repeatedQuestion = currentUserMessage
+    ? findRepeatedQuestion(currentUserMessage, priorUserMessages)
+    : null;
+  if (repeatedQuestion) {
+    systemPromptChunks.push(
+      `--- AVISO: PREGUNTA REPETIDA ---\nEl visitante ya formuló antes, en esta misma conversación, una pregunta equivalente a: "${repeatedQuestion}". No repitas la explicación extensa ni vuelvas a desarrollar el mismo argumento. Reconócelo en una sola frase breve y ofrece de inmediato derivarlo con el equipo humano: pide su nombre, empresa y correo electrónico, e indícale que escriba a business@investoil.es (o info@investoil.es para consultas generales) o complete el formulario de contacto en https://investoil.es/#contact.`
+    );
+  }
 
   if (settings.knowledgeBase && settings.knowledgeBase.trim()) {
     systemPromptChunks.push(
@@ -258,11 +376,23 @@ export async function executeAiChat(
     }
   }
 
-  // Última línea de defensa infalible: Base de Conocimiento oficial calibrada (nunca falla)
+  // Última línea de defensa infalible: Base de Conocimiento oficial calibrada (nunca falla).
+  // Esta ruta no pasa por ningún modelo de lenguaje, así que la regla de "pregunta repetida" del
+  // prompt de sistema no aplica aquí — se resuelve aparte, directamente en código.
   console.log('[AI Failover] Activando contingencia de Base de Conocimiento Corporativa...');
-  const lastUserMessage = messages[messages.length - 1]?.content || '';
-  const rawReply = generateKnowledgeBaseResponse(lastUserMessage, settings);
+  if (repeatedQuestion) {
+    return cleanMarkdownResponse(buildRepeatedQuestionEscalation(currentUserMessage));
+  }
+  const rawReply = generateKnowledgeBaseResponse(currentUserMessage, settings);
   return cleanMarkdownResponse(rawReply);
+}
+
+function buildRepeatedQuestionEscalation(currentMessage: string): string {
+  const isEn = /\b(who|what|where|how|when|why|price|deal|contact|resource|fund)\b/i.test(currentMessage);
+  if (isEn) {
+    return `As mentioned earlier, we've already covered that point. I'd like to connect you directly with our team: could you share your name, company, and email? You can also write to business@investoil.es (general inquiries: info@investoil.es) or complete our contact form at https://investoil.es/#contact.`;
+  }
+  return `Como le comentaba, ese punto ya lo abordamos anteriormente. Para avanzar, prefiero ponerle en contacto directo con nuestro equipo: ¿podría compartirme su nombre, empresa y correo electrónico? También puede escribir a business@investoil.es (consultas generales: info@investoil.es) o completar el formulario de contacto en https://investoil.es/#contact.`;
 }
 
 /**
@@ -304,6 +434,34 @@ function generateKnowledgeBaseResponse(query: string, settings?: any): string {
         }
       }
     }
+  }
+
+  // 1.5. INFORMACIÓN FINANCIERA Y SOLVENCIA (nunca se revela; respuesta corporativa estándar)
+  if (
+    q.includes('solvencia') ||
+    q.includes('recursos economicos') ||
+    q.includes('recursos económicos') ||
+    q.includes('recursos financieros') ||
+    q.includes('capacidad financiera') ||
+    q.includes('cuanto dinero') ||
+    q.includes('cuánto dinero') ||
+    q.includes('cuanto capital') ||
+    q.includes('cuánto capital') ||
+    q.includes('proof of funds') ||
+    q.includes('pof') ||
+    q.includes('estados bancarios') ||
+    q.includes('estado bancario') ||
+    q.includes('financial resources') ||
+    q.includes('financial capacity') ||
+    q.includes('solvency') ||
+    q.includes('bank statement') ||
+    q.includes('how much money') ||
+    q.includes('how much capital')
+  ) {
+    if (isEn) {
+      return `Invest Oil LLC's financial and banking information is confidential and is not disclosed through this channel. Any verification process is handled directly with our authorized team at business@investoil.es.`;
+    }
+    return `La información financiera y bancaria de Invest Oil LLC es confidencial y no se divulga a través de este canal. Cualquier proceso de verificación se gestiona directamente con nuestro equipo autorizado en business@investoil.es.`;
   }
 
   // 2. ESCALAMIENTO OBLIGATORIO A HUMANO: NEGOCIACIÓN, PRECIOS, COMISIONES Y REGALÍAS

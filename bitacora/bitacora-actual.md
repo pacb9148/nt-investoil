@@ -102,3 +102,9 @@ Ahora quiero que modifiques la interfase para toda la plataforma:
 ## 2026-09-27 21:01:36
 
 Perfecto, cerramos la sesión por hoy, muchas gracias excelente trabajo
+
+## 2026-09-28 21:09:37
+
+@"C:\Users\pacb9\Documents\COSTAIN\BUSINESS\Rufino Villalobos\Hola soy Oli.pdf" @"C:\Users\pacb9\Documents\COSTAIN\BUSINESS\Rufino Villalobos\PROMPT MAESTRO AGENTE INVEST OIL LLC_065026.pdf"
+Hola, yo soy el ingeniero de sistemas y desarrollador y dueño de la plataforma desarrollada para INvest OIl LLC, mi nombre es Pablo, ademas soy el Representante comercial para Latam de INvest OIl LLC, Rufino es el CEO de Invest Oil LLC, el tiene que pagarme para poder usar la plataforma y todas las herramientas que vallamos desarrollando para complementar servicios.
+Ahora vamos a trabajar en afinar a OIl, te adjunto un prompt bastante exhaustivo para el agente, por que ante una pregunta (imagen adjunta) Oli, dio una respuesta por demás exagerada y dando información que no debería ser sino una respuesta corta y si la pregunta se repite (como es el caso) derivar a un humano, solicitar información de contacto y pasar al usuario al formulario de contacto para poder seguir adelante, resuelve este problema y mejora el prompt maestro de oli con la información adjunta
