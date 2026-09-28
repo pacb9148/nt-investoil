@@ -121,3 +121,11 @@ Para el agente de noticias, cuando se está recopilando una noticia debe traer t
 
 1. Tenemos una interfase para manejar la configuración del agente, revísala y verifica si está se puede usar para introducir la información del prompt y si esta información se corresponde en la base de datos, con lo cual al momento de introducirla no afecte el comportamiento y desempeño del agente.
 2. Agrega también en la pagina del blog un contador de total de artículos donde te indico con las flechas, en la cabecera pon toda la información en una sola fila incluyendo los botones de gestionar categorías y crear post para ahorrar espacio y mejorar la visualización, y a cada artículo asígnale el número correlativo que le corresponda, en orden correlativo y de acuerdo a la fecha, es decir  artículo del 3 de enero 2026 es el número 1 y el ultimo articulo del 28 de septiembre 2026 agregado es n+1 y así sucesivamente, el número no se corresponde con la fecha de cuando se agrega sino con la fecha del artículo. Si un artículo es borrado el correlativo se actualiza e igualmente el total de artículos publicados. al finalizar +dap.
+
+## 2026-09-28 22:31:13
+
+Donde dejaste el prompt corregido? y por favor ponle títulos de donde va cada cosa, A. Prompt del Sistema (Personalidad, Rol y Tono Ejecutivo), B. Base de Conocimiento Corporativa (Datos Precisos para Entrenar al Agente), para evitar confusiones y asegurar que la información sea la correcta en cada sitio. Dame el link directo de donde abrir el archivo de copiar y pegar
+
+## 2026-09-28 23:03:16
+
+Gracias, eres muy mucho... Cerramos la sesión por hoy, hasta mañana
