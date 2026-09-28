@@ -1,5 +1,6 @@
 import { executeAiTask } from '@/lib/ai/ai-client';
 import { storeUploadedFile } from '@/lib/media/store-upload';
+import { extractOriginalPublishedAt } from './extract-published-date';
 
 const BROWSER_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
@@ -173,7 +174,7 @@ export async function extractArticle(url: string): Promise<ExtractedArticle> {
     description: description || paragraphs[0]?.slice(0, 220) || '',
     siteName,
     imageUrl,
-    publishedTime: metaContent(html, 'article:published_time'),
+    publishedTime: extractOriginalPublishedAt(html, (key) => metaContent(html, key)),
     text,
   };
 }

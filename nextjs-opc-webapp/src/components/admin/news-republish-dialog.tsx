@@ -185,6 +185,22 @@ export function NewsRepublishDialog({
               </span>
             </div>
 
+            {preview.publishedAt && (
+              <p className="text-[11px] font-mono text-text-subtle">
+                {preview.publishedAtIsOriginal
+                  ? 'Publicado originalmente el '
+                  : 'Fecha original no detectada — se usará el momento de importación ('}
+                {new Date(preview.publishedAt).toLocaleString('es-ES', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+                {!preview.publishedAtIsOriginal && ')'}
+              </p>
+            )}
+
             {preview.imageUrl && (
               <div className="space-y-1.5">
                 <div className="relative aspect-video w-full rounded-lg overflow-hidden border border-border">

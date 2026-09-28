@@ -40,6 +40,7 @@ interface NewsAgentModalProps {
     tags: string[];
     imageUrl?: string;
     category?: string;
+    publishedAt?: string;
   }) => void;
 }
 
@@ -134,6 +135,8 @@ export function NewsAgentModal({ isOpen, onClose, onSelectNews }: NewsAgentModal
         tags: data.tags?.length ? data.tags : item.tags,
         imageUrl,
         category: item.category,
+        // La página del artículo es la fuente más fiable; si no expone su fecha, se usa la del feed RSS.
+        publishedAt: data.publishedAt || item.publishedAt,
       });
       if (Array.isArray(data.warnings) && data.warnings.length > 0) {
         window.alert(['Borrador preparado. Revisa antes de publicar:', ...data.warnings.map((w: string) => `- ${w}`)].join(String.fromCharCode(10)));

@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { extractOriginalPublishedAt } from '@/lib/news/extract-published-date';
 
 export async function POST(request: NextRequest) {
   try {
@@ -109,6 +110,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Fecha y hora de publicación ORIGINAL del artículo (no la del momento en que se recopila):
+    // se prueba, en orden, las fuentes estándar que usan la mayoría de medios y CMS.
+    const originalPublishedAt = extractOriginalPublishedAt(html, getMeta);
+
     // Resolve relative image URLs
     let resolvedImage = ogImage;
     if (ogImage && !ogImage.startsWith('http')) {
@@ -157,7 +162,10 @@ export async function POST(request: NextRequest) {
       videoUrl: resolvedVideo || undefined,
       imageSize,
       imageNeedsCompression,
-      publishedAt: new Date().toISOString(),
+      publishedAt: originalPublishedAt || new Date().toISOString(),
+      // El editor necesita distinguir "esta es la fecha real del artículo" de "no se encontró
+      // ninguna y se usó el momento de la recopilación como último recurso".
+      publishedAtIsOriginal: Boolean(originalPublishedAt),
       canonicalUrl: deepArticleUrl,
     });
   } catch (error: any) {

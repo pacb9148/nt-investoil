@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
       imageNeedsCompression,
       sourceName: article.siteName,
       sourceUrl: article.url,
+      publishedAt: article.publishedTime,
       aiUsed: note.aiUsed,
       warnings,
     });

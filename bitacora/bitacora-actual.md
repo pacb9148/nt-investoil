@@ -108,3 +108,11 @@ Perfecto, cerramos la sesión por hoy, muchas gracias excelente trabajo
 @"C:\Users\pacb9\Documents\COSTAIN\BUSINESS\Rufino Villalobos\Hola soy Oli.pdf" @"C:\Users\pacb9\Documents\COSTAIN\BUSINESS\Rufino Villalobos\PROMPT MAESTRO AGENTE INVEST OIL LLC_065026.pdf"
 Hola, yo soy el ingeniero de sistemas y desarrollador y dueño de la plataforma desarrollada para INvest OIl LLC, mi nombre es Pablo, ademas soy el Representante comercial para Latam de INvest OIl LLC, Rufino es el CEO de Invest Oil LLC, el tiene que pagarme para poder usar la plataforma y todas las herramientas que vallamos desarrollando para complementar servicios.
 Ahora vamos a trabajar en afinar a OIl, te adjunto un prompt bastante exhaustivo para el agente, por que ante una pregunta (imagen adjunta) Oli, dio una respuesta por demás exagerada y dando información que no debería ser sino una respuesta corta y si la pregunta se repite (como es el caso) derivar a un humano, solicitar información de contacto y pasar al usuario al formulario de contacto para poder seguir adelante, resuelve este problema y mejora el prompt maestro de oli con la información adjunta
+
+## 2026-09-28 21:32:46
+
+El otro detalles es que Oli está mezclando idiomas, si está en una conversación en español debe mantener toda la conversación en español, en resumen mantener el idioma en que se desarrolla la conversación de forma consistente.
+
+## 2026-09-28 21:34:34
+
+Para el agente de noticias, cuando se está recopilando una noticia debe traer también la fecha y hora de la publicación original además de toda la información que ya está trayendo, este es un detalle complementario para mejorar su desempeño y calidad de servicio.

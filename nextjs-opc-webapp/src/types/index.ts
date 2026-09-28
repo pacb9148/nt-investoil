@@ -193,6 +193,8 @@ export interface NewsRepublishMetadata {
   imageSize?: number;
   imageNeedsCompression?: boolean;
   publishedAt?: string;
+  /** false cuando no se encontró la fecha real del artículo y `publishedAt` es la hora del scraping. */
+  publishedAtIsOriginal?: boolean;
   canonicalUrl: string;
 }
 

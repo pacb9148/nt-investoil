@@ -273,15 +273,48 @@ function findRepeatedQuestion(current: string, priorUserMessages: string[]): str
   return null;
 }
 
+// Detección de idioma de UN mensaje: marcadores propios de español (tildes, ¿¡, stopwords) contra
+// marcadores propios de inglés (stopwords). Con señal de ambos idiomas o ninguna, se prefiere
+// español (idioma por defecto de la empresa).
+function detectMessageLanguage(text: string): 'en' | 'es' {
+  const hasSpanishMarkers =
+    /[¿¡áéíóúñÁÉÍÓÚÑ]/.test(text) ||
+    /\b(que|como|cual|cuales|para|por|con|una|uno|los|las|esta|estas|pero|hola|gracias|donde|cuando|quien|puede|tiene|somos|estan|quiero|necesito)\b/i.test(
+      text
+    );
+  const hasEnglishMarkers =
+    /\b(the|is|are|you|your|what|where|how|when|why|price|deal|team|contact|thanks|hello|please|would|could|does|company|resources)\b/i.test(
+      text
+    );
+  if (hasSpanishMarkers) return 'es';
+  if (hasEnglishMarkers) return 'en';
+  return 'es';
+}
+
+/**
+ * El idioma se fija UNA sola vez por el primer mensaje del visitante y se mantiene durante toda la
+ * conversación — antes cada tramo de la respuesta de contingencia volvía a adivinar el idioma
+ * mirando solo el último mensaje, así que una conversación en español podía saltar a inglés a mitad
+ * de camino si un mensaje puntual sonaba ambiguo (p.ej. mencionaba "EN590" o un nombre propio).
+ */
+function detectConversationLanguage(messages: ChatMessage[]): 'en' | 'es' {
+  const firstUserMessage = messages.find((m) => m.role === 'user');
+  return firstUserMessage ? detectMessageLanguage(firstUserMessage.content) : 'es';
+}
+
 export async function executeAiChat(
   messages: ChatMessage[],
   userProfile?: UserProfileMemory | null
 ): Promise<string> {
   const settings = await getAiSettings();
   const models = settings.models || [];
+  const conversationLang = detectConversationLanguage(messages);
 
   // Construir el prompt de sistema enriquecido con la Base de Conocimiento, FAQs y Rol de Setter B2B
-  const systemPromptChunks: string[] = [settings.systemPrompt || ''];
+  const systemPromptChunks: string[] = [
+    settings.systemPrompt || '',
+    `--- IDIOMA DE LA CONVERSACIÓN ---\nEsta conversación se está llevando en ${conversationLang === 'en' ? 'inglés' : 'español'}. Responde SIEMPRE en ese mismo idioma durante toda la conversación, sin cambiar de idioma aunque algún mensaje puntual del visitante sea ambiguo o incluya términos técnicos en otro idioma, salvo que el visitante pida explícitamente cambiar de idioma.`,
+  ];
 
   // Inyectar Directivas de Setter B2B y Memoria del Cliente
   const setterPrompt = buildSetterInstructionPrompt(userProfile);
@@ -381,14 +414,13 @@ export async function executeAiChat(
   // prompt de sistema no aplica aquí — se resuelve aparte, directamente en código.
   console.log('[AI Failover] Activando contingencia de Base de Conocimiento Corporativa...');
   if (repeatedQuestion) {
-    return cleanMarkdownResponse(buildRepeatedQuestionEscalation(currentUserMessage));
+    return cleanMarkdownResponse(buildRepeatedQuestionEscalation(conversationLang === 'en'));
   }
-  const rawReply = generateKnowledgeBaseResponse(currentUserMessage, settings);
+  const rawReply = generateKnowledgeBaseResponse(currentUserMessage, settings, conversationLang === 'en');
   return cleanMarkdownResponse(rawReply);
 }
 
-function buildRepeatedQuestionEscalation(currentMessage: string): string {
-  const isEn = /\b(who|what|where|how|when|why|price|deal|contact|resource|fund)\b/i.test(currentMessage);
+function buildRepeatedQuestionEscalation(isEn: boolean): string {
   if (isEn) {
     return `As mentioned earlier, we've already covered that point. I'd like to connect you directly with our team: could you share your name, company, and email? You can also write to business@investoil.es (general inquiries: info@investoil.es) or complete our contact form at https://investoil.es/#contact.`;
   }
@@ -412,9 +444,8 @@ export function cleanMarkdownResponse(text: string): string {
     .trim();
 }
 
-function generateKnowledgeBaseResponse(query: string, settings?: any): string {
+function generateKnowledgeBaseResponse(query: string, settings: any, isEn: boolean): string {
   const q = query.toLowerCase().trim();
-  const isEn = /\b(who|what|where|how|when|why|price|pricing|deal|negotiat|team|director|executive|leadership|buy|purchase|sell|supplier|contact|office|address|commission|fee|royalty|discount|procedure)\b/i.test(query);
 
   // 1. EVALUAR COINCIDENCIA CON PREGUNTAS ENTRENADAS (trainingFaqs)
   if (settings && Array.isArray(settings.trainingFaqs)) {

@@ -172,6 +172,16 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
     setOriginalSourceUrl(meta.canonicalUrl || meta.sourceUrl);
     setOriginalSourceName(meta.sourceName);
 
+    // Solo se aplica cuando la fuente realmente expuso su fecha de publicación (article:published_time,
+    // JSON-LD datePublished, etc.) — si no se encontró ninguna, se deja la fecha por defecto del
+    // formulario (el momento de la importación) en vez de fingir una fecha original inexistente.
+    if (meta.publishedAt && meta.publishedAtIsOriginal) {
+      try {
+        const d = new Date(meta.publishedAt);
+        if (!isNaN(d.getTime())) setPublishedAt(d.toISOString().slice(0, 16));
+      } catch {}
+    }
+
     // Inyectar contenido completo estructurado con link a la fuente original
     const sourceLink = meta.canonicalUrl || meta.sourceUrl;
     const bodyHtml = meta.contentHtml || `<p>${meta.excerpt}</p>`;
@@ -195,6 +205,7 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
     tags: string[];
     imageUrl?: string;
     category?: string;
+    publishedAt?: string;
   }) => {
     setTitle(data.title);
     setSlug(slugify(data.title));
@@ -208,6 +219,15 @@ export function PostEditorForm({ initialPost }: { initialPost?: Post | null }) {
     setIsRepublished(true);
     setOriginalSourceName(data.sourceName);
     setOriginalSourceUrl(data.sourceUrl);
+
+    // Fecha real de publicación de la noticia original (artículo o, en su defecto, el feed RSS del
+    // radar) en vez de dejar la fecha por defecto del formulario (el momento de la importación).
+    if (data.publishedAt) {
+      try {
+        const d = new Date(data.publishedAt);
+        if (!isNaN(d.getTime())) setPublishedAt(d.toISOString().slice(0, 16));
+      } catch {}
+    }
 
     if (data.category && categories.length > 0) {
       const norm = (s: string) => (s || '').toLowerCase().replace(/[\s\-_]/g, '');
