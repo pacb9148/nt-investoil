@@ -105,7 +105,7 @@ nextjs-opc-webapp/
 │   │
 │   ├── lib/
 │   │   ├── supabase/           # Clientes Browser, Server, Middleware, Admin
-│   │   ├── constants/          # Contenido de investoil.es y enlaces
+│   │   ├── constants/          # Contenido de investoil.us y enlaces
 │   │   ├── validators/         # Schemas Zod
 │   │   └── utils/              # Funciones auxiliares
 │   ├── types/                  # Tipos TypeScript

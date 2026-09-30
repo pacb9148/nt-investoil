@@ -18,7 +18,7 @@ async function testCategoriesAndBlog() {
   // 1. Iniciar sesión en el Backoffice
   console.log('\n1. Iniciando sesión en /login...');
   await page.goto('http://localhost:3005/login', { waitUntil: 'networkidle' });
-  await page.fill('input[type="email"]', 'admin@investoil.es');
+  await page.fill('input[type="email"]', 'admin@investoil.us');
   await page.fill('input[type="password"]', 'InvestOil2026!*');
   await page.click('button[type="submit"]');
   await page.waitForURL('**/admin**', { timeout: 15000 });

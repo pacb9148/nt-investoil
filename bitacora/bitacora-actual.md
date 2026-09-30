@@ -140,3 +140,11 @@ Hola, hoy tenemos pocas cosas para hacer.
 ## 2026-09-30 21:36:15
 
 Sigue saliendo investoil.es en lugar de investoil.us como te pedí, quiero que reemplaces todo investoil.es por investoil.us
+
+## 2026-09-30 21:48:28
+
+Mira lo que me sale al poner la dirección, o es en el local?
+
+## 2026-09-30 22:08:20
+
+Ahora me está mostrando trading@investoil.es que ya no existe, por favor limpia todo lo que sea con el dominio investoil.es y cámbialo por investoil.us, en todo el repo local y en el remoto, elimina todos los registros que se guardaban en archivos .json cuando no tenias acceso a la base de datos, revisa de donde viene ese correo que no debería existir y elimínalo

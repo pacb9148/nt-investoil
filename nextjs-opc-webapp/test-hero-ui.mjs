@@ -18,8 +18,8 @@ async function runAudit() {
 
   // 1. Login
   console.log('1. Navegando a login...');
-  await page.goto('https://investoil.es/login', { waitUntil: 'networkidle' });
-  await page.fill('input[type="email"]', 'admin@investoil.es');
+  await page.goto('https://investoil.us/login', { waitUntil: 'networkidle' });
+  await page.fill('input[type="email"]', 'admin@investoil.us');
   await page.fill('input[type="password"]', 'InvestOil2026!*');
   await page.click('button[type="submit"]');
   await page.waitForURL('**/admin**', { timeout: 15000 });
@@ -27,7 +27,7 @@ async function runAudit() {
 
   // 2. Navegar a /admin/content/hero
   console.log('2. Navegando a /admin/content/hero...');
-  await page.goto('https://investoil.es/admin/content/hero', { waitUntil: 'networkidle' });
+  await page.goto('https://investoil.us/admin/content/hero', { waitUntil: 'networkidle' });
   await page.waitForTimeout(2000);
 
   // 3. Inspeccionar barras de scroll (Window / Document / Body / Main)
@@ -103,7 +103,7 @@ async function runAudit() {
 
   // 7. Navegar a /admin/media para auditar la biblioteca de medios
   console.log('3. Navegando a /admin/media...');
-  await page.goto('https://investoil.es/admin/media', { waitUntil: 'networkidle' });
+  await page.goto('https://investoil.us/admin/media', { waitUntil: 'networkidle' });
   await page.waitForTimeout(2000);
   await page.screenshot({ path: 'scripts/screenshot-admin-media.png' });
 
@@ -123,8 +123,8 @@ async function runAudit() {
   console.log('Detalles de videos en /admin/media:', JSON.stringify(mediaVideos, null, 2));
 
   // 8. Navegar al home público
-  console.log('4. Navegando al Home público https://investoil.es/ ...');
-  await page.goto('https://investoil.es/', { waitUntil: 'networkidle' });
+  console.log('4. Navegando al Home público https://investoil.us/ ...');
+  await page.goto('https://investoil.us/', { waitUntil: 'networkidle' });
   await page.waitForTimeout(2000);
 
   const homeVideoDetails = await page.evaluate(() => {

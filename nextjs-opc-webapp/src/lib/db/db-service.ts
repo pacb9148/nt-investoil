@@ -1013,19 +1013,39 @@ export async function fixDomainInStoredSections(oldDomain: string, newDomain: st
   const summary: DomainFixSummary = { scanned: 0, updated: 0, updatedSectionIds: [] };
   if (!hasPostgresDb()) return summary;
 
-  // Las direcciones ya retiradas (contacto@/trading@) son marcadores históricos de detección de una
-  // migración anterior (Fase 21), no direcciones vivas: se preservan literales, igual que en el
-  // reemplazo que se hizo en el código fuente.
-  const domainPattern = new RegExp(
-    `(?<!contacto@)(?<!trading@)${oldDomain.replace(/\./g, '\\.')}`,
-    'gi'
-  );
+  const escapedOld = oldDomain.replace(/\./g, '\\.');
+  // Alias ya retirados en una migración anterior (Fase 21): a diferencia de las comparaciones en el
+  // código fuente (que SÍ necesitan el literal antiguo para reconocer datos viejos), lo que esté
+  // guardado como contenido real con uno de estos alias no debe quedarse igual con solo el dominio
+  // cambiado — hay que llevarlo al canal vigente correspondiente. La primera versión de esta función
+  // los dejaba intactos por error, y así se coló «trading@investoil.es» en una respuesta de Oli.
+  const retiredAliases: Array<{ pattern: RegExp; replacement: string }> = [
+    { pattern: new RegExp(`contacto@${escapedOld}`, 'gi'), replacement: `info@${newDomain}` },
+    { pattern: new RegExp(`trading@${escapedOld}`, 'gi'), replacement: `business@${newDomain}` },
+  ];
+  const domainPattern = new RegExp(escapedOld, 'gi');
+
+  const fixText = (text: string): { value: string; changed: boolean } => {
+    let out = text;
+    let changed = false;
+    for (const { pattern, replacement } of retiredAliases) {
+      if (pattern.test(out)) {
+        pattern.lastIndex = 0;
+        out = out.replace(pattern, replacement);
+        changed = true;
+      }
+    }
+    if (domainPattern.test(out)) {
+      domainPattern.lastIndex = 0;
+      out = out.replace(domainPattern, newDomain);
+      changed = true;
+    }
+    return { value: out, changed };
+  };
 
   const scrub = (value: unknown): { value: unknown; changed: boolean } => {
     if (typeof value === 'string') {
-      if (!domainPattern.test(value)) return { value, changed: false };
-      domainPattern.lastIndex = 0;
-      return { value: value.replace(domainPattern, newDomain), changed: true };
+      return fixText(value);
     }
     if (Array.isArray(value)) {
       let changed = false;

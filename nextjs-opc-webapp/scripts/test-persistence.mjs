@@ -13,7 +13,7 @@ async function runTests() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      email: 'admin@investoil.es',
+      email: 'admin@investoil.us',
       password: 'InvestOil2026!*'
     })
   });
@@ -43,7 +43,7 @@ async function runTests() {
   const meData = await meRes.json();
   console.log(`- Status: ${meRes.status}`);
   console.log(`- Usuario verificado: ${meData.user?.email}`);
-  if (meRes.status === 200 && meData.user?.email === 'admin@investoil.es') {
+  if (meRes.status === 200 && meData.user?.email === 'admin@investoil.us') {
     console.log('✅ SESIÓN VERIFICADA');
   } else {
     console.error('❌ FALLÓ LA VERIFICACIÓN DE SESIÓN');
@@ -159,7 +159,7 @@ async function runTests() {
       role: 'Director de Operaciones & Logística',
       bio: 'Especialista en distribución de hidrocarburos y comercio internacional con más de 18 años de experiencia.',
       avatar_url: '/uploads/team-carlos.jpg',
-      email: 'carlos.mendoza@investoil.es',
+      email: 'carlos.mendoza@investoil.us',
       order: initialTeam.length + 1
     }
   ];

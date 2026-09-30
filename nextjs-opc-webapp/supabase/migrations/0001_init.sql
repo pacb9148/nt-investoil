@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS public.platform_settings (
   id TEXT PRIMARY KEY DEFAULT 'global_settings',
   site_name TEXT NOT NULL DEFAULT 'Invest Oil LLC',
   site_tagline TEXT NOT NULL DEFAULT 'Conexiones globales en el mercado petrolero',
-  contact_email TEXT NOT NULL DEFAULT 'contacto@investoil.es',
+  contact_email TEXT NOT NULL DEFAULT 'contacto@investoil.us',
   contact_phone TEXT,
   contact_hours TEXT DEFAULT 'Lun–Vie · 09:00–18:00 CET',
   linkedin_url TEXT DEFAULT 'https://www.linkedin.com/',
@@ -99,5 +99,5 @@ CREATE POLICY "Solo administradores pueden modificar platform_settings"
 
 -- Insertar configuración inicial por defecto
 INSERT INTO public.platform_settings (id, site_name, site_tagline, contact_email)
-VALUES ('global_settings', 'Invest Oil LLC', 'Conexiones globales en el mercado petrolero', 'contacto@investoil.es')
+VALUES ('global_settings', 'Invest Oil LLC', 'Conexiones globales en el mercado petrolero', 'contacto@investoil.us')
 ON CONFLICT (id) DO NOTHING;

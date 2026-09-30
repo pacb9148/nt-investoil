@@ -164,8 +164,8 @@ async function run() {
         default_og_image TEXT NOT NULL DEFAULT '/images/branding/corporate-card-logo.jpeg',
         twitter_handle TEXT DEFAULT '@InvestOilGlobal',
         keywords JSONB NOT NULL DEFAULT '["petróleo","trading crudo","pet coke","combustibles marinos","invest oil"]'::jsonb,
-        canonical_url TEXT NOT NULL DEFAULT 'https://investoil.es',
-        robots_txt TEXT DEFAULT 'User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: https://investoil.es/sitemap.xml',
+        canonical_url TEXT NOT NULL DEFAULT 'https://investoil.us',
+        robots_txt TEXT DEFAULT 'User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: https://investoil.us/sitemap.xml',
         updated_at TIMESTAMPTZ DEFAULT NOW()
       );
 
