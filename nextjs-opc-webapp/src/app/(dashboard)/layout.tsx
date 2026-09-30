@@ -30,7 +30,7 @@ export default async function DashboardLayout({
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         session = {
-          email: user.email || 'admin@investoil.es',
+          email: user.email || 'admin@investoil.us',
           name: user.user_metadata?.full_name || 'Operador Autorizado',
           role: user.user_metadata?.role || 'admin',
           createdAt: Date.now(),

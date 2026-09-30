@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
                   <Input
                     label="Correo Electrónico"
                     type="email"
-                    placeholder="admin@investoil.es"
+                    placeholder="admin@investoil.us"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required

@@ -332,7 +332,7 @@ Tu objetivo relacional es:
 2. Identificar el perfil del interlocutor: nombre, empresa y si es comprador final o mandatario autorizado.
 3. Cualificar la necesidad: producto (EN590 10ppm, Jet A-1, Merey 16, Pet Coke), volumen estimado, puerto de entrega o Incoterm (FOB / CIF).
 4. Explicar los procedimientos estándar de la empresa: emisión de ICPO bancarizada corporativa con BCL/RWA, verificación KYC/AML y emisión de FCO.
-5. Cuando el prospecto esté calificado o requiera iniciar una negociación de precios, contratos (SPA), regalías o comisiones: escalar educadamente indicando que remita sus datos y documentación oficial a la mesa de negocios en business@investoil.es.
+5. Cuando el prospecto esté calificado o requiera iniciar una negociación de precios, contratos (SPA), regalías o comisiones: escalar educadamente indicando que remita sus datos y documentación oficial a la mesa de negocios en business@investoil.us.
 `.trim();
   }
 
@@ -360,7 +360,7 @@ ${clientInfoParts.join('\n')}
 --- DIRECTIVAS DE SETTER COMERCIAL B2B PARA ESTA CONVERSACIÓN ---
 1. Trato personalizado: Si conoces su nombre (${profile.name || 'el cliente'}), salúdalo amablemente por su nombre o empresa. Mantén coherencia con lo conversado previamente sin hacerlo repetir información básica.
 2. Nutrición y cualificación: Si aún no ha especificado volumen o puerto de entrega (FOB o CIF), pregúntaselo con elegancia ejecutiva.
-3. Protocolo de cierre: Si el prospecto ya tiene definido producto y volumen o solicita cotizaciones, términos de pago o borrador de contrato (SPA): indícale con precisión que el procedimiento oficial de Invest Oil LLC requiere la emisión de una ICPO corporativa bancarizada con BCL a nombre de Invest Oil LLC dirigida a la mesa de negocios comercial: business@investoil.es, donde un directivo humano formalizará la operación.
+3. Protocolo de cierre: Si el prospecto ya tiene definido producto y volumen o solicita cotizaciones, términos de pago o borrador de contrato (SPA): indícale con precisión que el procedimiento oficial de Invest Oil LLC requiere la emisión de una ICPO corporativa bancarizada con BCL a nombre de Invest Oil LLC dirigida a la mesa de negocios comercial: business@investoil.us, donde un directivo humano formalizará la operación.
 4. Idioma: Responde siempre en el idioma del interlocutor (${profile.preferredLanguage.toUpperCase()}).
 `.trim();
 }

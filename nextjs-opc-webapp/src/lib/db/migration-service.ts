@@ -585,7 +585,7 @@ export async function migrateAllJsonToPostgres(): Promise<MigrationSummary> {
             seo.default_og_image || seo.og_image || '/images/branding/oil-drop-logo.png',
             seo.twitter_handle || null,
             JSON.stringify(seo.keywords || []),
-            seo.canonical_url || 'https://investoil.es',
+            seo.canonical_url || 'https://investoil.us',
             seo.robots_txt || null,
           ]
         );

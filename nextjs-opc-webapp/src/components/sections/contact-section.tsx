@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { COMPANY_INFO } from '@/lib/constants/investoil';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { CompanyRatingModal } from './company-rating-modal';
 
 export function ContactSection({ customBg }: { customBg?: string }) {
   const { t, language } = useLanguage();
@@ -27,6 +28,8 @@ export function ContactSection({ customBg }: { customBg?: string }) {
   const em = (m?: string) => (m && isEn ? ERRORS_EN[m] ?? m : m);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [ratingModalOpen, setRatingModalOpen] = useState(false);
+  const [submittedContact, setSubmittedContact] = useState<{ name: string; email: string } | null>(null);
 
   const {
     register,
@@ -59,6 +62,8 @@ export function ContactSection({ customBg }: { customBg?: string }) {
       }
 
       setIsSubmitted(true);
+      setSubmittedContact({ name: data.name, email: data.email });
+      setRatingModalOpen(true);
       reset();
     } catch (err: any) {
       setServerError(err.message || t.contact.error);
@@ -227,6 +232,14 @@ export function ContactSection({ customBg }: { customBg?: string }) {
           </div>
         </div>
       </div>
+
+      <CompanyRatingModal
+        open={ratingModalOpen}
+        onOpenChange={setRatingModalOpen}
+        isEn={isEn}
+        name={submittedContact?.name}
+        email={submittedContact?.email}
+      />
     </section>
   );
 }

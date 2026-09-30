@@ -48,3 +48,14 @@ export const registerSchema = z.object({
 });
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
+
+export const companyRatingSchema = z.object({
+  what_we_do: z.number().int().min(1).max(5),
+  how_we_do_it: z.number().int().min(1).max(5),
+  results: z.number().int().min(1).max(5),
+  comment: z.string().max(1000, 'Máximo 1000 caracteres').optional().or(z.literal('')),
+  name: z.string().max(120).optional().or(z.literal('')),
+  email: z.string().email().max(150).optional().or(z.literal('')),
+});
+
+export type CompanyRatingFormData = z.infer<typeof companyRatingSchema>;

@@ -497,7 +497,7 @@ export default function SettingsContentPage() {
                 value={settings.email}
                 onChange={(e) => setSettings({ ...settings, email: e.target.value })}
                 className={INPUT_STYLE}
-                placeholder="info@investoil.es"
+                placeholder="info@investoil.us"
               />
             </div>
             <div>

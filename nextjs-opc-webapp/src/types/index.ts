@@ -93,6 +93,19 @@ export interface ContactLead {
   updated_at: string;
 }
 
+/** Valoración de 1 a 5 estrellas que el visitante deja en el pop tras enviar el formulario de contacto. */
+export interface CompanyRating {
+  id: string;
+  what_we_do: number;
+  how_we_do_it: number;
+  results: number;
+  comment?: string | null;
+  name?: string | null;
+  email?: string | null;
+  lead_id?: string | null;
+  created_at: string;
+}
+
 export interface ServiceItem {
   code: string;
   title: string;

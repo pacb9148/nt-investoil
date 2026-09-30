@@ -9,7 +9,7 @@ export interface AdminSession {
 }
 
 // Credenciales oficiales de administración de Invest Oil LLC
-export const DEFAULT_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@investoil.es';
+export const DEFAULT_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@investoil.us';
 export const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'InvestOil2026!*';
 
 // Clave secreta para firmar/verificar sesión

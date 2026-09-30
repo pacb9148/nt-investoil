@@ -83,9 +83,9 @@ const DEFAULT_SEO: LandingSeoConfig = {
     'Invest Oil LLC, trading de petroleo Delaware, brent blend, merey 16, pet coke, jet fuel a1, diesel en590, fletamento maritimo, houston oil desk, crude oil trading Delaware',
   keywords_en:
     'Invest Oil LLC, Delaware USA energy corporation, crude oil trading, brent, merey 16, jet fuel a1, en590 diesel, maritime logistics, houston petroleum desk',
-  canonical_url: 'https://investoil.es',
+  canonical_url: 'https://investoil.us',
   og_image: '/images/branding/oil-drop-logo.png',
-  contact_email: 'info@investoil.es',
+  contact_email: 'info@investoil.us',
   telephone: '+1 (713) 555-0190',
   linkedin_url: 'https://www.linkedin.com/company/invest-oil-llc',
   geo_region: 'US-DE',
@@ -111,7 +111,7 @@ export default function SeoEditorPage() {
         if (data && typeof data === 'object') {
           const sanitizedContactEmail =
             (!data.contact_email || data.contact_email === 'contacto@investoil.es' || data.contact_email === 'trading@investoil.es')
-              ? 'info@investoil.es'
+              ? 'info@investoil.us'
               : data.contact_email;
 
           setFormData((prev) => ({
@@ -224,15 +224,15 @@ export default function SeoEditorPage() {
   const generatedSchemaLd = {
     '@context': 'https://schema.org',
     '@type': ['Corporation', 'Organization'],
-    '@id': `${formData.canonical_url || 'https://investoil.es'}/#organization`,
+    '@id': `${formData.canonical_url || 'https://investoil.us'}/#organization`,
     name: formData.brand_name || 'Invest Oil',
     legalName: formData.legal_name || 'Invest Oil LLC',
     alternateName: ['Invest Oil', 'InvestOil LLC', 'Invest Oil Delaware'],
-    url: formData.canonical_url || 'https://investoil.es',
-    logo: `${formData.canonical_url || 'https://investoil.es'}/images/branding/oil-drop-logo.png`,
+    url: formData.canonical_url || 'https://investoil.us',
+    logo: `${formData.canonical_url || 'https://investoil.us'}/images/branding/oil-drop-logo.png`,
     image: formData.og_image?.startsWith('http')
       ? formData.og_image
-      : `${formData.canonical_url || 'https://investoil.es'}${formData.og_image || '/images/branding/oil-drop-logo.png'}`,
+      : `${formData.canonical_url || 'https://investoil.us'}${formData.og_image || '/images/branding/oil-drop-logo.png'}`,
     description: formData.meta_description,
     disambiguatingDescription: formData.disambiguation_note,
     address: {
@@ -266,7 +266,7 @@ export default function SeoEditorPage() {
       formData.contact_email !== 'contacto@investoil.es' &&
       formData.contact_email !== 'trading@investoil.es'
         ? formData.contact_email
-        : 'info@investoil.es',
+        : 'info@investoil.us',
     telephone: formData.telephone || undefined,
     sameAs: formData.linkedin_url ? [formData.linkedin_url] : [],
   };
@@ -717,7 +717,7 @@ export default function SeoEditorPage() {
                   value={formData.canonical_url}
                   onChange={(e) => setFormData({ ...formData, canonical_url: e.target.value })}
                   className={INPUT}
-                  placeholder="https://investoil.es"
+                  placeholder="https://investoil.us"
                 />
               </div>
 
@@ -894,7 +894,7 @@ export default function SeoEditorPage() {
                       value={formData.contact_email}
                       onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                       className={INPUT}
-                      placeholder="info@investoil.es"
+                      placeholder="info@investoil.us"
                     />
                   </div>
 
@@ -942,7 +942,7 @@ export default function SeoEditorPage() {
                   </div>
                   <div className="p-3.5 space-y-1">
                     <span className="text-[10px] font-mono text-text-subtle uppercase tracking-wider block">
-                      investoil.es · Delaware, USA
+                      investoil.us · Delaware, USA
                     </span>
                     <p className="text-xs font-bold text-text truncate">
                       {formData.meta_title}

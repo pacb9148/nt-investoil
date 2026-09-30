@@ -115,7 +115,7 @@ export default function RegisterPage() {
                   <Input
                     label="Correo Electrónico"
                     type="email"
-                    placeholder="usuario@investoil.es"
+                    placeholder="usuario@investoil.us"
                     {...register('email')}
                     error={errors.email?.message}
                   />

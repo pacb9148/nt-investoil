@@ -3,7 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { hasPostgresDb, queryPg } from '@/lib/db/pg-client';
-import type { Post, Category, MediaItem, ContactLead, TeamMember, BackofficeUser } from '@/types';
+import type { Post, Category, MediaItem, ContactLead, TeamMember, BackofficeUser, CompanyRating } from '@/types';
 import { BLOG_POSTS, BLOG_CATEGORIES } from '@/lib/constants/blog-data';
 import { TEAM_MEMBERS } from '@/lib/constants/investoil';
 
@@ -1278,7 +1278,7 @@ export async function saveLead(leadData: Partial<ContactLead>): Promise<ContactL
     targetLead = {
       id: leadData.id || `l-${Date.now()}`,
       name: leadData.name || 'Anónimo',
-      email: leadData.email || 'sin-email@investoil.es',
+      email: leadData.email || 'sin-email@investoil.us',
       subject: leadData.subject || 'Consulta comercial',
       message: leadData.message || '',
       status: leadData.status || 'new',
@@ -1333,6 +1333,74 @@ export async function saveLead(leadData: Partial<ContactLead>): Promise<ContactL
   return targetLead;
 }
 
+function rowToRating(r: any): CompanyRating {
+  return {
+    id: r.id,
+    what_we_do: Number(r.what_we_do),
+    how_we_do_it: Number(r.how_we_do_it),
+    results: Number(r.results),
+    comment: r.comment || null,
+    name: r.name || null,
+    email: r.email || null,
+    lead_id: r.lead_id || null,
+    created_at: new Date(r.created_at).toISOString(),
+  };
+}
+
+export async function getCompanyRatings(): Promise<CompanyRating[]> {
+  if (hasPostgresDb()) {
+    const res = await queryPg('SELECT * FROM company_ratings ORDER BY created_at DESC');
+    if (!res) {
+      throw new Error('No se pudo leer la tabla de valoraciones en PostgreSQL.');
+    }
+    return res.rows.map(rowToRating);
+  }
+  return readJsonFile<CompanyRating[]>('company-ratings.json', []);
+}
+
+export async function saveCompanyRating(
+  data: Pick<CompanyRating, 'what_we_do' | 'how_we_do_it' | 'results'> &
+    Partial<Pick<CompanyRating, 'comment' | 'name' | 'email' | 'lead_id'>>
+): Promise<CompanyRating> {
+  const rating: CompanyRating = {
+    id: `rt-${Date.now()}`,
+    what_we_do: data.what_we_do,
+    how_we_do_it: data.how_we_do_it,
+    results: data.results,
+    comment: data.comment || null,
+    name: data.name || null,
+    email: data.email || null,
+    lead_id: data.lead_id || null,
+    created_at: new Date().toISOString(),
+  };
+
+  if (hasPostgresDb()) {
+    // Una valoración perdida es una métrica perdida: si la base falla, el pop debe enterarse.
+    const saved = await queryPg(
+      `INSERT INTO company_ratings (id, what_we_do, how_we_do_it, results, comment, name, email, lead_id, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        rating.id,
+        rating.what_we_do,
+        rating.how_we_do_it,
+        rating.results,
+        rating.comment,
+        rating.name,
+        rating.email,
+        rating.lead_id,
+        rating.created_at,
+      ]
+    );
+    if (!saved) throw new Error('No se pudo guardar la valoración en PostgreSQL.');
+  } else {
+    const ratings = await getCompanyRatings();
+    ratings.unshift(rating);
+    writeJsonFile('company-ratings.json', ratings);
+  }
+
+  return rating;
+}
+
 // ==========================================
 // 6. ESTADÍSTICAS DEL DASHBOARD
 // ==========================================
@@ -1364,7 +1432,7 @@ export async function getDashboardStats() {
 const DEFAULT_USERS: BackofficeUser[] = [
   {
     id: 'usr-superadmin-01',
-    email: 'admin@investoil.es',
+    email: 'admin@investoil.us',
     name: 'Director de Operaciones & Trading',
     role: 'superadmin',
     status: 'active',
@@ -1390,7 +1458,7 @@ const DEFAULT_USERS: BackofficeUser[] = [
   },
   {
     id: 'usr-kyc-01',
-    email: 'compliance@investoil.es',
+    email: 'compliance@investoil.us',
     name: 'Oficial de Cumplimiento & KYC',
     role: 'compliance_kyc',
     status: 'active',
@@ -1403,7 +1471,7 @@ const DEFAULT_USERS: BackofficeUser[] = [
   },
   {
     id: 'usr-trading-01',
-    email: 'business@investoil.es',
+    email: 'business@investoil.us',
     name: 'Operador Senior de Commodities',
     role: 'operator',
     status: 'active',
@@ -1490,11 +1558,11 @@ export async function getUsers(): Promise<BackofficeUser[]> {
     } catch {}
   }
 
-  // Asegurar que admin@investoil.es y admin@investoil.com existan siempre
-  const hasEs = users.some((u) => u.email.toLowerCase() === 'admin@investoil.es');
+  // Asegurar que admin@investoil.us y admin@investoil.com existan siempre
+  const hasUs = users.some((u) => u.email.toLowerCase() === 'admin@investoil.us');
   const hasCom = users.some((u) => u.email.toLowerCase() === 'admin@investoil.com');
-  if (!hasEs || !hasCom) {
-    if (!hasEs) users.unshift(DEFAULT_USERS[0]);
+  if (!hasUs || !hasCom) {
+    if (!hasUs) users.unshift(DEFAULT_USERS[0]);
     if (!hasCom) users.unshift(DEFAULT_USERS[1]);
     writeJsonFile('users.json', users);
   }

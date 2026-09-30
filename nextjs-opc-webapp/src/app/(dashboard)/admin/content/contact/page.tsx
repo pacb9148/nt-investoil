@@ -60,7 +60,7 @@ export default function ContactContentPage() {
 
           <div>
             <label className={LABEL}>Email de Notificación de Nuevos Leads</label>
-            <input defaultValue="leads@investoil.es" className={INPUT} />
+            <input defaultValue="leads@investoil.us" className={INPUT} />
           </div>
         </div>
 

@@ -205,8 +205,8 @@ export async function ensurePgSchema(): Promise<void> {
       default_og_image TEXT NOT NULL DEFAULT '/images/branding/oil-drop-logo.png',
       twitter_handle TEXT DEFAULT '@InvestOilGlobal',
       keywords JSONB NOT NULL DEFAULT '["petróleo","trading crudo","pet coke","combustibles marinos","invest oil"]'::jsonb,
-      canonical_url TEXT NOT NULL DEFAULT 'https://investoil.es',
-      robots_txt TEXT DEFAULT 'User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: https://investoil.es/sitemap.xml',
+      canonical_url TEXT NOT NULL DEFAULT 'https://investoil.us',
+      robots_txt TEXT DEFAULT 'User-agent: *\nAllow: /\nDisallow: /admin/\nSitemap: https://investoil.us/sitemap.xml',
       updated_at TIMESTAMPTZ DEFAULT NOW()
     );
 
@@ -410,6 +410,19 @@ export async function ensurePgSchema(): Promise<void> {
 
     ALTER TABLE leads ADD COLUMN IF NOT EXISTS subject TEXT;
     ALTER TABLE leads ADD COLUMN IF NOT EXISTS source TEXT;
+
+    -- 25. Valoraciones de la Empresa (pop tras enviar el formulario de contacto)
+    CREATE TABLE IF NOT EXISTS company_ratings (
+      id TEXT PRIMARY KEY,
+      what_we_do INT NOT NULL CHECK (what_we_do BETWEEN 1 AND 5),
+      how_we_do_it INT NOT NULL CHECK (how_we_do_it BETWEEN 1 AND 5),
+      results INT NOT NULL CHECK (results BETWEEN 1 AND 5),
+      comment TEXT,
+      name TEXT,
+      email TEXT,
+      lead_id TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
   `;
 
   try {

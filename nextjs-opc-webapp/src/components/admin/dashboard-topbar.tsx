@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { createClient } from '@/lib/supabase/client';
 
 export function DashboardTopbar({
-  userEmail = 'admin@investoil.es',
+  userEmail = 'admin@investoil.us',
   userName = 'Administrador',
 }: {
   userEmail?: string;

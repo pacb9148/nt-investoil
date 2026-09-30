@@ -129,3 +129,10 @@ Donde dejaste el prompt corregido? y por favor ponle títulos de donde va cada c
 ## 2026-09-28 23:03:16
 
 Gracias, eres muy mucho... Cerramos la sesión por hoy, hasta mañana
+
+## 2026-09-30 20:35:21
+
+Hola, hoy tenemos pocas cosas para hacer.
+
+1. Nuestro dominio oficial es "investoil.us", por favor cambia toda la información y los correos (siguen siendo los mismos) con el nuevo dominio.
+2. Necesito que agregues al formulario de contacto, cuando terminan de escribir el mensaje y al dar al botón enviar salga un pop "valora nuestra empresa" y la opción de calificar con hasta 5 estrellas lo que hacemos, como lo hacemos y nuestros resultados

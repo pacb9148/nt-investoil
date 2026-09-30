@@ -551,7 +551,7 @@ export default function UsersAdminPage() {
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
 
-                          {user.email !== 'admin@investoil.es' && (
+                          {user.email !== 'admin@investoil.us' && (
                             <button
                               type="button"
                               onClick={() => handleDelete(user.id, user.email)}
@@ -611,7 +611,7 @@ export default function UsersAdminPage() {
                   <input
                     type="email"
                     required
-                    placeholder="usuario@investoil.es"
+                    placeholder="usuario@investoil.us"
                     value={formEmail}
                     onChange={(e) => setFormEmail(e.target.value)}
                     className={INPUT_CLASS}

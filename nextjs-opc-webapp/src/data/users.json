@@ -1,7 +1,7 @@
 [
   {
     "id": "usr-superadmin-01",
-    "email": "admin@investoil.es",
+    "email": "admin@investoil.us",
     "name": "Director de Operaciones & Trading",
     "role": "superadmin",
     "status": "active",
@@ -35,7 +35,7 @@
   },
   {
     "id": "usr-kyc-01",
-    "email": "compliance@investoil.es",
+    "email": "compliance@investoil.us",
     "name": "Oficial de Cumplimiento & KYC",
     "role": "compliance_kyc",
     "status": "active",
@@ -51,7 +51,7 @@
   },
   {
     "id": "usr-trading-01",
-    "email": "business@investoil.es",
+    "email": "business@investoil.us",
     "name": "Operador Senior de Commodities",
     "role": "operator",
     "status": "active",

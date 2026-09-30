@@ -561,10 +561,10 @@ export async function getLandingSeo(): Promise<any> {
   // Sanitización estricta: asegurar que emails antiguos nunca se filtren
   if (seoData) {
     if (seoData.contact_email === 'contacto@investoil.es' || seoData.contact_email === 'trading@investoil.es') {
-      seoData.contact_email = 'info@investoil.es';
+      seoData.contact_email = 'info@investoil.us';
     }
     if (seoData.business_email === 'contacto@investoil.es' || seoData.business_email === 'trading@investoil.es') {
-      seoData.business_email = 'business@investoil.es';
+      seoData.business_email = 'business@investoil.us';
     }
   }
 
@@ -574,10 +574,10 @@ export async function getLandingSeo(): Promise<any> {
 export async function saveLandingSeo(data: any): Promise<any> {
   // Asegurar emails canónicos
   if (data.contact_email === 'contacto@investoil.es' || data.contact_email === 'trading@investoil.es') {
-    data.contact_email = 'info@investoil.es';
+    data.contact_email = 'info@investoil.us';
   }
   if (data.business_email === 'contacto@investoil.es' || data.business_email === 'trading@investoil.es') {
-    data.business_email = 'business@investoil.es';
+    data.business_email = 'business@investoil.us';
   }
 
   writeLocalJson('seo.json', data);
@@ -605,7 +605,7 @@ export async function saveLandingSeo(data: any): Promise<any> {
           data.default_og_image || data.og_image || '/images/branding/oil-drop-logo.png',
           data.twitter_handle || null,
           JSON.stringify(data.keywords || []),
-          data.canonical_url || 'https://investoil.es',
+          data.canonical_url || 'https://investoil.us',
           data.robots_txt || null,
         ]
       );

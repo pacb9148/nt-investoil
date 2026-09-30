@@ -152,7 +152,7 @@ async function callSingleModel(
       Authorization: `Bearer ${model.effectiveApiKey}`,
     };
     if (model.providerId === 'openrouter') {
-      headers['HTTP-Referer'] = 'https://investoil.es';
+      headers['HTTP-Referer'] = 'https://investoil.us';
       headers['X-Title'] = 'Invest Oil LLC Assistant';
     }
 
@@ -343,7 +343,7 @@ export async function executeAiChat(
     : null;
   if (repeatedQuestion) {
     systemPromptChunks.push(
-      `--- AVISO: PREGUNTA REPETIDA ---\nEl visitante ya formuló antes, en esta misma conversación, una pregunta equivalente a: "${repeatedQuestion}". No repitas la explicación extensa ni vuelvas a desarrollar el mismo argumento. Reconócelo en una sola frase breve y ofrece de inmediato derivarlo con el equipo humano: pide su nombre, empresa y correo electrónico, e indícale que escriba a business@investoil.es (o info@investoil.es para consultas generales) o complete el formulario de contacto en https://investoil.es/#contact.`
+      `--- AVISO: PREGUNTA REPETIDA ---\nEl visitante ya formuló antes, en esta misma conversación, una pregunta equivalente a: "${repeatedQuestion}". No repitas la explicación extensa ni vuelvas a desarrollar el mismo argumento. Reconócelo en una sola frase breve y ofrece de inmediato derivarlo con el equipo humano: pide su nombre, empresa y correo electrónico, e indícale que escriba a business@investoil.us (o info@investoil.us para consultas generales) o complete el formulario de contacto en https://investoil.us/#contact.`
     );
   }
 
@@ -422,9 +422,9 @@ export async function executeAiChat(
 
 function buildRepeatedQuestionEscalation(isEn: boolean): string {
   if (isEn) {
-    return `As mentioned earlier, we've already covered that point. I'd like to connect you directly with our team: could you share your name, company, and email? You can also write to business@investoil.es (general inquiries: info@investoil.es) or complete our contact form at https://investoil.es/#contact.`;
+    return `As mentioned earlier, we've already covered that point. I'd like to connect you directly with our team: could you share your name, company, and email? You can also write to business@investoil.us (general inquiries: info@investoil.us) or complete our contact form at https://investoil.us/#contact.`;
   }
-  return `Como le comentaba, ese punto ya lo abordamos anteriormente. Para avanzar, prefiero ponerle en contacto directo con nuestro equipo: ¿podría compartirme su nombre, empresa y correo electrónico? También puede escribir a business@investoil.es (consultas generales: info@investoil.es) o completar el formulario de contacto en https://investoil.es/#contact.`;
+  return `Como le comentaba, ese punto ya lo abordamos anteriormente. Para avanzar, prefiero ponerle en contacto directo con nuestro equipo: ¿podría compartirme su nombre, empresa y correo electrónico? También puede escribir a business@investoil.us (consultas generales: info@investoil.us) o completar el formulario de contacto en https://investoil.us/#contact.`;
 }
 
 /**
@@ -490,9 +490,9 @@ function generateKnowledgeBaseResponse(query: string, settings: any, isEn: boole
     q.includes('how much capital')
   ) {
     if (isEn) {
-      return `Invest Oil LLC's financial and banking information is confidential and is not disclosed through this channel. Any verification process is handled directly with our authorized team at business@investoil.es.`;
+      return `Invest Oil LLC's financial and banking information is confidential and is not disclosed through this channel. Any verification process is handled directly with our authorized team at business@investoil.us.`;
     }
-    return `La información financiera y bancaria de Invest Oil LLC es confidencial y no se divulga a través de este canal. Cualquier proceso de verificación se gestiona directamente con nuestro equipo autorizado en business@investoil.es.`;
+    return `La información financiera y bancaria de Invest Oil LLC es confidencial y no se divulga a través de este canal. Cualquier proceso de verificación se gestiona directamente con nuestro equipo autorizado en business@investoil.us.`;
   }
 
   // 2. ESCALAMIENTO OBLIGATORIO A HUMANO: NEGOCIACIÓN, PRECIOS, COMISIONES Y REGALÍAS
@@ -523,9 +523,9 @@ function generateKnowledgeBaseResponse(query: string, settings: any, isEn: boole
     q.includes('deal')
   ) {
     if (isEn) {
-      return `Pricing, commercial agreements, commissions, and contractual terms are strictly negotiated and finalized by our executive directors. As an AI assistant, I am not authorized to set prices or commit commercial terms.\n\nPlease submit your corporate profile and formal request to business@investoil.es (or general inquiries to info@investoil.es), or complete our website contact form at https://investoil.es/#contact so an executive officer can assist you directly.`;
+      return `Pricing, commercial agreements, commissions, and contractual terms are strictly negotiated and finalized by our executive directors. As an AI assistant, I am not authorized to set prices or commit commercial terms.\n\nPlease submit your corporate profile and formal request to business@investoil.us (or general inquiries to info@investoil.us), or complete our website contact form at https://investoil.us/#contact so an executive officer can assist you directly.`;
     }
-    return `Como asistente virtual no tengo autorización para fijar precios, pactar comisiones de intermediación, acordar regalías ni cerrar acuerdos comerciales. Dichas materias son gestionadas exclusivamente por nuestros directores comerciales.\n\nLe invitamos a remitir el perfil de su empresa y requerimiento a business@investoil.es (o consultas generales a info@investoil.es) o a través del formulario de contacto oficial en https://investoil.es/#contact para que un ejecutivo comercial le atienda de manera directa.`;
+    return `Como asistente virtual no tengo autorización para fijar precios, pactar comisiones de intermediación, acordar regalías ni cerrar acuerdos comerciales. Dichas materias son gestionadas exclusivamente por nuestros directores comerciales.\n\nLe invitamos a remitir el perfil de su empresa y requerimiento a business@investoil.us (o consultas generales a info@investoil.us) o a través del formulario de contacto oficial en https://investoil.us/#contact para que un ejecutivo comercial le atienda de manera directa.`;
   }
 
   // 3. AUTORIDADES Y CONSEJO DIRECTIVO
@@ -576,9 +576,9 @@ function generateKnowledgeBaseResponse(query: string, settings: any, isEn: boole
     q.includes('requirements')
   ) {
     if (isEn) {
-      return `To establish commercial relations with Invest Oil LLC, the standard procedure is:\n1. Submit an Irrevocable Corporate Purchase Order (ICPO) with banking coordinates.\n2. Pass KYC/AML corporate vetting led by our Compliance Department.\n3. Provide financial verification (Bank Comfort Letter - BCL or Proof of Funds - POF).\n4. Receive Full Corporate Offer (FCO) and draft contract (SPA) with independent inspection (SGS/Saybolt).\n\nFormal procurement inquiries are processed via business@investoil.es or our web contact form (general inquiries at info@investoil.es).`;
+      return `To establish commercial relations with Invest Oil LLC, the standard procedure is:\n1. Submit an Irrevocable Corporate Purchase Order (ICPO) with banking coordinates.\n2. Pass KYC/AML corporate vetting led by our Compliance Department.\n3. Provide financial verification (Bank Comfort Letter - BCL or Proof of Funds - POF).\n4. Receive Full Corporate Offer (FCO) and draft contract (SPA) with independent inspection (SGS/Saybolt).\n\nFormal procurement inquiries are processed via business@investoil.us or our web contact form (general inquiries at info@investoil.us).`;
     }
-    return `El procedimiento oficial para iniciar operaciones comerciales con Invest Oil LLC comprende:\n1. Emisión de una Orden Corporativa Irrevocable (ICPO) membretada con coordenadas bancarias.\n2. Evaluación y debida diligencia de cumplimiento normativo (KYC / AML).\n3. Verificación de solvencia financiera (Bank Comfort Letter - BCL o POF).\n4. Emisión de oferta corporativa (FCO) y contrato de compraventa (SPA) con inspección independiente (SGS o Saybolt).\n\nLas solicitudes comerciales se procesan formalmente a través de business@investoil.es o nuestro formulario web (consultas preliminares en info@investoil.es).`;
+    return `El procedimiento oficial para iniciar operaciones comerciales con Invest Oil LLC comprende:\n1. Emisión de una Orden Corporativa Irrevocable (ICPO) membretada con coordenadas bancarias.\n2. Evaluación y debida diligencia de cumplimiento normativo (KYC / AML).\n3. Verificación de solvencia financiera (Bank Comfort Letter - BCL o POF).\n4. Emisión de oferta corporativa (FCO) y contrato de compraventa (SPA) con inspección independiente (SGS o Saybolt).\n\nLas solicitudes comerciales se procesan formalmente a través de business@investoil.us o nuestro formulario web (consultas preliminares en info@investoil.us).`;
   }
 
   // 5. IDENTIDAD CORPORATIVA Y JURISDICCIÓN (DELAWARE USA)
@@ -623,9 +623,9 @@ function generateKnowledgeBaseResponse(query: string, settings: any, isEn: boole
     q.includes('address')
   ) {
     if (isEn) {
-      return `Invest Oil LLC has its registered legal headquarters in Delaware, USA, and coordinates global commercial operations from Houston (Global HQ), Madrid (European Desk), and Bogotá (Latin America Desk).\n\nFor general inquiries, email info@investoil.es, or for commercial business, contact business@investoil.es (or visit https://investoil.es/#contact).`;
+      return `Invest Oil LLC has its registered legal headquarters in Delaware, USA, and coordinates global commercial operations from Houston (Global HQ), Madrid (European Desk), and Bogotá (Latin America Desk).\n\nFor general inquiries, email info@investoil.us, or for commercial business, contact business@investoil.us (or visit https://investoil.us/#contact).`;
     }
-    return `Invest Oil LLC cuenta con sede legal registrada en Delaware (EE. UU.) y coordina sus operaciones comerciales globales desde Houston (Sede Global), Madrid (European Desk) y Bogotá (Latin America Desk).\n\nPara consultas preliminares puede escribir a info@investoil.es, y para operaciones directas a business@investoil.es (o completar el formulario en https://investoil.es/#contact).`;
+    return `Invest Oil LLC cuenta con sede legal registrada en Delaware (EE. UU.) y coordina sus operaciones comerciales globales desde Houston (Sede Global), Madrid (European Desk) y Bogotá (Latin America Desk).\n\nPara consultas preliminares puede escribir a info@investoil.us, y para operaciones directas a business@investoil.us (o completar el formulario en https://investoil.us/#contact).`;
   }
 
   // 7. PRODUCTOS ESPECÍFICOS
