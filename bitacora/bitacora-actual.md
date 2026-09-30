@@ -136,3 +136,7 @@ Hola, hoy tenemos pocas cosas para hacer.
 
 1. Nuestro dominio oficial es "investoil.us", por favor cambia toda la información y los correos (siguen siendo los mismos) con el nuevo dominio.
 2. Necesito que agregues al formulario de contacto, cuando terminan de escribir el mensaje y al dar al botón enviar salga un pop "valora nuestra empresa" y la opción de calificar con hasta 5 estrellas lo que hacemos, como lo hacemos y nuestros resultados
+
+## 2026-09-30 21:36:15
+
+Sigue saliendo investoil.es en lugar de investoil.us como te pedí, quiero que reemplaces todo investoil.es por investoil.us

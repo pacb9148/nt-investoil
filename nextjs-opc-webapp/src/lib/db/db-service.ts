@@ -994,6 +994,84 @@ async function clearMediaReferencesInSections(targetUrls: Set<string>, targetFil
   }
 }
 
+export interface DomainFixSummary {
+  scanned: number;
+  updated: number;
+  updatedSectionIds: string[];
+}
+
+/**
+ * Corrige un dominio ya guardado en producción (p. ej. tras migrar de investoil.es a investoil.us):
+ * cambiar solo el valor por defecto en el código no toca lo que un admin ya guardó desde los
+ * formularios — esa es la brecha real que dejaba el dominio viejo visible en el sitio en vivo pese a
+ * haber actualizado el código. Recorre TODO el contenido de `landing_sections` (Hero, Cabecera, SEO,
+ * Pie de página, prompt de Oli, Retos, Servicios, Actualidad, Productos, Equipo, Testimonios, FAQ...)
+ * y sustituye el dominio antiguo por el nuevo en cualquier campo de texto, sin necesitar conocer de
+ * antemano en qué sección o campo vive cada URL o correo.
+ */
+export async function fixDomainInStoredSections(oldDomain: string, newDomain: string): Promise<DomainFixSummary> {
+  const summary: DomainFixSummary = { scanned: 0, updated: 0, updatedSectionIds: [] };
+  if (!hasPostgresDb()) return summary;
+
+  // Las direcciones ya retiradas (contacto@/trading@) son marcadores históricos de detección de una
+  // migración anterior (Fase 21), no direcciones vivas: se preservan literales, igual que en el
+  // reemplazo que se hizo en el código fuente.
+  const domainPattern = new RegExp(
+    `(?<!contacto@)(?<!trading@)${oldDomain.replace(/\./g, '\\.')}`,
+    'gi'
+  );
+
+  const scrub = (value: unknown): { value: unknown; changed: boolean } => {
+    if (typeof value === 'string') {
+      if (!domainPattern.test(value)) return { value, changed: false };
+      domainPattern.lastIndex = 0;
+      return { value: value.replace(domainPattern, newDomain), changed: true };
+    }
+    if (Array.isArray(value)) {
+      let changed = false;
+      const next = value.map((item) => {
+        const r = scrub(item);
+        if (r.changed) changed = true;
+        return r.value;
+      });
+      return { value: next, changed };
+    }
+    if (value && typeof value === 'object') {
+      let changed = false;
+      const next: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+        const r = scrub(v);
+        if (r.changed) changed = true;
+        next[k] = r.value;
+      }
+      return { value: next, changed };
+    }
+    return { value, changed: false };
+  };
+
+  const res = await queryPg('SELECT id, content FROM landing_sections');
+  if (!res) {
+    throw new Error('No se pudo leer landing_sections en PostgreSQL.');
+  }
+
+  for (const row of res.rows) {
+    summary.scanned += 1;
+    const { value, changed } = scrub(row.content);
+    if (!changed) continue;
+    const saved = await queryPg(
+      `UPDATE landing_sections SET content = $2, updated_at = NOW() WHERE id = $1`,
+      [row.id, JSON.stringify(value)]
+    );
+    if (!saved) {
+      throw new Error(`No se pudo actualizar la sección «${row.id}» al corregir el dominio.`);
+    }
+    summary.updated += 1;
+    summary.updatedSectionIds.push(row.id);
+  }
+
+  return summary;
+}
+
 // Tablas de contenido que pueden apuntar a un archivo de la biblioteca (lista fija: nunca viene del cliente).
 const MEDIA_REFERENCE_TABLES: Array<{ table: string; label: string }> = [
   { table: 'landing_hero', label: 'Hero principal' },
