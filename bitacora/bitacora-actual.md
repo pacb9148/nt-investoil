@@ -148,3 +148,7 @@ Mira lo que me sale al poner la dirección, o es en el local?
 ## 2026-09-30 22:08:20
 
 Ahora me está mostrando trading@investoil.es que ya no existe, por favor limpia todo lo que sea con el dominio investoil.es y cámbialo por investoil.us, en todo el repo local y en el remoto, elimina todos los registros que se guardaban en archivos .json cuando no tenias acceso a la base de datos, revisa de donde viene ese correo que no debería existir y elimínalo
+
+## 2026-09-30 22:46:39
+
+bien, cerramos por hoy, gracias
