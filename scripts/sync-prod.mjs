@@ -5,7 +5,7 @@ async function syncProductionData() {
   console.log('--- Sincronizando datos de produccion ---');
   
   // 1. Obtener posts de produccion
-  const postsRes = await fetch('https://investoil.es/api/posts');
+  const postsRes = await fetch('https://investoil.us/api/posts');
   const posts = await postsRes.json();
   console.log('Encontrados ' + posts.length + ' posts en produccion.');
   
@@ -21,7 +21,7 @@ async function syncProductionData() {
   }
 
   // 2. Obtener team de produccion
-  const teamRes = await fetch('https://investoil.es/api/content/team');
+  const teamRes = await fetch('https://investoil.us/api/content/team');
   const team = await teamRes.json();
   console.log('Encontrados ' + team.length + ' miembros del team en produccion.');
   
@@ -61,7 +61,7 @@ async function syncProductionData() {
     const filename = path.basename(relUrl);
     console.log('Descargando ' + relUrl + '...');
     try {
-      const res = await fetch('https://investoil.es' + relUrl);
+      const res = await fetch('https://investoil.us' + relUrl);
       if (res.ok) {
         const buffer = Buffer.from(await res.arrayBuffer());
         for (const dir of uploadDirs) {
