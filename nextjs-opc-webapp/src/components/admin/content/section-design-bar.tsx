@@ -28,6 +28,7 @@ export function SectionDesignBar({
   const [color, setColor] = useState<string>(defaultBgColor || '#07090e');
   const [saving, setSaving] = useState<boolean>(false);
   const [saved, setSaved] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Cargar el color actual de la sección desde la API
@@ -51,6 +52,7 @@ export function SectionDesignBar({
   const handleSaveColor = async () => {
     setSaving(true);
     setSaved(false);
+    setError(null);
     try {
       const res = await fetch('/api/content/appearance', {
         method: 'POST',
@@ -64,9 +66,13 @@ export function SectionDesignBar({
       if (res.ok) {
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || 'No se pudo guardar el color. El cambio no se aplicó.');
       }
     } catch (e) {
       console.error('Error al guardar color de sección:', e);
+      setError('Error de conexión al guardar. El cambio no se aplicó.');
     } finally {
       setSaving(false);
     }
@@ -117,6 +123,10 @@ export function SectionDesignBar({
           </button>
         </div>
       </div>
+
+      {error && (
+        <p className="text-[11px] text-rose-400 font-mono">{error}</p>
+      )}
 
       <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border/50">
         <div className="flex items-center gap-2">

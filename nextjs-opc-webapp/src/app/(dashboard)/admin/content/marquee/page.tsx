@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, CheckCircle2, RefreshCw, Plus, Trash2, ExternalLink, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Save, CheckCircle2, AlertCircle, RefreshCw, Plus, Trash2, ExternalLink, TrendingUp } from 'lucide-react';
 import { CommodityPrice } from '@/app/api/market-prices/route';
 import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
 
@@ -14,6 +14,7 @@ export default function MarqueePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const [enabled, setEnabled] = useState(true);
   const [showLivePrices, setShowLivePrices] = useState(true);
@@ -84,6 +85,7 @@ export default function MarqueePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setSaveError(null);
 
     const payload = {
       enabled,
@@ -108,9 +110,13 @@ export default function MarqueePage() {
         setSaved(true);
         window.dispatchEvent(new CustomEvent('investoil_marquee_updated'));
         setTimeout(() => setSaved(false), 3000);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setSaveError(data.error || 'No se pudo guardar el marquee. El cambio no se aplicó.');
       }
     } catch (e) {
       console.error('Error guardando marquee:', e);
+      setSaveError('Error de conexión al guardar. El cambio no se aplicó.');
     } finally {
       setSaving(false);
     }
@@ -392,6 +398,12 @@ export default function MarqueePage() {
           <div className="flex items-center gap-2 p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>✓ Configuración de Marquee guardada y transmitida en vivo</span>
+          </div>
+        )}
+        {saveError && (
+          <div className="flex items-center gap-2 p-3.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{saveError}</span>
           </div>
         )}
 

@@ -102,8 +102,8 @@ export function PublicAiOrbe() {
             id: (Date.now() + 1).toString(),
             sender: 'agent',
             text: isEn
-              ? 'You can send your enquiry directly to info@investoil.us, or to business@investoil.us for operations and contracts.'
-              : 'En este momento puede canalizar su consulta directamente a info@investoil.us o para operaciones y contratos a business@investoil.us.',
+              ? 'You can send your enquiry directly to business@investoil.us.'
+              : 'En este momento puede canalizar su consulta directamente a business@investoil.us.',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           },
         ]);
@@ -115,8 +115,8 @@ export function PublicAiOrbe() {
           id: (Date.now() + 1).toString(),
           sender: 'agent',
           text: isEn
-            ? 'Connection temporarily interrupted. You can reach our team at info@investoil.us, or at business@investoil.us for commercial agreements.'
-            : 'Conexión temporalmente interrumpida. Puede contactar a nuestro equipo vía info@investoil.us o para acuerdos comerciales en business@investoil.us.',
+            ? 'Connection temporarily interrupted. You can reach our team at business@investoil.us.'
+            : 'Conexión temporalmente interrumpida. Puede contactar a nuestro equipo vía business@investoil.us.',
           timestamp: isEn ? 'Now' : 'Ahora',
         },
       ]);

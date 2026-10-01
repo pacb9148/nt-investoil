@@ -193,14 +193,11 @@ export default function SettingsContentPage() {
         setSaved(true);
         setTimeout(() => setSaved(false), 3500);
       } else {
-        saveClientSiteSettings(settings);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 3500);
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || 'No se pudo guardar en la base de datos. El cambio no se aplicó.');
       }
     } catch {
-      saveClientSiteSettings(settings);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3500);
+      setError('Error de conexión al guardar. El cambio no se aplicó.');
     } finally {
       setLoading(false);
     }
@@ -497,7 +494,7 @@ export default function SettingsContentPage() {
                 value={settings.email}
                 onChange={(e) => setSettings({ ...settings, email: e.target.value })}
                 className={INPUT_STYLE}
-                placeholder="info@investoil.us"
+                placeholder="business@investoil.us"
               />
             </div>
             <div>

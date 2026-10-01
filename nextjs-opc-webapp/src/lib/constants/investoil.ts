@@ -6,7 +6,7 @@ export const COMPANY_INFO = {
   tagline: 'Conexiones globales en el mercado petrolero',
   subtagline: 'Connecting buyers and sellers, driving the future of energy',
   heroSubtitle: 'Acceso a mercados diversificados, apoyo en negociaciones y gestión experta de riesgo financiero y operativo.',
-  email: 'info@investoil.us',
+  email: 'business@investoil.us',
   businessEmail: 'business@investoil.us',
   schedule: 'Lun–Vie · 09:00–18:00 CET',
   linkedin: 'https://www.linkedin.com/',

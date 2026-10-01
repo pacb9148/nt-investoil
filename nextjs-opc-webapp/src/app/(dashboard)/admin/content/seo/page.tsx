@@ -85,7 +85,7 @@ const DEFAULT_SEO: LandingSeoConfig = {
     'Invest Oil LLC, Delaware USA energy corporation, crude oil trading, brent, merey 16, jet fuel a1, en590 diesel, maritime logistics, houston petroleum desk',
   canonical_url: 'https://investoil.us',
   og_image: '/images/branding/oil-drop-logo.png',
-  contact_email: 'info@investoil.us',
+  contact_email: 'business@investoil.us',
   telephone: '+1 (713) 555-0190',
   linkedin_url: 'https://www.linkedin.com/company/invest-oil-llc',
   geo_region: 'US-DE',
@@ -110,8 +110,11 @@ export default function SeoEditorPage() {
       .then((data) => {
         if (data && typeof data === 'object') {
           const sanitizedContactEmail =
-            (!data.contact_email || data.contact_email === 'contacto@investoil.es' || data.contact_email === 'trading@investoil.es')
-              ? 'info@investoil.us'
+            (!data.contact_email ||
+              data.contact_email === 'contacto@investoil.es' ||
+              data.contact_email === 'trading@investoil.es' ||
+              data.contact_email === 'info@investoil.us')
+              ? 'business@investoil.us'
               : data.contact_email;
 
           setFormData((prev) => ({
@@ -264,9 +267,10 @@ export default function SeoEditorPage() {
     email:
       formData.contact_email &&
       formData.contact_email !== 'contacto@investoil.es' &&
-      formData.contact_email !== 'trading@investoil.es'
+      formData.contact_email !== 'trading@investoil.es' &&
+      formData.contact_email !== 'info@investoil.us'
         ? formData.contact_email
-        : 'info@investoil.us',
+        : 'business@investoil.us',
     telephone: formData.telephone || undefined,
     sameAs: formData.linkedin_url ? [formData.linkedin_url] : [],
   };
@@ -894,7 +898,7 @@ export default function SeoEditorPage() {
                       value={formData.contact_email}
                       onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                       className={INPUT}
-                      placeholder="info@investoil.us"
+                      placeholder="business@investoil.us"
                     />
                   </div>
 

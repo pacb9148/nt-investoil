@@ -9,13 +9,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { COMPANY_INFO } from '@/lib/constants/investoil';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { useSiteSettings } from '@/lib/services/site-settings';
 import { CompanyRatingModal } from './company-rating-modal';
 
 export function ContactSection({ customBg }: { customBg?: string }) {
   const { t, language } = useLanguage();
   const isEn = language === 'en';
+  const settings = useSiteSettings();
   // Mensajes de validación (definidos en español en el esquema) mostrados en el idioma elegido.
   const ERRORS_EN: Record<string, string> = {
     'El nombre debe tener al menos 2 caracteres': 'Name must be at least 2 characters long',
@@ -89,22 +90,24 @@ export function ContactSection({ customBg }: { customBg?: string }) {
             </p>
 
             <div className="space-y-4 pt-4">
-              <div className="flex items-start gap-3.5 p-4 rounded-xl border border-border bg-card">
-                <div className="p-2.5 rounded-lg bg-accent/10 border border-accent/20 text-accent shrink-0">
-                  <Mail className="w-5 h-5" />
+              {settings.email && (
+                <div className="flex items-start gap-3.5 p-4 rounded-xl border border-border bg-card">
+                  <div className="p-2.5 rounded-lg bg-accent/10 border border-accent/20 text-accent shrink-0">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-bold text-sm text-text">
+                      {t.contact.email}
+                    </h3>
+                    <a
+                      href={`mailto:${settings.email}`}
+                      className="text-xs text-text-muted hover:text-accent transition-colors"
+                    >
+                      {settings.email}
+                    </a>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-heading font-bold text-sm text-text">
-                    {t.contact.email}
-                  </h3>
-                  <a
-                    href={`mailto:${COMPANY_INFO.email}`}
-                    className="text-xs text-text-muted hover:text-accent transition-colors"
-                  >
-                    {COMPANY_INFO.email}
-                  </a>
-                </div>
-              </div>
+              )}
 
 
               <div className="flex items-start gap-3.5 p-4 rounded-xl border border-border bg-card">

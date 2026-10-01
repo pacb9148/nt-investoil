@@ -20,12 +20,21 @@ function getSettingsFilePath(): string {
 
 import { getSectionFromPg, saveSectionToPg, saveLandingFooter } from '@/lib/services/content-service';
 
+// info@investoil.us se retiró en favor de un único canal (business@investoil.us); igual que con los
+// dominios, un valor ya guardado por un admin no se corrige solo porque cambie el default en el código.
+function sanitizeEmail(data: SiteSettingsData): SiteSettingsData {
+  if (data.email === 'info@investoil.us') {
+    return { ...data, email: 'business@investoil.us' };
+  }
+  return data;
+}
+
 export async function GET() {
   try {
     // 1. Intentar leer desde PostgreSQL (fuente primaria y persistente)
     const pgData = await getSectionFromPg<SiteSettingsData>('site_settings');
     if (pgData && typeof pgData === 'object') {
-      return NextResponse.json({ ...DEFAULT_SITE_SETTINGS, ...pgData });
+      return NextResponse.json(sanitizeEmail({ ...DEFAULT_SITE_SETTINGS, ...pgData }));
     }
 
     // 2. Fallback a archivo JSON local solo sin base de datos (desarrollo)
@@ -33,7 +42,7 @@ export async function GET() {
     if (!hasPostgresDb() && fs.existsSync(filePath)) {
       const raw = fs.readFileSync(filePath, 'utf-8');
       const data = JSON.parse(raw);
-      return NextResponse.json({ ...DEFAULT_SITE_SETTINGS, ...data });
+      return NextResponse.json(sanitizeEmail({ ...DEFAULT_SITE_SETTINGS, ...data }));
     }
     return NextResponse.json(DEFAULT_SITE_SETTINGS);
   } catch {
@@ -62,9 +71,10 @@ export async function POST(request: NextRequest) {
       // Usar defaults
     }
 
+    const rawEmail = body.email ?? current.email;
     const updated: SiteSettingsData = {
       companyName: body.companyName ?? current.companyName,
-      email: body.email ?? current.email,
+      email: rawEmail === 'info@investoil.us' ? 'business@investoil.us' : rawEmail,
       schedule: body.schedule ?? current.schedule,
       copyright: body.copyright ?? current.copyright,
       copyrightEn: body.copyrightEn ?? current.copyrightEn,

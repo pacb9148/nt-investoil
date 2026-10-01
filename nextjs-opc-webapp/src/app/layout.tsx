@@ -105,9 +105,10 @@ export default async function RootLayout({
   const corporateEmail =
     seo.contact_email &&
     seo.contact_email !== 'contacto@investoil.es' &&
-    seo.contact_email !== 'trading@investoil.es'
+    seo.contact_email !== 'trading@investoil.es' &&
+    seo.contact_email !== 'info@investoil.us'
       ? seo.contact_email
-      : 'info@investoil.us';
+      : 'business@investoil.us';
 
   const corporateJsonLd = {
     '@context': 'https://schema.org',

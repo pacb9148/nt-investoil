@@ -95,8 +95,8 @@ export function LegalPageView({ slug, initialData }: LegalPageViewProps) {
               </strong>
               <p className="text-rose-200/90 text-xs">
                 {lang === 'en'
-                  ? 'Invest Oil LLC never requests advance fee deposits to personal bank accounts nor operates outside official corporate domain channels (@investoil.us). Report any suspicious solicitation to info@investoil.us.'
-                  : 'Invest Oil LLC nunca solicita anticipos de honorarios a cuentas bancarias personales ni opera fuera de los canales oficiales corporativos (@investoil.us). Reporte cualquier oferta sospechosa a info@investoil.us.'}
+                  ? 'Invest Oil LLC never requests advance fee deposits to personal bank accounts nor operates outside official corporate domain channels (@investoil.us). Report any suspicious solicitation to business@investoil.us.'
+                  : 'Invest Oil LLC nunca solicita anticipos de honorarios a cuentas bancarias personales ni opera fuera de los canales oficiales corporativos (@investoil.us). Reporte cualquier oferta sospechosa a business@investoil.us.'}
               </p>
             </div>
           </div>
@@ -136,14 +136,6 @@ export function LegalPageView({ slug, initialData }: LegalPageViewProps) {
             <span>Invest Oil LLC · Delaware LLC · Compliance & Legal Department</span>
           </div>
           <div className="flex items-center gap-3">
-            <a
-              href="mailto:info@investoil.us"
-              className="inline-flex items-center gap-1 hover:text-amber-300 transition-colors"
-            >
-              <Mail className="w-3.5 h-3.5 text-amber-400" />
-              <span>info@investoil.us</span>
-            </a>
-            <span>•</span>
             <a
               href="mailto:business@investoil.us"
               className="inline-flex items-center gap-1 hover:text-amber-300 transition-colors"

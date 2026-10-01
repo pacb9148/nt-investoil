@@ -12,6 +12,7 @@ import {
   Scale,
   Cookie,
   AlertTriangle,
+  AlertCircle,
   Eye,
   ExternalLink,
   Globe,
@@ -49,6 +50,7 @@ export default function LegalesContentPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [selectedSlug, setSelectedSlug] = useState('aviso-de-privacidad');
   const [editorLang, setEditorLang] = useState<'es' | 'en'>('es');
 
@@ -119,6 +121,7 @@ export default function LegalesContentPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setSaveError(null);
 
     const updatedAll = {
       ...allPages,
@@ -141,9 +144,13 @@ export default function LegalesContentPage() {
           })
         );
         setTimeout(() => setSaved(false), 3000);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setSaveError(data.error || 'No se pudo guardar la página legal. El cambio no se aplicó.');
       }
     } catch (e) {
       console.error('Error guardando página legal:', e);
+      setSaveError('Error de conexión al guardar. El cambio no se aplicó.');
     } finally {
       setSaving(false);
     }
@@ -376,11 +383,17 @@ export default function LegalesContentPage() {
           </div>
         </div>
 
-        {/* Mensaje de Confirmación */}
+        {/* Mensaje de Confirmación o Error */}
         {saved && (
           <div className="flex items-center gap-2 p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>Página legal guardada correctamente y sincronizada en PostgreSQL.</span>
+          </div>
+        )}
+        {saveError && (
+          <div className="flex items-center gap-2 p-3.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{saveError}</span>
           </div>
         )}
 

@@ -1009,39 +1009,17 @@ export interface DomainFixSummary {
  * y sustituye el dominio antiguo por el nuevo en cualquier campo de texto, sin necesitar conocer de
  * antemano en qué sección o campo vive cada URL o correo.
  */
-export async function fixDomainInStoredSections(oldDomain: string, newDomain: string): Promise<DomainFixSummary> {
+/**
+ * Recorre TODO el contenido de `landing_sections` aplicando `fixText` a cada campo de texto, sin
+ * necesitar conocer de antemano en qué sección o campo vive el valor a corregir. Base compartida por
+ * `fixDomainInStoredSections` y `fixEmailAliasInStoredSections`: ambas son el mismo problema (un
+ * literal ya guardado en producción que el cambio de un valor por defecto en el código no toca).
+ */
+async function scrubStoredSectionsText(
+  fixText: (text: string) => { value: string; changed: boolean }
+): Promise<DomainFixSummary> {
   const summary: DomainFixSummary = { scanned: 0, updated: 0, updatedSectionIds: [] };
   if (!hasPostgresDb()) return summary;
-
-  const escapedOld = oldDomain.replace(/\./g, '\\.');
-  // Alias ya retirados en una migración anterior (Fase 21): a diferencia de las comparaciones en el
-  // código fuente (que SÍ necesitan el literal antiguo para reconocer datos viejos), lo que esté
-  // guardado como contenido real con uno de estos alias no debe quedarse igual con solo el dominio
-  // cambiado — hay que llevarlo al canal vigente correspondiente. La primera versión de esta función
-  // los dejaba intactos por error, y así se coló «trading@investoil.es» en una respuesta de Oli.
-  const retiredAliases: Array<{ pattern: RegExp; replacement: string }> = [
-    { pattern: new RegExp(`contacto@${escapedOld}`, 'gi'), replacement: `info@${newDomain}` },
-    { pattern: new RegExp(`trading@${escapedOld}`, 'gi'), replacement: `business@${newDomain}` },
-  ];
-  const domainPattern = new RegExp(escapedOld, 'gi');
-
-  const fixText = (text: string): { value: string; changed: boolean } => {
-    let out = text;
-    let changed = false;
-    for (const { pattern, replacement } of retiredAliases) {
-      if (pattern.test(out)) {
-        pattern.lastIndex = 0;
-        out = out.replace(pattern, replacement);
-        changed = true;
-      }
-    }
-    if (domainPattern.test(out)) {
-      domainPattern.lastIndex = 0;
-      out = out.replace(domainPattern, newDomain);
-      changed = true;
-    }
-    return { value: out, changed };
-  };
 
   const scrub = (value: unknown): { value: unknown; changed: boolean } => {
     if (typeof value === 'string') {
@@ -1083,13 +1061,66 @@ export async function fixDomainInStoredSections(oldDomain: string, newDomain: st
       [row.id, JSON.stringify(value)]
     );
     if (!saved) {
-      throw new Error(`No se pudo actualizar la sección «${row.id}» al corregir el dominio.`);
+      throw new Error(`No se pudo actualizar la sección «${row.id}».`);
     }
     summary.updated += 1;
     summary.updatedSectionIds.push(row.id);
   }
 
   return summary;
+}
+
+export async function fixDomainInStoredSections(oldDomain: string, newDomain: string): Promise<DomainFixSummary> {
+  const escapedOld = oldDomain.replace(/\./g, '\\.');
+  // Alias ya retirados en una migración anterior (Fase 21): a diferencia de las comparaciones en el
+  // código fuente (que SÍ necesitan el literal antiguo para reconocer datos viejos), lo que esté
+  // guardado como contenido real con uno de estos alias no debe quedarse igual con solo el dominio
+  // cambiado — hay que llevarlo al canal vigente correspondiente. La primera versión de esta función
+  // los dejaba intactos por error, y así se coló «trading@investoil.es» en una respuesta de Oli.
+  const retiredAliases: Array<{ pattern: RegExp; replacement: string }> = [
+    { pattern: new RegExp(`contacto@${escapedOld}`, 'gi'), replacement: `info@${newDomain}` },
+    { pattern: new RegExp(`trading@${escapedOld}`, 'gi'), replacement: `business@${newDomain}` },
+  ];
+  const domainPattern = new RegExp(escapedOld, 'gi');
+
+  const fixText = (text: string): { value: string; changed: boolean } => {
+    let out = text;
+    let changed = false;
+    for (const { pattern, replacement } of retiredAliases) {
+      if (pattern.test(out)) {
+        pattern.lastIndex = 0;
+        out = out.replace(pattern, replacement);
+        changed = true;
+      }
+    }
+    if (domainPattern.test(out)) {
+      domainPattern.lastIndex = 0;
+      out = out.replace(domainPattern, newDomain);
+      changed = true;
+    }
+    return { value: out, changed };
+  };
+
+  return scrubStoredSectionsText(fixText);
+}
+
+/**
+ * Corrige un alias de correo ya retirado pero todavía guardado en producción (p. ej. tras unificar
+ * info@investoil.us en business@investoil.us): igual que con el dominio, cambiar solo el valor por
+ * defecto en el código no toca lo que un admin ya guardó, ni el texto que ese correo dejó escrito
+ * dentro de otros campos (FAQs entrenadas, páginas legales, prompt de Oli...).
+ */
+export async function fixEmailAliasInStoredSections(oldEmail: string, newEmail: string): Promise<DomainFixSummary> {
+  const escapedOld = oldEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(escapedOld, 'gi');
+
+  const fixText = (text: string): { value: string; changed: boolean } => {
+    if (!pattern.test(text)) return { value: text, changed: false };
+    pattern.lastIndex = 0;
+    return { value: text.replace(pattern, newEmail), changed: true };
+  };
+
+  return scrubStoredSectionsText(fixText);
 }
 
 // Tablas de contenido que pueden apuntar a un archivo de la biblioteca (lista fija: nunca viene del cliente).

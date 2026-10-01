@@ -558,12 +558,22 @@ export async function getLandingSeo(): Promise<any> {
     seoData = readLocalJson<any>('seo.json', {});
   }
 
-  // Sanitización estricta: asegurar que emails antiguos nunca se filtren
+  // Sanitización estricta: asegurar que emails retirados nunca se filtren.
+  // info@investoil.us se retiró a su vez en favor de un único canal (business@investoil.us),
+  // así que se trata igual que los alias ya retirados de la migración de dominio anterior.
   if (seoData) {
-    if (seoData.contact_email === 'contacto@investoil.es' || seoData.contact_email === 'trading@investoil.es') {
-      seoData.contact_email = 'info@investoil.us';
+    if (
+      seoData.contact_email === 'contacto@investoil.es' ||
+      seoData.contact_email === 'trading@investoil.es' ||
+      seoData.contact_email === 'info@investoil.us'
+    ) {
+      seoData.contact_email = 'business@investoil.us';
     }
-    if (seoData.business_email === 'contacto@investoil.es' || seoData.business_email === 'trading@investoil.es') {
+    if (
+      seoData.business_email === 'contacto@investoil.es' ||
+      seoData.business_email === 'trading@investoil.es' ||
+      seoData.business_email === 'info@investoil.us'
+    ) {
       seoData.business_email = 'business@investoil.us';
     }
   }
@@ -573,10 +583,18 @@ export async function getLandingSeo(): Promise<any> {
 
 export async function saveLandingSeo(data: any): Promise<any> {
   // Asegurar emails canónicos
-  if (data.contact_email === 'contacto@investoil.es' || data.contact_email === 'trading@investoil.es') {
-    data.contact_email = 'info@investoil.us';
+  if (
+    data.contact_email === 'contacto@investoil.es' ||
+    data.contact_email === 'trading@investoil.es' ||
+    data.contact_email === 'info@investoil.us'
+  ) {
+    data.contact_email = 'business@investoil.us';
   }
-  if (data.business_email === 'contacto@investoil.es' || data.business_email === 'trading@investoil.es') {
+  if (
+    data.business_email === 'contacto@investoil.es' ||
+    data.business_email === 'trading@investoil.es' ||
+    data.business_email === 'info@investoil.us'
+  ) {
     data.business_email = 'business@investoil.us';
   }
 

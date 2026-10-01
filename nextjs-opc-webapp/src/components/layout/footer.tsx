@@ -130,15 +130,17 @@ export function Footer({ initialSettings }: { initialSettings?: SiteSettingsData
 
               {/* Contacto Directo */}
               <div className="pt-2 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-text-muted border-t border-border/50">
-                <div className="flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <a
-                    href={`mailto:${settings.email || COMPANY_INFO.email}`}
-                    className="hover:text-accent font-mono text-xs transition-colors"
-                  >
-                    {settings.email || COMPANY_INFO.email}
-                  </a>
-                </div>
+                {settings.email && (
+                  <div className="flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
+                    <a
+                      href={`mailto:${settings.email}`}
+                      className="hover:text-accent font-mono text-xs transition-colors"
+                    >
+                      {settings.email}
+                    </a>
+                  </div>
+                )}
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-warm shrink-0" />
                   <span className="font-mono text-[11px]">{schedule}</span>
