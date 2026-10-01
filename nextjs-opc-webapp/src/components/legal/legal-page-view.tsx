@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { AlertTriangle, Calendar, ShieldCheck, Mail } from 'lucide-react';
 import { LegalPageData } from '@/app/api/content/legales/route';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { TiptapContent } from '@/components/blog/tiptap-content';
 
 interface LegalPageViewProps {
   slug: string;
@@ -109,10 +110,9 @@ export function LegalPageView({ slug, initialData }: LegalPageViewProps) {
         )}
 
         {currentHtml ? (
-          <div
-            className="prose prose-invert prose-amber max-w-none text-slate-200 dark:text-slate-200 leading-relaxed text-sm space-y-4"
-            dangerouslySetInnerHTML={{ __html: currentHtml }}
-          />
+          <div className="prose prose-invert prose-amber max-w-none text-slate-200 dark:text-slate-200 leading-relaxed text-sm space-y-4">
+            <TiptapContent content={currentHtml} />
+          </div>
         ) : (
           <div className="space-y-7">
             {currentSections?.map((section, idx) => (
