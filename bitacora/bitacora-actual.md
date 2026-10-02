@@ -317,3 +317,7 @@ Hola, empezamos, vamos a afinar detalles:
 1. En el backoffice sección Hero, no están los controles para cambiar los datos que están señalados en verde.
 2. Los controles para cambiar lo que está señalado en rojo están pero no funcionan, los he cambiado pero siguen igual. 
 3. La información en la marquesina no se actualiza, he verificado en la página de oilpriceapi.com y no coinciden los precios, no se han actualizado, en caso de que sea un problema por que es de pago, usa EIA API (U.S. Energy Information Administration) es la fuente oficial del Gobierno de EE. UU. Su API es 100% gratuita y ofrece un volumen masivo de datos históricos y diarios sobre inventarios, precios de refinería, gasolina, diésel y crudo. Ideal si buscas datos oficiales y de alta confianza. Agrega en la interfase el placeholder para capturar la API y personalizar los datos
+
+## 2026-10-02 16:30:28
+
+ok, ahora +dap
