@@ -79,14 +79,14 @@ export function MarketPricesPanel() {
   const toggleEia = (symbol: string) =>
     setHiddenEia((prev) => (prev.includes(symbol) ? prev.filter((s) => s !== symbol) : [...prev, symbol]));
 
-  const liveEia = (data?.live || []).filter((c) => c.source === 'eia');
+  const liveEia = (data?.live || []).filter((c) => c.source !== 'manual');
 
   return (
     <div className="rounded-xl border border-accent/20 bg-accent/5 p-5 space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-xs font-mono font-bold text-accent uppercase tracking-wider flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Cotizaciones del cintillo — fuente oficial EIA</span>
+          <span>Cotizaciones del cintillo — mercado en vivo + EIA</span>
         </h3>
         <a
           href="https://www.eia.gov/opendata/register.php"
@@ -137,12 +137,12 @@ export function MarketPricesPanel() {
           {/* Precios oficiales en vivo */}
           <div className="space-y-2">
             <div className="text-[11px] font-mono text-text-muted uppercase tracking-wider">
-              Datos oficiales (se actualizan solos cada 15 min; la EIA publica cierres diarios)
+              Precios de mercado (se refrescan solos cada minuto; si la cotización en vivo falla se usa el cierre oficial de la EIA)
             </div>
             {liveEia.length === 0 && (
               <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs">
                 <AlertCircle className="w-4 h-4 shrink-0" />
-                La EIA no devolvió datos (clave inválida o límite de consultas). Revisa la clave.
+                No hay precios de mercado ahora mismo (sin respuesta de la cotización en vivo ni de la EIA). Revisa la clave de la EIA.
               </div>
             )}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
@@ -157,7 +157,7 @@ export function MarketPricesPanel() {
                       <span className="text-[10px] text-text-subtle">{item?.unit}</span>
                     </div>
                     <div className="text-[10px] font-mono text-text-subtle mt-0.5">
-                      {item?.asOf ? `Cierre ${item.asOf}` : ''}
+                      {item?.source === 'live' ? 'En vivo' : item?.asOf ? `Cierre EIA ${item.asOf}` : ''}
                     </div>
                     <label className="flex items-center gap-1.5 mt-1.5 text-[10px] font-mono text-text-muted cursor-pointer">
                       <input type="checkbox" checked={!hidden} onChange={() => toggleEia(s.symbol)} />

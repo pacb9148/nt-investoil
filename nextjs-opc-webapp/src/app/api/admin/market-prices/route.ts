@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { saveSectionContent } from '@/lib/services/content-service';
 import {
   MARKET_CONFIG_SECTION,
-  EIA_SERIES,
+  PRICE_SERIES,
   clearMarketPricesCache,
   effectiveManual,
   getMarketConfig,
@@ -25,7 +25,7 @@ export async function GET() {
     keyHint: saved ? `…${saved.slice(-4)}` : null,
     hiddenEia: config.hiddenEia || [],
     manual: effectiveManual(config),
-    eiaSeries: EIA_SERIES.map((s) => ({ symbol: s.symbol, name: s.name })),
+    eiaSeries: PRICE_SERIES.map((s) => ({ symbol: s.symbol, name: s.name })),
     live,
   });
 }

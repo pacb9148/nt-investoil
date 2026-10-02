@@ -333,3 +333,7 @@ Todos está bien pero,
 1. si un campo lo quiero dejar vacío es que tiene que quedar vacío, soluciona esto
 2. la marquesina da un salto y vuelve a empezar en lugar de dar el giro completo, arréglalo para que la transición sea continua y no se note ese salto que visualmente es molesto y resta calidad a nuestra página.
 3. cuando termines +dap y terminamos por hoy cierras la sesión
+
+## 2026-10-02 17:49:03
+
+Faltan los precios del brend, wti, fueloil, etc que son importantes, y asegurate que la información se actualice constantemente

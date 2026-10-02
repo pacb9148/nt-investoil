@@ -6,9 +6,9 @@ export interface CommodityPrice {
   unit: string;
   changePercent: number;
   updatedAt: string;
-  /** `eia` = dato oficial descargado de la API de la EIA; `manual` = valor puesto a mano en el backoffice. */
-  source?: 'eia' | 'manual';
-  /** Fecha (YYYY-MM-DD) a la que corresponde el dato oficial. */
+  /** `live` = cotización de futuros casi en tiempo real; `eia` = cierre diario oficial de la EIA; `manual` = valor puesto a mano. */
+  source?: 'live' | 'eia' | 'manual';
+  /** Momento (ISO) de la cotización en vivo, o fecha (YYYY-MM-DD) del cierre oficial. */
   asOf?: string;
 }
 

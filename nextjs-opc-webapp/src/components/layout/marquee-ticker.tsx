@@ -140,8 +140,8 @@ export function MarqueeTicker({
     };
 
     fetchPrices();
-    // Actualización cada 120s para optimizar recursos en segundo plano
-    const interval = setInterval(fetchPrices, 120000);
+    // Se refresca cada 60 s (el servidor guarda la cotización 1 minuto, así que muchas visitas no multiplican las consultas)
+    const interval = setInterval(fetchPrices, 60000);
     return () => {
       isMounted = false;
       clearInterval(interval);
