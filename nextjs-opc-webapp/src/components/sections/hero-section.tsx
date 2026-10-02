@@ -102,6 +102,13 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
 
   const marketTicker = config?.market_ticker || t.hero.marketTicker;
 
+  const stats = config?.hero_stats;
+  const statItems = [
+    { value: stats?.stat1_value || '150M+', label: (isEn ? stats?.stat1_label_en : stats?.stat1_label) || t.hero.activeContracts },
+    { value: stats?.stat2_value || '99.8%', label: (isEn ? stats?.stat2_label_en : stats?.stat2_label) || t.hero.complianceRate },
+    { value: stats?.stat3_value || '38+', label: (isEn ? stats?.stat3_label_en : stats?.stat3_label) || t.hero.globalPresence },
+  ];
+
   // Fondo dinámico
   const bgType = config?.hero_bg_type || 'gradient';
   const bgUrl = config?.hero_bg_url || '';
@@ -273,18 +280,12 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
 
             {/* Trust Badges */}
             <div className="pt-4 border-t border-border/60 grid grid-cols-3 gap-4 max-w-lg">
-              <div>
-                <div className="text-lg font-bold font-mono text-accent">150M+</div>
-                <div className="text-[11px] text-text-subtle font-mono">{t.hero.activeContracts}</div>
-              </div>
-              <div>
-                <div className="text-lg font-bold font-mono text-text">99.8%</div>
-                <div className="text-[11px] text-text-subtle font-mono">{t.hero.complianceRate}</div>
-              </div>
-              <div>
-                <div className="text-lg font-bold font-mono text-text">38+</div>
-                <div className="text-[11px] text-text-subtle font-mono">{t.hero.globalPresence}</div>
-              </div>
+              {statItems.map((st, i) => (
+                <div key={i}>
+                  <div className={`text-lg font-bold font-mono ${i === 0 ? 'text-accent' : 'text-text'}`}>{st.value}</div>
+                  <div className="text-[11px] text-text-subtle font-mono">{st.label}</div>
+                </div>
+              ))}
             </div>
           </div>
 

@@ -305,3 +305,15 @@ Soluciona estos detalles
   This keeps server-side rendering of the bilingual data payload (fast first paint from the cookie-based guess) while making the actual field selection reactive to `useLanguage()`, so the page updates immediately when the toggle is switched — matching how `legal-page-view.tsx` was already fixed for the same class of issue (per its code comment: "Sigue el selector de idioma global de la web (antes tenía uno propio que no se sincronizaba)").
   
 </agent-message>
+
+## 2026-10-01 21:27:37
+
+excelente trabajo, cerramos esta sesión, muchas gracias
+
+## 2026-10-02 16:10:33
+
+Hola, empezamos, vamos a afinar detalles:
+
+1. En el backoffice sección Hero, no están los controles para cambiar los datos que están señalados en verde.
+2. Los controles para cambiar lo que está señalado en rojo están pero no funcionan, los he cambiado pero siguen igual. 
+3. La información en la marquesina no se actualiza, he verificado en la página de oilpriceapi.com y no coinciden los precios, no se han actualizado, en caso de que sea un problema por que es de pago, usa EIA API (U.S. Energy Information Administration) es la fuente oficial del Gobierno de EE. UU. Su API es 100% gratuita y ofrece un volumen masivo de datos históricos y diarios sobre inventarios, precios de refinería, gasolina, diésel y crudo. Ideal si buscas datos oficiales y de alta confianza. Agrega en la interfase el placeholder para capturar la API y personalizar los datos

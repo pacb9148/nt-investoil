@@ -32,3 +32,6 @@ next-env.d.ts
 *.tsbuildinfo
 playwright-screenshots/
 
+
+# Clave de la EIA guardada por el backoffice cuando se trabaja sin PostgreSQL
+nextjs-opc-webapp/src/data/market_prices_config.json

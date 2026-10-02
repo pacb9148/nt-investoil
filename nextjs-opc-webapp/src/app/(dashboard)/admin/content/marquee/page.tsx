@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, CheckCircle2, AlertCircle, RefreshCw, Plus, Trash2, ExternalLink, TrendingUp } from 'lucide-react';
-import { CommodityPrice } from '@/app/api/market-prices/route';
+import { ArrowLeft, Save, CheckCircle2, AlertCircle, RefreshCw, Plus, Trash2, TrendingUp } from 'lucide-react';
+import { MarketPricesPanel } from '@/components/admin/content/market-prices-panel';
 import { SectionDesignBar } from '@/components/admin/content/section-design-bar';
 
 const INPUT =
@@ -31,16 +31,10 @@ export default function MarqueePage() {
   ]);
   const [newItem, setNewItem] = useState('');
 
-  // Vista previa de commodities
-  const [commodities, setCommodities] = useState<CommodityPrice[]>([]);
-
   useEffect(() => {
     async function loadData() {
       try {
-        const [configRes, priceRes] = await Promise.all([
-          fetch('/api/content/marquee'),
-          fetch('/api/market-prices'),
-        ]);
+        const configRes = await fetch('/api/content/marquee');
 
         if (configRes.ok) {
           const cfg = await configRes.json();
@@ -57,12 +51,6 @@ export default function MarqueePage() {
           }
         }
 
-        if (priceRes.ok) {
-          const pJson = await priceRes.json();
-          if (pJson.commodities) {
-            setCommodities(pJson.commodities);
-          }
-        }
       } catch (e) {
         console.error('Error cargando marquee:', e);
       } finally {
@@ -299,45 +287,8 @@ export default function MarqueePage() {
           </div>
         </div>
 
-        {/* Panel informativo de cotizaciones activas de mercado */}
-        {showLivePrices && (
-          <div className="rounded-xl border border-accent/20 bg-accent/5 p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-mono font-bold text-accent uppercase tracking-wider flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Cotizaciones de Mercado en Vivo</span>
-              </h3>
-              <a
-                href="https://www.oilpriceapi.com/es/precio-petroleo-hoy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[11px] font-mono text-text-subtle hover:text-accent transition-colors"
-              >
-                <span>Fuente: oilpriceapi.com</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 pt-1">
-              {commodities.map((item) => (
-                <div key={item.symbol} className="p-2.5 rounded-lg border border-border bg-card/80">
-                  <div className="text-[10px] font-mono text-text-muted">{item.name}</div>
-                  <div className="text-xs font-mono font-bold text-text mt-0.5">
-                    ${item.price.toFixed(2)} <span className="text-[10px] text-text-subtle">{item.unit}</span>
-                  </div>
-                  <div
-                    className={`text-[10px] font-mono font-semibold mt-1 ${
-                      item.changePercent >= 0 ? 'text-emerald-400' : 'text-rose-400'
-                    }`}
-                  >
-                    {item.changePercent >= 0 ? '+' : ''}
-                    {item.changePercent.toFixed(2)}%
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Fuente oficial EIA, clave de API y valores manuales */}
+        {showLivePrices && <MarketPricesPanel />}
 
         {/* Elementos y Certificaciones Personalizadas */}
         <div className="rounded-xl border border-border bg-surf/50 p-5 space-y-4">

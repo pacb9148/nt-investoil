@@ -48,6 +48,18 @@ export interface HeroCardCustomization {
   metric3_value?: string;
 }
 
+export interface HeroStatsConfig {
+  stat1_value?: string;
+  stat1_label?: string;
+  stat1_label_en?: string;
+  stat2_value?: string;
+  stat2_label?: string;
+  stat2_label_en?: string;
+  stat3_value?: string;
+  stat3_label?: string;
+  stat3_label_en?: string;
+}
+
 export interface LandingHeroConfig {
   id: number;
   eyebrow_text: string;
@@ -77,6 +89,8 @@ export interface LandingHeroConfig {
   hero_visual_url?: string;
   // Personalización de la tarjeta señalada
   hero_card?: HeroCardCustomization;
+  // Cifras de impacto bajo los botones (columna izquierda)
+  hero_stats?: HeroStatsConfig;
   // Tickers & Métricas
   market_ticker?: string;
   seats_total?: number;

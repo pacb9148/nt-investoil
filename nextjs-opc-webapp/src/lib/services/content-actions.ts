@@ -6,6 +6,7 @@ import {
   updateMemorySection,
   updateMemoryHero,
   updateMemoryAppearance,
+  getLandingAppearance,
 } from './content-service';
 import type {
   ContentActionResponse,
@@ -107,9 +108,18 @@ export async function updateHeroAction(
     updated_at: new Date().toISOString(),
   };
 
-  updateMemoryHero(data);
-  // Sincronizar también hero_card en appearance.json
-  updateMemoryAppearance({ hero_card: heroCard });
+  // Antes estas dos escrituras no se esperaban: la acción devolvía «actualizado» sin saber si la base
+  // las había aceptado, y un fallo se perdía como promesa rechazada sin avisar al formulario.
+  try {
+    await updateMemoryHero(data);
+    // Sincronizar también hero_card en appearance
+    await updateMemoryAppearance({ hero_card: heroCard });
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'No se pudo guardar el Hero en la base de datos.',
+    };
+  }
 
   if (isSupabaseConfigured()) {
     try {
@@ -132,42 +142,14 @@ export async function updateAppearanceAction(
   _prev: ContentActionResponse,
   formData: FormData
 ): Promise<ContentActionResponse> {
-  const sectionBgColors: SectionBackgroundColors = {
-    hero: (formData.get('sec_bg_hero') || '') as string,
-    marquee: (formData.get('sec_bg_marquee') || '') as string,
-    problema: (formData.get('sec_bg_problema') || '') as string,
-    services: (formData.get('sec_bg_services') || '') as string,
-    products: (formData.get('sec_bg_products') || '') as string,
-    plataforma: (formData.get('sec_bg_plataforma') || '') as string,
-    team: (formData.get('sec_bg_team') || '') as string,
-    testimonials: (formData.get('sec_bg_testimonials') || '') as string,
-    faq: (formData.get('sec_bg_faq') || '') as string,
-    contact: (formData.get('sec_bg_contact') || '') as string,
-  };
-
-  const heroCard: HeroCardCustomization = {
-    card_bg_color: (formData.get('hero_card_bg') as string) || '#0e1424',
-    card_border_color: (formData.get('hero_card_border') as string) || '#f59e0b',
-    card_glow_opacity: Number(formData.get('hero_card_glow_opacity') ?? 50),
-    card_opacity: formData.get('hero_card_opacity') !== null ? Number(formData.get('hero_card_opacity')) : 0,
-    logo_url: formData.get('hero_logo_url') !== null ? (formData.get('hero_logo_url') as string) : '',
-    logo_hue: Number(formData.get('hero_logo_hue') ?? 0),
-    logo_brightness: Number(formData.get('hero_logo_brightness') ?? 100),
-    logo_saturation: Number(formData.get('hero_logo_saturation') ?? 100),
-    logo_shadow_color: (formData.get('hero_logo_shadow_color') as string) || '#f59e0b',
-    logo_shadow_blur: Number(formData.get('hero_logo_shadow_blur') ?? 20),
-    badge_text: (formData.get('hero_badge_text') as string) || undefined,
-    badge_text_en: (formData.get('hero_badge_text_en') as string) || undefined,
-    metric1_label: (formData.get('hero_metric1_label') as string) || undefined,
-    metric1_label_en: (formData.get('hero_metric1_label_en') as string) || undefined,
-    metric1_value: (formData.get('hero_metric1_value') as string) || undefined,
-    metric2_label: (formData.get('hero_metric2_label') as string) || undefined,
-    metric2_label_en: (formData.get('hero_metric2_label_en') as string) || undefined,
-    metric2_value: (formData.get('hero_metric2_value') as string) || undefined,
-    metric3_label: (formData.get('hero_metric3_label') as string) || undefined,
-    metric3_label_en: (formData.get('hero_metric3_label_en') as string) || undefined,
-    metric3_value: (formData.get('hero_metric3_value') as string) || undefined,
-  };
+  // Solo se pisan los colores que el formulario realmente envía: antes cada clave ausente (p. ej.
+  // «actualidad», que se edita desde su propia barra de color) se guardaba vacía y borraba lo ya elegido.
+  const current = await getLandingAppearance();
+  const sectionBgColors: SectionBackgroundColors = { ...(current.section_bg_colors || {}) };
+  for (const key of ['hero', 'marquee', 'problema', 'services', 'actualidad', 'products', 'plataforma', 'team', 'testimonials', 'faq', 'contact'] as const) {
+    const sent = formData.get('sec_bg_' + key);
+    if (sent !== null) sectionBgColors[key] = sent as string;
+  }
 
   const data = {
     font_heading: (formData.get('font_heading') || 'Outfit') as any,
@@ -177,19 +159,25 @@ export async function updateAppearanceAction(
     background_pattern: (formData.get('background_pattern') || 'grid') as any,
     custom_css: (formData.get('custom_css') || '') as string,
     section_bg_colors: sectionBgColors,
-    hero_card: heroCard,
   };
 
-  updateMemoryAppearance(data);
-  // Sincronizar hero_card en hero.json para mantener coherencia total
-  updateMemoryHero({ hero_card: heroCard });
+  try {
+    // La tarjeta del Hero (logo, métricas, textos) se edita solo desde el Hero. Este formulario no tiene
+    // esos campos, y antes los rellenaba con valores por defecto y los volcaba al Hero en cada guardado,
+    // devolviendo la tarjeta a «12.5M BBLS», sin logo, etc.
+    await updateMemoryAppearance(data);
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'No se pudo guardar la apariencia en la base de datos.',
+    };
+  }
 
   if (isSupabaseConfigured()) {
     try {
       const { createAdminClient } = await import('@/lib/supabase/admin');
       const db = createAdminClient();
       await db.from('landing_site_appearance').upsert({ id: 1, ...data });
-      await db.from('landing_hero').update({ hero_card: heroCard }).eq('id', 1);
     } catch (err) {
       console.warn('Supabase updateAppearance connection fallback');
     }

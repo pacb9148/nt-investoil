@@ -2,23 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { ArrowUpRight, ArrowDownRight, ExternalLink, Newspaper, TrendingUp } from 'lucide-react';
-import { CommodityPrice } from '@/app/api/market-prices/route';
+import type { CommodityPrice } from '@/lib/market/prices-types';
 import { useLanguage } from '@/lib/i18n/language-context';
-
-const DEFAULT_COMMODITIES: CommodityPrice[] = [
-  { name: 'Petróleo Brent', symbol: 'BRENT', price: 82.45, currency: 'USD', unit: '/bbl', changePercent: 1.24, updatedAt: '' },
-  { name: 'Petróleo WTI', symbol: 'WTI', price: 78.20, currency: 'USD', unit: '/bbl', changePercent: 0.88, updatedAt: '' },
-  { name: 'Crudo Merey 16', symbol: 'MEREY-16', price: 69.80, currency: 'USD', unit: '/bbl', changePercent: 1.45, updatedAt: '' },
-  { name: 'Gas Natural Henry Hub', symbol: 'NATGAS', price: 2.48, currency: 'USD', unit: '/MMBtu', changePercent: -0.42, updatedAt: '' },
-  { name: 'Diésel EN590 10ppm', symbol: 'EN590', price: 812.50, currency: 'USD', unit: '/MT', changePercent: 0.65, updatedAt: '' },
-  { name: 'Jet Fuel A-1 Aviación', symbol: 'JET-A1', price: 2.54, currency: 'USD', unit: '/gal', changePercent: 1.15, updatedAt: '' },
-  { name: 'Pet Coke Verde', symbol: 'PETCOKE', price: 118.50, currency: 'USD', unit: '/MT', changePercent: 0.35, updatedAt: '' },
-  { name: 'Pet Coke Calcinado', symbol: 'CPC-ANODE', price: 385.00, currency: 'USD', unit: '/MT', changePercent: 0.50, updatedAt: '' },
-  { name: 'Fuel Oil 380 CST', symbol: 'IFO-380', price: 465.00, currency: 'USD', unit: '/MT', changePercent: -0.80, updatedAt: '' },
-  { name: 'Gasóleo Marino MGO', symbol: 'MGO 0.1%', price: 795.00, currency: 'USD', unit: '/MT', changePercent: 0.40, updatedAt: '' },
-  { name: 'GNL Criogénico DES', symbol: 'LNG-DES', price: 13.85, currency: 'USD', unit: '/MMBtu', changePercent: -0.25, updatedAt: '' },
-  { name: 'Crudo Dubai', symbol: 'DUBAI', price: 80.15, currency: 'USD', unit: '/bbl', changePercent: 0.95, updatedAt: '' },
-];
 
 const HEADLINES_ES = [
   'OPEP+ ratifica cuotas de producción y estabilidad en la oferta de crudo 2026',
@@ -61,14 +46,16 @@ export interface MarqueeConfig {
 export function MarqueeTicker({
   customBg,
   config,
+  initialPrices = [],
 }: {
   customBg?: string;
   config?: MarqueeConfig;
+  initialPrices?: CommodityPrice[];
 }) {
   const { language } = useLanguage();
   const isEn = language === 'en';
 
-  const [prices, setPrices] = useState<CommodityPrice[]>(DEFAULT_COMMODITIES);
+  const [prices, setPrices] = useState<CommodityPrice[]>(initialPrices);
   const [marqueeConfig, setMarqueeConfig] = useState<MarqueeConfig | undefined>(config);
 
   useEffect(() => {
@@ -90,6 +77,7 @@ export function MarqueeTicker({
 
     const handleUpdate = () => {
       fetchConfig();
+      fetchPrices();
     };
 
     window.addEventListener('investoil_marquee_updated', handleUpdate);
@@ -104,7 +92,7 @@ export function MarqueeTicker({
           }
         }
       } catch {
-        // Fallback garantizado a DEFAULT_COMMODITIES
+        // Se conservan los últimos precios mostrados
       }
     };
 
@@ -180,10 +168,10 @@ export function MarqueeTicker({
               : (marqueeConfig?.pricesBadgeText || 'Precios de Energía en Vivo')}
           </span>
           <a
-            href="https://www.oilpriceapi.com/es/precio-petroleo-hoy"
+            href="https://www.eia.gov/dnav/pet/pet_pri_spt_s1_d.htm"
             target="_blank"
             rel="noopener noreferrer"
-            title="Fuente: OilPrice & Platts"
+            title="Fuente: U.S. EIA (cierres diarios oficiales)"
             className="text-text-subtle hover:text-accent transition-colors ml-1"
           >
             <ExternalLink className="w-3 h-3" />

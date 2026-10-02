@@ -17,12 +17,13 @@ import { ProblemSection } from '@/components/sections/problem-section';
 import { FaqSection } from '@/components/sections/faq-section';
 import { ContactSection } from '@/components/sections/contact-section';
 import { MarqueeTicker, MarqueeConfig } from '@/components/layout/marquee-ticker';
+import { getMarketPrices } from '@/lib/market/prices-service';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; // Contenido dinámico con soporte de revalidación inmediata
 
 export default async function HomePage() {
-  const [sections, heroConfig, appearance, marqueeConfig, teamMembers] = await Promise.all([
+  const [sections, heroConfig, appearance, marqueeConfig, teamMembers, marketPrices] = await Promise.all([
     getLandingSections(),
     getLandingHero(),
     getLandingAppearance(),
@@ -37,6 +38,7 @@ export default async function HomePage() {
       newsBadgeTextEn: 'Market News & Ops',
     }),
     getTeamMembers(),
+    getMarketPrices(),
   ]);
 
   const secBg = appearance.section_bg_colors || {};
@@ -56,7 +58,7 @@ export default async function HomePage() {
 
       {/* 2. Marquee de Commodities & Precios en Vivo (Dual Bidireccional) */}
       {isVisible('marquee') && (
-        <MarqueeTicker config={marqueeConfig} customBg={secBg.marquee} />
+        <MarqueeTicker config={marqueeConfig} customBg={secBg.marquee} initialPrices={marketPrices} />
       )}
 
       {/* 3. Retos del Sector (El Problema) */}

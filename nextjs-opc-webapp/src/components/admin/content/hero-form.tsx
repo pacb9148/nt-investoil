@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition, useRef } from 'react';
 import { updateHeroAction } from '@/lib/services/content-actions';
-import type { LandingHeroConfig, ContentActionResponse } from '@/types/content';
+import type { LandingHeroConfig, ContentActionResponse, HeroStatsConfig } from '@/types/content';
 import { SectionDesignBar } from './section-design-bar';
 import {
   Loader2,
@@ -112,6 +112,29 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
   const [metric3Value, setMetric3Value] = useState<string>(
     defaultValues.hero_card?.metric3_value || 'ACTIVO 100%'
   );
+  const [metric1LabelEn, setMetric1LabelEn] = useState<string>(
+    defaultValues.hero_card?.metric1_label_en || 'Monthly Shipments:'
+  );
+  const [metric2LabelEn, setMetric2LabelEn] = useState<string>(
+    defaultValues.hero_card?.metric2_label_en || 'Marine Terminals:'
+  );
+  const [metric3LabelEn, setMetric3LabelEn] = useState<string>(
+    defaultValues.hero_card?.metric3_label_en || 'Operational Status:'
+  );
+
+  // Cifras de impacto bajo los botones del Hero (columna izquierda)
+  const [heroStats, setHeroStats] = useState<HeroStatsConfig>({
+    stat1_value: defaultValues.hero_stats?.stat1_value || '150M+',
+    stat1_label: defaultValues.hero_stats?.stat1_label || '150M+ Barriles',
+    stat1_label_en: defaultValues.hero_stats?.stat1_label_en || '150M+ Barrels',
+    stat2_value: defaultValues.hero_stats?.stat2_value || '99.8%',
+    stat2_label: defaultValues.hero_stats?.stat2_label || '99.8% Cumplimiento',
+    stat2_label_en: defaultValues.hero_stats?.stat2_label_en || '99.8% Compliance',
+    stat3_value: defaultValues.hero_stats?.stat3_value || '38+',
+    stat3_label: defaultValues.hero_stats?.stat3_label || '38+ Países',
+    stat3_label_en: defaultValues.hero_stats?.stat3_label_en || '38+ Countries',
+  });
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Estados para subida de archivos del fondo
   const [uploading, setUploading] = useState<boolean>(false);
@@ -341,6 +364,10 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
     formData.set('hero_metric2_value', metric2Value);
     formData.set('hero_metric3_label', metric3Label);
     formData.set('hero_metric3_value', metric3Value);
+    formData.set('hero_metric1_label_en', metric1LabelEn);
+    formData.set('hero_metric2_label_en', metric2LabelEn);
+    formData.set('hero_metric3_label_en', metric3LabelEn);
+    setSaveError(null);
 
     startTransition(async () => {
       // 1. Guardar vía API REST directa
@@ -383,19 +410,30 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
             badge_text: badgeText,
             badge_text_en: badgeTextEn,
             metric1_label: metric1Label,
+            metric1_label_en: metric1LabelEn,
             metric1_value: metric1Value,
             metric2_label: metric2Label,
+            metric2_label_en: metric2LabelEn,
             metric2_value: metric2Value,
             metric3_label: metric3Label,
+            metric3_label_en: metric3LabelEn,
             metric3_value: metric3Value,
           },
+          hero_stats: heroStats,
         };
 
-        await fetch('/api/content/hero', {
+        // Antes la respuesta se ignoraba: si la base rechazaba el guardado, el formulario igual
+        // terminaba mostrando «guardado con éxito» por la Server Action de abajo.
+        const saveRes = await fetch('/api/content/hero', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+        if (!saveRes.ok) {
+          const errJson = await saveRes.json().catch(() => ({}));
+          setSaveError(errJson.error || 'No se pudo guardar el Hero en la base de datos. El cambio no se aplicó.');
+          return;
+        }
 
         try {
           localStorage.setItem('investoil_hero_config', JSON.stringify(payload));
@@ -404,6 +442,8 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
         window.dispatchEvent(new CustomEvent('investoil_hero_updated', { detail: payload }));
       } catch (err) {
         console.error('Error al guardar en /api/content/hero:', err);
+        setSaveError('Error de conexión al guardar el Hero. El cambio no se aplicó.');
+        return;
       }
 
       // 2. Ejecutar Server Action para revalidar SSR
@@ -453,7 +493,13 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
       {/* Barra de Acciones Superior */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-card border border-border shadow-sm">
         <div className="flex items-center gap-2">
-          {state.success && (
+          {saveError && (
+            <span className="text-xs text-red-400 font-semibold flex items-center gap-1.5 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{saveError}</span>
+            </span>
+          )}
+          {state.success && !saveError && (
             <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5 animate-in fade-in">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{state.message || 'Configuración del Hero guardada con éxito'}</span>
@@ -465,7 +511,7 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
               <span>{state.error}</span>
             </span>
           )}
-          {!state.success && !state.error && (
+          {!state.success && !state.error && !saveError && (
             <span className="text-xs text-text-muted">
               Personaliza titulares, imagen/video de fondo y visual lateral:
             </span>
@@ -1636,6 +1682,59 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
                   />
                 </div>
               </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 1 Etiqueta (EN)</label>
+                  <input type="text" value={metric1LabelEn} onChange={(e) => setMetric1LabelEn(e.target.value)} className={INPUT_STYLE} />
+                </div>
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 2 Etiqueta (EN)</label>
+                  <input type="text" value={metric2LabelEn} onChange={(e) => setMetric2LabelEn(e.target.value)} className={INPUT_STYLE} />
+                </div>
+                <div>
+                  <label className={LABEL_STYLE}>Métrica 3 Etiqueta (EN)</label>
+                  <input type="text" value={metric3LabelEn} onChange={(e) => setMetric3LabelEn(e.target.value)} className={INPUT_STYLE} />
+                </div>
+              </div>
+            </div>
+
+            {/* Cifras de impacto bajo los botones (columna izquierda del Hero) */}
+            <div className="p-4 rounded-lg bg-card/60 border border-border space-y-3">
+              <span className="text-[11px] font-mono text-accent font-semibold block">
+                Cifras de Impacto bajo los botones (150M+ · 99.8% · 38+):
+              </span>
+              {([1, 2, 3] as const).map((n) => (
+                <div key={n} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                  <div className="sm:col-span-3">
+                    <label className={LABEL_STYLE}>Cifra {n}</label>
+                    <input
+                      type="text"
+                      value={heroStats[`stat${n}_value`] || ''}
+                      onChange={(e) => setHeroStats({ ...heroStats, [`stat${n}_value`]: e.target.value })}
+                      className={INPUT_STYLE}
+                    />
+                  </div>
+                  <div className="sm:col-span-5">
+                    <label className={LABEL_STYLE}>Texto (ES)</label>
+                    <input
+                      type="text"
+                      value={heroStats[`stat${n}_label`] || ''}
+                      onChange={(e) => setHeroStats({ ...heroStats, [`stat${n}_label`]: e.target.value })}
+                      className={INPUT_STYLE}
+                    />
+                  </div>
+                  <div className="sm:col-span-4">
+                    <label className={LABEL_STYLE}>Texto (EN)</label>
+                    <input
+                      type="text"
+                      value={heroStats[`stat${n}_label_en`] || ''}
+                      onChange={(e) => setHeroStats({ ...heroStats, [`stat${n}_label_en`]: e.target.value })}
+                      className={INPUT_STYLE}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Sombra del Logotipo (Color y Difuminado) */}
@@ -1764,7 +1863,13 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
       {/* Barra de Guardado Inferior en Flujo Normal */}
       <div className="pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          {state.success && (
+          {saveError && (
+            <span className="text-xs text-red-400 font-semibold flex items-center gap-1.5 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{saveError}</span>
+            </span>
+          )}
+          {state.success && !saveError && (
             <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5 animate-in fade-in">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{state.message || 'Configuración del Hero guardada con éxito'}</span>
