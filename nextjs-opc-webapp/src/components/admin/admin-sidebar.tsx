@@ -29,6 +29,8 @@ import {
   Users,
   Star,
   Award,
+  BarChart3,
+  Languages,
   Cpu,
   Newspaper,
 } from 'lucide-react';
@@ -67,6 +69,8 @@ const SECTIONS_NAV: NavItem[] = [
   { href: '/admin/content/faq-editor', label: '10. Preguntas Frecuentes (FAQ)', icon: HelpCircle },
   { href: '/admin/content/contact', label: '11. Formulario de Contacto', icon: Mail },
   { href: '/admin/content/cta-final', label: '12. CTA Final de Cierre', icon: Award },
+  { href: '/admin/content/estadisticas', label: '13. Estadísticas de Impacto', icon: BarChart3 },
+  { href: '/admin/content/textos', label: '14. Textos Bilingües de la Landing', icon: Languages },
 ];
 
 const PAGES_NAV: NavItem[] = [

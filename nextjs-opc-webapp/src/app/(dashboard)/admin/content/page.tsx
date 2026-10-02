@@ -17,6 +17,8 @@ import {
   HelpCircle,
   Mail,
   Award,
+  BarChart3,
+  Languages,
   FileText,
   Palette,
   Search,
@@ -129,6 +131,20 @@ const SECTIONS_MODULES: ContentCardItem[] = [
     badge: 'Sección 12',
     icon: Award,
     desc: 'Sección de cierre comercial para apertura de cuentas y negociación de contratos a largo plazo.',
+  },
+  {
+    href: '/admin/content/estadisticas',
+    label: '13. Estadísticas de Impacto',
+    badge: 'Sección 13',
+    icon: BarChart3,
+    desc: 'Franja de 4 cifras clave bajo la marquesina (barriles, países, cumplimiento, soporte 24/7), en español e inglés.',
+  },
+  {
+    href: '/admin/content/textos',
+    label: '14. Textos Bilingües de la Landing',
+    badge: 'Textos',
+    icon: Languages,
+    desc: 'Titulares, etiquetas y mensajes del portafolio de productos y del formulario de contacto, en español e inglés.',
   },
 ];
 

@@ -3,7 +3,8 @@ import './globals.css';
 import { COMPANY_INFO } from '@/lib/constants/investoil';
 import { LanguageProvider } from '@/lib/i18n/language-context';
 import { AppearanceProvider } from '@/components/layout/appearance-provider';
-import { getLandingAppearance, getLandingSeo } from '@/lib/services/content-service';
+import { getLandingAppearance, getLandingSeo, getSectionContent } from '@/lib/services/content-service';
+import { TEXT_OVERRIDES_SECTION, type TextOverrides } from '@/lib/i18n/text-overrides';
 import { getServerLanguage } from '@/lib/i18n/server-language';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -91,9 +92,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const lang = getServerLanguage();
-  const [appearance, seo] = await Promise.all([
+  const [appearance, seo, textOverrides] = await Promise.all([
     getLandingAppearance(),
     getLandingSeo(),
+    getSectionContent<TextOverrides>(TEXT_OVERRIDES_SECTION, {}),
   ]);
 
   const canonicalUrl = seo.canonical_url || 'https://investoil.us';
@@ -187,7 +189,7 @@ export default async function RootLayout({
         )}
       </head>
       <body className="min-h-screen bg-bg text-text antialiased selection:bg-accent/30 selection:text-neon">
-        <LanguageProvider initialLanguage={lang}>
+        <LanguageProvider initialLanguage={lang} textOverrides={textOverrides}>
           <AppearanceProvider initialAppearance={appearance}>
             {children}
           </AppearanceProvider>

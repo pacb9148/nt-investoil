@@ -146,7 +146,7 @@ export async function updateAppearanceAction(
   // «actualidad», que se edita desde su propia barra de color) se guardaba vacía y borraba lo ya elegido.
   const current = await getLandingAppearance();
   const sectionBgColors: SectionBackgroundColors = { ...(current.section_bg_colors || {}) };
-  for (const key of ['hero', 'marquee', 'problema', 'services', 'actualidad', 'products', 'plataforma', 'team', 'testimonials', 'faq', 'contact'] as const) {
+  for (const key of ['hero', 'marquee', 'problema', 'services', 'actualidad', 'products', 'plataforma', 'team', 'testimonials', 'faq', 'contact', 'estadisticas', 'cta_final'] as const) {
     const sent = formData.get('sec_bg_' + key);
     if (sent !== null) sectionBgColors[key] = sent as string;
   }

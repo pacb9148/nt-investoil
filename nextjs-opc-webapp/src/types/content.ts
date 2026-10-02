@@ -22,6 +22,8 @@ export interface SectionBackgroundColors {
   testimonials?: string;
   faq?: string;
   contact?: string;
+  estadisticas?: string;
+  cta_final?: string;
 }
 
 export interface HeroCardCustomization {

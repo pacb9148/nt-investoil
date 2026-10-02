@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Language, translations, TranslationDictionary } from './translations';
+import { applyTextOverrides, type TextOverrides } from './text-overrides';
 
 interface LanguageContextType {
   language: Language;
@@ -20,9 +21,11 @@ const STORAGE_KEY = 'investoil_locale';
 export function LanguageProvider({
   children,
   initialLanguage,
+  textOverrides,
 }: {
   children: React.ReactNode;
   initialLanguage?: Language;
+  textOverrides?: TextOverrides;
 }) {
   // El servidor conoce el idioma por la cookie: la primera pintura ya sale en él (sin saltar de ES a EN).
   const [language, setLanguageState] = useState<Language>(initialLanguage ?? 'es');
@@ -59,7 +62,7 @@ export function LanguageProvider({
     }
   };
 
-  const t = translations[language] || translations.es;
+  const t = applyTextOverrides(translations[language] || translations.es, textOverrides?.[language]);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>

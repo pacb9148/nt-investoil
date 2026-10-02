@@ -16,6 +16,9 @@ import { TestimonialsSection } from '@/components/sections/testimonials-section'
 import { ProblemSection } from '@/components/sections/problem-section';
 import { FaqSection } from '@/components/sections/faq-section';
 import { ContactSection } from '@/components/sections/contact-section';
+import { StatsSection } from '@/components/sections/stats-section';
+import { CtaFinalSection } from '@/components/sections/cta-final-section';
+import type { LandingStatsConfig, LandingCtaFinalConfig } from '@/types/content';
 import { MarqueeTicker, MarqueeConfig } from '@/components/layout/marquee-ticker';
 import { getMarketPrices } from '@/lib/market/prices-service';
 
@@ -23,7 +26,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0; // Contenido dinámico con soporte de revalidación inmediata
 
 export default async function HomePage() {
-  const [sections, heroConfig, appearance, marqueeConfig, teamMembers, marketPrices] = await Promise.all([
+  const [sections, heroConfig, appearance, marqueeConfig, teamMembers, marketPrices, statsConfig, ctaConfig] = await Promise.all([
     getLandingSections(),
     getLandingHero(),
     getLandingAppearance(),
@@ -39,6 +42,8 @@ export default async function HomePage() {
     }),
     getTeamMembers(),
     getMarketPrices(),
+    getSectionContent<Partial<LandingStatsConfig>>('estadisticas', {}),
+    getSectionContent<Partial<LandingCtaFinalConfig>>('cta_final', {}),
   ]);
 
   const secBg = appearance.section_bg_colors || {};
@@ -60,6 +65,9 @@ export default async function HomePage() {
       {isVisible('marquee') && (
         <MarqueeTicker config={marqueeConfig} customBg={secBg.marquee} initialPrices={marketPrices} />
       )}
+
+      {/* 2b. Estadísticas de impacto (4 cifras) */}
+      {isVisible('estadisticas') && <StatsSection config={statsConfig} customBg={secBg.estadisticas} />}
 
       {/* 3. Retos del Sector (El Problema) */}
       {isVisible('problema') && <ProblemSection customBg={secBg.problema} />}
@@ -84,6 +92,9 @@ export default async function HomePage() {
 
       {/* 10. Preguntas Frecuentes (FAQ) */}
       {isVisible('faq') && <FaqSection customBg={secBg.faq} />}
+
+      {/* 10b. CTA final de cierre */}
+      {isVisible('cta_final') && <CtaFinalSection config={ctaConfig} customBg={secBg.cta_final} />}
 
       {/* 11. Contacto Directo */}
       {isVisible('contact') && <ContactSection customBg={secBg.contact} />}

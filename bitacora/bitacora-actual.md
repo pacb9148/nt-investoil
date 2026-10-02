@@ -321,3 +321,7 @@ Hola, empezamos, vamos a afinar detalles:
 ## 2026-10-02 16:30:28
 
 ok, ahora +dap
+
+## 2026-10-02 16:36:01
+
+Revisa las páginas del admin estadísticas, textos, contact y cta-final por que tienen un botón de guardar que no guarda nada; revisa el diseño original y las funcionalidades que se pueden rescatar e implementar.
