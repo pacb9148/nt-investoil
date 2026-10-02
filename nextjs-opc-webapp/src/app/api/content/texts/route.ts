@@ -11,7 +11,7 @@ export async function GET() {
 }
 
 // Fusiona por clave: la página de Textos y la de Contacto editan partes distintas del mismo almacén,
-// así que ninguna puede reemplazar el idioma entero. Un valor vacío elimina esa personalización.
+// así que ninguna puede reemplazar el idioma entero.
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as TextOverrides;
@@ -21,10 +21,10 @@ export async function POST(req: Request) {
       const incoming = body[lang];
       if (!incoming || typeof incoming !== 'object') continue;
       for (const [path, value] of Object.entries(incoming)) {
-        if (!ALLOWED_OVERRIDE_PATHS.has(path) || typeof value !== 'string') continue;
-        const text = value.trim().slice(0, 600);
-        if (text) next[lang]![path] = text;
-        else delete next[lang]![path];
+        if (!ALLOWED_OVERRIDE_PATHS.has(path)) continue;
+        // null = volver al texto original; cadena (incluso vacía) = texto fijado por el dueño.
+        if (value === null) delete next[lang]![path];
+        else if (typeof value === 'string') next[lang]![path] = value.trim().slice(0, 600);
       }
     }
     await saveSectionContent(TEXT_OVERRIDES_SECTION, next);

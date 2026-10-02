@@ -1462,6 +1462,29 @@ export async function saveLead(leadData: Partial<ContactLead>): Promise<ContactL
   return targetLead;
 }
 
+/** Elimina un mensaje del formulario. Devuelve false si no existía; lanza si la base rechaza el borrado. */
+export async function deleteLead(id: string): Promise<boolean> {
+  let existed = false;
+  if (hasPostgresDb()) {
+    const res = await queryPg('DELETE FROM leads WHERE id = $1', [id]);
+    if (!res) throw new Error('No se pudo eliminar el mensaje en PostgreSQL.');
+    existed = (res.rowCount ?? 0) > 0;
+  } else {
+    const leads = await getLeads();
+    const next = leads.filter((l) => l.id !== id);
+    existed = next.length !== leads.length;
+    if (existed) writeJsonFile('leads.json', next);
+  }
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { createAdminClient } = await import('@/lib/supabase/admin');
+      await createAdminClient().from('contact_leads').delete().eq('id', id);
+    } catch {}
+  }
+  return existed;
+}
+
 function rowToRating(r: any): CompanyRating {
   return {
     id: r.id,

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Mail, Clock, CheckCircle2, Inbox, MessageSquare, AlertCircle } from 'lucide-react';
+import { Mail, Clock, CheckCircle2, Inbox, MessageSquare, AlertCircle, Trash2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<ContactLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState<ContactLead | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -48,6 +50,23 @@ export default function AdminLeadsPage() {
     }
   };
 
+  const handleDelete = async (lead: ContactLead) => {
+    if (!window.confirm('¿Eliminar definitivamente el mensaje de ' + lead.name + '? Esta acción no se puede deshacer.')) return;
+    setDeletingId(lead.id);
+    setDeleteError(null);
+    try {
+      const res = await fetch('/api/leads?id=' + encodeURIComponent(lead.id), { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'No se pudo eliminar el mensaje.');
+      setLeads((prev) => prev.filter((l) => l.id !== lead.id));
+      setSelectedLead((prev) => (prev && prev.id === lead.id ? null : prev));
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : 'Error de conexión al eliminar.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="pb-6 border-b border-border">
@@ -63,6 +82,12 @@ export default function AdminLeadsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: Leads List */}
         <div className="lg:col-span-6 space-y-3">
+          {deleteError && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{deleteError}</span>
+            </div>
+          )}
           {loading ? (
             <div className="p-12 text-center text-xs text-text-muted">
               Cargando mensajes...
@@ -112,7 +137,22 @@ export default function AdminLeadsPage() {
 
                   <div className="pt-3 mt-2 border-t border-border/50 flex items-center justify-between text-[11px] font-mono text-text-subtle">
                     <span>{lead.email}</span>
-                    <span>{formatDateTime(lead.created_at)}</span>
+                    <span className="flex items-center gap-3">
+                      <span>{formatDateTime(lead.created_at)}</span>
+                      <button
+                        type="button"
+                        title="Eliminar mensaje"
+                        aria-label={'Eliminar mensaje de ' + lead.name}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(lead);
+                        }}
+                        disabled={deletingId === lead.id}
+                        className="text-text-subtle hover:text-rose-400 transition-colors disabled:opacity-50"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
                   </div>
                 </Card>
               );
@@ -172,6 +212,15 @@ export default function AdminLeadsPage() {
 
               <div className="pt-2 flex items-center justify-between text-xs text-text-muted font-mono">
                 <span>Recibido: {formatDateTime(selectedLead.created_at)}</span>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(selectedLead)}
+                  disabled={deletingId === selectedLead.id}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-500/40 text-rose-400 hover:bg-rose-500/10 text-xs font-semibold transition-colors disabled:opacity-50"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{deletingId === selectedLead.id ? 'Eliminando...' : 'Eliminar'}</span>
+                </button>
                 <a
                   href={`mailto:${selectedLead.email}?subject=Re: ${encodeURIComponent(
                     selectedLead.subject || 'Invest Oil LLC'

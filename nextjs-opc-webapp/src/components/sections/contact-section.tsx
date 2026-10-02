@@ -81,13 +81,17 @@ export function ContactSection({ customBg }: { customBg?: string }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Left: Contact Info */}
           <div className="lg:col-span-5 space-y-6">
-            <Badge variant="accent">{t.contact.tag}</Badge>
-            <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
-              {t.contact.title}
-            </h2>
-            <p className="text-base text-text-muted leading-relaxed">
-              {t.contact.subtitle}
-            </p>
+            {t.contact.tag && <Badge variant="accent">{t.contact.tag}</Badge>}
+            {t.contact.title && (
+              <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
+                {t.contact.title}
+              </h2>
+            )}
+            {t.contact.subtitle && (
+              <p className="text-base text-text-muted leading-relaxed">
+                {t.contact.subtitle}
+              </p>
+            )}
 
             <div className="space-y-4 pt-4">
               {settings.email && (

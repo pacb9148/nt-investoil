@@ -42,7 +42,7 @@ export default function ContactContentPage() {
     setError(null);
     const payload: TextOverrides = { es: {}, en: {} };
     for (const lang of ['es', 'en'] as const) {
-      for (const path of CONTACT_HEADER_PATHS) payload[lang]![path] = overrides[lang]?.[path] || '';
+      for (const path of CONTACT_HEADER_PATHS) payload[lang]![path] = overrides[lang]?.[path] ?? null;
     }
     try {
       const res = await fetch('/api/content/texts', {
@@ -87,7 +87,7 @@ export default function ContactContentPage() {
         </Link>
         <h1 className="text-2xl font-bold tracking-tight text-text">Formulario de Contacto & Leads</h1>
         <p className="mt-1 text-xs text-text-muted">
-          Textos de cabecera del formulario de la landing. Lo vacío muestra el texto original (sugerencia gris). El
+          Textos de cabecera del formulario de la landing. Si vacías un campo, queda vacío en la web. El
           correo mostrado en la tarjeta de contacto se cambia en «Pie de Página & Ajustes».
         </p>
       </div>
@@ -101,16 +101,14 @@ export default function ContactContentPage() {
             {f.long ? (
               <textarea
                 rows={2}
-                value={current[f.path] || ''}
+                value={current[f.path] ?? defaultText(langTab, f.path)}
                 onChange={(e) => setValue(f.path, e.target.value)}
-                placeholder={defaultText(langTab, f.path)}
                 className={INPUT}
               />
             ) : (
               <input
-                value={current[f.path] || ''}
+                value={current[f.path] ?? defaultText(langTab, f.path)}
                 onChange={(e) => setValue(f.path, e.target.value)}
-                placeholder={defaultText(langTab, f.path)}
                 className={INPUT}
               />
             )}

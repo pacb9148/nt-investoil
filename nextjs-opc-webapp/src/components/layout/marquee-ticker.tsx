@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, ArrowDownRight, ExternalLink, Newspaper, TrendingUp } from 'lucide-react';
 import type { CommodityPrice } from '@/lib/market/prices-types';
 import { useLanguage } from '@/lib/i18n/language-context';
@@ -41,6 +41,49 @@ export interface MarqueeConfig {
   newsBadgeText?: string;
   newsBadgeTextEn?: string;
   customItems?: string[];
+}
+
+/**
+ * Pista de desplazamiento continuo. La animación mueve la pista -50% de SU PROPIO ancho, así que la pista
+ * debe medir exactamente dos copias idénticas (w-max) y cada copia llevar su separación como relleno
+ * (no como gap entre copias): con el gap suelto y el ancho del contenedor padre, el recorrido no
+ * coincidía con el periodo real del contenido y al reiniciar la marquesina daba un salto visible.
+ */
+/** Repite la lista hasta tener un mínimo de elementos para que una copia siempre cubra el ancho de pantalla. */
+function repeatMin<T>(list: T[], min = 12): T[] {
+  if (list.length === 0) return list;
+  const out: T[] = [];
+  while (out.length < min) out.push(...list);
+  return out;
+}
+
+function MarqueeTrack({ className, render }: { className: string; render: () => React.ReactNode }) {
+  const groupRef = useRef<HTMLDivElement>(null);
+  const [duration, setDuration] = useState<number | null>(null);
+
+  // Velocidad constante en píxeles por segundo (no en segundos por vuelta): la vuelta dura lo que mida
+  // una copia, así la marquesina va igual de rápida con 5 precios que con 12.
+  useEffect(() => {
+    const el = groupRef.current;
+    if (!el) return;
+    const update = () => setDuration(Math.max(10, el.offsetWidth / 45));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <div
+      className={`flex w-max whitespace-nowrap hover:[animation-play-state:paused] ${className}`}
+      style={duration ? { animationDuration: `${duration}s` } : undefined}
+    >
+      <div ref={groupRef} className="flex shrink-0 gap-8 pr-8">{render()}</div>
+      <div className="flex shrink-0 gap-8 pr-8" aria-hidden>
+        {render()}
+      </div>
+    </div>
+  );
 }
 
 export function MarqueeTicker({
@@ -110,7 +153,7 @@ export function MarqueeTicker({
 
   // Renderizador de elementos de precios (Fila 1)
   const renderPriceItems = () =>
-    prices.map((p, idx) => {
+    repeatMin(prices, 8).map((p, idx) => {
       const isPositive = p.changePercent >= 0;
       return (
         <div key={`${p.symbol}-${idx}`} className="inline-flex items-center gap-2 shrink-0">
@@ -142,7 +185,7 @@ export function MarqueeTicker({
 
   // Renderizador de titulares informativos (Fila 2)
   const renderHeadlineItems = () =>
-    headlines.map((item, idx) => (
+    repeatMin(headlines, 6).map((item, idx) => (
       <div key={`headline-${idx}`} className="inline-flex items-center gap-2.5 shrink-0">
         <span className="text-xs font-mono text-slate-200 hover:text-amber-300 transition-colors font-medium">
           {item}
@@ -180,10 +223,7 @@ export function MarqueeTicker({
 
         {/* Marquesina animada: Izquierda a Derecha (marquee-reverse) */}
         <div className="overflow-hidden w-full">
-          <div className="flex gap-8 whitespace-nowrap animate-marquee-reverse hover:[animation-play-state:paused] pl-4">
-            {renderPriceItems()}
-            {renderPriceItems()}
-          </div>
+          <MarqueeTrack className="animate-marquee-reverse" render={renderPriceItems} />
         </div>
       </div>
 
@@ -201,10 +241,7 @@ export function MarqueeTicker({
 
         {/* Marquesina animada: Derecha a Izquierda (marquee clásico) */}
         <div className="overflow-hidden w-full">
-          <div className="flex gap-8 whitespace-nowrap animate-marquee hover:[animation-play-state:paused] pl-4">
-            {renderHeadlineItems()}
-            {renderHeadlineItems()}
-          </div>
+          <MarqueeTrack className="animate-marquee" render={renderHeadlineItems} />
         </div>
       </div>
     </section>

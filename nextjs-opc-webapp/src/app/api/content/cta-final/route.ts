@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     const clean: Record<string, string> = {};
     for (const key of TEXT_FIELDS) {
       const v = body[key];
-      if (typeof v === 'string' && v.trim()) clean[key] = v.trim().slice(0, 400);
+      if (typeof v === 'string') clean[key] = v.trim().slice(0, 400);
     }
     const url = typeof body.button_url === 'string' ? body.button_url.trim() : '';
     if (url) {

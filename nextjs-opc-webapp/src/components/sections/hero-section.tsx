@@ -104,9 +104,9 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
 
   const stats = config?.hero_stats;
   const statItems = [
-    { value: stats?.stat1_value || '150M+', label: (isEn ? stats?.stat1_label_en : stats?.stat1_label) || t.hero.activeContracts },
-    { value: stats?.stat2_value || '99.8%', label: (isEn ? stats?.stat2_label_en : stats?.stat2_label) || t.hero.complianceRate },
-    { value: stats?.stat3_value || '38+', label: (isEn ? stats?.stat3_label_en : stats?.stat3_label) || t.hero.globalPresence },
+    { value: stats?.stat1_value ?? '150M+', label: (isEn ? stats?.stat1_label_en : stats?.stat1_label) ?? t.hero.activeContracts },
+    { value: stats?.stat2_value ?? '99.8%', label: (isEn ? stats?.stat2_label_en : stats?.stat2_label) ?? t.hero.complianceRate },
+    { value: stats?.stat3_value ?? '38+', label: (isEn ? stats?.stat3_label_en : stats?.stat3_label) ?? t.hero.globalPresence },
   ];
 
   // Fondo dinámico
@@ -280,10 +280,10 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
 
             {/* Trust Badges */}
             <div className="pt-4 border-t border-border/60 grid grid-cols-3 gap-4 max-w-lg">
-              {statItems.map((st, i) => (
+              {statItems.filter((st) => st.value || st.label).map((st, i) => (
                 <div key={i}>
-                  <div className={`text-lg font-bold font-mono ${i === 0 ? 'text-accent' : 'text-text'}`}>{st.value}</div>
-                  <div className="text-[11px] text-text-subtle font-mono">{st.label}</div>
+                  {st.value && <div className={`text-lg font-bold font-mono ${i === 0 ? 'text-accent' : 'text-text'}`}>{st.value}</div>}
+                  {st.label && <div className="text-[11px] text-text-subtle font-mono">{st.label}</div>}
                 </div>
               ))}
             </div>
@@ -320,8 +320,8 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
                     <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
                     <span className="text-xs font-mono uppercase tracking-wider font-semibold text-slate-200">
                       {isEn
-                        ? heroCard?.badge_text_en || t.hero.sgsVerification
-                        : heroCard?.badge_text || t.hero.sgsVerification}
+                        ? heroCard?.badge_text_en ?? t.hero.sgsVerification
+                        : heroCard?.badge_text ?? t.hero.sgsVerification}
                     </span>
                   </div>
                   <ShieldCheck className="w-4 h-4 text-accent" />
@@ -355,22 +355,22 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
                 >
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-text-muted">
-                      {isEn ? (heroCard?.metric1_label_en || 'Monthly Shipments:') : (heroCard?.metric1_label || 'Despachos Mensuales:')}
+                      {isEn ? (heroCard?.metric1_label_en ?? 'Monthly Shipments:') : (heroCard?.metric1_label ?? 'Despachos Mensuales:')}
                     </span>
-                    <span className="font-mono font-semibold text-white">{heroCard?.metric1_value || '12.5M BBLS'}</span>
+                    <span className="font-mono font-semibold text-white">{heroCard?.metric1_value ?? '12.5M BBLS'}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-text-muted">
-                      {isEn ? (heroCard?.metric2_label_en || 'Marine Terminals:') : (heroCard?.metric2_label || 'Terminales Marítimas:')}
+                      {isEn ? (heroCard?.metric2_label_en ?? 'Marine Terminals:') : (heroCard?.metric2_label ?? 'Terminales Marítimas:')}
                     </span>
-                    <span className="font-mono font-semibold text-white">{heroCard?.metric2_value || 'Houston / Rotterdam'}</span>
+                    <span className="font-mono font-semibold text-white">{heroCard?.metric2_value ?? 'Houston / Rotterdam'}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-text-muted">
-                      {isEn ? (heroCard?.metric3_label_en || 'Operational Status:') : (heroCard?.metric3_label || 'Estatus Operativo:')}
+                      {isEn ? (heroCard?.metric3_label_en ?? 'Operational Status:') : (heroCard?.metric3_label ?? 'Estatus Operativo:')}
                     </span>
                     <span className="font-mono font-semibold text-emerald-400">
-                      {heroCard?.metric3_value || (isEn ? 'ACTIVE 100%' : 'ACTIVO 100%')}
+                      {heroCard?.metric3_value ?? (isEn ? 'ACTIVE 100%' : 'ACTIVO 100%')}
                     </span>
                   </div>
                 </div>

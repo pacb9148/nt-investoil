@@ -325,3 +325,11 @@ ok, ahora +dap
 ## 2026-10-02 16:36:01
 
 Revisa las páginas del admin estadísticas, textos, contact y cta-final por que tienen un botón de guardar que no guarda nada; revisa el diseño original y las funcionalidades que se pueden rescatar e implementar.
+
+## 2026-10-02 17:29:10
+
+Todos está bien pero, 
+
+1. si un campo lo quiero dejar vacío es que tiene que quedar vacío, soluciona esto
+2. la marquesina da un salto y vuelve a empezar en lugar de dar el giro completo, arréglalo para que la transición sea continua y no se note ese salto que visualmente es molesto y resta calidad a nuestra página.
+3. cuando termines +dap y terminamos por hoy cierras la sesión

@@ -49,13 +49,17 @@ export function ProductsSection({ customBg }: { customBg?: string }) {
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <Badge variant="warm">{t.products.tag}</Badge>
-          <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
-            {t.products.title}
-          </h2>
-          <p className="text-base text-text-muted leading-relaxed">
-            {t.products.subtitle}
-          </p>
+          {t.products.tag && <Badge variant="warm">{t.products.tag}</Badge>}
+          {t.products.title && (
+            <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text">
+              {t.products.title}
+            </h2>
+          )}
+          {t.products.subtitle && (
+            <p className="text-base text-text-muted leading-relaxed">
+              {t.products.subtitle}
+            </p>
+          )}
         </div>
 
         {/* Products Grid */}

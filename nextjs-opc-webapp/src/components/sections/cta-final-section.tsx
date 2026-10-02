@@ -12,7 +12,7 @@ import type { LandingCtaFinalConfig } from '@/types/content';
 export function CtaFinalSection({ config, customBg }: { config?: Partial<LandingCtaFinalConfig>; customBg?: string }) {
   const { t, language } = useLanguage();
   const isEn = language === 'en';
-  const pick = (es?: string, en?: string, fallback = '') => (isEn ? en : es) || fallback;
+  const pick = (es?: string, en?: string, fallback = '') => (isEn ? en : es) ?? fallback;
 
   const kicker = pick(config?.kicker, config?.kicker_en, t.cta.tag);
   const heading = pick(config?.heading, config?.heading_en, t.cta.title);
@@ -29,9 +29,10 @@ export function CtaFinalSection({ config, customBg }: { config?: Partial<Landing
     >
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_60%_80%_at_50%_100%,rgba(245,158,11,0.10),transparent_70%)]" />
       <div className="relative max-w-4xl mx-auto px-4 md:px-8 text-center space-y-6">
-        <Badge variant="accent">{kicker}</Badge>
-        <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text leading-tight">{heading}</h2>
-        <p className="text-base text-text-muted leading-relaxed max-w-2xl mx-auto">{subheading}</p>
+        {kicker && <Badge variant="accent">{kicker}</Badge>}
+        {heading && <h2 className="font-heading font-extrabold text-3xl sm:text-4xl text-text leading-tight">{heading}</h2>}
+        {subheading && <p className="text-base text-text-muted leading-relaxed max-w-2xl mx-auto">{subheading}</p>}
+        {buttonText && (
         <div className="pt-2">
           <Link
             href={buttonUrl}
@@ -41,10 +42,13 @@ export function CtaFinalSection({ config, customBg }: { config?: Partial<Landing
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
-        <p className="inline-flex items-center justify-center gap-2 text-xs font-mono text-text-subtle">
-          <ShieldCheck className="w-4 h-4 text-accent shrink-0" />
-          <span>{guarantee}</span>
-        </p>
+        )}
+        {guarantee && (
+          <p className="inline-flex items-center justify-center gap-2 text-xs font-mono text-text-subtle">
+            <ShieldCheck className="w-4 h-4 text-accent shrink-0" />
+            <span>{guarantee}</span>
+          </p>
+        )}
       </div>
     </section>
   );

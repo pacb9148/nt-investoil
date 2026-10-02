@@ -2,7 +2,9 @@ import { translations, type Language, type TranslationDictionary } from './trans
 
 export const TEXT_OVERRIDES_SECTION = 'text_overrides';
 
-export type TextOverrides = Partial<Record<Language, Record<string, string>>>;
+// Un texto personalizado puede ser cadena vacía (el dueño quiso vaciarlo); `null` solo viaja del admin a la
+// API para pedir que se borre la personalización y vuelva el texto original.
+export type TextOverrides = Partial<Record<Language, Record<string, string | null>>>;
 
 export interface TextCatalogItem {
   /** Ruta dentro del diccionario de traducciones, p. ej. `products.title`. */
@@ -51,11 +53,11 @@ export function defaultText(lang: Language, path: string): string {
 }
 
 /** Devuelve una copia del diccionario con los textos personalizados aplicados (solo rutas permitidas y existentes). */
-export function applyTextOverrides(dict: TranslationDictionary, overrides?: Record<string, string>): TranslationDictionary {
+export function applyTextOverrides(dict: TranslationDictionary, overrides?: Record<string, string | null>): TranslationDictionary {
   if (!overrides || Object.keys(overrides).length === 0) return dict;
   const copy = JSON.parse(JSON.stringify(dict)) as Record<string, unknown>;
   for (const [path, value] of Object.entries(overrides)) {
-    if (!ALLOWED_OVERRIDE_PATHS.has(path) || typeof value !== 'string' || !value.trim()) continue;
+    if (!ALLOWED_OVERRIDE_PATHS.has(path) || typeof value !== 'string') continue;
     const keys = path.split('.');
     const last = keys.pop() as string;
     const parent = getAtPath(copy, keys.join('.'));

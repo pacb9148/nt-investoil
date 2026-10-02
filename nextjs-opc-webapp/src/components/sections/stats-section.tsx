@@ -15,10 +15,13 @@ export function StatsSection({ config, customBg }: { config?: Partial<LandingSta
   const dict = translations[isEn ? 'en' : 'es'].stats;
 
   const items = ([1, 2, 3, 4] as const).map((n) => {
-    const value = config?.[`stat${n}_value`] || dict[`metric${n}Value`];
-    const label = (isEn ? config?.[`stat${n}_label_en`] : config?.[`stat${n}_label`]) || dict[`metric${n}Label`];
+    // Un campo guardado vacío se queda vacío; solo lo que nunca se personalizó usa el texto original.
+    const value = config?.[`stat${n}_value`] ?? dict[`metric${n}Value`];
+    const label = (isEn ? config?.[`stat${n}_label_en`] : config?.[`stat${n}_label`]) ?? dict[`metric${n}Label`];
     return { value, label };
-  });
+  }).filter((item) => item.value || item.label);
+
+  if (items.length === 0) return null;
 
   return (
     <section
@@ -29,8 +32,8 @@ export function StatsSection({ config, customBg }: { config?: Partial<LandingSta
       <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-2 lg:grid-cols-4 gap-8">
         {items.map((item, i) => (
           <div key={i} className="text-center lg:text-left space-y-1.5">
-            <div className="font-heading font-extrabold text-3xl sm:text-4xl text-accent font-mono">{item.value}</div>
-            <div className="text-xs sm:text-sm text-text-muted leading-relaxed">{item.label}</div>
+            {item.value && <div className="font-heading font-extrabold text-3xl sm:text-4xl text-accent font-mono">{item.value}</div>}
+            {item.label && <div className="text-xs sm:text-sm text-text-muted leading-relaxed">{item.label}</div>}
           </div>
         ))}
       </div>

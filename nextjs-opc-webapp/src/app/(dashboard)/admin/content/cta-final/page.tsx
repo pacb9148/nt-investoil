@@ -58,14 +58,14 @@ export default function CtaFinalPage() {
       {long ? (
         <textarea
           rows={2}
-          value={values[key + sfx] || ''}
+          value={values[key + sfx] ?? placeholder}
           onChange={(e) => setValues((p) => ({ ...p, [key + sfx]: e.target.value }))}
           placeholder={placeholder}
           className={INPUT}
         />
       ) : (
         <input
-          value={values[key + sfx] || ''}
+          value={values[key + sfx] ?? placeholder}
           onChange={(e) => setValues((p) => ({ ...p, [key + sfx]: e.target.value }))}
           placeholder={placeholder}
           className={INPUT}
@@ -97,7 +97,7 @@ export default function CtaFinalPage() {
         <h1 className="text-2xl font-bold tracking-tight text-text">CTA Final de Cierre</h1>
         <p className="mt-1 text-xs text-text-muted">
           Bloque de cierre comercial antes del formulario de contacto: etiqueta, titular, mensaje, botón y línea de
-          garantías. Lo vacío muestra el texto original (sugerencia gris).
+          garantías. Si vacías un campo, queda vacío en la web (sin título, sin botón, etc.); un destino vacío usa #contact.
         </p>
       </div>
 

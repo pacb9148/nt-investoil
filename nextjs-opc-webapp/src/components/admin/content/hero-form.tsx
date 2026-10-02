@@ -89,50 +89,50 @@ export function HeroForm({ defaultValues }: { defaultValues: LandingHeroConfig }
 
   // Estados de textos métricos de la tarjeta
   const [badgeText, setBadgeText] = useState<string>(
-    defaultValues.hero_card?.badge_text || 'VERIFICACIÓN SGS & ASTM D1655'
+    defaultValues.hero_card?.badge_text ?? 'VERIFICACIÓN SGS & ASTM D1655'
   );
   const [badgeTextEn, setBadgeTextEn] = useState<string>(
-    defaultValues.hero_card?.badge_text_en || 'SGS & ASTM D1655 VERIFICATION'
+    defaultValues.hero_card?.badge_text_en ?? 'SGS & ASTM D1655 VERIFICATION'
   );
   const [metric1Label, setMetric1Label] = useState<string>(
-    defaultValues.hero_card?.metric1_label || 'Despachos Mensuales:'
+    defaultValues.hero_card?.metric1_label ?? 'Despachos Mensuales:'
   );
   const [metric1Value, setMetric1Value] = useState<string>(
-    defaultValues.hero_card?.metric1_value || '12.5M BBLS'
+    defaultValues.hero_card?.metric1_value ?? '12.5M BBLS'
   );
   const [metric2Label, setMetric2Label] = useState<string>(
-    defaultValues.hero_card?.metric2_label || 'Terminales Marítimas:'
+    defaultValues.hero_card?.metric2_label ?? 'Terminales Marítimas:'
   );
   const [metric2Value, setMetric2Value] = useState<string>(
-    defaultValues.hero_card?.metric2_value || 'Houston / Rotterdam'
+    defaultValues.hero_card?.metric2_value ?? 'Houston / Rotterdam'
   );
   const [metric3Label, setMetric3Label] = useState<string>(
-    defaultValues.hero_card?.metric3_label || 'Estatus Operativo:'
+    defaultValues.hero_card?.metric3_label ?? 'Estatus Operativo:'
   );
   const [metric3Value, setMetric3Value] = useState<string>(
-    defaultValues.hero_card?.metric3_value || 'ACTIVO 100%'
+    defaultValues.hero_card?.metric3_value ?? 'ACTIVO 100%'
   );
   const [metric1LabelEn, setMetric1LabelEn] = useState<string>(
-    defaultValues.hero_card?.metric1_label_en || 'Monthly Shipments:'
+    defaultValues.hero_card?.metric1_label_en ?? 'Monthly Shipments:'
   );
   const [metric2LabelEn, setMetric2LabelEn] = useState<string>(
-    defaultValues.hero_card?.metric2_label_en || 'Marine Terminals:'
+    defaultValues.hero_card?.metric2_label_en ?? 'Marine Terminals:'
   );
   const [metric3LabelEn, setMetric3LabelEn] = useState<string>(
-    defaultValues.hero_card?.metric3_label_en || 'Operational Status:'
+    defaultValues.hero_card?.metric3_label_en ?? 'Operational Status:'
   );
 
   // Cifras de impacto bajo los botones del Hero (columna izquierda)
   const [heroStats, setHeroStats] = useState<HeroStatsConfig>({
-    stat1_value: defaultValues.hero_stats?.stat1_value || '150M+',
-    stat1_label: defaultValues.hero_stats?.stat1_label || '150M+ Barriles',
-    stat1_label_en: defaultValues.hero_stats?.stat1_label_en || '150M+ Barrels',
-    stat2_value: defaultValues.hero_stats?.stat2_value || '99.8%',
-    stat2_label: defaultValues.hero_stats?.stat2_label || '99.8% Cumplimiento',
-    stat2_label_en: defaultValues.hero_stats?.stat2_label_en || '99.8% Compliance',
-    stat3_value: defaultValues.hero_stats?.stat3_value || '38+',
-    stat3_label: defaultValues.hero_stats?.stat3_label || '38+ Países',
-    stat3_label_en: defaultValues.hero_stats?.stat3_label_en || '38+ Countries',
+    stat1_value: defaultValues.hero_stats?.stat1_value ?? '150M+',
+    stat1_label: defaultValues.hero_stats?.stat1_label ?? '150M+ Barriles',
+    stat1_label_en: defaultValues.hero_stats?.stat1_label_en ?? '150M+ Barrels',
+    stat2_value: defaultValues.hero_stats?.stat2_value ?? '99.8%',
+    stat2_label: defaultValues.hero_stats?.stat2_label ?? '99.8% Cumplimiento',
+    stat2_label_en: defaultValues.hero_stats?.stat2_label_en ?? '99.8% Compliance',
+    stat3_value: defaultValues.hero_stats?.stat3_value ?? '38+',
+    stat3_label: defaultValues.hero_stats?.stat3_label ?? '38+ Países',
+    stat3_label_en: defaultValues.hero_stats?.stat3_label_en ?? '38+ Countries',
   });
   const [saveError, setSaveError] = useState<string | null>(null);
 

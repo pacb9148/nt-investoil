@@ -79,8 +79,7 @@ export default function EstadisticasPage() {
         </Link>
         <h1 className="text-2xl font-bold tracking-tight text-text">Estadísticas y Números de Impacto</h1>
         <p className="mt-1 text-xs text-text-muted">
-          Franja de 4 cifras bajo la marquesina de la landing. Lo que dejes vacío muestra el texto original (aparece
-          como sugerencia gris). Se puede ocultar con el interruptor de «Estadísticas de Impacto» en el resumen de módulos.
+          Franja de 4 cifras bajo la marquesina de la landing. Si vacías un campo, queda vacío en la web (si vacías cifra y descripción, la métrica desaparece). Se puede ocultar con el interruptor de «Estadísticas de Impacto» en el resumen de módulos.
         </p>
       </div>
 
@@ -93,7 +92,7 @@ export default function EstadisticasPage() {
             <div>
               <label className={LABEL}>Valor Numérico</label>
               <input
-                value={values[`stat${n}_value`] || ''}
+                value={values[`stat${n}_value`] ?? defaults[`metric${n}Value`]}
                 onChange={(e) => set(`stat${n}_value`, e.target.value)}
                 placeholder={defaults[`metric${n}Value`]}
                 className={INPUT}
@@ -102,7 +101,7 @@ export default function EstadisticasPage() {
             <div>
               <label className={LABEL}>Descripción ({langTab === 'en' ? 'English' : 'Español'})</label>
               <input
-                value={values[labelKey(n)] || ''}
+                value={values[labelKey(n)] ?? defaults[`metric${n}Label`]}
                 onChange={(e) => set(labelKey(n), e.target.value)}
                 placeholder={defaults[`metric${n}Label`]}
                 className={INPUT}

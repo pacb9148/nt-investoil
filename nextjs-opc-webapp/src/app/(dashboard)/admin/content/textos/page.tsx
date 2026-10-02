@@ -33,6 +33,13 @@ export default function TextosPage() {
   const setValue = (path: string, val: string) =>
     setOverrides((prev) => ({ ...prev, [langTab]: { ...(prev[langTab] || {}), [path]: val } }));
 
+  const resetValue = (path: string) =>
+    setOverrides((prev) => {
+      const next = { ...(prev[langTab] || {}) };
+      delete next[path];
+      return { ...prev, [langTab]: next };
+    });
+
   const handleSave = async () => {
     setSaving(true);
     setSaved(false);
@@ -40,7 +47,7 @@ export default function TextosPage() {
     // Solo se envían las claves de este catálogo (vacías incluidas, para poder restablecerlas).
     const payload: TextOverrides = { es: {}, en: {} };
     for (const lang of ['es', 'en'] as const) {
-      for (const item of TEXT_CATALOG) payload[lang]![item.path] = overrides[lang]?.[item.path] || '';
+      for (const item of TEXT_CATALOG) payload[lang]![item.path] = overrides[lang]?.[item.path] ?? null;
     }
     try {
       const res = await fetch('/api/content/texts', {
@@ -85,7 +92,7 @@ export default function TextosPage() {
         <p className="mt-1 text-xs text-text-muted">
           Solo aparecen los textos que la web lee de aquí (portafolio de productos y formulario de contacto). Los
           titulares de Hero, Actualidad, Servicios, Equipo, FAQ y el resto se editan en el módulo de cada sección.
-          Lo que dejes vacío muestra el texto original (sugerencia gris).
+          Si vacías un campo, queda vacío en la web; «Restablecer» vuelve al texto original.
         </p>
       </div>
 
@@ -94,16 +101,16 @@ export default function TextosPage() {
           <h3 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold">{group}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {TEXT_CATALOG.filter((t) => t.group === group).map((item) => {
-              const val = current[item.path] || '';
-              const placeholder = defaultText(langTab, item.path);
+              const customized = current[item.path] !== undefined && current[item.path] !== null;
+              const val = customized ? (current[item.path] as string) : defaultText(langTab, item.path);
               return (
                 <div key={item.path} className={item.long ? 'md:col-span-2' : ''}>
                   <div className="flex items-center justify-between mb-1">
                     <label className={LABEL}>{item.label}</label>
-                    {val && (
+                    {customized && (
                       <button
                         type="button"
-                        onClick={() => setValue(item.path, '')}
+                        onClick={() => resetValue(item.path)}
                         className="text-[10px] text-text-subtle hover:text-accent font-mono flex items-center gap-1"
                       >
                         <RotateCcw className="w-2.5 h-2.5" />
@@ -116,7 +123,6 @@ export default function TextosPage() {
                       rows={2}
                       value={val}
                       onChange={(e) => setValue(item.path, e.target.value)}
-                      placeholder={placeholder}
                       className={cn(INPUT, 'resize-y')}
                     />
                   ) : (
@@ -124,7 +130,6 @@ export default function TextosPage() {
                       type="text"
                       value={val}
                       onChange={(e) => setValue(item.path, e.target.value)}
-                      placeholder={placeholder}
                       className={INPUT}
                     />
                   )}

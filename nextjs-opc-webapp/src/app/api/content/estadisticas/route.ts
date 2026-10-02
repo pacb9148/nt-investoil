@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     const clean: Record<string, string> = {};
     for (const key of FIELDS) {
       const v = body[key];
-      if (typeof v === 'string' && v.trim()) clean[key] = v.trim().slice(0, 160);
+      if (typeof v === 'string') clean[key] = v.trim().slice(0, 160);
     }
     await saveSectionContent(STATS_SECTION, clean);
     revalidatePath('/', 'layout');
