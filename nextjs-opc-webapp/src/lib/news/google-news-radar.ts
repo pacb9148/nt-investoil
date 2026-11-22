@@ -71,54 +71,32 @@ function quoteTerm(t: string): string {
 }
 
 /**
- * Construye la consulta de Google News para la categoría elegida. «Todas las categorías» combina
- * los términos más representativos de las 10 categorías del negocio (no todos, para no generar una
- * consulta demasiado larga). Un término libre («Otros») sustituye la búsqueda por categoría.
+ * Consulta de Google News para un conjunto de términos. Cada consulta se mantiene corta a
+ * propósito: con ~20 términos combinados Google ignora `after:`/`before:` y devuelve siempre las
+ * noticias de hoy, sea cual sea la fecha pedida.
  */
-export function buildRadarQuery(categoryId: string | undefined, freeText?: string): string {
-  const custom = freeText?.trim();
-  if (custom) {
-    // Búsqueda puntual: sin comillas ni operadores del usuario, para no romper la consulta a Google News.
-    const clean = custom.replace(/["\r\n\t]/g, ' ').replace(/\s+/g, ' ').slice(0, 120);
-    return clean;
-  }
-
-  const cat = categoryId ? RADAR_CATEGORIES.find((c) => c.id === categoryId) : undefined;
-  if (cat) {
-    return `(${cat.terms.map(quoteTerm).join(' OR ')})`;
-  }
-
-  // «Todas las categorías»: los dos primeros términos de cada una de las 10 categorías listadas.
-  const seen = new Set<string>();
-  const picked: string[] = [];
-  for (const c of RADAR_CATEGORIES) {
-    for (const t of c.terms.slice(0, 2)) {
-      const key = t.toLowerCase();
-      if (!seen.has(key)) {
-        seen.add(key);
-        picked.push(t);
-      }
-    }
-  }
-  return `(${picked.map(quoteTerm).join(' OR ')})`;
+export function buildRadarQuery(terms: string[]): string {
+  return `(${terms.map(quoteTerm).join(' OR ')})`;
 }
 
-/**
- * Noticias reales de Google News (RSS) publicadas en la fecha indicada, dentro de la categoría o
- * búsqueda libre indicada. El feed solo trae titular, fuente y enlace: el cuerpo se redacta en el
- * editor, no se copia del medio.
- */
-export async function fetchRadarNewsForDate(
-  date: string,
-  categoryId?: string,
-  freeText?: string
-): Promise<MarketNewsItem[]> {
-  const cacheKey = `${date}::${categoryId || 'all'}::${freeText?.trim().toLowerCase() || ''}`;
-  const hit = cache.get(cacheKey);
-  if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.items;
+/** Término libre («Otros»): sin comillas ni saltos de línea, para no romper la consulta. */
+function cleanFreeText(raw: string): string {
+  return raw.replace(/["\r\n\t]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
+}
 
-  const categoryLabel = categoryId ? RADAR_CATEGORIES.find((c) => c.id === categoryId)?.label : undefined;
-  const query = buildRadarQuery(categoryId, freeText);
+// Día natural del editor (España): el RSS trae marcas UTC y Google deja pasar noticias vecinas.
+const RADAR_TIMEZONE = 'Europe/Madrid';
+const MAX_RADAR_ITEMS = 40;
+
+function dayInRadarZone(d: Date): string {
+  return d.toLocaleDateString('en-CA', { timeZone: RADAR_TIMEZONE });
+}
+
+async function fetchFeedItems(
+  query: string,
+  date: string,
+  label: string | undefined
+): Promise<MarketNewsItem[]> {
   const q = `${query} after:${date} before:${nextDay(date)}`;
   const url = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=es&gl=ES&ceid=ES:es`;
   const res = await fetch(url, {
@@ -130,32 +108,67 @@ export async function fetchRadarNewsForDate(
   const xml = await res.text();
 
   const items: MarketNewsItem[] = [];
-  const blocks = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
-  for (const block of blocks.slice(0, 25)) {
+  for (const block of xml.match(/<item>[\s\S]*?<\/item>/g) || []) {
     const rawTitle = tagContent(block, 'title');
     const link = tagContent(block, 'link');
-    const pubDate = tagContent(block, 'pubDate');
     const source = tagContent(block, 'source') || 'Google News';
-    if (!rawTitle || !/^https?:\/\//.test(link)) continue;
+    const published = new Date(tagContent(block, 'pubDate'));
+    if (!rawTitle || !/^https?:\/\//.test(link) || Number.isNaN(published.getTime())) continue;
+    // La fecha pedida manda: lo publicado otro día se descarta aunque Google lo devuelva.
+    if (dayInRadarZone(published) !== date) continue;
 
     const title = rawTitle.endsWith(` - ${source}`) ? rawTitle.slice(0, -(source.length + 3)) : rawTitle;
-    const published = new Date(pubDate);
     const topic = TOPICS.find((t) => t.re.test(title));
-    const tags = ['Google News', source, ...(topic ? [topic.tag] : [])];
-
     items.push({
-      id: `gn-${date}-${items.length}-${Buffer.from(link).toString('base64url').slice(-12)}`,
+      id: `gn-${date}-${Buffer.from(link).toString('base64url').slice(-14)}`,
       title,
       source,
       sourceUrl: link,
-      publishedAt: Number.isNaN(published.getTime()) ? `${date}T12:00:00.000Z` : published.toISOString(),
-      // Con categoría elegida, prevalece su etiqueta oficial sobre la adivinada por palabras clave.
-      category: categoryLabel || topic?.category || 'Mercado Petrolero & Precios',
+      publishedAt: published.toISOString(),
+      // Con categoría conocida prevalece su etiqueta oficial sobre la adivinada por palabras clave.
+      category: label || topic?.category || 'Mercado Petrolero & Precios',
       summary: `Titular publicado por ${source}. Abre el artículo original para leer el contenido completo antes de redactar la nota.`,
       content: `<p>${escapeHtml(title)}</p><p>Noticia publicada por ${escapeHtml(source)} el ${date}. Redacta aquí el análisis de Invest Oil y enlaza el artículo original.</p>`,
-      tags,
+      tags: ['Google News', source, ...(topic ? [topic.tag] : [])],
     });
   }
+  return items;
+}
+
+/**
+ * Noticias reales de Google News (RSS) publicadas en la fecha indicada. «Todas las categorías» lanza
+ * una consulta por categoría (en paralelo) y las une sin duplicados; una categoría o un término libre
+ * («Otros») lanza una sola. El feed solo trae titular, fuente y enlace: el cuerpo se redacta en el
+ * editor, no se copia del medio.
+ */
+export async function fetchRadarNewsForDate(
+  date: string,
+  categoryId?: string,
+  freeText?: string
+): Promise<MarketNewsItem[]> {
+  const custom = freeText ? cleanFreeText(freeText) : '';
+  const cacheKey = `${date}::${categoryId || 'all'}::${custom.toLowerCase()}`;
+  const hit = cache.get(cacheKey);
+  if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.items;
+
+  const cat = categoryId ? RADAR_CATEGORIES.find((c) => c.id === categoryId) : undefined;
+  const jobs: Array<{ query: string; label?: string }> = custom
+    ? [{ query: custom }]
+    : (cat ? [cat] : RADAR_CATEGORIES).map((c) => ({ query: buildRadarQuery(c.terms), label: c.label }));
+
+  const settled = await Promise.allSettled(jobs.map((j) => fetchFeedItems(j.query, date, j.label)));
+  const ok = settled.filter((r): r is PromiseFulfilledResult<MarketNewsItem[]> => r.status === 'fulfilled');
+  // Solo es un fallo si no respondió ninguna consulta; con respuestas parciales se muestra lo que hay.
+  if (ok.length === 0) {
+    const reason = (settled[0] as PromiseRejectedResult).reason;
+    throw reason instanceof Error ? reason : new Error('Google News no respondió');
+  }
+
+  const byLink = new Map<string, MarketNewsItem>();
+  for (const r of ok) for (const item of r.value) if (!byLink.has(item.sourceUrl)) byLink.set(item.sourceUrl, item);
+  const items = [...byLink.values()]
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+    .slice(0, MAX_RADAR_ITEMS);
 
   cache.set(cacheKey, { at: Date.now(), items });
   return items;

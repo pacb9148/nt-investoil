@@ -7,7 +7,7 @@ const PUBLIC_API_WRITES = [
   /^\/api\/auth\//,
   /^\/api\/contact$/,
   /^\/api\/ai\/chat$/,
-  /^\/api\/posts\/[^/]+\/like$/,
+  /^\/api\/posts\/[^/]+\/(like|view)$/,
 ];
 
 // Lecturas de la API que exponen datos internos (usuarios, leads, claves de IA…).

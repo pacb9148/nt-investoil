@@ -32,17 +32,27 @@ export function PostLikeButton({ postId, initialLikes = 0 }: PostLikeButtonProps
     setHasLiked(true);
     setLikes((prev) => prev + 1);
 
+    const undo = () => {
+      setHasLiked(false);
+      setLikes((prev) => Math.max(0, prev - 1));
+      try {
+        localStorage.removeItem(`liked_post_${postId}`);
+      } catch {}
+    };
+
     try {
       localStorage.setItem(`liked_post_${postId}`, 'true');
+    } catch {}
+
+    try {
       const res = await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.likes !== undefined) {
-          setLikes(data.likes);
-        }
-      }
+      const data = res.ok ? await res.json().catch(() => null) : null;
+      // El servidor devuelve el total real tras sumar; si no lo hizo, el «me gusta» no se guardó.
+      if (data && typeof data.likes === 'number') setLikes(data.likes);
+      else undo();
     } catch (e) {
       console.warn('Error sending like:', e);
+      undo();
     } finally {
       setIsLiking(false);
     }

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NewsRepublishBadge } from '@/components/blog/news-republish-badge';
 import { PostLikeButton } from '@/components/blog/post-like-button';
+import { PostViewCount } from '@/components/blog/post-view-count';
 import { formatDate } from '@/lib/utils';
 import { LABELS_EN } from '@/lib/i18n/content-en';
 import { getServerLanguage } from '@/lib/i18n/server-language';
@@ -114,7 +115,7 @@ export default async function BlogPostPage({
           <span>•</span>
           <span className="flex items-center gap-1.5">
             <Eye className="w-4 h-4 text-neon" />
-            <span>{post.views || 0} lecturas</span>
+            <PostViewCount postId={post.id} initialViews={post.views || 0} />
           </span>
           <span>•</span>
           <PostLikeButton postId={post.id} initialLikes={post.likes || 0} />
