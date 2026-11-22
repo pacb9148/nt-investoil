@@ -1,0 +1,3 @@
+@echo off
+echo Abriendo la Propuesta de Modernizacion Chrome Modern Web para Idexdental...
+start "" propuesta-modernizacion.html

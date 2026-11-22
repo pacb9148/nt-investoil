@@ -1,0 +1,75 @@
+{
+  "name": "plate",
+  "dxfversion": "R2018",
+  "units": "mm",
+  "layers": [
+    { "name": "OUTLINE", "color": 7, "linetype": "CONTINUOUS" },
+    { "name": "HOLES", "color": 1, "linetype": "CONTINUOUS" },
+    { "name": "SLOTS", "color": 3, "linetype": "CONTINUOUS" },
+    { "name": "DIMENSIONS", "color": 5, "linetype": "CONTINUOUS" },
+    { "name": "TEXT", "color": 2, "linetype": "CONTINUOUS" }
+  ],
+  "entities": [
+    {
+      "type": "lwpolyline",
+      "layer": "OUTLINE",
+      "closed": true,
+      "points": [[0, 0], [120, 0], [120, 80], [0, 80]]
+    },
+    { "type": "circle", "layer": "HOLES", "center": [12, 12], "radius": 4 },
+    { "type": "circle", "layer": "HOLES", "center": [108, 12], "radius": 4 },
+    { "type": "circle", "layer": "HOLES", "center": [108, 68], "radius": 4 },
+    { "type": "circle", "layer": "HOLES", "center": [12, 68], "radius": 4 },
+    {
+      "type": "lwpolyline",
+      "layer": "SLOTS",
+      "closed": true,
+      "points": [
+        [50, 35, 0],
+        [70, 35, 1.0],
+        [70, 45, 0],
+        [50, 45, 1.0]
+      ]
+    },
+    {
+      "type": "text",
+      "layer": "TEXT",
+      "text": "PLATE 120x80 - MATERIAL: AL 3mm",
+      "insert": [4, 84],
+      "height": 4
+    }
+  ],
+  "dimensions": [
+    {
+      "type": "linear",
+      "layer": "DIMENSIONS",
+      "p1": [0, 0],
+      "p2": [120, 0],
+      "distance": -12,
+      "angle": 0
+    },
+    {
+      "type": "linear",
+      "layer": "DIMENSIONS",
+      "p1": [0, 0],
+      "p2": [0, 80],
+      "distance": -12,
+      "angle": 90
+    },
+    {
+      "type": "aligned",
+      "layer": "DIMENSIONS",
+      "p1": [50, 40],
+      "p2": [70, 40],
+      "distance": 18
+    }
+  ],
+  "hatches": [
+    {
+      "layer": "OUTLINE",
+      "color": 8,
+      "pattern": "SOLID",
+      "paths": [[[88, 56], [104, 56], [104, 72], [88, 72]]]
+    }
+  ]
+}

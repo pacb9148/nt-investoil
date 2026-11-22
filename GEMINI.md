@@ -20,6 +20,43 @@ convención universal (`streamText`, `edge runtime`, `git rebase`).
 
 ---
 
+## Cuatro reglas base (siempre)
+
+1. **Piensa antes.** Entender el pedido y la causa antes de tocar nada.
+2. **Hazlo simple.** La solución más pequeña que resuelve lo pedido.
+3. **Toca solo lo pedido.** Sin extras, sin refactors ni cambios de paso.
+4. **Demuestra que funciona.** Con evidencia real (salida, test, navegador), no por suposición.
+
+---
+
+## Estilo de respuesta: i-have-adhd (ENCENDIDO por defecto, en todas las herramientas y proyectos)
+
+Basado en `github.com/ayghri/i-have-adhd` v0.4.1 (MIT), traducido. No hace falta
+invocarlo: aplica desde el primer mensaje de cada sesión. Solo se apaga si el
+dueño escribe «stop adhd mode» o «modo normal» (vale para esa sesión). La skill
+`/i-have-adhd` está instalada en `~/.claude/skills/i-have-adhd/`.
+
+El lector tiene TDAH. La respuesta no solo es breve: está hecha para poder actuar.
+
+1. **Empieza por la acción o respuesta**: comando, ruta o fragmento primero; la prosa después, si hace falta.
+2. **Numera el trabajo de varios pasos**: un paso = una acción acotada; los mínimos pasos que sirvan.
+3. **Termina con UN siguiente paso** hecho en menos de dos minutos, si queda algo abierto.
+4. **Sin tangentes**: termina el tema actual y ofrece el otro aparte, una vez, al final.
+5. **Repite el estado cada turno** («paso 3 de 5 hecho»). Con lista de tareas, esa lista ya lo dice.
+6. **Tiempos concretos** (minutos, horas), nunca «un poco».
+7. **Haz visible lo que ya funciona**: qué se puede probar ahora y cómo.
+8. **Errores sin dramatismo**: lugar, causa y arreglo.
+9. **Listas de máximo 5 elementos** al presentar; agrupa y ordena por relevancia (no limita el análisis).
+10. **Sin preámbulo, sin recapitulación, sin despedida** («Espero que ayude», «¿algo más?»).
+
+Excepciones: si piden «explica», se explica completo (sin preámbulo ni despedida).
+Antes de una acción destructiva se confirma. Tras tres arreglos fallidos, se para
+y se nombra la suposición dudosa. Si el pedido es ambiguo, una pregunta corta. Si
+una regla borra la respuesta o choca con el entorno (instrucciones del sistema,
+formato exigido por la herramienta), manda la tarea y se conserva la forma.
+
+---
+
 ## Cómo se trabaja
 
 1. **Solo se dice «resuelto» con evidencia real**: salida de un comando, test en
@@ -51,6 +88,12 @@ convención universal (`streamText`, `edge runtime`, `git rebase`).
    bases de datos pertenecientes a otros proyectos (como `sici-tenantius`), a menos que
    estén explícitamente relacionados y su interacción sea estrictamente en función de lo
    establecido en dicha relación o por instrucción explícita del usuario propietario.
+
+8. **Control de Código IA — Marco ARQQERA contra las 4 «D»:**
+   - **Anti-Duplicación (Duplication):** Prohibido duplicar lógica o utilidades. Antes de escribir una función o componente, verificar lo existente y extraer constantes o módulos compartidos.
+   - **Anti-Desviación (Drift):** Mantener como ancla la arquitectura inicial del proyecto y la fuente única de verdad. No alterar el rumbo técnico, contratos de APIs ni dependencias entre iteraciones de prompts.
+   - **Anti-Diluvio (Deluge):** Resolver con la menor cantidad de código posible. Prohibido inflar archivos o generar código innecesario; respetar estrictamente el límite de 500 líneas por archivo y 50 por función.
+   - **Anti-Engaño (Deception):** Prohibido aplicar parches cosméticos que disimulen el fallo. Se investiga y ataca la causa raíz real; nunca dar por resuelto algo que solo simula funcionar sin pruebas empíricas.
 
 ---
 
@@ -105,6 +148,82 @@ lo que se esté haciendo se ejecuta, en este orden y sin volver a preguntar:
 `+dap` **es la orden explícita de push**. Si ese push dispara un despliegue
 automático (por ejemplo, Vercel publicando `main`), se dice en el informe final.
 Sin `+dap` ni otra orden explícita, se sigue la regla general de este apartado.
+
+### Orden «+damp»: documentar, actualizar repos, memoria y push
+
+Es `+dap` con un paso más: guardar en la memoria local (`claude-mem-free`) lo aprendido. Se ejecuta en este orden y sin volver a preguntar. `+dap` sigue funcionando igual, sin el paso de memoria.
+
+1. **Documentar**: igual que en `+dap`.
+2. **Memoria**: el agente principal redacta de 1 a 5 notas con lo que sobrevive a la sesión (decisiones y su motivo, errores resueltos con causa no obvia, preferencias del dueño, resumen de lo hecho y lo pendiente) y las guarda con
+   `python ~/.claude/skills/claude-mem-free/scripts/memoria.py add --titulo "…" --contenido "…" --tipo aprendizaje|decision|bugfix|feedback|resumen --proyecto <proyecto>`.
+   - Se escribe la **regla**, no la anécdota, y nunca credenciales ni datos personales.
+   - **Sin subagente:** el agente principal redacta y guarda todas las notas en **una sola llamada** de Bash (un `add` por nota, encadenados) y comprueba cada una con `memoria.py search` o `show`. Se midió que delegar en Haiku gasta ~100.000 tokens de arranque en frío por tarea y que un subagente puede dar por guardada una nota que no se guardó.
+   - Un aprendizaje que sirva a todos los proyectos sube además a este archivo, como ya exige la regla de aprendizajes.
+   - Va antes del commit porque la memoria vive fuera del repo y no ensucia el árbol.
+3. **Actualizar repos**: igual que en `+dap`.
+4. **Push** y comprobación de local y remoto iguales con el árbol limpio: igual que en `+dap`. `+damp` también es la orden explícita de push, y si dispara un despliegue automático se dice en el informe final.
+
+---
+
+## Clave «lemo»: producción audiovisual automática (código, voz, música y efectos)
+
+Cuando el usuario incluya la clave **`lemo`** (como prefijo `lemo: <tema>`, orden directa *"crea un video con lemo"*, *"haz un corto con lemo"* o solicite generar un video usando código, voz, música y efectos), **se activa automáticamente la skill `lemo-opuscar`** situada en `C:\Users\pacb9\lemo-opuscar`.
+
+### Patrón de Requisitos Lemo (Ficha de Producción)
+Al invocar `lemo`, el agente debe presentar de inmediato la siguiente ficha estructurada para que el usuario defina o ajuste los detalles clave (o acepte las opciones recomendadas por defecto):
+
+```markdown
+📋 **Ficha de Producción Lemo** (Personaliza lo que desees o confirma para usar la propuesta recomendada):
+1. **Tema y Estilo Visual**: [Tema central] | [Estilo sugerido entre los 99, ej: isometric-data, synthwave, ukiyo-e] | [Formato: 16:9 horizontal o 9:16 vertical]
+2. **Guion y Voz**: [Texto o mensaje clave] | [Voz: masculina/femenina, acento es-ES / es-MX / en-US] | [Tono: enérgico, streamer, institucional, misterioso]
+3. **Música (100% sin copyright)**: [Género: Synthwave, Lo-Fi, Cinematic, Cyberpunk, Trap, Acústico] | [BPM / Ritmo: lento, medio, rápido] | [Volumen: fondo suave o protagonista]
+4. **Efectos de Sonido (SFX)**: [Efectos deseados: sirenas, glitches, claxon, clicks, láser, etc.]
+5. **Duración y Textos en Pantalla**: [Duración: ej. 15s, 30s] | [Textos, titulares o redes sociales a mostrar]
+```
+
+### Fases de Ejecución:
+1. **Selección y Tratamiento:** Aplicar el estilo cinematográfico de `C:\Users\pacb9\lemo-opuscar\styles\` y redactar el guion técnico con marcas temporales precisas en segundos ($t$).
+2. **Código visual (Core):** Crear el archivo `index.html` bajo el estándar de Lemo-Opuscar (`window.READY = true`, `window.DUR = segundos`, `window.render(t)` determinista en Canvas, WebGL o Three.js).
+3. **Voz y Sonido (Voice & Music):** Sintetizar la voz en off con el TTS local de Kokoro (`python core/tts/tts.py`) o Edge-TTS, y generar la música/efectos procedimentales (`core/audio/pluck.py`, `sampler.py`, `sfx.py`).
+4. **Render determinista y entrega:** Ejecutar `node core/render/video.mjs` y masterizar el archivo final con `sh core/render/mux.sh` para entregar el archivo `.mp4` terminado y reportar su ruta exacta.
+
+---
+
+## Clave «estilo$»: catálogo de estilos UI y dirección de arte UI/UX Pro Max
+
+Cuando el usuario incluya la clave **`estilo$`** (o solicite el catálogo de estilos de diseño, o pida maquetar/diseñar una interfaz indicando un estilo), **se activa automáticamente la skill `ui-ux-pro-max`** situada en `C:\Users\pacb9\.claude\skills\ui-ux-pro-max` y `C:\Users\pacb9\.gemini\config\skills\ui-ux-pro-max`.
+
+### Comportamiento obligatorio ante «estilo$»:
+1. **Presentar el catálogo estructurado:** Mostrar al usuario el catálogo de estilos disponibles agrupados por categoría o en tabla concisa (nombre, slug e indicación de "ideal para") para que elija uno (o acepte el recomendado según el tipo de producto/proyecto). El catálogo completo vive en `C:\Users\pacb9\.claude\skills\ui-ux-pro-max\CATALOGO_ESTILOS.md` y `C:\Users\pacb9\Documents\Github Docs\catalogo-67-estilos-ui-ux-pro-max.md`.
+2. **Consultar la base de conocimiento:** Al seleccionar el usuario un estilo (ej: `brutalism`, `minimalism-and-swiss-style`, `aurora-ui`, `glassmorphism`, `dark-mode-oled`), el agente consulta los parámetros exactos con:
+   `python C:\Users\pacb9\.claude\skills\ui-ux-pro-max\scripts\search.py <slug> --domain style`
+   y/o genera el sistema de diseño completo:
+   `python C:\Users\pacb9\.claude\skills\ui-ux-pro-max\scripts\search.py "<slug> <proyecto>" --design-system`
+3. **Aplicación estricta:** El agente debe aplicar fielmente la paleta de colores, pares de fuentes, radios de borde, sombras/efectos y directrices de accesibilidad (contraste mínimo WCAG 4.5:1, áreas táctiles de 44×44px) del estilo seleccionado en todo el código frontend (HTML, Tailwind, React, Vue, Next.js, etc.).
+
+---
+
+## Clave «MCP->»: conexión, configuración y uso automático de herramientas MCP
+
+Cuando el usuario incluya la clave **`MCP-><aplicación>`** (ej: `MCP->gmail`, `MCP->github`, `MCP->notion`, `MCP->slack`, `MCP->postgres`):
+1. **Identificar y registrar:** El agente ejecuta de inmediato `python C:\Users\pacb9\bin\mcp_connector.py <aplicación>` (o el comando `mcp <aplicación>`) para registrar el servidor correspondiente en el catálogo oficial de Model Context Protocol.
+2. **Persistencia universal:** La configuración se inyecta y persiste automáticamente para todos los entornos:
+   - Claude Code (`~/.claude.json`)
+   - Claude Desktop (`%APPDATA%\Claude\claude_desktop_config.json`)
+   - Cursor (`~/.cursor/mcp.json`)
+   - Antigravity / Gemini CLI (`~/.gemini/antigravity/mcp/`)
+3. **Credenciales seguras:** Si el servidor requiere claves de entorno (ej: `GITHUB_PERSONAL_ACCESS_TOKEN`, `NOTION_API_KEY`, `SLACK_BOT_TOKEN`, credenciales Google), el agente solicita al usuario el valor de forma aislada sin guardarlo en el historial ni exponerlo en texto plano.
+4. **Uso inmediato y a demanda:** El agente invoca y utiliza las herramientas recién configuradas en ese mismo turno para resolver la petición del usuario y deja el servidor activo para sesiones futuras.
+
+---
+
+## Modern Web Guidance (Google Chrome) y rutina de actualización automática
+
+Al implementar o refactorizar interfaces web, HTML, CSS o JavaScript del lado del cliente:
+1. **Consulta obligatoria de estándares modernos:** El agente debe verificar las directrices de la plataforma web moderna de Google Chrome usando:
+   `mwg search "<query>"` (o `python C:\Users\pacb9\bin\mwg_updater.py search "<query>"`)
+   para priorizar APIs nativas (Baseline: `<dialog>`, Popover API, Container Queries, View Transitions, Scroll-driven animations) en lugar de dependencias o trucos obsoletos.
+2. **Rutina de actualización periódica automática:** El comando `mwg` ejecuta automáticamente una verificación de frescura (frecuencia: cada 24 horas). Si los estándares locales han expirado, realiza un `git pull` contra el repositorio oficial de Google Chrome y sincroniza las guías en los directorios de skills de Claude Code y Antigravity de forma transparente antes de resolver la consulta.
 
 ---
 
@@ -252,6 +371,8 @@ la nueva → actualizar todos los consumidores (local, CI, variables del
 proveedor de despliegue) → redesplegar → verificar → sólo entonces revocar la
 vieja. Invertirlo tira el servicio.
 
+**Un `.gitignore` con comentarios al final de línea no ignora nada.** Git solo reconoce `#` al inicio de línea: `config/api_keys.json   # clave` es otro patrón y el archivo queda versionable. Tras crear un archivo con secretos, comprobar con `git check-ignore -v RUTA` antes del primer commit; si falla, excluirlo en `.git/info/exclude`.
+
 ---
 
 ## Verificación: lo que no se comprueba, no está hecho
@@ -360,6 +481,22 @@ medir el ratio WCAG; y al corregirlo aparecieron tres textos más con el mismo f
 **Durante `next build` la app no debe tocar la base de datos de producción**: el build renderiza páginas en paralelo y ejecuta lo que haya a nivel de módulo. La URL de la base va como variable solo de ejecución (Coolify: Build time → Not available during build) y el código comprueba `NEXT_PHASE === 'phase-production-build'`.
 
 **Si un despliegue deja la web sin responder, primero restaurar el servicio y luego investigar**; los logs de ejecución (no los de build) dicen por qué.
+
+---
+
+**Dar acceso a un agente o CLI: autorización por código (device flow), nunca contraseñas ni tokens pegados.** El CLI genera el secreto y manda solo su SHA-256; el dueño aprueba un código corto viendo nombre, agente e IP; el secreto local pasa a ser el token (la plataforma no lo ve nunca). Tokens con permisos (lectura/escritura), caducidad, revocación inmediata, y un token jamás puede crear otros. «Solo lectura» con SQL se garantiza con `BEGIN READ ONLY`, no analizando el texto.
+
+**Un CLI pensado para agentes: salida JSON cuando no hay terminal, progreso por stderr, códigos de salida distintos, `ayuda --json`, operaciones destructivas que se niegan sin `--confirmar`, y los secretos se mueven de A a B dentro del CLI sin mostrarlos** (si no, acaban en la conversación del modelo). Un archivo con secretos que escribe el CLI se añade a `.gitignore`.
+
+**Instalar con una línea: `curl URL | node --input-type=module - init` va bien; en Windows PowerShell 5.1 la tubería estropea los acentos, así que se descarga a archivo (`iwr -useb URL -OutFile`) y se ejecuta.** El CLI se copia dentro del proyecto (`.runwebx/`) para no depender del PATH.
+
+**Un autoactualizador debe DESCARGAR, no leerse a sí mismo, y comprobar que lo descargado arranca (`--version`) antes de sustituir** al actual.
+
+**Cuando un cliente (CLI/SDK) llama a un servidor propio, una prueba comprueba que cada ruta que usa EXISTE en los routers reales** (recorrer `router.stack`); y lo generado (bundle, referencia) se versiona con un `--check` en los tests para que no se desincronice.
+
+**Un middleware que salta la sesión por una cabecera debe limitarse a las rutas que lo necesitan**: en el resto, las rutas esperan `req.session` y reventarían.
+
+**Coolify con repositorio privado (deploy key): la URL va en forma SSH (`git@github.com:o/r.git`), nunca https.** Con https git ignora la clave y falla con `could not read Username` aunque la clave esté bien puesta en GitHub (Coolify solo convierte la URL si la app tiene un origen GitHub App). Un log con `GIT_SSH_COMMAND` + `https://` delata este caso. Y en una automatización: no preguntar «¿es público?» (se detecta con `GET https://github.com/o/r.git/info/refs?service=git-upload-pack` sin credenciales: 200 público, 401/404 privado), no lanzar el primer despliegue de un repo privado hasta que la clave exista en GitHub, y validar la URL que escribe el usuario (solo GitHub; el servidor clona lo que se le pase).
 
 ---
 
@@ -493,15 +630,232 @@ vulnerabilidades para atajar fallos desde el principio.
 
 ---
 
-## Continuidad de contexto y memoria persistente (Claude-Mem)
+## Continuidad de contexto y memoria persistente (claude-mem-free)
 
-`claude-mem` está activo globalmente en el sistema para mantener la continuidad entre sesiones, agentes y entornos de desarrollo (Claude Code, Antigravity, Cursor, OpenCode, Windsurf, etc.).
+`claude-mem` se desinstaló en octubre de 2026 (pasó a ser de pago). Lo sustituye la skill global **`claude-mem-free`**: memoria local en SQLite + FTS5, sin servicio, sin red y sin suscripción.
 
-- **Memoria persistente unificada:** Todos los IDEs y agentes comparten el almacén centralizado de memoria en `~/.claude-mem/` (`claude-mem.db`).
-- **Contexto automático por proyecto:** Al iniciar una sesión o continuar el desarrollo en cualquier proyecto, el contexto previo (arquitectura, decisiones de diseño, convenciones, estado de tareas) se consulta e inyecta automáticamente mediante hooks o archivos de reglas (`GEMINI.md`, `.cursor/rules/claude-mem-context.mdc`, `AGENTS.md`, `.windsurf/rules/claude-mem-context.md`).
-- **Preservación entre herramientas:** Si se cambia de IDE (por ejemplo de Claude Code a Antigravity o Cursor) o de modelo, la memoria del proyecto se mantiene intacta sin perder el hilo ni las fuentes de datos.
-- **Worker local:** El servicio daemon se ejecuta localmente en `http://127.0.0.1:37777` (`claude-mem start`) sin enviar datos a la nube externa salvo configuración explícita.
+- **Dónde vive:** `~/.claude-mem-free/memoria.db`. La copia íntegra de la base antigua está en `~/.claude-mem-free/archivo/`.
+- **Contexto al abrir sesión:** un hook `SessionStart` (en `~/.claude/settings.json`) lista los aprendizajes y lo último del proyecto, solo títulos con su ID.
+- **Consultar:** `python ~/.claude/skills/claude-mem-free/scripts/memoria.py search "tema"` y `show ID`.
+- **Guardar es manual:** ya no hay observador automático. Al cerrar un trabajo o resolver algo no obvio, `memoria.py add --titulo ... --contenido ... --tipo aprendizaje|decision|bugfix|feedback|resumen`. Se escribe la regla, no la anécdota, y nunca credenciales.
+- **Entre herramientas:** la memoria es un fichero local; cualquier agente con acceso a ese comando comparte el mismo historial.
 
+
+**Coolify (y la mayoría de despliegues por Git) clona la rama `main`.** Un repositorio creado con `git init` en Git para Windows nace en `master` y el despliegue falla con `Remote branch main not found in upstream origin`. Crear con `git init -b main`, y antes de redesplegar comprobar que la rama existe en el remoto (`git ls-remote --heads origin`). Un repositorio vacío en GitHub no tiene ninguna rama.
+
+**Una cookie de sesión `Secure` por http se descarta en silencio y deja un bucle de login sin error.** Decidir `Secure` por `x-forwarded-proto` (o el esquema real de la petición), nunca por `NODE_ENV`: una app en producción servida por `http://…sslip.io` (sin dominio propio aún) no puede iniciar sesión. Para diagnosticar, contar filas de la tabla de sesiones: si crecen en cada intento, el servidor acepta el login y falla el navegador.
+
+**Una URL que escribe el usuario y que el servidor visita es un SSRF**, sobre todo si el servidor comparte red con la base de datos. Aceptar solo https y puertos 443/8443, rechazar rangos privados, loopback y metadatos (10/8, 172.16/12, 192.168/16, 127/8, 169.254/16, ::1, fc00::/7), validar el DNS **al conectar** con un `lookup` propio (la IP validada es la que se usa) y no seguir redirecciones.
+
+**No mezclar el `fetch` integrado de Node con el `Agent` del paquete `undici`** (`invalid onRequestStart method`): usar `fetch` y `Agent` del mismo paquete. Y probar siempre contra la red real, con claves falsas si hace falta: los tests con respuestas simuladas no ven este tipo de fallo.
+
+**Proveedores de IA: clasificar el fallo antes de rotar.** Sin respuesta, 408, 429 y 5xx/529 son momentáneos (pausa con retroceso, saltar al siguiente); 401/403 —y el 400 de «clave inválida» de Gemini— desactivan hasta que el usuario corrija la clave; 400/404/410/422 son de configuración. Un proveedor nuevo solo entra en servicio tras una llamada real de prueba.
+
+**Una dependencia cuyo `engines` pide un Node más nuevo que el del servidor puede colgarse en silencio en producción** (tiempos agotados sin error de conexión, y en local todo funciona). Comparar `engines` con la versión real del servidor —exponerla en el endpoint de salud— y usar módulos nativos de Node (`node:https`, `node:crypto`) para lo crítico. Un timeout idéntico en todos los casos apunta al entorno, no a las credenciales.
+
+**La prueba de conexión de un proveedor de IA es una petición de chat simple** (sin esquema, sin `response_format`, con `max_tokens` ~1000): comprueba red, clave y modelo. Los modos JSON estrictos o sin tope de salida pueden dejar colgados a los modelos razonadores (gpt-oss, DeepSeek, Nemotron…) y hacer creer que el proveedor «no responde». Si funciona en otra plataforma y no en la nuestra, copiar el cuerpo exacto de la petición que sí funciona antes de sospechar de la red, y hacer que el error distinga «no conectó» de «conectó y esperó en vano».
+
+**Un lector de documentos de terceros reconoce las columnas por su sentido, no por una palabra exacta, y se prueba con el archivo REAL del usuario.** Un presupuesto con la columna «Costo uni» (el lector exigía «PREC») se leyó con 0 partidas y el caso cayó en silencio en otro modo. Si la tabla no se reconoce, el fallo debe ser visible y no cambiar el modo de trabajo. El archivo real se puede bajar de la base del proyecto con su CLI, en trozos pequeños (el CLI recorta los valores largos): `encode(substring(contenido from N for 1000),'hex')`.
+
+**Al cambiar una regla de negocio del dueño («nunca 0»), se aplica en TODAS las capas:** motor, edición manual, validadores, generación de documentos, prompt, pruebas de referencia y datos ya guardados (normalizar al leer). Buscar cada aparición; arreglar una y dejar su hermana hace que la regla vuelva a romperse por otro sitio.
+
+**Un agarre de redimensionado (columna/fila) va ENTERO dentro de su propia celda.** Si sobresale, la cabecera vecina con el mismo `z-index` lo tapa y solo queda la mitad útil. Se comprueba con `document.elementFromPoint` sobre varios puntos del agarre. Con `setPointerCapture` envolver en `try/catch`: un puntero sintético con `pointerId` distinto de 1 lanza y aborta el arrastre sin error visible.
+
+**Una plantilla de Excel heredada puede traer columnas de 3–4 caracteres** (se leen cortadas y parece un fallo de datos). Al generar, fijar anchos legibles, alto de fila según el largo del texto y panel fijo; y dejar siempre al usuario ajustarlos en pantalla y guardarlos en el propio archivo.
+
+**Si un cliente HTTP hecho a mano (`node:https`, sockets, agentes propios) no recibe respuesta y el SDK o el `fetch` estándar sí funciona contra el mismo destino con la misma clave, el culpable es el cliente a mano**, no el proveedor ni la red: volver al `fetch` integrado y poner las guardas (https, puertos, DNS sin IP privadas, sin redirecciones, tiempo máximo) alrededor. Ante «lo único que funciona es lo que usa el SDK», comparar el camino de red de cada proveedor antes de culpar a las claves.
+
+**Un botón «Nuevo X» que crea siempre una fila deja la base llena de vacíos:** reutilizar el registro en blanco que ya exista, impedir duplicados por la clave natural (409 con mensaje), borrar con confirmación y en cascada —y a mano las tablas sin `ON DELETE CASCADE`, que si no quedan huérfanas— y acotar las versiones que se acumulan (las últimas N).
+
+**Una API pública lenta (p. ej. mindicador.cl, 14 s en una respuesta) necesita tiempos largos y reintentos**, y una alerta que solo salga si no hay valor previo; y las pruebas de punta a punta no deben depender de ella (fijar el dato a mano).
+
+**Un archivo se clasifica al subirlo: si luego se mejora el reconocimiento, los ya subidos siguen con el tipo viejo** y el sistema los da por «faltantes». Al procesar, reclasificar por nombre y, si no basta, por contenido; y no mostrar al usuario una alerta de «falta X» sin haber comprobado que X no está ya cargado con otro tipo.
+
+**Nunca interpretar un número escrito por una persona con `replace(/\./g, "")`:** convierte 40844.79 en 4.084.479. Aceptar coma decimal chilena, punto decimal y puntos de miles, mostrar los valores con el mismo formato con que se parsean y validar el rango (una UF de 4 millones es un error de tipeo, no un dato).
+
+**Un documento que reproduce datos de un original se RELEE antes de entregarlo.** Cuando el entregable debe conservar intacta una parte del original (p. ej. la columna «Reclamación» de un presupuesto), no basta con confiar en el código que lo escribe: se abre el archivo generado, se compara celda a celda con la fuente y, si difiere, la generación aborta. Y esa parte se protege también en la pantalla de edición (rechazo en el servidor, no solo en la interfaz).
+
+**Aceptar un ZIP del usuario exige defensas fijas:** tope de entradas, tope de tamaño descomprimido (bomba de compresión), rechazo de rutas con `..`, absolutas, `__MACOSX` y ocultos, lista blanca de tipos, y conservar las carpetas internas como ruta para clasificar. Se prueba con un ZIP hostil, no solo con uno bueno.
+
+**Al cambiar un requisito, buscar las pruebas que afirman lo contrario.** Una aserción de ausencia (`not.toContain("<w:tblBorders>")`) falla justo cuando el requisito nuevo pide declararlo explícito; actualizarla en la misma tanda, con el motivo en un comentario.
+
+**Parches por script en Windows/Git Bash:** el heredoc se come las barras invertidas y los saltos de línea CRLF cambian las coincidencias. Normalizar `CRLF→LF` al leer, restituirlos al escribir y construir `\` con `String.fromCharCode(92)`; verificar con `tsc` tras cada parche.
+
+**Un estado «activo» también necesita su variante `:hover`.** Si `.item:hover` pone fondo claro y `.item[aria-current]` pone texto claro, al pasar el ratón por el elemento activo queda ilegible: repetir la regla del activo con `:hover` (mismo fondo y texto) y medir el contraste con el ratón encima.
+
+**Leer documentos de cualquier formato: directo primero, IA con visión después.** Lectura determinista cuando el formato se reconoce (exacta y gratis); si no, o si es imagen/escaneo, IA con salida estructurada validada (zod) y un reintento con los errores; lo transcrito por IA avisa que hay que revisarlo y, sin proveedor, queda una alerta (nunca se inventan datos). Se prueba con un cliente simulado que registra qué partes recibió.
+
+**Girar una foto en cualquier ángulo sin esquinas vacías: limitar la ventana de recorte, no rellenar.** Con el marco centrado en `q` (en el sistema sin girar) las esquinas caben si `|qx| ≤ W/2 − (w·|cosθ| + h·|senθ|)/2` y `|qy| ≤ H/2 − (w·|senθ| + h·|cosθ|)/2`; pantalla y servidor comparten la misma función.
+
+**Las pruebas de interfaz con el navegador integrado no sustituyen medir el estado con el ratón encima**; y `react-hooks/refs` exige un `useRef` por campo (no `ref={objeto.campo}`).
+
+**Probar arrastrar y soltar con eventos simulados exige esperar un fotograma entre `dragstart` y `drop`:** el estado de React se actualiza entre ellos y, si se disparan en el mismo instante, el `drop` ve el estado viejo y parece que no funciona.
+
+**Antes de culpar al «formato» por un documento «construido en tablas», mirar qué dibuja el visor:** casi siempre el culpable son los bordes punteados que se pintan en TODA tabla, no la estructura real del Word. Dibujar solo los bordes que el documento declara.
+
+**Aprender de documentos de referencia: un guion reproducible que genera la «semilla».** Un script (`aprender-referencias`) lee los ejemplos del dueño y escribe un JSON versionado (qué descripción corresponde a qué partida, qué se suele agregar por elemento); el sistema suma lo que aprende de cada guardado en una tabla propia. Lo aprendido de terceros solo sugiere; lo aprendido de la actividad del usuario puede agregar. Siempre con un panel para ver y olvidar.
+
+**No remapear códigos ya guardados para parecerse a un ejemplo.** Si los ejemplos del dueño usan otras letras de observación que las del sistema y hay ajustes guardados, cambiar el significado corrompe los datos: se pregunta, o se re-etiqueta solo en la salida.
+
+**Un guardado diferido evita regenerar N veces:** los cambios se guardan con `diferir` y un único botón rehace todo en cascada. Para probar «al salir del campo» con la ventana sin foco, disparar `focusout` a mano: `blur()` no emite el evento.
+
+**Un generador que busca palabras clave en un texto extraído falla en silencio cuando el texto viene cortado.** En un caso real 6 de 8 estancias quedaron sin partidas porque la descripción del daño no nombraba el elemento. Probar con los datos reales de producción (solo lectura), inferir de otra fuente del mismo documento (los hechos) y usar un valor por defecto razonable antes de dejar algo sin resolver.
+
+**Lo que se muestra en varias salidas (lista, Excel, fotos, informe) debe ordenarse con UNA función compartida.** Si cada salida ordena a su manera, al añadir elementos nuevos el orden diverge y el documento se contradice. Definir el orden de referencia una vez (p. ej. la lista que ve el usuario) y que todas las salidas lo usen.
+
+**En HTML, un `<thead>` se dibuja siempre encima de su tabla, esté donde esté escrito.** Para repetir los títulos al imprimir y a la vez poner contenido ANTES de ellos (datos de cabecera), ese contenido va en otra tabla anterior con el mismo `colgroup`; y la hoja contenedora debe medir lo mismo que las tablas, o una captura a imagen sale con franja sobrante.
+
+**Un canvas de vista previa debe tener la proporción del resultado final, no solo su contenedor CSS**: si el canvas es 936×780 y el marco 8,66×6,70, el dibujo sale deformado y lo que se copia también. Y un PNG sacado de un canvas no lleva resolución física: para que al pegarlo en Word mida los centímetros previstos hay que escribir el bloque `pHYs`. Copiar imágenes al portapapeles: pasar la promesa al `ClipboardItem` y, si el navegador lo impide, avisar del motivo en lugar de descargar un archivo no pedido.
+
+**`navigator.clipboard` solo existe en HTTPS o localhost**: una app servida por `http://…sslip.io` falla al copiar imágenes en TODOS los navegadores. Plan: API estándar si `window.isSecureContext`; si no, `execCommand("copy")` con la imagen seleccionada en un `contenteditable`; y, como último recurso, mostrar la imagen para copiarla con clic derecho. `execCommand` exige un clic real: un `.click()` sintético devuelve `false` y despista al probar.
+
+**Sugerencias de partidas o ítems relacionados: etiquetar por acción y objeto, no solo por similitud de texto.** La similitud de palabras trae ruido (papel mural al «reponer» un cielo). Clasificar cada descripción (acción: retirar, reponer, empastar, pintar…; objeto: cielo, muro, cornisa…), definir una tabla de prelaciones por acción, mostrar un solo trabajo por tipo (las variantes no llenan la lista), deduplicar los catálogos que repiten ítems con distinto número, y limitar a 5 con búsqueda manual para el resto. Probar con el ejemplo literal del dueño.
+
+**Nunca deshabilitar una acción por un dato faltante sin ofrecer ahí mismo cómo completarlo.** Una vista previa bloqueada por «falta la UF» sin lugar donde ingresarla deja al usuario atascado. Al pulsar la acción, abrir la ventana para completar el dato (con búsqueda automática si existe una fuente, validación de rango y el mismo rango en servidor y pantalla) y continuar la acción al guardar. La información de apoyo va tras un icono ⓘ, no en banners fijos.
+
+**Contrastar descripciones de terceros con un catálogo exige equivalencias por trabajo y objeto, y medir contra casos reales.** La similitud de palabras no reconoce «raspar, enhuinchar y lijar cielo» como «preparación de superficie cielo»: el modelo solo podía elegir entre candidatos malos y dejaba todo igual. Clasificar acción + objeto, normalizar sinónimos y verificar material y unidad; usar solo equivalencias de confianza alta para modificar valores y dejar tal cual lo que no se reconoce (nunca inventar ni subir). Se mide con los ejemplos que dejó el dueño (aquí, 93 % de acierto en la dirección del precio). Y todo mensaje de resultado va dentro de la tarjeta o el control que lo originó, no al inicio de una lista larga: fuera de pantalla parece que «no hizo nada».
+
+**Leer tablas de un PDF (presupuestos): delimitar la tabla y usar la aritmética como señal.** Empezar tras la cabecera o el primer ítem numerado y cerrar en los totales (portada y firma no son partidas); un ítem `N.M` pertenece al capítulo `N`, nunca es una partida primaria; cantidad × precio = total confirma que una fila es partida; unir títulos y descripciones partidos en dos filas; mapear unidades de compra (galón, caja, uni). Si la suma no coincide con el total declarado, contrastar con IA y quedarse con la lectura directa si la IA falla. Probar con una reconstrucción del documento real.
+
+**Un ajuste a la baja necesita una guarda final que lo garantice, no solo reglas en cada rama.** Al cambiar la unidad o aplicar un mínimo (cantidad 1), el motor tomó el precio del catálogo y la partida SUBIÓ (144.480 → 270.000). Toda decisión de ajuste pasa por una función final que impone: el precio no sube en la misma unidad y el total nunca supera lo reclamado. Se prueba con el catálogo real (el precio más caro).
+
+
+**El `git` de una carpeta puede ser el de un directorio padre.** Una carpeta de proyecto sin `.git` propio usa el repositorio de la carpeta superior (a veces el HOME), y `git remote`, `git config` o `git add` tocan ese repositorio ajeno. Antes de cambiar remotos o configuración: `git rev-parse --show-toplevel` y `git remote -v`. Si el proyecto debe tener el suyo, `git init -b main` dentro de su carpeta. Y la identidad de commit puede depender del remoto: una configuración global con `includeIf hasconfig:remote.*.url` solo aplica si el remoto usa el alias SSH esperado, no con https.
+
+
+**Postgres con RLS: tres trampas.** (1) `SELECT … FOR UPDATE` exige política `UPDATE`: un tenant sin ella ve la fila como inexistente; serializar con `pg_advisory_xact_lock(hashtextextended(id, 0))`. (2) Un `UPDATE`/`DELETE` sin política aplicable afecta a 0 filas y **no** lanza error: las pruebas afirman `rowCount 0` y el dato intacto. (3) Un superusuario salta RLS siempre (también con `FORCE`): las pruebas usan un rol normal dueño de su schema, como el rol de cliente de producción, o dan falsos aprobados.
+
+**Paginación por cursor: guardar el instante como texto de la base** (`created_at::text`, microsegundos), nunca como ISO con milisegundos (se saltan filas creadas en el mismo milisegundo). Y la prueba de paginación crea sus propios datos con un prefijo y filtra por él: Vitest reordena los archivos y una prueba que depende de cuántas filas dejaron otros falla de forma intermitente.
+
+**Playwright con Next.js:** tras enviar el formulario de login hay que esperar la URL de destino antes de navegar (si no, la siguiente petición llega sin cookie y parece un 200 de la página de login); `getByRole('alert')` choca con `__next-route-announcer__`, usar `locator('p[role="alert"]')`; si falla `browserType.launch`, `npx playwright install chromium`. Medir el contraste en el navegador (texto y placeholders, con los menús abiertos, recargando en cada tema) cazó un 4,49:1 que las pruebas de tokens no veían: el color primario usado como texto de enlace también necesita ≥ 4,5 sobre fondo y superficie.
+
+**Una acción de servidor sensible no se protege solo en el layout.** El layout de `/admin` exigía TOTP, pero las acciones (POST directos con el identificador de la acción, visible en el JS público) solo exigían sesión. Cada acción de administración llama a `requireAdminSession()`, y una prueba de arquitectura lee el código y falla si alguna usa solo `requireSession()`.
+
+**Las pruebas de navegador que recrean la base borran lo que el dueño creó a mano.** Si el servidor de vista previa y Playwright comparten base, el global-setup se lleva la cuenta del dueño. Dar siempre al dueño una base de desarrollo aparte (`<proyecto>_dev`) y avisarle de cómo reentrar.
+
+**Una aparición al desplazarse no debe ocultar el HTML del servidor:** el contenido es visible por defecto y solo el script añade el atributo que lo oculta (buscadores, lectores y sin JavaScript lo ven); respetar `prefers-reduced-motion` y dar un interruptor global.
+
+**Un tope global compartido necesita candado; el tope por usuario no.** `insert … on conflict do update … where count < limite` es atómico para el contador de UNA fila, pero un tope sobre la suma de todos (pool diario) lee el total y escribe después: con N peticiones simultáneas se supera en N-1. Serializar con `pg_advisory_xact_lock(hashtextextended('pool:'||dia, 0))` y probarlo con peticiones concurrentes de usuarios distintos.
+
+**Un tope de intentos apunta el intento ANTES de verificar la contraseña.** Argon2 tarda: comprobar, verificar y apuntar después deja pasar ráfagas de cientos de intentos que ven el contador a cero. Apuntar el fallo, comprobar el tope y verificar; si acierta, apuntar el éxito.
+
+**Una regla de seguridad que protege datos de otros va también en la base de datos** (`check`, disparador), no solo en el servicio: un servicio nuevo o una inyección se la saltan. Un disparador `BEFORE` salta antes que el `WITH CHECK` de RLS, así que el mensaje de error cambia: las pruebas aceptan ambos.
+
+**Una clave de IA «donada» a toda la plataforma solo puede ir a proveedores de dirección fija.** Con dirección propia, su dueño recibe los mensajes de todos los usuarios. Aun con dirección fija, el proveedor del donante puede registrarlos: avisarlo y dejarlo como decisión del dueño.
+
+**Las pruebas que comparten una tabla global (claves públicas, cuotas) limpian en `beforeEach` lo que dejan otros archivos**, o el orden de ejecución cambia el resultado sin que el código falle.
+
+**Lanzar herramientas de análisis (`npx`, `npm`) con `cwd` en el proyecto objetivo es ejecutar código del objetivo.** `npx` usa el `node_modules/.bin` y el `.npmrc` locales: un repositorio malicioso consigue RCE con solo pedir «leer». Se lanzan desde una carpeta neutra, con `--ignore-scripts`, registro fijo, `.npmrc` vacío y un entorno mínimo (sin tokens). `npm test/build` sí ejecutan scripts del proyecto: el permiso que los autoriza se rotula como «ejecutar código», no como «lista cerrada».
+
+**Un cortafuegos de rutas en Windows no basta con comprobar el nombre que llega.** Rechazar `:` (flujos NTFS `.env::$DATA`) y `~` (nombres cortos `ENV~1`), comparar sin distinguir mayúsculas (`.GIT\hooks`) y aplicar los filtros de secretos y de escritura sobre la ruta REAL tras `realpath` (un enlace `LEEME -> .env` esquiva el filtro por nombre).
+
+**En Node, `process.exit()` con conexiones a medio cerrar tumba el proceso en Windows (código 0xC0000409).** Usar `process.exitCode = 1` y dejar que el bucle termine.
+
+**La IP de una petición tras un proxy es el ÚLTIMO salto de `x-forwarded-for` (o `x-real-ip`), no el primero:** el primero lo escribe el cliente y falsea topes de intentos y avisos de «esta IP es la tuya».
+
+**Un servidor que reenvía trabajo a un equipo del usuario no conserva lo que viaja:** poner a cero argumentos y resultado en cuanto se entrega, borrar los trabajos viejos y cifrar y caducar cualquier estado de conversación. Y quien aprueba un código de emparejamiento puede no ser el dueño del equipo: el equipo debe mostrar con qué cuenta quedó emparejado y pedir confirmación antes de guardar el token.
+
+**Un tope («N por minuto») se cuenta y se inserta en la MISMA transacción, con `pg_advisory_xact_lock` por persona:** contar en una transacción e insertar en otra deja pasar los envíos simultáneos. Y la hora del tope sale de la base (`now()`), no de la aplicación.
+
+**Una política RLS de borrado que no incluye al rol que hace la limpieza periódica (`system`) borra 0 filas sin error:** la prueba de retención comprueba que la fila desaparece, también la de las tablas que dependen de ella (cascada).
+
+**Todo lo que una persona puede hacer llegar a una cola humana (p. ej. «Útil» → base de conocimiento) es una vía de envenenamiento:** tachar datos personales y secretos con una lista amplia de formatos (JWT, PEM, `nvapi-`, `sb_secret_`, `AKIA…` y cadenas largas con letras y cifras), guardar la cuenta de origen y la pregunta, topar por cuenta y día, avisar al revisor (enlaces, correos, órdenes al asistente) y pasar lo recuperado al modelo entre marcas de datos.
+
+**Un proceso largo que el usuario puede pausar y reanudar necesita un «lease» por ejecución.** Si el bucle viejo sigue esperando a un modelo o a un equipo cuando el usuario reanuda, dos bucles compiten por la misma fila. Cada bucle toma un uuid al reclamarla y todo `update` de estado lo exige en el `where`; el viejo lo ve cambiado y se retira. Y «Terminar» no es «Cancelar»: pide al proceso que entregue ya lo que lleva en vez de tirarlo.
+
+**Una prueba de conexión que pasa no prueba que el recurso sea utilizable.** Si cae a un camino más débil cuando falta algo (p. ej. `GET /models` sin modelo publicado), el mensaje debe decir qué falta y dónde ponerlo; si no, el usuario ve «Funciona» arriba y «no hay modelo» abajo.
+
+**Un control que citas al dueño debe existir en pantalla en el estado en que está.** Los botones de una acción (iniciar, pausar, reanudar, terminar, parar) viven SIEMPRE en la interfaz y salen desactivados con un `title` que explica por qué; mandar a «pulsar Reanudar» cuando solo aparece con una ejecución en pausa deja al dueño buscando un botón que no hay. Antes de nombrar un botón en un informe, comprobar que existe en el estado actual.
+
+**Un cambio de un clic (icono que alterna un valor) manda solo su campo, y la acción del servidor trata «campo ausente» como «no tocar»**, no como «vaciar»: si no, pulsar un icono borra el tope o la etiqueta que el formulario no traía.
+
+**Un `UPDATE` armado campo a campo (`sets.push(...)`) repite columna si dos ramas añaden la misma** y Postgres responde «multiple assignments to same column». Usar una bandera y añadir la asignación una sola vez; y probar el formulario con TODOS sus campos rellenos, no uno a uno: este fallo dejó a un cliente sin poder guardar el modelo y solo apareció en los logs de producción.
+
+**Los logs de ejecución de producción se leen ANTES de teorizar** cuando el dueño dice «sigue sin funcionar»: un error de SQL en una acción de servidor explicaba lo que tres rondas de pantallas no veían.
+
+**Un campo de texto seguido de uno `password` lo toma el navegador por un login y lo autorrellena** (correo y contraseña guardados en «Etiqueta» y «Clave de API»). En formularios que no son de acceso: `autocomplete="new-password"` en la clave, `off` en el formulario y `data-lpignore`/`data-1p-ignore`; la prueba comprueba que los valores iniciales están vacíos.
+
+**Al elegir entre varias credenciales o proveedores, preferir los que pasaron la prueba y rotar ante «sin respuesta».** Si la elección ignora el último estado conocido, una entrada caída gana por azar y el proceso espera su tiempo máximo sin probar la buena.
+
+**Coolify por API, lo que no dice la documentación.** La API solo admite llamadas desde `127.0.0.1` (IPv4) o redes internas: con `localhost` entra por IPv6 y responde «You are not allowed to access the API». Crear una app con varios destinos exige `destination_uuid`; `/deploy` es POST. Repositorio privado: generar una clave ed25519, añadir la pública como deploy key de solo lectura en GitHub (`gh api repos/O/R/keys`), subir la privada a `/security/keys` y crear la app en `/applications/private-deploy-key` con URL SSH; variables en `/applications/{uuid}/envs` y volumen en `/storages`. El token viaja por stdin hacia el servidor, nunca como argumento.
+
+**Un nombre de host no admite guion bajo (RFC 1035).** Subdominios por cliente con guion (`cl-nombre.dominio`); el guion bajo se reserva para identificadores de base de datos (`db_nombre`). Los dos salen de UNA función para que nunca discrepen.
+
+**Un filtro `sed 's/=.*/=oculto/'` no oculta secretos en líneas sin `=`** (tokens pegados bajo un comentario): se imprimieron enteros. Para mostrar el contenido de un archivo de secretos, un script que liste solo nombres de variable y descarte cualquier otra línea; mejor aún, no listarlo.
+
+**Código compartido entre Next y un script de Node 24:** `node script.ts` ejecuta TypeScript directo si las importaciones llevan extensión `.ts` (`allowImportingTsExtensions` en el tsconfig) y NO resuelve el alias `@/`: lo que importe el script va con rutas relativas. En Turbopack, una lectura de archivo con ruta que sale de una variable de entorno provoca «traces the whole project»: `/*turbopackIgnore: true*/` en la llamada.
+
+**Antes de subir a un repositorio compartido, `git fetch` y comparar.** Una rama local 0 por delante y 2 por detrás obliga a rebasar: guardar con `git stash` solo lo ajeno, `git pull --rebase`, recuperar y resolver (la bitácora local es lo único que no debe perderse) y comprobar que las pruebas siguen en verde antes del `push`. Si ese `push` despliega producción, verificar el sitio después.
+
+**Acceso único entre dos sitios propios (SSO sencillo): pase firmado, no contraseña compartida.** El sitio donde ya hay sesión emite un pase HMAC-SHA256 con secreto compartido, de ≤ 60 s y con `jti`; el receptor lo verifica en tiempo constante, rechaza vidas excesivas y lo acepta UNA vez (el pase viaja en una URL y queda en historiales). El emisor redirige a una URL FIJA (nunca a un destino de la petición) y solo a quien tiene el rol. Las contraseñas de los dos sitios siguen siendo independientes y se le dice así al dueño; el login directo queda como acceso de emergencia.
+
+**Tras un proxy, `new URL("/ruta", req.url)` da el host interno (`http://0.0.0.0:3000/...`).** Redirigir con una cabecera `Location` relativa (`new NextResponse(null, { status: 303, headers: { location: "/x/" } })`), o construir el origen con `x-forwarded-host` y `x-forwarded-proto`.
+
+**Una clave de terceros que el dueño pega en una pantalla se prueba con una llamada real ANTES de guardarla** (una clave mal copiada no debe quedar como «configurada»), se cifra en reposo y nunca se devuelve a la pantalla (solo los últimos 4). Si el secreto que deriva la clave de cifrado se rota, el dato queda ilegible: la pantalla lo avisa en vez de romperse.
+
+**Un clasificador de texto por palabras clave debe exigir el contexto, y lo derivado se recalcula al mostrar.** «comunica» casaba «comunicación» en reseñas de 5 estrellas y una opinión elogiosa salió como «evidencia de queja». Una queja solo cuenta en reseñas negativas, las expresiones llevan límites de palabra, y el diagnóstico se calcula al mostrar a partir de los datos crudos (así una mejora de reglas llega a lo ya guardado). Solo los datos REALES de la API lo destapan: probar con una búsqueda de verdad.
+
+**Git Bash: `ln -s` sobre un directorio lo COPIA; y una orden lanzada con `&` puede seguir viva cuando la herramienta la da por terminada.** Una copia de `node_modules` más un `npm ci` colgado chocaron al borrar. Instalar con `npm ci` real y esperar al proceso (`Wait-Process`) antes de tocar la carpeta; comprobar con `Get-Process`.
+
+**La identidad de commit sale del alias SSH del remoto, no de `-c user.email`.** Con el remoto `git@github.com-<cuenta>:…` el `includeIf` aplica la identidad sola: no pasar el correo por la línea de órdenes (un plugin de privacidad lo bloquea) ni escribirlo en URLs; tampoco en el contenido de un pase firmado que se navega: usar un identificador genérico.
+
+**Probar un alta/aprovisionamiento automatizado EJECUTÁNDOLO contra los servicios reales con un recurso desechable**, y limpiar después: base, aplicación y dominio se borran por su CLI; un repositorio de GitHub solo se borra con el permiso `delete_repo` (`gh auth refresh -s delete_repo`), si no, se archiva y se avisa. La API de un servidor que solo acepta IP internas se usa con un túnel SSH (`-L puerto:127.0.0.1:puerto`).
+
+**Una nota compuesta de criterios excluye lo que no se pudo medir y dice cuántos se midieron.** Un área con 1 criterio de 4 medidos daba 100/100 y la nota global parecía sólida. Cada área muestra «N de M criterios medidos (nota provisional)» y el documento lista qué análisis faltan; los datos ausentes nunca suman ni restan.
+
+**Un documento HTML generado con datos de terceros y servido desde el origen de la app se escapa entero y lleva su propia CSP.** `default-src 'none'`, imágenes https y, si necesita un script (p. ej. «Copiar»), solo ese por su huella `sha256`; los `href` solo http(s); además `nosniff` y la misma exigencia de sesión que el resto. Se prueba con un nombre y una reseña hostiles (`<script>`, `javascript:`).
+
+**Un mapa en el navegador no necesita la clave de servidor del proveedor de datos.** Leaflet + OpenStreetMap con `circleMarker` (sin imágenes de pin que se rompan al empaquetar) y popups armados con nodos de texto. Dentro de un `<details>` cerrado nace con tamaño 0: un `ResizeObserver` llama a `invalidateSize()` y reencuadra al abrirse.
+
+**Un parche por script sobre archivos CRLF puede no aplicarse y no avisar** (el `replace` no encuentra el texto con `\n`). Tras cada parche se comprueba con `grep` que el cambio está; para insertar en un archivo con CRLF se usa la herramienta de edición, no una expresión regular.
+
+**Elegir entre varios proveedores de IA: una lista con direcciones conocidas, pero la prueba real manda.** Selector que rellena dirección y modelo (editables), notas honestas donde la dirección no está confirmada o solo vale en servidor, y un campo de clave con «Ver/Ocultar», recuento de caracteres y avisos de clave mal copiada (espacios, comillas tipográficas, «Bearer»): muchas «claves que fallan» son claves mal pegadas.
+
+**Contraste en un sitio generado con color de marca elegido por una persona: el texto se calcula, no se asume.** Blanco u oscuro según el contraste con el fondo y, para el color como texto sobre blanco, oscurecerlo hasta 4,5:1. Una regla `.seccion a{color:…}` pisa a `.btn{color:…}` por especificidad: la medición cazó un botón blanco sobre blanco.
+
+**Los radios o casillas ocultos con `sr-only` pueden desplazar un contenedor `fixed … overflow-hidden`.** Son `position:absolute`: sin un ancestro `relative` cercano se posicionan contra la raíz fija y, al enfocarlos, el navegador desplaza esa raíz aunque no tenga barra (media pantalla en negro). Cada `<label>` que los envuelve es `relative` y la raíz lleva `overflow-clip`, que no se puede desplazar. Se comprueba con `scrollTop` de la raíz tras enfocar el último control.
+
+**Un iframe puede terminar de cargar antes de que React enganche `onLoad`.** Revisar también `contentDocument.readyState === "complete"` al montar (y que preparar sea idempotente); si no, el editor sale sin `designMode` solo a veces.
+
+**Compartir un documento con un cliente: enlace público con token largo, no la sesión.** Token de 192 bits, formato validado, 404 sin detalles, retirable al instante, `noindex` y CSP propia; el contenido que edita una persona pasa por un saneador de lista blanca en el servidor (nunca confiar en lo que envía el navegador) y se vuelve a envolver en el marco fijo. Contar visitas solo de terceros y avisar de que son aproximadas.
+
+**Una subida de imagen se valida por su firma (bytes), con tope de tamaño y sin SVG activo; el vídeo no se sube a la base, se enlaza.** Subir el límite del cuerpo de las acciones de servidor (`serverActions.bodySizeLimit`) o la subida falla en silencio con 413.
+
+**Una cabecera fija con fondo semitransparente se mide sobre lo que HAY detrás.** En flujo normal detrás está el fondo claro de la página, no la portada oscura: 55 % de opacidad daba 3,4:1.
+
+**Una lista de credenciales (varias claves del mismo tipo) nace de migrar la única que había, con id fijo.** El formato antiguo (un solo campo) se convierte al leer a un elemento con id estable (p. ej. `legado`); si se generara un id al azar en cada lectura, «probar» y «quitar» no encontrarían nunca el elemento. La pantalla recibe una vista sin la clave ni su cifrado, y una prueba comprueba que el JSON que llega a la interfaz no la contiene.
+
+**Editar con borrador: previsualizar sin guardar, aplicar o descartar.** El servidor devuelve el resultado del borrador sin tocar la base; «Aplicar» lo guarda y «Descartar» vuelve a montar el formulario (clave de versión) con lo último guardado. El borrador se muestra en un iframe `sandbox="allow-scripts"` sin `allow-same-origin`.
+
+**Corregir una imagen subida (girar, voltear, eliminar) se hace en el navegador y sustituye al `File` del campo con `DataTransfer`**, de modo que el servidor sigue recibiendo y validando un archivo por su firma. Un cambio hecho por código no emite `input`: hay que dispararlo a mano (`new Event("input", { bubbles: true })`) para que el formulario sepa que está «sucio». Una imagen de otro origen (https) mancha el lienzo por CORS y no se puede transformar. Eliminar debe vaciar también el campo, o la imagen sigue en la base.
+
+**Un tamaño máximo se muestra con la misma unidad con que se comprueba.** 600 000 bytes enseñados como «586 KB» desconciertan: dividir siempre por 1000 en el aviso y en la comprobación.
+
+**Una demostración visual de un servicio (chat, agenda) se rotula «ejemplo ilustrativo» y no afirma integraciones que no existen.** Lo que se promete (Google Calendar, CRM) se redacta como capacidad del servicio contratado, no como algo que la maqueta ya hace.
+
+**Dos apps de Coolify para un mismo repositorio: unificar en la que creó el dueño, copiando las variables dentro del servidor y comprobándolas por huella.** Leer las variables de la vieja por API y crearlas en la nueva sin imprimir valores; comprobar en ambos contenedores `printf %s "$VAR" | sha256sum` (un `SESSION_SECRET` distinto deja ilegibles las claves cifradas guardadas). Probar que la red de la app nueva alcanza la base (`net.connect`) antes de borrar nada. Orden: nueva con dominio provisional → verificar → borrar la vieja (con su clave en Coolify y su deploy key en GitHub) → mover el dominio definitivo → comprobar certificado y contenedores. Un formulario que dice «contraseña incorrecta» en una app recién creada suele ser variable ausente, no contraseña mal escrita.
+
+**Coolify genera `<uuid>.<ip>.sslip.io` si no se le dice otra cosa: para un nombre legible pasar `domains` al crear la app** (nombre saneado a RFC 1035) y, si responde 409 por colisión, reintentar con un sufijo corto en lugar de fallar.
+
+**Un acceso por túnel SSH a la base de datos de otra plataforma puede ser denegado por el entorno: no se rodea.** Se dice qué fila habría que cambiar y se deja al dueño decidir.
+
+**Si el dueño dice «no veo lo que pedí», comparar con SUS imágenes de referencia, no con mi memoria de lo que construí.** Estaba desplegado lo que yo recordaba, pero faltaba el bloque «pegar el código del proveedor» que enseñaban sus capturas: una lista de comprobación punto por punto contra la imagen habría evitado dos vueltas. Y antes de decir «hecho», comprobar el objetivo completo (que lo pedido existe y se ve donde él mira), no solo que el código compila.
+
+**Un webhook de GitHub que «no llega» se diagnostica con `gh api repos/O/R/hooks` (existe, `last_response`), no con `curl` desde el equipo.** La red de casa puede no alcanzar un puerto que GitHub sí alcanza. Un interruptor de «despliegue automático» en un panel no crea el webhook en GitHub: son dos cosas. Crearlo con la API pasando el secreto por stdin (`gh api --input -`) y comprobar el ping.
+
+**Un dato derivado que se guarda al crear (dirección, estado) se reconcilia con la fuente al listar.** Si el recurso cambia fuera (otro dominio en Coolify), el panel enseña una dirección que da 404. Leer el valor real en cada listado y corregir la fila cuando difiera.
+
+**Al interpretar código pegado por el usuario (Python, Node, curl), una variable o un marcador no es una clave:** `$NVIDIA_API_KEY`, `YOUR_API_KEY`, `<tu-clave>`, `sk-...`. Se avisa de que falta, se interpreta solo en el navegador y se vacía la caja al rellenar.
+
+**En una prueba por script en el navegador, seleccionar el botón dentro de SU formulario, no el primero con ese texto:** `Probar y guardar` existe en dos formularios y se envió el equivocado sin error visible.
+
+**Lo que el dueño pidió va en la primera pantalla de la página, no donde encaja «por orden».** Si queda bajo el pliegue y arriba hay una sección conocida, abre la página, ve lo de siempre y concluye que no se desplegó (pasó tres veces). Poner lo nuevo arriba, abierto, con un resumen que lo enlace; y verificar con una captura a la altura de SU ventana, no solo con el DOM.
+
+**Un panel de administración de un solo usuario no se limita a un ancho central: contenido a todo el ancho con el margen que pida el dueño (20 px) y las secciones repartidas en columnas** (formulario a un lado, lista o vista previa al otro). Un `max-w-3xl` heredado deja la pantalla apiñada en el centro.
+
+**Una lista de «lo registrado» incluye TODO lo registrado, también lo que se configura en otra sección** (la clave de Google no estaba en la lista de APIs). Y si el dueño pide ver y copiar una clave, se entrega bajo petición con sesión, una a una, sin incrustarla en la página ni registrarla.
+
+**Una fecha mostrada en un componente de cliente de Next lleva zona horaria explícita** (`timeZone: "Europe/Madrid"`): el servidor la renderiza en su zona y el navegador en la suya, no coinciden y aparece «Minified React error #418». Mirar la consola del navegador de producción tras desplegar, no solo la pantalla.
 
 ---
 

@@ -1,0 +1,3 @@
+@echo off
+echo Iniciando demo local offline...
+start "" index.html
