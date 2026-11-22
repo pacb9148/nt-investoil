@@ -894,3 +894,7 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 - **Fuel Oil 380 y MGO no tienen cotización gratuita**: siguen como valor manual editable (marcado «manual» en el panel y colocados justo tras los precios de mercado). Para tenerlos en vivo haría falta un proveedor de pago (Platts/Argus u otro).
 - **Riesgo a conocer**: el endpoint de Yahoo no es una API oficial con contrato; puede cambiar o bloquear IPs de servidor. Por eso hay respaldo EIA, se conserva el último dato bueno si todo falla y se recuerda el fallo 2 min para no frenar la landing. Si el dueño quiere una fuente con contrato, habría que contratar una API de pago.
 - Panel `/admin/content/marquee`: ahora lista las 7 series (en vivo / cierre EIA) con interruptor de visibilidad.
+
+### Fase 46: los «referentes de mercado» del Hero no coincidían con la marquesina
+- **Causa**: el texto bajo los botones del Hero («BRENT: $82.40/bbl (+1.2%) | WTI: …») era una cadena fija (`market_ticker` / `translations.hero.marketTicker`), no un dato; la marquesina lee `/api/market-prices`. Dos fuentes, números distintos.
+- **Arreglo**: `HeroSection` arma ese texto con Brent y WTI de la misma API y el mismo refresco de 60 s (precios iniciales desde el servidor); el texto fijo solo queda como respaldo si no hay precios. Verificado en el navegador: Hero 89.95 / 83.41 = marquesina 89.95 / 83.41.

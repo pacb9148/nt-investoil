@@ -58,7 +58,7 @@ export default async function HomePage() {
     <>
       {/* 1. Hero Principal */}
       {isVisible('hero') && (
-        <HeroSection config={heroConfig} customBg={secBg.hero} />
+        <HeroSection config={heroConfig} customBg={secBg.hero} initialPrices={marketPrices} />
       )}
 
       {/* 2. Marquee de Commodities & Precios en Vivo (Dual Bidireccional) */}

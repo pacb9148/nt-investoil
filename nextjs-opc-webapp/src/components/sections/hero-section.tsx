@@ -7,11 +7,13 @@ import { ArrowRight, ChevronRight, ShieldCheck, Globe2, BarChart3, TrendingUp, S
 import { Button, buttonVariants } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n/language-context';
 import type { LandingHeroConfig } from '@/types/content';
+import type { CommodityPrice } from '@/lib/market/prices-types';
 import { cn } from '@/lib/utils';
 
 interface HeroSectionProps {
   config?: LandingHeroConfig;
   customBg?: string;
+  initialPrices?: CommodityPrice[];
 }
 
 function hexOrRgbToRgba(color: string, opacityPercent: number): string {
@@ -37,9 +39,24 @@ function hexOrRgbToRgba(color: string, opacityPercent: number): string {
   return color;
 }
 
-export function HeroSection({ config: initialConfig, customBg }: HeroSectionProps) {
+export function HeroSection({ config: initialConfig, customBg, initialPrices = [] }: HeroSectionProps) {
   const { t, language } = useLanguage();
   const [activeConfig, setActiveConfig] = useState<LandingHeroConfig | undefined>(initialConfig);
+  const [prices, setPrices] = useState<CommodityPrice[]>(initialPrices);
+
+  // Mismos precios que la marquesina: misma API y mismo refresco de 60 s.
+  useEffect(() => {
+    const load = () =>
+      fetch('/api/market-prices')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((json) => {
+          if (json?.commodities?.length) setPrices(json.commodities);
+        })
+        .catch(() => {});
+    load();
+    const id = setInterval(load, 60000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     // Sincronizar desde la API para asegurar persistencia y lectura directa de base de datos
@@ -100,7 +117,12 @@ export function HeroSection({ config: initialConfig, customBg }: HeroSectionProp
 
   const ctaSecondaryUrl = config?.cta_secondary_url || '#products';
 
-  const marketTicker = config?.market_ticker || t.hero.marketTicker;
+  const fmt = (p?: CommodityPrice) =>
+    p ? `${p.symbol}: $${p.price.toFixed(2)}${p.unit} (${p.changePercent >= 0 ? '+' : ''}${p.changePercent.toFixed(1)}%)` : null;
+  const liveTicker = [fmt(prices.find((p) => p.symbol === 'BRENT')), fmt(prices.find((p) => p.symbol === 'WTI'))]
+    .filter(Boolean)
+    .join(' | ');
+  const marketTicker = liveTicker || config?.market_ticker || t.hero.marketTicker;
 
   const stats = config?.hero_stats;
   const statItems = [

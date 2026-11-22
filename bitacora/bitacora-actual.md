@@ -337,3 +337,7 @@ Todos está bien pero,
 ## 2026-10-02 17:49:03
 
 Faltan los precios del brend, wti, fueloil, etc que son importantes, y asegurate que la información se actualice constantemente
+
+## 2026-11-22 11:23:20
+
+Arregla esta disparidad, los valores mostrados fuera de la marquesina no se corresponden con los mostrados, los valores que el cliente tiene como referentes Brent y WTI deben coincidir y vienen de la misma fuente, revisa la cauda de esta falla y arréglalo, el valor que se lee en la marquesina debe ser el mismo que se muestra en los referentes de mercado, no toques nada más, revisa y arregla únicamente lo que te estoy pidiendo, directo y al grano, tampoco necesito una explicación extensa, la solución un un parrafo corto y simple, directo al grano y sin rodeos ni palabrería innecesaria. Al finalizar +damp
