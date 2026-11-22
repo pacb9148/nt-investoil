@@ -20,6 +20,37 @@ import { type Post, type ContactLead } from '@/types';
 
 export const revalidate = 0; // Dynamic data for dashboard
 
+/** Tarjeta KPI que es un enlace completo: todo el recuadro es el botón. */
+function KpiCard({
+  href,
+  label,
+  className,
+  children,
+}: {
+  href: string;
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-label={label}
+      className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    >
+      <Card
+        className={`relative p-5 space-y-3 bg-card cursor-pointer group-hover:-translate-y-0.5 ${className ?? ''}`}
+      >
+        <ArrowUpRight
+          aria-hidden="true"
+          className="absolute bottom-3 right-3 w-3.5 h-3.5 text-text-muted opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
+        />
+        {children}
+      </Card>
+    </Link>
+  );
+}
+
 export default async function AdminDashboardPage() {
   const { getDashboardStats, getPosts, getLeads } = await import('@/lib/db/db-service');
   const [stats, allPosts, leads] = await Promise.all([
@@ -60,7 +91,7 @@ export default async function AdminDashboardPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <Card className="p-5 space-y-3 border-accent/30 bg-card">
+        <KpiCard href="/admin/posts" label="Ir a Gestión de Posts" className="border-accent/30">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               Posts Publicados
@@ -77,9 +108,9 @@ export default async function AdminDashboardPage() {
               {draftCount} en borrador
             </span>
           </div>
-        </Card>
+        </KpiCard>
 
-        <Card className="p-5 space-y-3 border-warm/30 bg-card">
+        <KpiCard href="/admin/posts" label="Ir a Gestión de Posts" className="border-warm/30">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               Vistas Acumuladas
@@ -97,9 +128,9 @@ export default async function AdminDashboardPage() {
               <span>+18% este mes</span>
             </span>
           </div>
-        </Card>
+        </KpiCard>
 
-        <Card className="p-5 space-y-3 border-neon/30 bg-card">
+        <KpiCard href="/admin/leads" label="Ir a Mensajes de Contacto" className="border-neon/30">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               Leads / Contactos
@@ -116,9 +147,9 @@ export default async function AdminDashboardPage() {
               Nuevas solicitudes
             </span>
           </div>
-        </Card>
+        </KpiCard>
 
-        <Card className="p-5 space-y-3 border-border bg-card">
+        <KpiCard href="/admin/media" label="Ir a la Biblioteca de Medios" className="border-border">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               Archivos en Media
@@ -135,7 +166,7 @@ export default async function AdminDashboardPage() {
               Almacenamiento OK
             </span>
           </div>
-        </Card>
+        </KpiCard>
       </div>
 
       {/* Tables section: Recent Posts & Recent Leads */}
