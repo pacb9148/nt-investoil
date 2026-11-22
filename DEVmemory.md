@@ -905,3 +905,9 @@ Desarrollo de la aplicación web completa para **Invest Oil LLC**, replicando la
 - **Radar — causa**: «Todas las categorías» juntaba 22 términos en una sola consulta y Google News **ignoraba `after:`/`before:`** (el 22/11 y el 10/11 daban idénticos resultados, con noticias de 19–22/11). Con 3–5 términos sí respeta la fecha. Ahora una consulta por categoría en paralelo, unión sin duplicados, y filtro final por la fecha real de publicación en `Europe/Madrid` (la fecha pedida manda aunque Google devuelva vecinas). Si no hay noticias ese día, la lista sale vacía en vez de mostrar otras.
 - **Verificación**: `tsc` limpio; función del radar probada contra Google real (22/11, 10/11, 15/01: solo noticias de su día); en local, lecturas 512→513 con carga+recarga y like 0→1 sin salto. **No probado**: el modal del admin en pantalla (la API exige sesión) ni PostgreSQL de producción.
 - **Aprendizaje general**: un filtro de fecha de un buscador externo que «no filtra» suele ser una consulta demasiado larga; y todo resultado con fecha se valida contra la fecha real del dato, no contra lo que el proveedor prometa.
+
+### Fase 48: tarjetas KPI del dashboard admin como enlaces
+- `/admin` (`app/(dashboard)/admin/page.tsx`): las 4 tarjetas pasan a ser enlaces completos mediante un componente local `KpiCard` (`Link` + `Card`, con `aria-label`, anillo de foco y flecha al pasar el ratón). Destinos: Posts y Vistas a `/admin/posts`, Leads a `/admin/leads`, Media a `/admin/media`.
+- Verificación: `tsc` limpio y etiquetas `KpiCard` emparejadas (4/4). **No visto en pantalla** (el panel exige sesión).
+- Pendiente, no pedido: la tarjeta de leads muestra `4` si no hay ninguno (`leads.length > 0 ? leads.length : 4`), cifra inventada.
+- Despliegue: tras lanzarlo el dueño en Coolify, `POST /api/posts/no-existe-xyz/view` pasó de 401 a 404, así que la Fase 47 está en producción.
